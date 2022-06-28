@@ -1,4 +1,4 @@
-"""Main analysis script"""
+"""Core functions"""
 
 
 def main():
