@@ -17,7 +17,7 @@ setuptools.setup(
         "Bug Tracker": "https://github.com/kravitsjacob/water-coordinate/issues",
     },
     install_requires=[
-        'pandas',
+        'sympy',
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
