@@ -14,7 +14,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/kravitsjacob/water-coordinate",
     project_urls={
-        "Bug Tracker": "https://github.com/kravitsjacob/water-coordinate/issues",
+        "Bug Tracker": "https://github.com/kravitsjacob/water-coordinate/issues",  # noqa
     },
     install_requires=[
         'sympy',
