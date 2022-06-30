@@ -18,6 +18,9 @@ setuptools.setup(
     },
     install_requires=[
         'sympy',
+        'pandas',
+        'pytables',
+        'pandapower'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
