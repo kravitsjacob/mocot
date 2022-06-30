@@ -59,7 +59,6 @@ def input_parse():
 
 
 def main():
-
     # Inputs
     paths = input_parse()
 
@@ -68,22 +67,22 @@ def main():
         net = pandapower.converter.from_mpc(paths['matpowercase'])
         df_gen_info = pd.read_csv(paths['geninfo'])
         net = wc.grid_setup(net, df_gen_info)
-        print('Success: grid_setup')
         pandapower.to_pickle(net, paths['case'])
+        print('Success: grid_setup')
 
     # Manual synthetic to real generator matching
     if not os.path.exists(paths['case_match']):
         net = pandapower.from_pickle(paths['case'])
         df_gen_matches = pd.read_csv(paths['gen_matches'])
         net = wc.generator_match(net, df_gen_matches)
-        print('Success: generator_match')
         pandapower.to_pickle(net, paths['case_match'])
+        print('Success: generator_match')
 
     # Importing EIA data
     if not os.path.exists(paths['eia']):
         df_eia = wc.import_eia(paths['eia_raw'])
-        print('Success: import_eia')
         df_eia.to_hdf(paths['eia'], key='df_eia', mode='w')
+        print('Success: import_eia')
 
     # Get regional (processed) EIA data
 
@@ -94,6 +93,7 @@ def main():
         df_gen_info = wc.network_to_gen_info(net)
         df_gen_info_water = wc.get_cooling_system(df_eia, df_gen_info)
         df_gen_info_water.to_csv(paths['gen_info_water'])
+        print('Success: get_cooling_system')
 
 
 if __name__ == '__main__':

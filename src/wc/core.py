@@ -248,7 +248,7 @@ def network_to_gen_info(net):
 
     # Convert generator information dataframe
     for gen_type in gen_types:
-        df_gen_info = df_gen_info.append(getattr(net, gen_type))
+        df_gen_info = pd.concat([df_gen_info, getattr(net, gen_type)])
 
     df_gen_info = df_gen_info.reset_index(drop=True)  # Eliminate duplicated
 
