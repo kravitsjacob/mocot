@@ -253,3 +253,114 @@ def network_to_gen_info(net):
     df_gen_info = df_gen_info.reset_index(drop=True)  # Eliminate duplicated
 
     return df_gen_info
+
+
+def get_regional(df):
+    """Get regional thermoelectric data
+
+    Parameters
+    ----------
+    df : DataFrame
+        DataFrame of EIA data from `import_eia`
+
+    Returns
+    -------
+    DataFrame
+        Filtered DataFrame with only the regional data from the input DataFrame
+    """
+    # Convert units
+    df['Withdrawal Rate (Gallon/kWh)'] = \
+        df['Water Withdrawal Volume (Million Gallons)'].astype('float64') / \
+        df['Gross Generation from Steam Turbines (MWh)'].astype('float64')*1000
+    df['Consumption Rate (Gallon/kWh)'] = \
+        df['Water Consumption Volume (Million Gallons)'].astype('float64') /\
+        df['Gross Generation from Steam Turbines (MWh)'].astype('float64')*1000
+
+    # Substitute simple fuel types
+    df['Fuel Type'] = df['Generator Primary Technology'].replace(
+        {'Nuclear': 'nuclear',
+         'Natural Gas Steam Turbine': 'ng',
+         'Conventional Steam Coal': 'coal',
+         'Natural Gas Fired Combined Cycle': 'ng',
+         'Petroleum Liquids': np.nan})
+    df = df[df['Fuel Type'].notna()]
+
+    # Filter to only Illinois plants
+    df = df[df['State'].isin(['IL'])]
+
+    # Filter to only cooling systems in synthetic region (Hardcoded)
+    df = df[
+        ((df['Fuel Type'] == 'coal') & (df['923 Cooling Type'] == 'RI')) |
+        ((df['Fuel Type'] == 'coal') & (df['923 Cooling Type'] == 'RC')) |
+        ((df['Fuel Type'] == 'coal') & (df['923 Cooling Type'] == 'OC')) |
+        ((df['Fuel Type'] == 'nuclear') & (df['923 Cooling Type'] == 'RC')) |
+        ((df['Fuel Type'] == 'ng') & (df['923 Cooling Type'] == 'RI'))
+    ]
+
+    # Filter based on real values
+    df = df[df['Withdrawal Rate (Gallon/kWh)'].notna()]
+    df = df[np.isfinite(df['Withdrawal Rate (Gallon/kWh)'])]
+    df = df[df['Consumption Rate (Gallon/kWh)'].notna()]
+    df = df[np.isfinite(df['Consumption Rate (Gallon/kWh)'])]
+
+    # Filter based on values that aren't zero
+    df = df[df['Withdrawal Rate (Gallon/kWh)'] != 0.0]
+    df = df[df['Consumption Rate (Gallon/kWh)'] != 0.0]
+
+    # Filter generators that reported less than 50% of the observations
+    df.set_index(
+        ['Plant Name', 'Generator ID', 'Boiler ID', 'Cooling ID'],
+        inplace=True
+    )
+    df['Observations'] = 1
+    df_sum = df.groupby(
+        ['Plant Name', 'Generator ID', 'Boiler ID', 'Cooling ID']
+    ).sum()
+    df = df.loc[df_sum[df_sum['Observations'] > 36].index]
+    df = df.reset_index()
+
+    # Iglewicz B and Hoaglin D (1993) Page 11 Modified Z-Score Filtering
+    df_median = df.groupby(
+        ['Plant Name', 'Generator ID', 'Boiler ID', 'Cooling ID']
+    ).median()
+    df = df.reset_index()
+    df[
+        [
+            'Withdrawal Rate (Gallon/kWh) Median',
+            'Consumption Rate (Gallon/kWh) Median'
+        ]
+    ] = df.join(
+        df_median,
+        on=['Plant Name', 'Generator ID', 'Boiler ID', 'Cooling ID'],
+        rsuffix=' Median'
+    )[
+        [
+            'Withdrawal Rate (Gallon/kWh) Median',
+            'Consumption Rate (Gallon/kWh) Median'
+        ]
+    ]
+    df['Withdrawal Rate (Gallon/kWh) Absolute Difference'] = (df['Withdrawal Rate (Gallon/kWh)'] - df['Withdrawal Rate (Gallon/kWh) Median']).abs()  # noqa More readable on one line
+    df['Consumption Rate (Gallon/kWh) Absolute Difference'] = (df['Consumption Rate (Gallon/kWh)'] - df['Consumption Rate (Gallon/kWh) Median']).abs()  # noqa More readable on one line
+    df_mad = df.groupby(
+        ['Plant Name', 'Generator ID', 'Boiler ID', 'Cooling ID']
+    ).median()
+    df = df.reset_index()
+    df[[
+        'Withdrawal Rate (Gallon/kWh) MAD',
+        'Consumption Rate (Gallon/kWh) MAD'
+    ]] = df.join(
+        df_mad,
+        on=['Plant Name', 'Generator ID', 'Boiler ID', 'Cooling ID'],
+        rsuffix=' MAD'
+    )[[
+        'Withdrawal Rate (Gallon/kWh) Absolute Difference MAD',
+        'Consumption Rate (Gallon/kWh) Absolute Difference MAD'
+    ]]
+    df['Withdrawal Rate (Gallon/kWh) Modified Z Score'] = (0.6745 * (df['Withdrawal Rate (Gallon/kWh)'] - df['Withdrawal Rate (Gallon/kWh) Median'])/df['Withdrawal Rate (Gallon/kWh) MAD']).abs()  # noqa More readable on one line
+    df['Consumption Rate (Gallon/kWh) Modified Z Score'] = (0.6745 * (df['Consumption Rate (Gallon/kWh)'] - df['Consumption Rate (Gallon/kWh) Median'])/df['Consumption Rate (Gallon/kWh) MAD']).abs()  # noqa More readable on one line
+    df = df[
+        (df['Consumption Rate (Gallon/kWh) Modified Z Score'] < 3.5) &
+        (df['Withdrawal Rate (Gallon/kWh) Modified Z Score'] < 3.5)
+    ]
+
+    return df

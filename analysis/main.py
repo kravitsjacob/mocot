@@ -39,6 +39,9 @@ def input_parse():
     eia = os.path.join(
         path_to_io, config_inputs['outputs']['eia']
     )
+    eia_region = os.path.join(
+        path_to_io, config_inputs['outputs']['eia_region']
+    )
     gen_info_water = os.path.join(
         path_to_io, config_inputs['outputs']['gen_info_water']
     )
@@ -52,6 +55,7 @@ def input_parse():
         'case_match': case_match,
         'eia_raw': eia_raw,
         'eia': eia,
+        'eia_region': eia_region,
         'gen_info_water': gen_info_water
     }
 
@@ -84,8 +88,6 @@ def main():
         df_eia.to_hdf(paths['eia'], key='df_eia', mode='w')
         print('Success: import_eia')
 
-    # Get regional (processed) EIA data
-
     # Synthetic grid cooling system information
     if not os.path.exists(paths['gen_info_water']):
         df_eia = pd.read_hdf(paths['eia'], 'df_eia')
@@ -94,6 +96,13 @@ def main():
         df_gen_info_water = wc.get_cooling_system(df_eia, df_gen_info)
         df_gen_info_water.to_csv(paths['gen_info_water'])
         print('Success: get_cooling_system')
+
+    # Get regional (processed) EIA data
+    if not os.path.exists(paths['eia_region']):
+        df_eia = pd.read_hdf(paths['eia'], 'df_eia')
+        df_eia_regional = wc.get_regional(df_eia)
+        df_eia_regional.to_csv(paths['eia_region'])
+        print('Success: get_regional')
 
 
 if __name__ == '__main__':
