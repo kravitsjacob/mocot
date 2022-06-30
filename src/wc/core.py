@@ -2,6 +2,9 @@
 
 
 import sympy.physics.units as u
+import os
+import pandas as pd
+import numpy as np
 
 
 def once_through_withdrawal(
@@ -134,3 +137,37 @@ def generator_match(net, df_gen_matches):
     net = add_gen_info_to_network(df_gen_matches, net)
 
     return net
+
+
+def import_eia(path_to_eia):
+    """Import and aggregate EIA thermoelectric data
+
+    Parameters
+    ----------
+    path_to_eia : str
+        Path to EIA data
+
+    Returns
+    -------
+    DataFrame
+        DataFrame of EIA data
+    """
+    # Local Vars
+    years = ['2019', '2018', '2017', '2016', '2015', '2014']
+    df_list = []
+
+    # Import all dataframes
+    for i in years:
+        path = os.path.join(path_to_eia, 'cooling_detail_' + i + '.xlsx')
+        print(i)
+
+        # Import Dataframe
+        df_temp = pd.read_excel(path, header=2)
+
+        # Replace space values with nan values
+        df_temp = df_temp.replace(r'^\s*$', np.nan, regex=True)
+        df_list.append(df_temp)
+
+    # Concat Dataframes into Single Dataframe
+    df = pd.concat(df_list)
+    return df
