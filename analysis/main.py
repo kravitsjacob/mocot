@@ -18,68 +18,68 @@ def input_parse():
     path_to_io = config_inputs['main']['io']
 
     # Paths for inputs
-    path_to_matpowercase = os.path.join(
+    matpowercase = os.path.join(
         path_to_io, config_inputs['inputs']['matpowercase']
     )
-    path_to_geninfo = os.path.join(
+    geninfo = os.path.join(
         path_to_io, config_inputs['inputs']['geninfo']
     )
-    path_to_gen_matches = os.path.join(
+    gen_matches = os.path.join(
         path_to_io, config_inputs['inputs']['gen_matches']
     )
-    path_to_eia_raw = os.path.join(
+    eia_raw = os.path.join(
         path_to_io, config_inputs['inputs']['eia_raw']
     )
 
     # Paths for outputs
-    path_to_case = os.path.join(path_to_io, config_inputs['outputs']['case'])
-    path_to_case_match = os.path.join(
+    case = os.path.join(path_to_io, config_inputs['outputs']['case'])
+    case_match = os.path.join(
         path_to_io, config_inputs['outputs']['case_match']
     )
-    path_to_eia = os.path.join(
+    eia = os.path.join(
         path_to_io, config_inputs['outputs']['eia']
     )
 
     # Store inputs
-    inputs = {
-        'path_to_matpowercase': path_to_matpowercase,
-        'path_to_geninfo': path_to_geninfo,
-        'path_to_case': path_to_case,
-        'path_to_gen_matches': path_to_gen_matches,
-        'path_to_case_match': path_to_case_match,
-        'path_to_eia_raw': path_to_eia_raw,
-        'path_to_eia': path_to_eia
+    paths = {
+        'matpowercase': matpowercase,
+        'geninfo': geninfo,
+        'case': case,
+        'gen_matches': gen_matches,
+        'case_match': case_match,
+        'eia_raw': eia_raw,
+        'eia': eia
     }
 
-    return inputs
+    return paths
 
 
 def main():
 
     # Inputs
-    inputs = input_parse()
+    paths = input_parse()
 
     # Setting up grid
-    if not os.path.exists(inputs['path_to_case']):
-        net = pandapower.converter.from_mpc(inputs['path_to_matpowercase'])
-        df_gen_info = pd.read_csv(inputs['path_to_geninfo'])
+    if not os.path.exists(paths['case']):
+        net = pandapower.converter.from_mpc(paths['matpowercase'])
+        df_gen_info = pd.read_csv(paths['geninfo'])
         net = wc.grid_setup(net, df_gen_info)
         print('Success: grid_setup')
-        pandapower.to_pickle(net, inputs['path_to_case'])
+        pandapower.to_pickle(net, paths['case'])
 
     # Manual synthetic to real generator matching
-    if not os.path.exists(inputs['path_to_case_match']):
-        net = pandapower.from_pickle(inputs['path_to_case'])
-        df_gen_matches = pd.read_csv(inputs['path_to_gen_matches'])
+    if not os.path.exists(paths['case_match']):
+        net = pandapower.from_pickle(paths['case'])
+        df_gen_matches = pd.read_csv(paths['gen_matches'])
         net = wc.generator_match(net, df_gen_matches)
         print('Success: generator_match')
-        pandapower.to_pickle(net, inputs['path_to_case_match'])
+        pandapower.to_pickle(net, paths['case_match'])
 
     # Importing EIA data
-    if not os.path.exists(inputs['path_to_eia']):
-        df_eia = wc.import_eia(inputs['path_to_eia_raw'])
+    if not os.path.exists(paths['eia']):
+        df_eia = wc.import_eia(paths['eia_raw'])
         print('Success: import_eia')
-        df_eia.to_hdf(inputs['path_to_eia'], key='df_eia', mode='w')
+        df_eia.to_hdf(paths['eia'], key='df_eia', mode='w')
 
     # Get regional (processed) EIA data
 
