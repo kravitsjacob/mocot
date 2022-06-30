@@ -376,8 +376,16 @@ def water_use_sensitivies(df_gen_info_water, df_eia_heat_rates):
         fuel = row['MATPOWER Fuel']
         cool = row['923 Cooling Type']
         if cool != 'No Cooling System':
+            # Get coefficients
             k_os = get_k_os(fuel)
             eta_net = get_eta_net(fuel, df_eia_heat_rates)
+            beta_proc = get_beta_proc(fuel)
+
+            # Run simulation
+
+            # Store in dataframe
+
+    # Plotting
 
     return 0
 
@@ -423,3 +431,25 @@ def get_eta_net(fuel, df_eia_heat_rates):
         eta_net = 3412/eta_net
 
     return eta_net
+
+
+def get_beta_proc(fuel):
+    """Get water withdrawal from non-cooling processes in [L/MWh] based on
+     DOE-NETL model
+
+    Parameters
+    ----------
+    fuel : str
+        Fuel code
+
+    Returns
+    -------
+    float
+        Water withdrawal from non-cooling processes
+    """
+    if fuel == 'coal':
+        beta_proc = 200
+    else:
+        beta_proc = 10
+
+    return beta_proc
