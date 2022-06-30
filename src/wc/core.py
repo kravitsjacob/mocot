@@ -400,14 +400,26 @@ def get_k_os(fuel: str):
     return k_os
 
 
-def get_eta_net(fuel, df_eia_region):
-    # Filter by fuel and cool
-    condition = \
-        (df_eia_region['923 Cooling Type'] == cool) & \
-        (df_eia_region['Fuel Type'] == fuel)
-    df = df_eia_region.loc[condition]
-    df['eta_net'] = \
-        df['Net Generation from Steam Turbines (MWh)'] / \
-        df['Fuel Consumption from All Fuel Types (MMBTU)'] * 0.293071
+def get_eta_net(fuel, df_eia_heat_rates):
+    """Get net efficiency of plant
+
+    Parameters
+    ----------
+    fuel : str
+        fuel code
+    df_eia_heat_rates : DataFrame
+        DataFrame of eia heat rates
+
+    Returns
+    -------
+    float
+        Net efficiency
+    """
+    if fuel == 'coal':
+        eta_net = df_eia_heat_rates[
+            'Electricity Net Generation, Coal Plants Heat Rate'
+        ].median()
+        # Convert to ratio
+        eta_net = 3412/eta_net
 
     return eta_net

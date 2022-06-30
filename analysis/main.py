@@ -30,6 +30,9 @@ def input_parse():
     eia_raw = os.path.join(
         path_to_io, config_inputs['inputs']['eia_raw']
     )
+    eia_heat_rates = os.path.join(
+        path_to_io, config_inputs['inputs']['eia_heat_rates']
+    )
 
     # Paths for outputs
     case = os.path.join(path_to_io, config_inputs['outputs']['case'])
@@ -56,7 +59,8 @@ def input_parse():
         'eia_raw': eia_raw,
         'eia': eia,
         'eia_region': eia_region,
-        'gen_info_water': gen_info_water
+        'gen_info_water': gen_info_water,
+        'eia_heat_rates': eia_heat_rates
     }
 
     return paths
@@ -103,6 +107,15 @@ def main():
         df_eia_regional = wc.get_regional(df_eia)
         df_eia_regional.to_csv(paths['eia_region'])
         print('Success: get_regional')
+
+    # Water use sensitivities
+    df_gen_info_water = pd.read_csv(paths['gen_info_water'])
+    df_eia_heat_rates = pd.read_excel(
+        paths['eia_heat_rates'],
+        skiprows=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11],
+        na_values='Not Available'
+    )
+    wc.water_use_sensitivies(df_gen_info_water, df_eia_heat_rates)
 
 
 if __name__ == '__main__':
