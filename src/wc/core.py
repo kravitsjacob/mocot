@@ -364,3 +364,37 @@ def get_regional(df):
     ]
 
     return df
+
+
+def water_use_sensitivies(df_gen_info_water):
+    # Unique fuel/cooling combinations
+    df_fuel_cool = df_gen_info_water.groupby(
+        ['MATPOWER Fuel', '923 Cooling Type']
+    ).size().reset_index()
+
+    for i, row in df_fuel_cool.iterrows():
+        fuel = row['MATPOWER Fuel']
+        cool = row['923 Cooling Type']
+        if cool != 'No Cooling System':
+            k_os = get_k_os(fuel)
+            a = 1
+
+    return 0
+
+
+def get_k_os(fuel: str):
+    """Get other sinks fraction from DOE-NETL reference models
+
+    Parameters
+    ----------
+    fuel : str
+        fuel code
+    """
+    if fuel == 'coal':
+        k_os = 0.12
+    elif fuel == 'ng':
+        k_os = 0.20
+    elif fuel == 'nuclear':
+        k_os = 0
+
+    return k_os
