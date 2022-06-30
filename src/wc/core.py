@@ -50,3 +50,56 @@ def once_through_withdrawal(
     beta_with = beta_with.as_coeff_Mul()[0]
 
     return beta_with
+
+
+def grid_setup(net, df_gen_info):
+    """Basic setup of PandaPower grid to incorporate dataframe of information
+
+    Parameters
+    ----------
+    net : pandapowerNet
+        Pandapower network to add information
+    df_gen_info : DataFrame
+        DataFrame of only the pandapower generators
+
+    Returns
+    -------
+    pandapowerNet
+        Pandapower network with added information
+    """
+    # Initialize local vars
+    gen_types = ['gen', 'sgen', 'ext_grid']
+
+    # Add pandapower index
+    for gen_type in gen_types:
+        getattr(net, gen_type)['MATPOWER Index'] = getattr(net, gen_type)['bus'] + 1
+
+    # Add generator information
+    net = add_gen_info_to_network(df_gen_info, net)
+
+    return net
+
+
+def add_gen_info_to_network(df_gen_info, net):
+    """Add the information in `df_gen_info` to `net`
+
+    Parameters
+    ----------
+    df_gen_info : DataFrame
+        DataFrame of only the pandapower generators
+    net : pandapowerNet
+        Pandapower network to add information
+
+    Returns
+    -------
+    pandapowerNet
+        Pandapower network with added information
+    """
+    # Initialize local vars
+    gen_types = ['gen', 'sgen', 'ext_grid']
+
+    # Add information
+    for gen_type in gen_types:
+        setattr(net, gen_type, getattr(net, gen_type).merge(df_gen_info))
+
+    return net
