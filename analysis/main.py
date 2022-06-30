@@ -39,6 +39,9 @@ def input_parse():
     eia = os.path.join(
         path_to_io, config_inputs['outputs']['eia']
     )
+    gen_info_water = os.path.join(
+        path_to_io, config_inputs['outputs']['gen_info_water']
+    )
 
     # Store inputs
     paths = {
@@ -48,7 +51,8 @@ def input_parse():
         'gen_matches': gen_matches,
         'case_match': case_match,
         'eia_raw': eia_raw,
-        'eia': eia
+        'eia': eia,
+        'gen_info_water': gen_info_water
     }
 
     return paths
@@ -84,8 +88,12 @@ def main():
     # Get regional (processed) EIA data
 
     # Synthetic grid cooling system information
-
-    # Assign generator cooling systems
+    if not os.path.exists(paths['gen_info_water']):
+        df_eia = pd.read_hdf(paths['eia'], 'df_eia')
+        net = pandapower.from_pickle(paths['case_match'])
+        df_gen_info = wc.network_to_gen_info(net)
+        df_gen_info_water = wc.get_cooling_system(df_eia, df_gen_info)
+        df_gen_info_water.to_csv(paths['gen_info_water'])
 
 
 if __name__ == '__main__':

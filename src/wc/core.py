@@ -171,3 +171,85 @@ def import_eia(path_to_eia):
     # Concat Dataframes into Single Dataframe
     df = pd.concat(df_list)
     return df
+
+
+def get_cooling_system(df_eia, df_gen_info):
+    """Get cooling system information of synthetic generators
+
+    Parameters
+    ----------
+    df_eia : DataFrame
+        DataFrame of EIA data from `import_eia`
+    df_gen_info : DataFrame
+        DataFrame of only the pandapower generators
+
+    Returns
+    -------
+    DataFrame
+        DataFrame of only the pandapower generators with cooling system
+         information
+    """
+    # Matches from manual analysis of EIA dataset
+    df_eia = df_eia.drop_duplicates(subset='Plant Name', keep='first')
+    df_gen_info['923 Cooling Type'] = df_gen_info.merge(
+        df_eia,
+        right_on='Plant Name',
+        left_on='EIA Plant Name',
+        how='left'
+    )['923 Cooling Type']
+    # Wind is assumed to not use water
+    df_gen_info.loc[
+        df_gen_info['MATPOWER Fuel'] == 'wind', '923 Cooling Type'
+        ] = 'No Cooling System'
+    # Assume Small Capacity Natural Gas Turbines Don't Have Cooling System
+    df_gen_info.loc[
+        (df_gen_info['MATPOWER Type'] == 'GT') &
+        (df_gen_info['MATPOWER Fuel'] == 'ng') &
+        (df_gen_info['MATPOWER Capacity (MW)'] < 30),
+        '923 Cooling Type'
+    ] = 'No Cooling System'
+    # One off matching based on searching
+    df_gen_info.loc[
+        df_gen_info['EIA Plant Name'] == 'Interstate', '923 Cooling Type'
+    ] = 'RI'  # Based on regional data availability
+    df_gen_info.loc[
+        df_gen_info['EIA Plant Name'] == 'Gibson City Energy Center LLC',
+        '923 Cooling Type'
+    ] = 'RI'  # Based on regional data availability
+    df_gen_info.loc[
+        df_gen_info['EIA Plant Name'] == 'Rantoul', '923 Cooling Type'
+    ] = 'OC'
+    df_gen_info.loc[
+        df_gen_info['EIA Plant Name'] == 'Tuscola Station', '923 Cooling Type'
+    ] = 'OC'
+    df_gen_info.loc[
+        df_gen_info['EIA Plant Name'] == 'E D Edwards', '923 Cooling Type'
+    ] = 'OC'
+
+    return df_gen_info
+
+
+def network_to_gen_info(net):
+    """Convert pandapower network to generator information DataFrame.
+
+    Parameters
+    ----------
+    net : pandapowerNet
+        Pandapower network to convert
+
+    Returns
+    -------
+    DataFrame
+        DataFrame of only the pandapower generators
+    """
+    # Initialize local vars
+    gen_types = ['gen', 'sgen', 'ext_grid']
+    df_gen_info = pd.DataFrame()
+
+    # Convert generator information dataframe
+    for gen_type in gen_types:
+        df_gen_info = df_gen_info.append(getattr(net, gen_type))
+
+    df_gen_info = df_gen_info.reset_index(drop=True)  # Eliminate duplicated
+
+    return df_gen_info
