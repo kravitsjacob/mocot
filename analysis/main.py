@@ -24,9 +24,15 @@ def input_parse():
     path_to_geninfo = os.path.join(
         path_to_io, config_inputs['inputs']['geninfo']
     )
+    path_to_gen_matches = os.path.join(
+        path_to_io, config_inputs['inputs']['gen_matches']
+    )
 
     # Paths for outputs
     path_to_case = os.path.join(path_to_io, config_inputs['outputs']['case'])
+    path_to_case_match = os.path.join(
+        path_to_io, config_inputs['outputs']['case_match']
+    )
 
     # # Paths for manual_files
     # path_to_gen_matches = os.path.join(path_to_data, config_inputs['MANUAL FILES']['gen_matches'])
@@ -59,7 +65,9 @@ def input_parse():
     inputs = {
         'path_to_matpowercase': path_to_matpowercase,
         'path_to_geninfo': path_to_geninfo,
-        'path_to_case': path_to_case
+        'path_to_case': path_to_case,
+        'path_to_gen_matches': path_to_gen_matches,
+        'path_to_case_match': path_to_case_match
     }
 
     return inputs
@@ -76,15 +84,15 @@ def main():
         df_gen_info = pd.read_csv(inputs['path_to_geninfo'])
         net = wc.grid_setup(net, df_gen_info)
         print('Success: grid_setup')
-        pandapower.to_pickle(net, inputs['path_to_case'])  # Save checkpoint
+        pandapower.to_pickle(net, inputs['path_to_case'])
 
-    # # Manual generator matching
-    # if not os.path.exists(inputs['path_to_case_match']):
-    #     net = pandapower.from_pickle(inputs['path_to_case'])  # Load previous checkpoint
-    #     df_gen_matches = pd.read_csv(inputs['path_to_gen_matches'])
-    #     net = analysis.generator_match(net, df_gen_matches)
-    #     print('Success: generator_match')
-    #     pandapower.to_pickle(net, inputs['path_to_case_match'])  # Save checkpoint
+    # Manual generator matching
+    if not os.path.exists(inputs['path_to_case_match']):
+        net = pandapower.from_pickle(inputs['path_to_case'])
+        df_gen_matches = pd.read_csv(inputs['path_to_gen_matches'])
+        net = wc.generator_match(net, df_gen_matches)
+        print('Success: generator_match')
+        pandapower.to_pickle(net, inputs['path_to_case_match'])
 
     # # Cooling system information
     # if not os.path.exists(inputs['path_to_case_match_water']):

@@ -72,7 +72,8 @@ def grid_setup(net, df_gen_info):
 
     # Add pandapower index
     for gen_type in gen_types:
-        getattr(net, gen_type)['MATPOWER Index'] = getattr(net, gen_type)['bus'] + 1
+        getattr(net, gen_type)['MATPOWER Index'] = \
+            getattr(net, gen_type)['bus'] + 1
 
     # Add generator information
     net = add_gen_info_to_network(df_gen_info, net)
@@ -101,5 +102,35 @@ def add_gen_info_to_network(df_gen_info, net):
     # Add information
     for gen_type in gen_types:
         setattr(net, gen_type, getattr(net, gen_type).merge(df_gen_info))
+
+    return net
+
+
+def generator_match(net, df_gen_matches):
+    """Match synthetic generators to EIA generators with anonymous power plant
+     names
+
+    Parameters
+    ----------
+    net : pandapowerNet
+        Pandapower network to add information
+    df_gen_matches : DataFrame
+        Manually created dataframe of matched generator
+
+    Returns
+    -------
+    pandapowerNet
+        Pandapower network with added information
+    """
+    # Anonymous plant names
+    powerworld_plants = df_gen_matches['POWERWORLD Plant Name'].unique()
+    anonymous_plants = \
+        [f'Plant {i}' for i in range(1, len(powerworld_plants) + 1)]
+    d = dict(zip(powerworld_plants, anonymous_plants))
+    df_gen_matches['Plant Name'] = \
+        df_gen_matches['POWERWORLD Plant Name'].map(d)
+
+    # Add generator information
+    net = add_gen_info_to_network(df_gen_matches, net)
 
     return net
