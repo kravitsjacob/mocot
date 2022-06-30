@@ -366,7 +366,7 @@ def get_regional(df):
     return df
 
 
-def water_use_sensitivies(df_gen_info_water):
+def water_use_sensitivies(df_gen_info_water, df_eia_heat_rates):
     # Unique fuel/cooling combinations
     df_fuel_cool = df_gen_info_water.groupby(
         ['MATPOWER Fuel', '923 Cooling Type']
@@ -377,7 +377,7 @@ def water_use_sensitivies(df_gen_info_water):
         cool = row['923 Cooling Type']
         if cool != 'No Cooling System':
             k_os = get_k_os(fuel)
-            a = 1
+            eta_net = get_eta_net(fuel, df_eia_heat_rates)
 
     return 0
 
@@ -398,3 +398,16 @@ def get_k_os(fuel: str):
         k_os = 0
 
     return k_os
+
+
+def get_eta_net(fuel, df_eia_region):
+    # Filter by fuel and cool
+    condition = \
+        (df_eia_region['923 Cooling Type'] == cool) & \
+        (df_eia_region['Fuel Type'] == fuel)
+    df = df_eia_region.loc[condition]
+    df['eta_net'] = \
+        df['Net Generation from Steam Turbines (MWh)'] / \
+        df['Fuel Consumption from All Fuel Types (MMBTU)'] * 0.293071
+
+    return eta_net
