@@ -367,6 +367,8 @@ def get_regional(df):
 
 
 def water_use_sensitivies(df_gen_info_water, df_eia_heat_rates):
+    df_results = pd.DataFrame()
+    delta_t = np.arange(1, 11)
     # Unique fuel/cooling combinations
     df_fuel_cool = df_gen_info_water.groupby(
         ['MATPOWER Fuel', '923 Cooling Type']
@@ -382,8 +384,21 @@ def water_use_sensitivies(df_gen_info_water, df_eia_heat_rates):
             beta_proc = get_beta_proc(fuel)
 
             # Run simulation
-
+            if cool == 'OC':
+                beta_with = [
+                    once_through_withdrawal(eta_net, k_os, j, beta_proc)
+                    for j in delta_t
+                ]
             # Store in dataframe
+            df_results = pd.concat([
+                df_results,
+                pd.DataFrame({
+                    'Change in Temperature': delta_t,
+                    'Withdrawal Rate': beta_with,
+                    'Fuel Type': fuel,
+                    'Cooling System Type': cool
+                })
+            ])
 
     # Plotting
 
