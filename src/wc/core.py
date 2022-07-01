@@ -457,7 +457,7 @@ def once_through_withdrawal(
     beta_with = u.convert_to(beta_with, u.L/(u.W*u.h))
     beta_with = beta_with.as_coeff_Mul()[0]
 
-    return beta_with
+    return float(beta_with)
 
 
 def once_through_consumption(
@@ -508,7 +508,7 @@ def once_through_consumption(
     beta_con = u.convert_to(beta_con, u.L/(u.W*u.h))
     beta_con = beta_con.as_coeff_Mul()[0]
 
-    return beta_con
+    return float(beta_con)
 
 
 def recirculating_withdrawal(
@@ -559,7 +559,7 @@ def recirculating_withdrawal(
     beta_with = u.convert_to(beta_with, u.L/(u.W*u.h))
     beta_with = beta_with.as_coeff_Mul()[0]
 
-    return beta_with
+    return float(beta_with)
 
 
 def recirculating_consumption(
@@ -615,7 +615,7 @@ def recirculating_consumption(
     beta_con = u.convert_to(beta_con, u.L/(u.W*u.h))
     beta_con = beta_con.as_coeff_Mul()[0]
 
-    return beta_con
+    return float(beta_con)
 
 
 def get_k_sens(t_inlet):
