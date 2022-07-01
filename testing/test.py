@@ -24,12 +24,11 @@ class CoreTest(unittest.TestCase):
         beta_with = wc.recirculating_withdrawal(
             eta_net=0.20,
             k_os=0.25,
-            delta_t=5,
             beta_proc=200,
             eta_cc=5,
-            k_evap=0.15
+            k_sens=0.15
         )
-        self.assertAlmostEquals(beta_with, 9073, -2)
+        self.assertAlmostEquals(beta_with, 4486, -2)
 
 
 if __name__ == '__main__':

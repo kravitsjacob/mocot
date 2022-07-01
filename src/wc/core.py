@@ -351,7 +351,7 @@ def water_use_sensitivies(df_gen_info_water, df_eia_heat_rates):
                 once_through_consumption(eta_net, k_os, j, beta_proc)
                 for j in delta_t
             ]
-        else:
+        elif cool == 'RC' or cool == 'RI':
             beta_with = np.nan
             beta_con = np.nan
 
@@ -472,13 +472,11 @@ def once_through_consumption(
 def recirculating_withdrawal(
     eta_net: float,
     k_os: float,
-    delta_t: float,
     beta_proc: float,
     eta_cc: int,
-    k_evap: float,
+    k_sens: float,
     h_fg=2.454,
     rho_w=1.0,
-    c_p=0.04184
 ):
     """Recirculating withdrawal model
 
@@ -488,20 +486,16 @@ def recirculating_withdrawal(
         Ratio of electricity generation rate to thermal input
     k_os : float
         Thermal input lost to non-cooling system sinks
-    delta_t : float
-        Inlet/outlet water temperature difference in C
     beta_proc : float
         Non-cooling rate in L/MWh
     eta_cc : int
         Number of cooling cycles between 2 and 10
     k_evap : float
-        Fraction of circulating water lost to evaporation
+        Heat load rejected
     h_fg : float
         Latent heat of vaporization of water, default 2.454 MJ/kg
     rho_w : float, optional
         Desnity of Water kg/L, by default 1.0
-    c_p : float, optional
-        Specific heat of water in MJ/(kg-K), by default 0.04184
 
     Returns
     -------
@@ -511,12 +505,7 @@ def recirculating_withdrawal(
     # Setting units
     rho_w = rho_w * u.kg/u.L
     h_fg = h_fg * u.J/u.kg  # Mega
-    delta_t = delta_t * u.K
     beta_proc = beta_proc * u.L/(u.W*u.h)  # 1/Mega
-    c_p = c_p * u.J/(u.kg * u.K)  # Mega
-
-    # Heat load rejected
-    k_sens = 1 - k_evap * h_fg/(c_p * delta_t)
 
     # Model
     efficiency = 3600 * u.s/u.h * (1-eta_net-k_os) / eta_net
