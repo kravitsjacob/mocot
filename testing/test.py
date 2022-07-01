@@ -34,8 +34,8 @@ class CoreTest(unittest.TestCase):
         """
         Test for getting k_sens
         """
-        self.assertAlmostEqual(wc.get_k_sens(t_inlet=22), 17, 0)
-        self.assertAlmostEqual(wc.get_k_sens(t_inlet=30), 10, 0)
+        self.assertAlmostEqual(wc.get_k_sens(t_inlet=22), 0.17, 2)
+        self.assertAlmostEqual(wc.get_k_sens(t_inlet=30), 0.10, 2)
 
 
 if __name__ == '__main__':

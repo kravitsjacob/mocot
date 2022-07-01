@@ -364,8 +364,14 @@ def water_use_sensitivies(df_gen_info_water, df_eia_heat_rates):
                 })
             ])
         elif cool == 'RC' or cool == 'RI':
+            eta_cc = 5
             # Get k_sens
-
+            beta_with = [
+                recirculating_withdrawal(
+                    eta_net, k_os, beta_proc, eta_cc, get_k_sens(j)
+                )
+                for j in t_inlet
+            ]
             beta_with = np.nan
             beta_con = np.nan
 
@@ -492,7 +498,7 @@ def recirculating_withdrawal(
         Non-cooling rate in L/MWh
     eta_cc : int
         Number of cooling cycles between 2 and 10
-    k_evap : float
+    k_sens : float
         Heat load rejected
     h_fg : float
         Latent heat of vaporization of water, default 2.454 MJ/kg
@@ -590,11 +596,23 @@ def recirculating_consumption(
 
 
 def get_k_sens(t_inlet):
+    """Get heat load rejected through convection
 
+    Parameters
+    ----------
+    t_inlet : numeric
+        Dry bulb temperature of inlet air C
+
+    Returns
+    -------
+    float
+        Heat load rejected through convection
+    """
     term_1 = -0.000279*t_inlet**3
     term_2 = 0.00109*t_inlet**2
     term_3 = -0.345*t_inlet
     k_sens = term_1 + term_2 + term_3 + 26.7
+    k_sens = k_sens/100  # Convert to ratio
     return k_sens
 
 
