@@ -113,12 +113,13 @@ def main():
     df_eia_heat_rates = pd.read_excel(
         paths['eia_heat_rates'],
         skiprows=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11],
-        na_values='Not Available'
+        na_values=['Not Available', 'Not Applicable']
     )
-    df_water_use = wc.water_use_sensitivies(
+    df_oc, df_rc = wc.water_use_sensitivies(
         df_gen_info_water,
         df_eia_heat_rates
     )
+    a = 1
 
 
 if __name__ == '__main__':

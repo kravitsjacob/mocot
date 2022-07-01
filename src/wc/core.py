@@ -318,8 +318,28 @@ def get_regional(df):
     return df
 
 
-def water_use_sensitivies(df_gen_info_water, df_eia_heat_rates):
+def water_use_sensitivies(
+    df_gen_info_water: pd.DataFrame,
+    df_eia_heat_rates: pd.DataFrame
+):
+    """Sensitivity analysis of water use
+
+    Parameters
+    ----------
+    df_gen_info_water : pd.DataFrame
+        Generator information with water
+    df_eia_heat_rates : pd.DataFrame
+        Heat rate information
+
+    Returns
+    -------
+    DataFrame
+        Once-through cooling water use
+    DataFrame
+        Recirculating cooling water use
+    """
     df_oc = pd.DataFrame()
+    df_rc = pd.DataFrame()
     delta_t = np.arange(1, 11)
     t_inlet = np.arange(0, 35)
 
@@ -372,10 +392,24 @@ def water_use_sensitivies(df_gen_info_water, df_eia_heat_rates):
                 )
                 for j in t_inlet
             ]
-            beta_with = np.nan
-            beta_con = np.nan
+            beta_con = [
+                recirculating_consumption(
+                    eta_net, k_os, beta_proc, eta_cc, get_k_sens(j)
+                )
+                for j in t_inlet
+            ]
+            df_rc = pd.concat([
+                df_rc,
+                pd.DataFrame({
+                    'Inlet Air Temperature [C]': t_inlet,
+                    'Withdrawal Rate [L/MWh]': beta_with,
+                    'Consumption Rate [L/MWh]': beta_con,
+                    'Fuel Type': fuel,
+                    'Cooling System Type': cool
+                })
+            ])
 
-    return 0
+    return df_oc, df_rc
 
 
 def once_through_withdrawal(
@@ -531,14 +565,12 @@ def recirculating_withdrawal(
 def recirculating_consumption(
     eta_net: float,
     k_os: float,
-    delta_t: float,
     beta_proc: float,
     eta_cc: int,
-    k_evap: float,
+    k_sens: float,
     k_bd=1.0,
     h_fg=2.454,
-    rho_w=1.0,
-    c_p=0.04184
+    rho_w=1.0
 ):
     """Recirculating consumption model
 
@@ -548,14 +580,12 @@ def recirculating_consumption(
         Ratio of electricity generation rate to thermal input
     k_os : float
         Thermal input lost to non-cooling system sinks
-    delta_t : float
-        Inlet/outlet water temperature difference in C
     beta_proc : float
         Non-cooling rate in L/MWh
     eta_cc : int
         Number of cooling cycles between 2 and 10
-    k_evap : float
-        Fraction of circulating water lost to evaporation
+    k_sens : float
+        Heat load rejected
     k_bd : float, optional
         Blowdown discharge fraction. Plants in water abundant areas are able
          to legally discharge most of their cooling tower blowndown according
@@ -564,8 +594,6 @@ def recirculating_consumption(
         Latent heat of vaporization of water, default 2.454 MJ/kg
     rho_w : float, optional
         Desnity of Water kg/L, by default 1.0
-    c_p : float, optional
-        Specific heat of water in MJ/(kg-K), by default 0.04184
 
     Returns
     -------
@@ -575,12 +603,7 @@ def recirculating_consumption(
     # Setting units
     rho_w = rho_w * u.kg/u.L
     h_fg = h_fg * u.J/u.kg  # Mega
-    delta_t = delta_t * u.K
     beta_proc = beta_proc * u.L/(u.W*u.h)  # 1/Mega
-    c_p = c_p * u.J/(u.kg * u.K)  # Mega
-
-    # Heat load rejected
-    k_sens = 1 - k_evap * h_fg/(c_p * delta_t)
 
     # Model
     efficiency = 3600 * u.s/u.h * (1-eta_net-k_os) / eta_net
@@ -650,13 +673,17 @@ def get_eta_net(fuel, df_eia_heat_rates):
         Net efficiency
     """
     if fuel == 'coal':
-        eta_net = df_eia_heat_rates[
-            'Electricity Net Generation, Coal Plants Heat Rate'
-        ].median()
-        # Convert to ratio
-        eta_net = 3412/eta_net
-    else:
-        eta_net = 0
+        col_name = 'Electricity Net Generation, Coal Plants Heat Rate'
+    elif fuel == 'ng':
+        col_name = 'Electricity Net Generation, Natural Gas Plants Heat Rate'
+    elif fuel == 'nuclear':
+        col_name = 'Electricity Net Generation, Nuclear Plants Heat Rate'
+
+    # Median heat rate
+    eta_net = df_eia_heat_rates[col_name].median()
+
+    # Convert to ratio
+    eta_net = 3412/eta_net
 
     return eta_net
 
