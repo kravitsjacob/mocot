@@ -15,7 +15,7 @@ class CoreTest(unittest.TestCase):
             delta_t=5,
             beta_proc=200
         )
-        self.assertAlmostEquals(beta_with, 34616, -2)
+        self.assertAlmostEqual(beta_with, 34616, -2)
 
     def test_reciruclating_withdrawal(self):
         """
@@ -28,7 +28,14 @@ class CoreTest(unittest.TestCase):
             eta_cc=5,
             k_sens=0.15
         )
-        self.assertAlmostEquals(beta_with, 4486, -2)
+        self.assertAlmostEqual(beta_with, 4486, -2)
+
+    def test_get_k_sens(self):
+        """
+        Test for getting k_sens
+        """
+        self.assertAlmostEqual(wc.get_k_sens(t_inlet=22), 17, 0)
+        self.assertAlmostEqual(wc.get_k_sens(t_inlet=30), 10, 0)
 
 
 if __name__ == '__main__':
