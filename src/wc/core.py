@@ -34,8 +34,8 @@ def once_through_withdrawal(
 
     Returns
     -------
-    _type_
-        _description_
+    float
+        Withdrawal rate [L/MWh]
     """
     # Setting units
     rho_w = rho_w * u.kg/u.L
@@ -53,6 +53,57 @@ def once_through_withdrawal(
     beta_with = beta_with.as_coeff_Mul()[0]
 
     return beta_with
+
+
+def once_through_consumption(
+    eta_net: float,
+    k_os: float,
+    delta_t: float,
+    beta_proc: float,
+    k_de=0.01,
+    rho_w=1.0,
+    c_p=0.04184,
+):
+    """Once through consumption model
+
+    Parameters
+    ----------
+    eta_net : float
+        Ratio of electricity generation rate to thermal input
+    k_os : float
+        Thermal input lost to non-cooling system sinks
+    delta_t : float
+        Inlet/outlet water temperature difference in C
+    beta_proc : float
+        Non-cooling rate in L/MWh
+    k_de : float, optional
+        Downstream evaporation, by default 0.01
+    rho_w : float, optional
+        Desnity of Water kg/L, by default 1.0
+    c_p : float, optional
+        Specific head of water in MJ/(kg-K), by default 0.04184
+
+    Returns
+    -------
+    float
+        Withdrawal rate [L/MWh]
+    """
+    # Setting units
+    rho_w = rho_w * u.kg/u.L
+    c_p = c_p * u.J/(u.kg * u.K)  # Mega
+    delta_t = delta_t * u.K
+    beta_proc = beta_proc * u.L/(u.W*u.h)  # 1/Mega
+
+    # Model
+    efficiency = 3600 * u.s/u.h * (1-eta_net-k_os) / eta_net
+    physics = k_de / (rho_w*c_p*delta_t)
+    beta_con = efficiency * physics + beta_proc
+
+    # Unit conversion
+    beta_con = u.convert_to(beta_con, u.L/(u.W*u.h))
+    beta_con = beta_con.as_coeff_Mul()[0]
+
+    return beta_con
 
 
 def grid_setup(net, df_gen_info):
@@ -367,42 +418,55 @@ def get_regional(df):
 
 
 def water_use_sensitivies(df_gen_info_water, df_eia_heat_rates):
-    df_results = pd.DataFrame()
+    df_water_use = pd.DataFrame()
     delta_t = np.arange(1, 11)
+
     # Unique fuel/cooling combinations
     df_fuel_cool = df_gen_info_water.groupby(
         ['MATPOWER Fuel', '923 Cooling Type']
     ).size().reset_index()
 
+    # Drop no cooling systems
+    df_fuel_cool = df_fuel_cool.loc[
+        df_fuel_cool['923 Cooling Type'] != 'No Cooling System'
+    ]
+
     for i, row in df_fuel_cool.iterrows():
         fuel = row['MATPOWER Fuel']
         cool = row['923 Cooling Type']
-        if cool != 'No Cooling System':
-            # Get coefficients
-            k_os = get_k_os(fuel)
-            eta_net = get_eta_net(fuel, df_eia_heat_rates)
-            beta_proc = get_beta_proc(fuel)
 
-            # Run simulation
-            if cool == 'OC':
-                beta_with = [
-                    once_through_withdrawal(eta_net, k_os, j, beta_proc)
-                    for j in delta_t
-                ]
-            # Store in dataframe
-            df_results = pd.concat([
-                df_results,
-                pd.DataFrame({
-                    'Change in Temperature': delta_t,
-                    'Withdrawal Rate': beta_with,
-                    'Fuel Type': fuel,
-                    'Cooling System Type': cool
-                })
-            ])
+        # Get coefficients
+        k_os = get_k_os(fuel)
+        eta_net = get_eta_net(fuel, df_eia_heat_rates)
+        beta_proc = get_beta_proc(fuel)
 
-    # Plotting
+        # Run simulation
+        if cool == 'OC':
+            beta_with = [
+                once_through_withdrawal(eta_net, k_os, j, beta_proc)
+                for j in delta_t
+            ]
+            beta_con = [
+                once_through_consumption(eta_net, k_os, j, beta_proc)
+                for j in delta_t
+            ]
+        else:
+            beta_with = np.nan
+            beta_con = np.nan
 
-    return 0
+        # Store in dataframe
+        df_water_use = pd.concat([
+            df_water_use,
+            pd.DataFrame({
+                'Change in Temperature [K]': delta_t,
+                'Withdrawal Rate [L/MWh]': beta_with,
+                'Consumption Rate [L/MWh]': beta_con,
+                'Fuel Type': fuel,
+                'Cooling System Type': cool
+            })
+        ])
+
+    return df_water_use
 
 
 def get_k_os(fuel: str):
@@ -444,6 +508,8 @@ def get_eta_net(fuel, df_eia_heat_rates):
         ].median()
         # Convert to ratio
         eta_net = 3412/eta_net
+    else:
+        eta_net = 0
 
     return eta_net
 
