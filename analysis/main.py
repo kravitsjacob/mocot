@@ -48,6 +48,12 @@ def input_parse():
     gen_info_water = os.path.join(
         path_to_io, config_inputs['outputs']['gen_info_water']
     )
+    oc_sensitivity = os.path.join(
+        path_to_io, config_inputs['outputs']['oc_sensitivity']
+    )
+    rc_sensitivity = os.path.join(
+        path_to_io, config_inputs['outputs']['rc_sensitivity']
+    )
 
     # Store inputs
     paths = {
@@ -60,7 +66,9 @@ def input_parse():
         'eia': eia,
         'eia_region': eia_region,
         'gen_info_water': gen_info_water,
-        'eia_heat_rates': eia_heat_rates
+        'eia_heat_rates': eia_heat_rates,
+        'oc_sensitivity': oc_sensitivity,
+        'rc_sensitivity': rc_sensitivity
     }
 
     return paths
@@ -120,6 +128,8 @@ def main():
         df_eia_heat_rates
     )
     g_oc, g_rc = wc.sensitivity(df_oc, df_rc)
+    g_oc.savefig(paths['oc_sensitivity'])
+    g_rc.savefig(paths['rc_sensitivity'])
 
 
 if __name__ == '__main__':
