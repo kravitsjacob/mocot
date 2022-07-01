@@ -7,105 +7,6 @@ import pandas as pd
 import numpy as np
 
 
-def once_through_withdrawal(
-    eta_net: float,
-    k_os: float,
-    delta_t: float,
-    beta_proc: float,
-    rho_w=1.0,
-    c_p=0.04184,
-):
-    """Once through withdrawal model
-
-    Parameters
-    ----------
-    eta_net : float
-        Ratio of electricity generation rate to thermal input
-    k_os : float
-        Thermal input lost to non-cooling system sinks
-    delta_t : float
-        Inlet/outlet water temperature difference in C
-    beta_proc : float
-        Non-cooling rate in L/MWh
-    rho_w : float, optional
-        Desnity of Water kg/L, by default 1.0
-    c_p : float, optional
-        Specific head of water in MJ/(kg-K), by default 0.04184
-
-    Returns
-    -------
-    float
-        Withdrawal rate [L/MWh]
-    """
-    # Setting units
-    rho_w = rho_w * u.kg/u.L
-    c_p = c_p * u.J/(u.kg * u.K)  # Mega
-    delta_t = delta_t * u.K
-    beta_proc = beta_proc * u.L/(u.W*u.h)  # 1/Mega
-
-    # Model
-    efficiency = 3600 * u.s/u.h * (1-eta_net-k_os) / eta_net
-    physics = 1 / (rho_w*c_p*delta_t)
-    beta_with = efficiency * physics + beta_proc
-
-    # Unit conversion
-    beta_with = u.convert_to(beta_with, u.L/(u.W*u.h))
-    beta_with = beta_with.as_coeff_Mul()[0]
-
-    return beta_with
-
-
-def once_through_consumption(
-    eta_net: float,
-    k_os: float,
-    delta_t: float,
-    beta_proc: float,
-    k_de=0.01,
-    rho_w=1.0,
-    c_p=0.04184,
-):
-    """Once through consumption model
-
-    Parameters
-    ----------
-    eta_net : float
-        Ratio of electricity generation rate to thermal input
-    k_os : float
-        Thermal input lost to non-cooling system sinks
-    delta_t : float
-        Inlet/outlet water temperature difference in C
-    beta_proc : float
-        Non-cooling rate in L/MWh
-    k_de : float, optional
-        Downstream evaporation, by default 0.01
-    rho_w : float, optional
-        Desnity of Water kg/L, by default 1.0
-    c_p : float, optional
-        Specific head of water in MJ/(kg-K), by default 0.04184
-
-    Returns
-    -------
-    float
-        Withdrawal rate [L/MWh]
-    """
-    # Setting units
-    rho_w = rho_w * u.kg/u.L
-    c_p = c_p * u.J/(u.kg * u.K)  # Mega
-    delta_t = delta_t * u.K
-    beta_proc = beta_proc * u.L/(u.W*u.h)  # 1/Mega
-
-    # Model
-    efficiency = 3600 * u.s/u.h * (1-eta_net-k_os) / eta_net
-    physics = k_de / (rho_w*c_p*delta_t)
-    beta_con = efficiency * physics + beta_proc
-
-    # Unit conversion
-    beta_con = u.convert_to(beta_con, u.L/(u.W*u.h))
-    beta_con = beta_con.as_coeff_Mul()[0]
-
-    return beta_con
-
-
 def grid_setup(net, df_gen_info):
     """Basic setup of PandaPower grid to incorporate dataframe of information
 
@@ -467,6 +368,105 @@ def water_use_sensitivies(df_gen_info_water, df_eia_heat_rates):
         ])
 
     return df_water_use
+
+
+def once_through_withdrawal(
+    eta_net: float,
+    k_os: float,
+    delta_t: float,
+    beta_proc: float,
+    rho_w=1.0,
+    c_p=0.04184,
+):
+    """Once through withdrawal model
+
+    Parameters
+    ----------
+    eta_net : float
+        Ratio of electricity generation rate to thermal input
+    k_os : float
+        Thermal input lost to non-cooling system sinks
+    delta_t : float
+        Inlet/outlet water temperature difference in C
+    beta_proc : float
+        Non-cooling rate in L/MWh
+    rho_w : float, optional
+        Desnity of Water kg/L, by default 1.0
+    c_p : float, optional
+        Specific head of water in MJ/(kg-K), by default 0.04184
+
+    Returns
+    -------
+    float
+        Withdrawal rate [L/MWh]
+    """
+    # Setting units
+    rho_w = rho_w * u.kg/u.L
+    c_p = c_p * u.J/(u.kg * u.K)  # Mega
+    delta_t = delta_t * u.K
+    beta_proc = beta_proc * u.L/(u.W*u.h)  # 1/Mega
+
+    # Model
+    efficiency = 3600 * u.s/u.h * (1-eta_net-k_os) / eta_net
+    physics = 1 / (rho_w*c_p*delta_t)
+    beta_with = efficiency * physics + beta_proc
+
+    # Unit conversion
+    beta_with = u.convert_to(beta_with, u.L/(u.W*u.h))
+    beta_with = beta_with.as_coeff_Mul()[0]
+
+    return beta_with
+
+
+def once_through_consumption(
+    eta_net: float,
+    k_os: float,
+    delta_t: float,
+    beta_proc: float,
+    k_de=0.01,
+    rho_w=1.0,
+    c_p=0.04184,
+):
+    """Once through consumption model
+
+    Parameters
+    ----------
+    eta_net : float
+        Ratio of electricity generation rate to thermal input
+    k_os : float
+        Thermal input lost to non-cooling system sinks
+    delta_t : float
+        Inlet/outlet water temperature difference in C
+    beta_proc : float
+        Non-cooling rate in L/MWh
+    k_de : float, optional
+        Downstream evaporation, by default 0.01
+    rho_w : float, optional
+        Desnity of Water kg/L, by default 1.0
+    c_p : float, optional
+        Specific head of water in MJ/(kg-K), by default 0.04184
+
+    Returns
+    -------
+    float
+        Withdrawal rate [L/MWh]
+    """
+    # Setting units
+    rho_w = rho_w * u.kg/u.L
+    c_p = c_p * u.J/(u.kg * u.K)  # Mega
+    delta_t = delta_t * u.K
+    beta_proc = beta_proc * u.L/(u.W*u.h)  # 1/Mega
+
+    # Model
+    efficiency = 3600 * u.s/u.h * (1-eta_net-k_os) / eta_net
+    physics = k_de / (rho_w*c_p*delta_t)
+    beta_con = efficiency * physics + beta_proc
+
+    # Unit conversion
+    beta_con = u.convert_to(beta_con, u.L/(u.W*u.h))
+    beta_con = beta_con.as_coeff_Mul()[0]
+
+    return beta_con
 
 
 def get_k_os(fuel: str):
