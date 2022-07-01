@@ -119,7 +119,7 @@ def main():
         df_gen_info_water,
         df_eia_heat_rates
     )
-    a = 1
+    wc.sensitivity(df_oc, df_rc)
 
 
 if __name__ == '__main__':
