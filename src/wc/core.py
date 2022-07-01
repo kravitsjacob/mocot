@@ -319,8 +319,9 @@ def get_regional(df):
 
 
 def water_use_sensitivies(df_gen_info_water, df_eia_heat_rates):
-    df_water_use = pd.DataFrame()
+    df_oc = pd.DataFrame()
     delta_t = np.arange(1, 11)
+    t_inlet = np.arange(0, 35)
 
     # Unique fuel/cooling combinations
     df_fuel_cool = df_gen_info_water.groupby(
@@ -351,23 +352,24 @@ def water_use_sensitivies(df_gen_info_water, df_eia_heat_rates):
                 once_through_consumption(eta_net, k_os, j, beta_proc)
                 for j in delta_t
             ]
+            # Store in dataframe
+            df_oc = pd.concat([
+                df_oc,
+                pd.DataFrame({
+                    'Change in Temperature [K]': delta_t,
+                    'Withdrawal Rate [L/MWh]': beta_with,
+                    'Consumption Rate [L/MWh]': beta_con,
+                    'Fuel Type': fuel,
+                    'Cooling System Type': cool
+                })
+            ])
         elif cool == 'RC' or cool == 'RI':
+            # Get k_sens
+
             beta_with = np.nan
             beta_con = np.nan
 
-        # Store in dataframe
-        df_water_use = pd.concat([
-            df_water_use,
-            pd.DataFrame({
-                'Change in Temperature [K]': delta_t,
-                'Withdrawal Rate [L/MWh]': beta_with,
-                'Consumption Rate [L/MWh]': beta_con,
-                'Fuel Type': fuel,
-                'Cooling System Type': cool
-            })
-        ])
-
-    return df_water_use
+    return 0
 
 
 def once_through_withdrawal(
@@ -585,6 +587,15 @@ def recirculating_consumption(
     beta_con = beta_con.as_coeff_Mul()[0]
 
     return beta_con
+
+
+def get_k_sens(t_inlet):
+
+    term_1 = -0.000279*t_inlet**3
+    term_2 = 0.00109*t_inlet**2
+    term_3 = -0.345*t_inlet
+    k_sens = term_1 + term_2 + term_3 + 26.7
+    return k_sens
 
 
 def get_k_os(fuel: str):
