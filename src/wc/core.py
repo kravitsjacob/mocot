@@ -444,7 +444,7 @@ def once_through_consumption(
     rho_w : float, optional
         Desnity of Water kg/L, by default 1.0
     c_p : float, optional
-        Specific head of water in MJ/(kg-K), by default 0.04184
+        Specific heat of water in MJ/(kg-K), by default 0.04184
 
     Returns
     -------
@@ -461,6 +461,135 @@ def once_through_consumption(
     efficiency = 3600 * u.s/u.h * (1-eta_net-k_os) / eta_net
     physics = k_de / (rho_w*c_p*delta_t)
     beta_con = efficiency * physics + beta_proc
+
+    # Unit conversion
+    beta_con = u.convert_to(beta_con, u.L/(u.W*u.h))
+    beta_con = beta_con.as_coeff_Mul()[0]
+
+    return beta_con
+
+
+def recirculating_withdrawal(
+    eta_net: float,
+    k_os: float,
+    delta_t: float,
+    beta_proc: float,
+    eta_cc: int,
+    k_evap: float,
+    h_fg=2.454,
+    rho_w=1.0,
+    c_p=0.04184
+):
+    """Recirculating withdrawal model
+
+    Parameters
+    ----------
+    eta_net : float
+        Ratio of electricity generation rate to thermal input
+    k_os : float
+        Thermal input lost to non-cooling system sinks
+    delta_t : float
+        Inlet/outlet water temperature difference in C
+    beta_proc : float
+        Non-cooling rate in L/MWh
+    eta_cc : int
+        Number of cooling cycles between 2 and 10
+    k_evap : float
+        Fraction of circulating water lost to evaporation
+    h_fg : float
+        Latent heat of vaporization of water, default 2.454 MJ/kg
+    rho_w : float, optional
+        Desnity of Water kg/L, by default 1.0
+    c_p : float, optional
+        Specific heat of water in MJ/(kg-K), by default 0.04184
+
+    Returns
+    -------
+    float
+        Withdrawal rate [L/MWh]
+    """
+    # Setting units
+    rho_w = rho_w * u.kg/u.L
+    h_fg = h_fg * u.J/u.kg  # Mega
+    delta_t = delta_t * u.K
+    beta_proc = beta_proc * u.L/(u.W*u.h)  # 1/Mega
+    c_p = c_p * u.J/(u.kg * u.K)  # Mega
+
+    # Heat load rejected
+    k_sens = 1 - k_evap * h_fg/(c_p * delta_t)
+
+    # Model
+    efficiency = 3600 * u.s/u.h * (1-eta_net-k_os) / eta_net
+    physics = (1 - k_sens) / (rho_w * h_fg)
+    blowdown = 1 + 1 / (eta_cc - 1)
+    beta_with = efficiency * physics * blowdown + beta_proc
+
+    # Unit conversion
+    beta_with = u.convert_to(beta_with, u.L/(u.W*u.h))
+    beta_with = beta_with.as_coeff_Mul()[0]
+
+    return beta_with
+
+
+def recirculating_consumption(
+    eta_net: float,
+    k_os: float,
+    delta_t: float,
+    beta_proc: float,
+    eta_cc: int,
+    k_evap: float,
+    k_bd=1.0,
+    h_fg=2.454,
+    rho_w=1.0,
+    c_p=0.04184
+):
+    """Recirculating consumption model
+
+    Parameters
+    ----------
+    eta_net : float
+        Ratio of electricity generation rate to thermal input
+    k_os : float
+        Thermal input lost to non-cooling system sinks
+    delta_t : float
+        Inlet/outlet water temperature difference in C
+    beta_proc : float
+        Non-cooling rate in L/MWh
+    eta_cc : int
+        Number of cooling cycles between 2 and 10
+    k_evap : float
+        Fraction of circulating water lost to evaporation
+    k_bd : float, optional
+        Blowdown discharge fraction. Plants in water abundant areas are able
+         to legally discharge most of their cooling tower blowndown according
+         to Rutberg et al. 2011.
+    h_fg : float
+        Latent heat of vaporization of water, default 2.454 MJ/kg
+    rho_w : float, optional
+        Desnity of Water kg/L, by default 1.0
+    c_p : float, optional
+        Specific heat of water in MJ/(kg-K), by default 0.04184
+
+    Returns
+    -------
+    float
+        Consumption rate [L/MWh]
+    """
+    # Setting units
+    rho_w = rho_w * u.kg/u.L
+    h_fg = h_fg * u.J/u.kg  # Mega
+    delta_t = delta_t * u.K
+    beta_proc = beta_proc * u.L/(u.W*u.h)  # 1/Mega
+    c_p = c_p * u.J/(u.kg * u.K)  # Mega
+
+    # Heat load rejected
+    k_sens = 1 - k_evap * h_fg/(c_p * delta_t)
+
+    # Model
+    efficiency = 3600 * u.s/u.h * (1-eta_net-k_os) / eta_net
+    physics = (1 - k_sens) / (rho_w * h_fg)
+    blowdown = 1 + (1 - k_bd) / (eta_cc - 1)
+    beta_con = efficiency * physics * blowdown + beta_proc
 
     # Unit conversion
     beta_con = u.convert_to(beta_con, u.L/(u.W*u.h))
