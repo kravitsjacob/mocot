@@ -1,0 +1,1 @@
+https://www.ncei.noaa.gov/access/search/data-search/normals-daily-2006-2020?stations=USW00014842
