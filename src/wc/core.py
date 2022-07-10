@@ -708,3 +708,57 @@ def get_beta_proc(fuel):
         beta_proc = 10
 
     return beta_proc
+
+
+def process_exogenous(paths):
+    """Import and process exogenous sources
+
+    Parameters
+    ----------
+    paths : configparser.ConfigParser
+        IO paths
+
+    Returns
+    -------
+    pandas.DataFrame
+        Cleaned exogenous data
+    """
+    # Water temperature
+    df_water_temperature = pd.read_table(
+        paths['inputs']['usgs_temperature_data'],
+        skiprows=[i for i in range(0, 29)] + [30],
+        low_memory=False,
+        parse_dates=[2]
+    )
+    condition = \
+        (df_water_temperature['datetime'] > '2019') & \
+        (df_water_temperature['datetime'] < '2020')
+    df_water_temperature = df_water_temperature[condition]
+    df_water_temperature['water_temperature'] = df_water_temperature.iloc[:, 4]
+
+    headers = [
+        line.split() for i,
+        line in enumerate(open(paths['inputs']['noaa_temperature_headers']))
+        if i == 1
+    ]
+    df_air_temperature = pd.read_table(
+        paths['inputs']['noaa_temperature_data'],
+        delim_whitespace=True,
+        names=headers[0],
+        parse_dates={'datetime': [1, 2]}
+    )
+    condition = \
+        (df_air_temperature['datetime'] > '2019') & \
+        (df_air_temperature['datetime'] < '2020')
+    df_air_temperature = df_air_temperature[condition]
+    df_air_temperature['air_temperature'] = df_air_temperature['T_HR_AVG']
+
+    # Joining
+    df_exogenous = pd.merge(
+        df_air_temperature[['datetime', 'air_temperature']],
+        df_water_temperature[['datetime', 'water_temperature']],
+        how='left',
+        on='datetime'
+    )
+
+    return df_exogenous

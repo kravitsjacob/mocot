@@ -69,19 +69,10 @@ def main():
         g_rc.savefig(paths['outputs']['rc_sensitivity'])
         print('Success: water_use_sensitivies')
 
-    headers = [
-        line.split() for i,
-        line in enumerate(open(paths['inputs']['noaa_temperature_headers']))
-        if i == 1
-    ]
-    df_temperature = pd.read_table(
-        paths['inputs']['noaa_temperature_data'],
-        delim_whitespace=True,
-        names=headers[0],
-        parse_dates={'date': [1, 2]}
-    )
-    fig = wc.raw_temperature(df_temperature)
-    fig.savefig(paths['outputs']['raw_temperature'])
+    df_exogenous = wc.process_exogenous(paths)
+    fig = wc.raw_exogenous(df_exogenous)
+    fig.savefig(paths['outputs']['raw_exogenous'])
+    print('Success: raw_exogenous')
 
 
 if __name__ == '__main__':

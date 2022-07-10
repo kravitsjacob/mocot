@@ -73,13 +73,13 @@ def sensitivity(df_oc, df_rc):
     return g_oc, g_rc
 
 
-def raw_temperature(df_temperature):
-    """Plot of first 10 days of July 2019
+def raw_exogenous(df_exogenous):
+    """Plot of first 14 days of July 2019
 
     Parameters
     ----------
-    df_temperature : pandas.DataFrame
-        Pandas Temperature
+    df_exogenous : pandas.DataFrame
+        Pandas exogenous inputs
 
     Returns
     -------
@@ -88,14 +88,25 @@ def raw_temperature(df_temperature):
     """
     # Subset data
     start = '2019-07-01'
-    end = '2019-07-10'
+    end = '2019-07-14'
     selection = \
-        (df_temperature['date'] > start) & (df_temperature['date'] < end)
-    df_temperature = df_temperature[selection]
+        (df_exogenous['datetime'] > start) & (df_exogenous['datetime'] < end)
+    df_exogenous = df_exogenous[selection]
 
     # Make plot
     fig, ax = plt.subplots()
-    ax.plot(df_temperature['date'], df_temperature['T_HR_AVG'])
+    ax.plot(
+        df_exogenous['datetime'],
+        df_exogenous['air_temperature'],
+        color=sns.color_palette()[0]
+    )
+    ax.plot(
+        df_exogenous['datetime'],
+        df_exogenous['water_temperature'],
+        color=sns.color_palette()[1]
+    )
+    plt.xticks(rotation=45)
+    plt.legend(['Air', 'Water'])
     plt.xticks(rotation=45)
     plt.ylabel(r'Average Temperature [$^\circ$C]')
     plt.tight_layout()
