@@ -53,7 +53,7 @@ def main():
         print('Success: get_regional')
 
     # Water use sensitivities
-    if not os.path.exists(g_rc.savefig(paths['outputs']['rc_sensitivity'])):
+    if not os.path.exists(paths['outputs']['rc_sensitivity']):
         df_gen_info_water = pd.read_csv(paths['outputs']['gen_info_water'])
         df_eia_heat_rates = pd.read_excel(
             paths['inputs']['eia_heat_rates'],
@@ -68,6 +68,20 @@ def main():
         g_oc.savefig(paths['outputs']['oc_sensitivity'])
         g_rc.savefig(paths['outputs']['rc_sensitivity'])
         print('Success: water_use_sensitivies')
+
+    headers = [
+        line.split() for i,
+        line in enumerate(open(paths['inputs']['noaa_temperature_headers']))
+        if i == 1
+    ]
+    df_temperature = pd.read_table(
+        paths['inputs']['noaa_temperature_data'],
+        delim_whitespace=True,
+        names=headers[0],
+        parse_dates={'date': [1, 2]}
+    )
+    fig = wc.raw_temperature(df_temperature)
+    fig.savefig(paths['outputs']['raw_temperature'])
 
 
 if __name__ == '__main__':

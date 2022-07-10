@@ -2,10 +2,11 @@
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+sns.set()
 
 
 def sensitivity(df_oc, df_rc):
-    """_summary_
+    """Sensitivity analysis plotting
 
     Parameters
     ----------
@@ -44,7 +45,6 @@ def sensitivity(df_oc, df_rc):
     g_oc.axes[1, 0].set_title(' ')
     g_oc.axes[1, 0].set_ylabel('Consumption Rate [L/MWh]')
     g_oc.axes[1, 0].set_xlabel('Change in Water Temperature [C]')
-    plt.show()
 
     # Recirculating
     df_rc_plot = df_rc
@@ -69,6 +69,35 @@ def sensitivity(df_oc, df_rc):
     g_rc.axes[1, 0].set_title(' ')
     g_rc.axes[1, 0].set_ylabel('Consumption Rate [L/MWh]')
     g_rc.axes[1, 0].set_xlabel('Inlet Air Temperature [C]')
-    plt.show()
 
     return g_oc, g_rc
+
+
+def raw_temperature(df_temperature):
+    """Plot of first 10 days of July 2019
+
+    Parameters
+    ----------
+    df_temperature : pandas.DataFrame
+        Pandas Temperature
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        Plot of temperature over time
+    """
+    # Subset data
+    start = '2019-07-01'
+    end = '2019-07-10'
+    selection = \
+        (df_temperature['date'] > start) & (df_temperature['date'] < end)
+    df_temperature = df_temperature[selection]
+
+    # Make plot
+    fig, ax = plt.subplots()
+    ax.plot(df_temperature['date'], df_temperature['T_HR_AVG'])
+    plt.xticks(rotation=45)
+    plt.ylabel(r'Average Temperature [$^\circ$C]')
+    plt.tight_layout()
+
+    return fig
