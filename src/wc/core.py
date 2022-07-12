@@ -1,6 +1,7 @@
 """Core functions"""
 
 
+from sympy import beta
 import sympy.physics.units as u
 import os
 import pandas as pd
@@ -664,7 +665,7 @@ def get_eta_net(fuel, df_eia_heat_rates):
     ----------
     fuel : str
         fuel code
-    df_eia_heat_rates : DataFrame
+    df_eia_heat_rates : pandas.DataFrame
         DataFrame of eia heat rates
 
     Returns
@@ -762,3 +763,104 @@ def process_exogenous(paths):
     )
 
     return df_exogenous
+
+
+def time_series_simulation(df_gen_info_water, df_exogenous, df_eia_heat_rates):
+    """Time series simulation
+
+    Parameters
+    ----------
+    df_gen_info_water : pd.DataFrame
+        Generator information with water
+    df_exogenous : pandas.Dataframe
+        Cleaned exogenous data
+    df_eia_heat_rates : pandas.DataFrame
+        DataFrame of eia heat rates
+
+    Returns
+    -------
+    pandas.DataFrame
+        Water use data for the time period
+    """
+    df_water_use = pd.DataFrame()
+    # Subset data
+    start = '2019-07-01'
+    end = '2019-07-2'  # Change to 14
+    selection = \
+        (df_exogenous['datetime'] > start) & (df_exogenous['datetime'] < end)
+    df_exogenous = df_exogenous[selection]
+
+    # Group generator information
+    df_gen_info_water = df_gen_info_water.groupby('Plant Name').agg(
+        {
+            'max_p_mw': 'sum',
+            '923 Cooling Type': 'first',
+            'MATPOWER Fuel': 'first'
+        }
+    )
+    df_gen_info_water = df_gen_info_water.reset_index()
+    df_gen_info_water = df_gen_info_water[
+        df_gen_info_water['923 Cooling Type'] != 'No Cooling System'
+    ]
+
+    # For g in generators
+    for index, row in df_gen_info_water.iterrows():
+        # Get generator properties
+        fuel = row['MATPOWER Fuel']
+        cool = row['923 Cooling Type']
+
+        # Get coefficients
+        k_os = get_k_os(fuel)
+        eta_net = get_eta_net(fuel, df_eia_heat_rates)
+        beta_proc = get_beta_proc(fuel)
+
+        # Run simulation
+        if cool == 'OC':
+            # Delta t processing
+            max_temp = 32.0
+            delta_t = max_temp - df_exogenous['air_temperature']
+
+            # Water models
+            beta_with = [
+                once_through_withdrawal(eta_net, k_os, j, beta_proc)
+                for j in delta_t
+            ]
+            beta_con = [
+                once_through_consumption(eta_net, k_os, j, beta_proc)
+                for j in delta_t
+            ]
+        elif cool == 'RC' or cool == 'RI':
+            eta_cc = 5
+            # Get k_sens
+            beta_with = [
+                recirculating_withdrawal(
+                    eta_net, k_os, beta_proc, eta_cc, get_k_sens(j)
+                )
+                for j in df_exogenous['air_temperature']
+            ]
+            beta_con = [
+                recirculating_consumption(
+                    eta_net, k_os, beta_proc, eta_cc, get_k_sens(j)
+                )
+                for j in df_exogenous['air_temperature']
+            ]
+
+        # Convert to output
+        withdraw = [row['max_p_mw']*beta for beta in beta_with]
+        consumption = [row['max_p_mw']*beta for beta in beta_con]
+
+        # Store in dataframe
+        df_water_use = pd.concat([
+            df_water_use,
+            pd.DataFrame({
+                'datetime': df_exogenous['datetime'],
+                'Plant Name': row['Plant Name'],
+                'Fuel Type': fuel,
+                'Cooling Type': cool,
+                'Withdrawal [L/h]': withdraw,
+                'Consumption [L/h]': consumption,
+            })
+        ])
+        print(row['Plant Name'])
+
+    return df_water_use

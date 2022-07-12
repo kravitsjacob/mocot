@@ -69,10 +69,24 @@ def main():
         g_rc.savefig(paths['outputs']['rc_sensitivity'])
         print('Success: water_use_sensitivies')
 
-    df_exogenous = wc.process_exogenous(paths)
-    fig = wc.raw_exogenous(df_exogenous)
-    fig.savefig(paths['outputs']['raw_exogenous'])
-    print('Success: raw_exogenous')
+    # Time-series simulation
+    if not os.path.exists(paths['outputs']['water_use']):
+        df_exogenous = wc.process_exogenous(paths)
+        fig = wc.raw_exogenous(df_exogenous)
+        fig.savefig(paths['outputs']['raw_exogenous'])
+        print('Success: raw_exogenous')
+        df_eia_heat_rates = pd.read_excel(
+            paths['inputs']['eia_heat_rates'],
+            skiprows=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11],
+            na_values=['Not Available', 'Not Applicable']
+        )
+        df_gen_info_water = pd.read_csv(paths['outputs']['gen_info_water'])
+        df_water_use = wc.time_series_simulation(
+            df_gen_info_water,
+            df_exogenous,
+            df_eia_heat_rates
+        )
+        df_water_use.to_csv(paths['outputs']['water_use'])
 
 
 if __name__ == '__main__':
