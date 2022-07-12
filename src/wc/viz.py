@@ -1,11 +1,13 @@
 """Visualization Functions"""
 
 import matplotlib.pyplot as plt
+import matplotlib
 import seaborn as sns
+sns.set()
 
 
 def sensitivity(df_oc, df_rc):
-    """_summary_
+    """Sensitivity analysis plotting
 
     Parameters
     ----------
@@ -44,7 +46,6 @@ def sensitivity(df_oc, df_rc):
     g_oc.axes[1, 0].set_title(' ')
     g_oc.axes[1, 0].set_ylabel('Consumption Rate [L/MWh]')
     g_oc.axes[1, 0].set_xlabel('Change in Water Temperature [C]')
-    plt.show()
 
     # Recirculating
     df_rc_plot = df_rc
@@ -69,6 +70,100 @@ def sensitivity(df_oc, df_rc):
     g_rc.axes[1, 0].set_title(' ')
     g_rc.axes[1, 0].set_ylabel('Consumption Rate [L/MWh]')
     g_rc.axes[1, 0].set_xlabel('Inlet Air Temperature [C]')
-    plt.show()
 
     return g_oc, g_rc
+
+
+def raw_exogenous(df_exogenous):
+    """Plot of first 14 days of July 2019
+
+    Parameters
+    ----------
+    df_exogenous : pandas.DataFrame
+        Pandas exogenous inputs
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        Plot of temperature over time
+    """
+    # Subset data
+    start = '2019-07-01'
+    end = '2019-07-14'
+    selection = \
+        (df_exogenous['datetime'] > start) & (df_exogenous['datetime'] < end)
+    df_exogenous = df_exogenous[selection]
+
+    # Make plot
+    fig, ax = plt.subplots()
+    ax.plot(
+        df_exogenous['datetime'],
+        df_exogenous['air_temperature'],
+        color=sns.color_palette()[0]
+    )
+    ax.plot(
+        df_exogenous['datetime'],
+        df_exogenous['water_temperature'],
+        color=sns.color_palette()[1]
+    )
+    plt.xticks(rotation=45)
+    plt.legend(['Air', 'Water'])
+    plt.xticks(rotation=45)
+    plt.ylabel(r'Average Temperature [$^\circ$C]')
+    plt.tight_layout()
+
+    return fig
+
+
+def time_series(df_water_use):
+    # Create labels
+    df_water_use['Fuel/Cooling'] = \
+        df_water_use['Fuel Type'] + '/' + df_water_use['Cooling Type']
+
+    # Once-through
+    g_with = sns.FacetGrid(
+        df_water_use,
+        row='Fuel/Cooling',
+        sharex=True,
+        sharey=True,
+        margin_titles=True,
+        aspect=3.5,
+        height=2.5
+    )
+    g_with = g_with.map_dataframe(
+        sns.lineplot,
+        x='datetime',
+        y='Withdrawal [L/h]',
+        hue='Plant Name',
+        style='Plant Name'
+    )
+    for ax in g_with.axes:
+        ax[0].legend(loc='center', bbox_to_anchor=(1.2, 0.5))
+    g_with.set_axis_labels(x_var='')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+
+    # Once-through
+    g_con = sns.FacetGrid(
+        df_water_use,
+        row='Fuel/Cooling',
+        sharex='col',
+        sharey=True,
+        margin_titles=True,
+        aspect=3.5,
+        height=2.5
+    )
+    g_con.map_dataframe(
+        sns.lineplot,
+        x='datetime',
+        y='Consumption [L/h]',
+        hue='Plant Name',
+        style='Plant Name'
+    )
+    for ax in g_con.axes:
+        ax[0].legend(loc='center', bbox_to_anchor=(1.2, 0.5))
+    g_con.set_axis_labels(x_var='')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+
+    return g_with, g_con
