@@ -1,6 +1,7 @@
 """Visualization Functions"""
 
 import matplotlib.pyplot as plt
+import matplotlib
 import seaborn as sns
 sns.set()
 
@@ -112,3 +113,57 @@ def raw_exogenous(df_exogenous):
     plt.tight_layout()
 
     return fig
+
+
+def time_series(df_water_use):
+    # Create labels
+    df_water_use['Fuel/Cooling'] = \
+        df_water_use['Fuel Type'] + '/' + df_water_use['Cooling Type']
+
+    # Once-through
+    g_with = sns.FacetGrid(
+        df_water_use,
+        row='Fuel/Cooling',
+        sharex=True,
+        sharey=True,
+        margin_titles=True,
+        aspect=3.5,
+        height=2.5
+    )
+    g_with = g_with.map_dataframe(
+        sns.lineplot,
+        x='datetime',
+        y='Withdrawal [L/h]',
+        hue='Plant Name',
+        style='Plant Name'
+    )
+    for ax in g_with.axes:
+        ax[0].legend(loc='center', bbox_to_anchor=(1.2, 0.5))
+    g_with.set_axis_labels(x_var='')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+
+    # Once-through
+    g_con = sns.FacetGrid(
+        df_water_use,
+        row='Fuel/Cooling',
+        sharex='col',
+        sharey=True,
+        margin_titles=True,
+        aspect=3.5,
+        height=2.5
+    )
+    g_con.map_dataframe(
+        sns.lineplot,
+        x='datetime',
+        y='Consumption [L/h]',
+        hue='Plant Name',
+        style='Plant Name'
+    )
+    for ax in g_con.axes:
+        ax[0].legend(loc='center', bbox_to_anchor=(1.2, 0.5))
+    g_con.set_axis_labels(x_var='')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+
+    return g_with, g_con

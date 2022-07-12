@@ -785,7 +785,7 @@ def time_series_simulation(df_gen_info_water, df_exogenous, df_eia_heat_rates):
     df_water_use = pd.DataFrame()
     # Subset data
     start = '2019-07-01'
-    end = '2019-07-2'  # Change to 14
+    end = '2019-07-14'
     selection = \
         (df_exogenous['datetime'] > start) & (df_exogenous['datetime'] < end)
     df_exogenous = df_exogenous[selection]
@@ -818,7 +818,7 @@ def time_series_simulation(df_gen_info_water, df_exogenous, df_eia_heat_rates):
         if cool == 'OC':
             # Delta t processing
             max_temp = 32.0
-            delta_t = max_temp - df_exogenous['air_temperature']
+            delta_t = max_temp - df_exogenous['water_temperature']
 
             # Water models
             beta_with = [

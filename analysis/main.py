@@ -87,6 +87,12 @@ def main():
             df_eia_heat_rates
         )
         df_water_use.to_csv(paths['outputs']['water_use'])
+        print('Success: time_series_simulation')
+
+    df_water_use = pd.read_csv(paths['outputs']['water_use'], parse_dates=[1])
+    g_with, g_con = wc.time_series(df_water_use)
+    g_with.savefig(paths['outputs']['with_timeseries'])
+    g_con.savefig(paths['outputs']['con_timeseries'])
 
 
 if __name__ == '__main__':
