@@ -5,7 +5,7 @@ using JuMP
 
 function io()
     """
-    Inputs and ouputs for analysis
+    Populate inputs and ouputs for analysis.
     """
     # Initialization
     paths = Dict{String, Dict}()
@@ -23,6 +23,31 @@ function io()
 end 
 
 
+function time_series_loads!(network_data_multi::Dict)
+    """
+    Create a time series loads.
+
+    # Arguments
+    - `n::Dict`: multi network data
+    """
+    # Create load factors
+    morning = repeat([0.5], 6)
+    mid = repeat([0.9], 6)
+    afternoon = repeat([1.4], 6)
+    night = repeat([0.5], 6)
+    load_factors = vcat(morning, mid, afternoon, night)
+
+    # Apply load factors
+    for (h, network_timeslice) in network_data_multi["nw"]
+        for load in values(network_timeslice["load"])
+            load["pd"] = load_factors[parse(Int64, h)] * load["pd"]
+        end
+    end
+
+    return network_data_multi
+end
+
+
 function main()
     # Initialization
     h_total = 24
@@ -35,8 +60,7 @@ function main()
 
     # Configure time-series properties
     network_data_multi = PowerModels.replicate(network_data, h_total)
-
-    network_data_multi["nw"]["1"]["load"]["1"]["pd"] = 2.0
+    network_data_multi = time_series_loads!(network_data_multi)
 
     # Create model
     pm3 = PowerModels.instantiate_model(
