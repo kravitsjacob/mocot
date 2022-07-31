@@ -2,6 +2,7 @@ using PowerModels
 using Ipopt
 using JuMP
 using DataFrames
+using CSV
 
 
 function io()
@@ -15,6 +16,7 @@ function io()
 
     # Path setting
     inputs["case"] = "analysis/io/inputs/ACTIVSg200/case_ACTIVSg200.m"
+    outputs["df_load"] = "analysis/io/outputs/power_system/loads.csv"
 
     # Assign
     paths["inputs"] = inputs
@@ -87,22 +89,6 @@ function multi_network_to_df(network_data_multi::Dict, obj_name::String)
 end
 
 
-function plot_loads(network_data_multi::Dict)
-    """
-    Create a time series load plot.
-
-    # Arguments
-    - `n::Dict`: multi network data
-    """
-
-    # Convert to dataframe
-    df = multi_network_to_df(network_data_multi, "load")
-
-    print(df)
-    return 0
-end
-
-
 function main()
     # Initialization
     h_total = 24
@@ -117,9 +103,6 @@ function main()
     network_data_multi = PowerModels.replicate(network_data, h_total)
     network_data_multi = time_series_loads!(network_data_multi)
 
-    # Load plotting
-    plot_loads(network_data_multi)
-
     # Create model
     pm3 = PowerModels.instantiate_model(
         network_data_multi,
@@ -127,16 +110,22 @@ function main()
         PowerModels.build_mn_opf
     )
 
-
     # Solve
     results = PowerModels.optimize_model!(pm3, optimizer=Ipopt.Optimizer)
+
+    # Output
     println(string(results["solution"]["nw"]["1"]["gen"]["4"]["pg"]))
     println(string(results["solution"]["nw"]["2"]["gen"]["4"]["pg"]))
     println(string(results["solution"]["nw"]["3"]["gen"]["4"]["pg"]))
 
+    # Export
+    df_load = multi_network_to_df(network_data_multi, "load")
+    CSV.write(paths["outputs"]["df_load"], df_load)
+
     formulation = JuMP.latex_formulation(pm3.model)
     open("formulaton.txt", "w") do file
         write(file, string(formulation))
+
     JuMP.objective_function_type(pm3.model)
     end
  end
