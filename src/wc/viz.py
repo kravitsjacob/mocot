@@ -167,3 +167,35 @@ def time_series(df_water_use):
     plt.tight_layout()
 
     return g_with, g_con
+
+
+def loads(df_loads):
+    """Plot load timeseries
+
+    Parameters
+    ----------
+    df_loads : pandas.DataFrame
+        DataFrame of loads
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        Plot of loads
+    """
+    fig, ax = plt.subplots()
+    palette = sns.color_palette(['black'], len(df_loads['index'].unique()))
+    sns.lineplot(
+        data=df_loads,
+        x='hour',
+        y='pd',
+        hue='index',
+        palette=palette,
+        legend=False,
+        lw=0.5,
+        alpha=0.5,
+        ax=ax
+    )
+    plt.xlabel('Hour')
+    plt.ylabel('Power [p.u.]')
+
+    return fig

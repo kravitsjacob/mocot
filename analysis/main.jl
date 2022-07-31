@@ -34,10 +34,10 @@ function time_series_loads!(network_data_multi::Dict)
     - `n::Dict`: multi network data
     """
     # Create load factors
-    morning = repeat([0.5], 6)
-    mid = repeat([0.9], 6)
-    afternoon = repeat([1.4], 6)
-    night = repeat([0.5], 6)
+    morning = repeat([0.9], 6)
+    mid = repeat([1.2], 8)
+    afternoon = repeat([1.6], 4)
+    night = repeat([0.9], 6)
     load_factors = vcat(morning, mid, afternoon, night)
 
     # Apply load factors
