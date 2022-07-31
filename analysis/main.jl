@@ -17,6 +17,7 @@ function io()
     # Path setting
     inputs["case"] = "analysis/io/inputs/ACTIVSg200/case_ACTIVSg200.m"
     outputs["df_load"] = "analysis/io/outputs/power_system/loads.csv"
+    outputs["df_gen_noramp"] = "analysis/io/outputs/power_system/df_gen_noramp.csv"
 
     # Assign
     paths["inputs"] = inputs
@@ -51,22 +52,22 @@ function time_series_loads!(network_data_multi::Dict)
 end
 
 
-function multi_network_to_df(network_data_multi::Dict, obj_name::String)
+function multi_network_to_df(nw_data::Dict, obj_name::String)
     """
     Extract object from multi network
 
     # Arguments
-    - `network_data_multi::Dict`: multi network data
+    - `nw_data::Dict`: multi network data (network_data_multi["nw"])
     - `obj_name::Dict`: multi network data
     """
     # Initialization
     df = DataFrame()
 
     # Loop through hours
-    for h in 1:length(network_data_multi["nw"])
+    for h in 1:length(nw_data)
 
         # Loop each load in the hour
-        for (obj_name, obj_dict) in network_data_multi["nw"][string(h)][obj_name]
+        for (obj_name, obj_dict) in nw_data[string(h)][obj_name]
             # Drop source_id
             delete!(obj_dict, "source_id")
 
@@ -119,8 +120,10 @@ function main()
     println(string(results["solution"]["nw"]["3"]["gen"]["4"]["pg"]))
 
     # Export
-    df_load = multi_network_to_df(network_data_multi, "load")
+    df_load = multi_network_to_df(network_data_multi["nw"], "load")
     CSV.write(paths["outputs"]["df_load"], df_load)
+    df_gen = multi_network_to_df(results["solution"]["nw"], "gen")
+    CSV.write(paths["outputs"]["df_gen_noramp"], df_gen)
 
     formulation = JuMP.latex_formulation(pm3.model)
     open("formulaton.txt", "w") do file
