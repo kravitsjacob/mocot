@@ -1,6 +1,7 @@
 using PowerModels
 using Ipopt
 using JuMP
+using DataFrames
 
 
 function io()
@@ -48,6 +49,60 @@ function time_series_loads!(network_data_multi::Dict)
 end
 
 
+function multi_network_to_df(network_data_multi::Dict, obj_name::String)
+    """
+    Extract object from multi network
+
+    # Arguments
+    - `network_data_multi::Dict`: multi network data
+    - `obj_name::Dict`: multi network data
+    """
+    # Initialization
+    df = DataFrame()
+
+    # Loop through hours
+    for h in 1:length(network_data_multi["nw"])
+
+        # Loop each load in the hour
+        for (obj_name, obj_dict) in network_data_multi["nw"][string(h)][obj_name]
+            # Drop source_id
+            delete!(obj_dict, "source_id")
+
+            # Object DataFrame
+            df_obj = DataFrames.DataFrame(obj_dict)
+
+            # Assign name
+            df_obj[:, "name"] .= obj_name
+
+            # Assign hour
+            df_obj[:, "hour"] .= h
+
+            # Append to network dataframe
+            DataFrames.append!(df, df_obj)
+        end
+    end
+    
+    return df
+
+end
+
+
+function plot_loads(network_data_multi::Dict)
+    """
+    Create a time series load plot.
+
+    # Arguments
+    - `n::Dict`: multi network data
+    """
+
+    # Convert to dataframe
+    df = multi_network_to_df(network_data_multi, "load")
+
+    print(df)
+    return 0
+end
+
+
 function main()
     # Initialization
     h_total = 24
@@ -61,6 +116,9 @@ function main()
     # Configure time-series properties
     network_data_multi = PowerModels.replicate(network_data, h_total)
     network_data_multi = time_series_loads!(network_data_multi)
+
+    # Load plotting
+    plot_loads(network_data_multi)
 
     # Create model
     pm3 = PowerModels.instantiate_model(
