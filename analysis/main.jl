@@ -18,6 +18,7 @@ function io()
     inputs["case"] = "analysis/io/inputs/ACTIVSg200/case_ACTIVSg200.m"
     outputs["df_load"] = "analysis/io/outputs/power_system/loads.csv"
     outputs["df_gen_noramp"] = "analysis/io/outputs/power_system/df_gen_noramp.csv"
+    outputs["df_gen_pminfo"] = "analysis/io/outputs/power_system/df_gen_pminfo.csv"
 
     # Assign
     paths["inputs"] = inputs
@@ -48,7 +49,38 @@ function time_series_loads!(network_data_multi::Dict)
         end
     end
 
-    return network_data_multi
+    return network_data_multi::Dict
+end
+
+
+function network_to_df(data::Dict, obj_name::String)
+    """
+    Extract object from network
+
+    # Arguments
+    - `data::Dict`: Network data
+    - `obj_name::String`: Name of object
+    """
+    # Initialization
+    df = DataFrame()
+
+    # Loop each object
+    for (obj_name, obj_dict) in data[obj_name]
+        # Drop multi-entry TODO flatten
+        delete!(obj_dict, "source_id")
+        delete!(obj_dict, "cost")
+
+        # Object DataFrame
+        df_obj = DataFrames.DataFrame(obj_dict)
+
+        # Assign name
+        df_obj[:, "name"] .= obj_name
+
+        # Append to network dataframe
+        DataFrames.append!(df, df_obj)
+    end
+
+    return df
 end
 
 
@@ -60,13 +92,14 @@ function multi_network_to_df(nw_data::Dict, obj_name::String)
     - `nw_data::Dict`: multi network data (network_data_multi["nw"])
     - `obj_name::Dict`: multi network data
     """
+    # TODO should call network_to_df
     # Initialization
     df = DataFrame()
 
     # Loop through hours
     for h in 1:length(nw_data)
 
-        # Loop each load in the hour
+        # Loop each object in the hour
         for (obj_name, obj_dict) in nw_data[string(h)][obj_name]
             # Drop source_id
             delete!(obj_dict, "source_id")
@@ -124,6 +157,8 @@ function main()
     CSV.write(paths["outputs"]["df_load"], df_load)
     df_gen = multi_network_to_df(results["solution"]["nw"], "gen")
     CSV.write(paths["outputs"]["df_gen_noramp"], df_gen)
+    df_gen_info = network_to_df(network_data, "gen")
+    CSV.write(paths["outputs"]["df_gen_pminfo"], df_gen_info)
 
     formulation = JuMP.latex_formulation(pm3.model)
     open("formulaton.txt", "w") do file
