@@ -19,6 +19,8 @@ function io()
     outputs["df_load"] = "analysis/io/outputs/power_system/loads.csv"
     outputs["df_gen_noramp"] = "analysis/io/outputs/power_system/df_gen_noramp.csv"
     outputs["df_gen_pminfo"] = "analysis/io/outputs/power_system/df_gen_pminfo.csv"
+    outputs["df_gen_ramp"] = "analysis/io/outputs/power_system/df_gen_ramp.csv"
+    outputs["formulation"] = "analysis/io/outputs/power_system/formulation.txt"
 
     # Assign
     paths["inputs"] = inputs
@@ -123,6 +125,36 @@ function multi_network_to_df(nw_data::Dict, obj_name::String)
 end
 
 
+function add_ramping_constraints!(pm, h_total)
+    """
+    Add generator ramping constraints to nuclear generator
+
+    # Arguments
+    - `pm`: Power model
+    - `h_total::Int64`: Number of hours 
+    """
+    ramp_up = 1.0
+    ramp_down = 1.0
+    gen_name = 47
+
+    begin
+        # Ramping up
+        JuMP.@constraint(
+            pm.model,
+            [h in 1:h_total-1],
+            var(pm, h+1, :pg, gen_name) - var(pm, h, :pg, gen_name) <= ramp_up
+        )
+        # Ramping up
+        JuMP.@constraint(
+            pm.model,
+            [h in 2:h_total],
+            var(pm, h-1, :pg, gen_name) - var(pm, h, :pg, gen_name) <= ramp_down
+        )
+    end
+    return pm
+end
+
+
 function main()
     # Initialization
     h_total = 24
@@ -138,34 +170,36 @@ function main()
     network_data_multi = time_series_loads!(network_data_multi)
 
     # Create model
-    pm3 = PowerModels.instantiate_model(
+    pm = PowerModels.instantiate_model(
         network_data_multi,
         PowerModels.DCMPPowerModel,
         PowerModels.build_mn_opf
     )
 
-    # Solve
-    results = PowerModels.optimize_model!(pm3, optimizer=Ipopt.Optimizer)
+    # Solve (no constraints)
+    results_nc = PowerModels.optimize_model!(pm, optimizer=Ipopt.Optimizer)
 
-    # Output
-    println(string(results["solution"]["nw"]["1"]["gen"]["4"]["pg"]))
-    println(string(results["solution"]["nw"]["2"]["gen"]["4"]["pg"]))
-    println(string(results["solution"]["nw"]["3"]["gen"]["4"]["pg"]))
+    # Add ramping constraints
+    pm = add_ramping_constraints!(pm, h_total)
+
+    # Solve (ramping constraints)
+    results_ramp = PowerModels.optimize_model!(pm, optimizer=Ipopt.Optimizer)
 
     # Export
     df_load = multi_network_to_df(network_data_multi["nw"], "load")
     CSV.write(paths["outputs"]["df_load"], df_load)
-    df_gen = multi_network_to_df(results["solution"]["nw"], "gen")
+    df_gen = multi_network_to_df(results_nc["solution"]["nw"], "gen")
     CSV.write(paths["outputs"]["df_gen_noramp"], df_gen)
     df_gen_info = network_to_df(network_data, "gen")
     CSV.write(paths["outputs"]["df_gen_pminfo"], df_gen_info)
+    df_gen_ramp = multi_network_to_df(results_ramp["solution"]["nw"], "gen")
+    CSV.write(paths["outputs"]["df_gen_ramp"], df_gen_ramp)
 
-    formulation = JuMP.latex_formulation(pm3.model)
-    open("formulaton.txt", "w") do file
+    formulation = JuMP.latex_formulation(pm.model)
+    open(paths["outputs"]["formulation"], "w") do file
         write(file, string(formulation))
-
-    JuMP.objective_function_type(pm3.model)
     end
+
  end
  
 
