@@ -104,11 +104,20 @@ def main():
         fig.savefig(paths['outputs']['loads'])
 
     # Power simulation simulation no ramping limits
-    df_gen_info_water = pd.read_csv(paths['outputs']['gen_info_water'])
-    df_gen_pminfo = pd.read_csv(paths['outputs']['df_gen_pminfo'])
-    df_gen = pd.read_csv(paths['outputs']['df_gen_noramp'])
-    g = wc.no_ramp(df_gen, df_gen_pminfo, df_gen_info_water)
-    g.savefig(paths['outputs']['gen_noramp'])
+    if not os.path.exists(paths['outputs']['gen_noramp']):
+        df_gen_info_water = pd.read_csv(paths['outputs']['gen_info_water'])
+        df_gen_pminfo = pd.read_csv(paths['outputs']['df_gen_pminfo'])
+        df_gen = pd.read_csv(paths['outputs']['df_gen_noramp'])
+        g = wc.gen_timeseries(df_gen, df_gen_pminfo, df_gen_info_water)
+        g.savefig(paths['outputs']['gen_noramp'])
+
+    # Power simulation simulation with ramping limits
+    if not os.path.exists(paths['outputs']['gen_ramp']):
+        df_gen_info_water = pd.read_csv(paths['outputs']['gen_info_water'])
+        df_gen_pminfo = pd.read_csv(paths['outputs']['df_gen_pminfo'])
+        df_gen = pd.read_csv(paths['outputs']['df_gen_ramp'])
+        g = wc.gen_timeseries(df_gen, df_gen_pminfo, df_gen_info_water)
+        g.savefig(paths['outputs']['gen_ramp'])
 
 
 if __name__ == '__main__':

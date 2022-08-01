@@ -117,6 +117,18 @@ def raw_exogenous(df_exogenous):
 
 
 def time_series(df_water_use):
+    """Time series water use
+
+    Parameters
+    ----------
+    df_water_use : pandas.DataFrame
+        Dataframe of water use
+
+    Returns
+    -------
+    seaborn.axisgrid.FacetGrid
+        Plots of once-through
+    """
     # Create labels
     df_water_use['Fuel/Cooling'] = \
         df_water_use['Fuel Type'] + '/' + df_water_use['Cooling Type']
@@ -202,8 +214,23 @@ def loads(df_loads):
     return fig
 
 
-def no_ramp(df_gen, df_gen_pminfo, df_gen_info_water):
+def gen_timeseries(df_gen, df_gen_pminfo, df_gen_info_water):
+    """Plot generator timeseries power output
 
+    Parameters
+    ----------
+    df_gen : pandas.DataFrame
+        Generator output DataFrame
+    df_gen_pminfo : pandas.DataFrame
+        Generator PowerModel information DataFrame
+    df_gen_info_water : pandas.DataFrame
+        Generator water information DataFrame
+
+    Returns
+    -------
+    seaborn.axisgrid.FacetGrid
+        Plots of once-through
+    """
     # Get powermodels information
     df_gen = pd.merge(
         df_gen,
