@@ -97,11 +97,18 @@ def main():
         g_with.savefig(paths['outputs']['with_timeseries'])
         g_con.savefig(paths['outputs']['con_timeseries'])
 
-    # Power simulation simulation
+    # Power simulation simulation inputs
     if not os.path.exists(paths['outputs']['loads']):
         df_load = pd.read_csv(paths['outputs']['df_load'])
         fig = wc.loads(df_load)
         fig.savefig(paths['outputs']['loads'])
+
+    # Power simulation simulation no ramping limits
+    df_gen_info_water = pd.read_csv(paths['outputs']['gen_info_water'])
+    df_gen_pminfo = pd.read_csv(paths['outputs']['df_gen_pminfo'])
+    df_gen = pd.read_csv(paths['outputs']['df_gen_noramp'])
+    g = wc.no_ramp(df_gen, df_gen_pminfo, df_gen_info_water)
+    g.savefig(paths['outputs']['gen_noramp'])
 
 
 if __name__ == '__main__':
