@@ -2,3 +2,6 @@ name = "WaterPowerModels"
 uuid = "69a00cc1-8540-4ac5-8cc4-11d77e61fcbd"
 authors = ["kravitsjacob <kravitsjacob@gmail.com>"]
 version = "0.0.0"
+
+[deps]
+PowerModels = "c36e90e8-916a-50a6-bd94-075b64ef4655"
