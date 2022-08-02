@@ -3,6 +3,7 @@
 import matplotlib.pyplot as plt
 import matplotlib
 import seaborn as sns
+import pandas as pd
 sns.set()
 
 
@@ -116,6 +117,18 @@ def raw_exogenous(df_exogenous):
 
 
 def time_series(df_water_use):
+    """Time series water use
+
+    Parameters
+    ----------
+    df_water_use : pandas.DataFrame
+        Dataframe of water use
+
+    Returns
+    -------
+    seaborn.axisgrid.FacetGrid
+        Plots of once-through
+    """
     # Create labels
     df_water_use['Fuel/Cooling'] = \
         df_water_use['Fuel Type'] + '/' + df_water_use['Cooling Type']
@@ -167,3 +180,107 @@ def time_series(df_water_use):
     plt.tight_layout()
 
     return g_with, g_con
+
+
+def loads(df_loads):
+    """Plot load timeseries
+
+    Parameters
+    ----------
+    df_loads : pandas.DataFrame
+        DataFrame of loads
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        Plot of loads
+    """
+    fig, ax = plt.subplots()
+    palette = sns.color_palette(['black'], len(df_loads['index'].unique()))
+    sns.lineplot(
+        data=df_loads,
+        x='hour',
+        y='pd',
+        hue='index',
+        palette=palette,
+        legend=False,
+        lw=0.5,
+        alpha=0.5,
+        ax=ax
+    )
+    plt.xlabel('Hour')
+    plt.ylabel('Power [p.u.]')
+
+    return fig
+
+
+def gen_timeseries(df_gen, df_gen_pminfo, df_gen_info_water):
+    """Plot generator timeseries power output
+
+    Parameters
+    ----------
+    df_gen : pandas.DataFrame
+        Generator output DataFrame
+    df_gen_pminfo : pandas.DataFrame
+        Generator PowerModel information DataFrame
+    df_gen_info_water : pandas.DataFrame
+        Generator water information DataFrame
+
+    Returns
+    -------
+    seaborn.axisgrid.FacetGrid
+        Plots of once-through
+    """
+    # Get powermodels information
+    df_gen = pd.merge(
+        df_gen,
+        df_gen_pminfo[['name', 'gen_bus']],
+        left_on='name',
+        right_on='name',
+        how='left'
+    )
+
+    # Get water information
+    mergecols = [
+        'MATPOWER Index',
+        'MATPOWER Fuel',
+        '923 Cooling Type',
+        'Plant Name'
+    ]
+    df_gen = pd.merge(
+        df_gen,
+        df_gen_info_water[mergecols],
+        left_on='gen_bus',
+        right_on='MATPOWER Index',
+        how='left'
+    )
+
+    # Create labels
+    df_gen['Fuel/Cooling'] = \
+        df_gen['MATPOWER Fuel'] + '/' + df_gen['923 Cooling Type']
+
+    # Plot
+    g = sns.FacetGrid(
+        df_gen,
+        row='Fuel/Cooling',
+        sharey=False,
+        sharex=True,
+        aspect=4.5,
+        height=2.0,
+    )
+    g = g.map_dataframe(
+        sns.lineplot,
+        x='hour',
+        y='pg',
+        hue='Plant Name',
+        style='Plant Name',
+        units='name',
+        estimator=None,
+        lw=0.5,
+    )
+    for ax in g.axes:
+        ax[0].legend(loc='center', bbox_to_anchor=(1.2, 0.5))
+    g.set_axis_labels(x_var='Hour', y_var='Power Output [p.u.]')
+    plt.tight_layout()
+
+    return g
