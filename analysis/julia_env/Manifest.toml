@@ -573,6 +573,12 @@ version = "1.0.2"
 [[deps.Unicode]]
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 
+[[deps.WaterPowerModels]]
+deps = ["PowerModels"]
+path = "C:\\Users\\kravi\\Desktop\\water-coordinate\\src\\julia\\WaterPowerModels"
+uuid = "69a00cc1-8540-4ac5-8cc4-11d77e61fcbd"
+version = "0.0.0"
+
 [[deps.WeakRefStrings]]
 deps = ["DataAPI", "InlineStrings", "Parsers"]
 git-tree-sha1 = "b1be2855ed9ed8eac54e5caff2afcdb442d52c23"
