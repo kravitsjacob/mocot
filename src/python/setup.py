@@ -1,17 +1,12 @@
 
 import setuptools
 
-with open("README.md", "r", encoding="utf-8") as fh:
-    long_description = fh.read()
-
 setuptools.setup(
     name="wc",
     version="0.0.0b0",
     author="Jacob Kravits",
     author_email="kravitsjacob@gmail.com",
     description="Multi-Objective Coordination of Thermoelectric Water Use",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
     url="https://github.com/kravitsjacob/water-coordinate",
     project_urls={
         "Bug Tracker": "https://github.com/kravitsjacob/water-coordinate/issues",  # noqa
@@ -19,7 +14,7 @@ setuptools.setup(
     install_requires=[
         'sympy',
         'pandas',
-        'pytables',
+        'tables',
         'pandapower'
     ],
     classifiers=[
