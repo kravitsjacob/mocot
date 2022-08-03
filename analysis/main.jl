@@ -3,31 +3,7 @@ using WaterPowerModels
 using Ipopt
 using CSV
 using JuMP
-
-
-function io()
-    """
-    Populate inputs and ouputs for analysis.
-    """
-    # Initialization
-    paths = Dict{String, Dict}()
-    inputs = Dict{String, String}()
-    outputs = Dict{String, String}()
-
-    # Path setting
-    inputs["case"] = "analysis/io/inputs/ACTIVSg200/case_ACTIVSg200.m"
-    outputs["df_load"] = "analysis/io/outputs/power_system/loads.csv"
-    outputs["df_gen_noramp"] = "analysis/io/outputs/power_system/df_gen_noramp.csv"
-    outputs["df_gen_pminfo"] = "analysis/io/outputs/power_system/df_gen_pminfo.csv"
-    outputs["df_gen_ramp"] = "analysis/io/outputs/power_system/df_gen_ramp.csv"
-    outputs["formulation"] = "analysis/io/outputs/power_system/formulation.txt"
-
-    # Assign
-    paths["inputs"] = inputs
-    paths["outputs"] = outputs
-
-    return paths
-end 
+using YAML
 
 
 function main()
@@ -35,7 +11,7 @@ function main()
     h_total = 24
 
     # Setting import paths
-    paths = io()
+    paths = YAML.load_file("analysis/paths.yml")
 
     # Import static network
     network_data = PowerModels.parse_file(paths["inputs"]["case"])
