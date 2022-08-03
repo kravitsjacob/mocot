@@ -15,7 +15,8 @@ setuptools.setup(
         'sympy',
         'pandas',
         'tables',
-        'pandapower'
+        'pandapower',
+        'PyYAML'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

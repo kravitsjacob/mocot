@@ -1,18 +1,18 @@
 """Main analysis script"""
 
 
-import configparser
 import pandapower
 import os
 import pandas as pd
+import yaml
 
 import wc
 
 
 def main():
     # Inputs
-    paths = configparser.ConfigParser()
-    paths.read('analysis/config.ini')
+    with open('analysis/paths.yml', 'r') as f:
+        paths = yaml.safe_load(f)
 
     # Setting up grid
     if not os.path.exists(paths['outputs']['case']):
