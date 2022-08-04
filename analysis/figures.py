@@ -17,6 +17,18 @@ def main():
         fig = wc.viz.temperatures(df_air_water)
         fig.savefig(paths['outputs']['temperatures'])
 
+    # Daily average air/water temperature
+    if not os.path.exists(paths['outputs']['water_use']):
+        df_air_water = pd.read_csv(paths['outputs']['df_air_water'])
+        fig = wc.viz.temperatures(df_air_water)
+        fig.savefig(paths['outputs']['temperatures'])
+
+    # System hourly load data
+    if not os.path.exists(paths['outputs']['system_load']):
+        df_system_load = pd.read_csv(paths['outputs']['df_system_load'])
+        fig = wc.viz.system_load(df_system_load)
+        fig.savefig(paths['outputs']['system_load'])
+
     # # Power simulation simulation inputs
     # if not os.path.exists(paths['outputs']['loads']):
     #     df_load = pd.read_csv(paths['outputs']['df_load'])

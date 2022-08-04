@@ -110,6 +110,24 @@ def temperatures(df_exogenous):
     return fig
 
 
+def system_load(df_system_load):
+    # Parse dates
+    df_system_load['DATE'] = pd.to_datetime(df_system_load['DATE'])
+
+    # Plot
+    fig, ax = plt.subplots()
+    ax.plot(
+        df_system_load['DATE'],
+        df_system_load['ActualLoad']
+    )
+    plt.xticks(rotation=45)
+    plt.xticks(rotation=45)
+    plt.ylabel(r'Load [MW]')
+    plt.tight_layout()
+
+    return fig
+
+
 def time_series(df_water_use):
     """Time series water use
 
