@@ -40,6 +40,11 @@ def main():
         df_gen_info_water.to_csv(paths['outputs']['gen_info_water'])
         print('Success: get_cooling_system')
 
+    # Water and air temperature
+    if not os.path.exists(paths['outputs']['df_air_water']):
+        df_air_water = wc.core.process_exogenous(paths)
+        df_air_water.to_csv(paths['outputs']['df_air_water'])
+
 
 if __name__ == '__main__':
     main()

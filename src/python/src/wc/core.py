@@ -762,6 +762,17 @@ def process_exogenous(paths):
         on='datetime'
     )
 
+    # Subset data
+    start = '2019-07-01'
+    end = '2019-07-08'
+    selection = \
+        (df_exogenous['datetime'] > start) & (df_exogenous['datetime'] < end)
+    df_exogenous = df_exogenous[selection]
+
+    # Daily average
+    df_exogenous = df_exogenous.resample('d', on='datetime').mean()
+    df_exogenous = df_exogenous.reset_index()
+
     return df_exogenous
 
 

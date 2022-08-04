@@ -75,8 +75,8 @@ def sensitivity(df_oc, df_rc):
     return g_oc, g_rc
 
 
-def raw_exogenous(df_exogenous):
-    """Plot of first 14 days of July 2019
+def temperatures(df_exogenous):
+    """Plot of first 7 days of July 2019
 
     Parameters
     ----------
@@ -88,24 +88,18 @@ def raw_exogenous(df_exogenous):
     matplotlib.figure.Figure
         Plot of temperature over time
     """
-    # Subset data
-    start = '2019-07-01'
-    end = '2019-07-14'
-    selection = \
-        (df_exogenous['datetime'] > start) & (df_exogenous['datetime'] < end)
-    df_exogenous = df_exogenous[selection]
-
-    # Make plot
     fig, ax = plt.subplots()
     ax.plot(
         df_exogenous['datetime'],
         df_exogenous['air_temperature'],
-        color=sns.color_palette()[0]
+        color=sns.color_palette()[0],
+        drawstyle='steps-post'
     )
     ax.plot(
         df_exogenous['datetime'],
         df_exogenous['water_temperature'],
-        color=sns.color_palette()[1]
+        color=sns.color_palette()[1],
+        drawstyle='steps-post'
     )
     plt.xticks(rotation=45)
     plt.legend(['Air', 'Water'])
