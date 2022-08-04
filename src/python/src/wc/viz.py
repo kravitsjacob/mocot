@@ -140,6 +140,44 @@ def system_load(df_system_load):
     return fig
 
 
+def node_load(df_node_load):
+    """
+    Hourly node-level load data
+
+    Parameters
+    ----------
+    df_node_load : pandas.DataFrame
+        Node-level data
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        Plot of node-level loading
+    """
+    # Parse dates
+    df_node_load['datetime'] = pd.to_datetime(df_node_load['datetime'])
+
+    fig, ax = plt.subplots()
+    palette = sns.color_palette(['black'], len(df_node_load['bus'].unique()))
+    sns.lineplot(
+        data=df_node_load,
+        x='datetime',
+        y='load_mw',
+        hue='bus',
+        palette=palette,
+        legend=False,
+        lw=0.4,
+        alpha=0.2,
+        ax=ax
+    )
+    plt.xlabel('')
+    plt.ylabel('Power [MW]')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+
+    return fig
+
+
 def time_series(df_water_use):
     """Time series water use
 

@@ -19,12 +19,8 @@ outputs:
   df_system_load: "analysis/io/outputs/exogenous/system_load.csv"
   system_load: "analysis/io/outputs/figures/system_load.pdf"
   df_node_load: "analysis/io/outputs/exogenous/node_load.csv"
+  node_load: "analysis/io/outputs/figures/node_load.pdf"
 
-  water_use: "analysis/io/outputs/simulation/water_use.csv"
-  with_timeseries: "analysis/io/outputs/figures/with_timeseries.pdf"
-  con_timeseries: "analysis/io/outputs/figures/con_timeseries.pdf"
-  df_load: "analysis/io/outputs/power_system/loads.csv"
-  loads: "analysis/io/outputs/figures/loads.pdf"
   df_gen_noramp: "analysis/io/outputs/power_system/df_gen_noramp.csv"
   df_gen_pminfo: "analysis/io/outputs/power_system/df_gen_pminfo.csv"
   gen_noramp: "analysis/io/outputs/figures/gen_noramp.pdf"
