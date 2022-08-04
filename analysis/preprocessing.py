@@ -45,6 +45,11 @@ def main():
         df_air_water = wc.core.process_exogenous(paths)
         df_air_water.to_csv(paths['outputs']['df_air_water'])
 
+    if os.path.exists(paths['outputs']['df_system_load']):
+        df_miso = pd.read_csv(paths['inputs']['miso_load'])
+        df_system_load = wc.core.clean_system_load(df_miso)
+        df_system_load.to_csv(paths['outputs']['df_system_load'])
+
 
 if __name__ == '__main__':
     main()

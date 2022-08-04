@@ -7,6 +7,7 @@ inputs:
   noaa_temperature_data: "analysis/io/inputs/noaa_air_temperature/CRNH0203-2019-IL_Champaign_9_SW.txt"
   noaa_temperature_headers: "analysis/io/inputs/noaa_air_temperature/headers.txt"
   usgs_temperature_data: "analysis/io/inputs/usgs_water_temperature/05558300.txt"
+  miso_load: "analysis/io/inputs/miso_load_data/20190101-20200101 MISO Forecasted Cleared & Actual Load.csv"
 
 outputs:
   case: "analysis/io/outputs/synthetic_grid/case.p"
@@ -15,6 +16,8 @@ outputs:
   gen_info_water: "analysis/io/outputs/synthetic_grid/gen_info_water.csv"
   df_air_water: "analysis/io/outputs/exogenous/air_water.csv"
   temperatures: "analysis/io/outputs/figures/temperatures.pdf"
+  df_system_load: "analysis/io/outputs/exogenous/system_load.csv"
+  system_load: "analysis/io/outputs/figures/system_load.pdf"
   
   water_use: "analysis/io/outputs/simulation/water_use.csv"
   with_timeseries: "analysis/io/outputs/figures/with_timeseries.pdf"

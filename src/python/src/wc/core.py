@@ -776,6 +776,44 @@ def process_exogenous(paths):
     return df_exogenous
 
 
+def clean_system_load(df_miso):
+    """
+    Clean system-level miso data includes interpolating missing values
+
+    Parameters
+    ----------
+    df_miso : pandas.DataFrame
+        MISO loads
+
+    Returns
+    -------
+    pandas.DataFrame
+        Parsed data
+    """
+    # Parse types
+    df_system_load = df_miso.copy()
+    df_system_load['DATE'] = pd.to_datetime(df_system_load['DATE'])
+
+    # Selection
+    start = '2019-07-01'
+    end = '2019-07-08'
+    selection = \
+        (df_system_load['DATE'] > start) & (df_system_load['DATE'] < end)
+    df_system_load = df_system_load[selection]
+
+    # Linearly interpolate missing data
+    df_system_load = df_system_load.set_index('DATE')
+    df_ff = df_system_load.fillna(method='ffill')
+    df_bf = df_system_load.fillna(method='bfill')
+    df_system_load = df_system_load.where(
+        df_system_load.notnull(),
+        other=(df_ff + df_bf)/2
+    )
+    df_system_load = df_system_load.reset_index()
+
+    return df_system_load
+
+
 def time_series_simulation(df_gen_info_water, df_exogenous, df_eia_heat_rates):
     """Time series simulation
 
