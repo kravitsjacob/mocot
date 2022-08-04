@@ -14,11 +14,11 @@ def main():
     with open('analysis/paths.yml', 'r') as f:
         paths = yaml.safe_load(f)
 
-    # Setting up grid
+    # Add generator information from MATPOWER to pandapower network
     if not os.path.exists(paths['outputs']['case']):
-        net = pandapower.converter.from_mpc(paths['inputs']['matpowercase'])
-        df_gen_info = pd.read_csv(paths['inputs']['geninfo'])
-        net = wc.grid_setup(net, df_gen_info)
+        net = pandapower.converter.from_mpc(paths['inputs']['case'])
+        df_gen_info = pd.read_csv(paths['inputs']['gen_info'])
+        net = wc.core.grid_setup(net, df_gen_info)
         pandapower.to_pickle(net, paths['outputs']['case'])
         print('Success: grid_setup')
 
@@ -30,72 +30,16 @@ def main():
         pandapower.to_pickle(net, paths['outputs']['case_match'])
         print('Success: generator_match')
 
-    # Importing EIA data
-    if not os.path.exists(paths['outputs']['eia']):
+    # Synthetic grid cooling system information
+    if not os.path.exists(paths['outputs']['gen_info_water']):
         df_eia = wc.import_eia(paths['inputs']['eia_raw'])
         df_eia.to_hdf(paths['outputs']['eia'], key='df_eia', mode='w')
         print('Success: import_eia')
-
-    # Synthetic grid cooling system information
-    if not os.path.exists(paths['outputs']['gen_info_water']):
-        df_eia = pd.read_hdf(paths['outputs']['eia'], 'df_eia')
         net = pandapower.from_pickle(paths['outputs']['case_match'])
         df_gen_info = wc.network_to_gen_info(net)
         df_gen_info_water = wc.get_cooling_system(df_eia, df_gen_info)
         df_gen_info_water.to_csv(paths['outputs']['gen_info_water'])
         print('Success: get_cooling_system')
-
-    # Get regional (processed) EIA data
-    if not os.path.exists(paths['outputs']['eia_region']):
-        df_eia = pd.read_hdf(paths['outputs']['eia'], 'df_eia')
-        df_eia_regional = wc.get_regional(df_eia)
-        df_eia_regional.to_csv(paths['outputs']['eia_region'])
-        print('Success: get_regional')
-
-    # Water use sensitivities
-    if not os.path.exists(paths['outputs']['rc_sensitivity']):
-        df_gen_info_water = pd.read_csv(paths['outputs']['gen_info_water'])
-        df_eia_heat_rates = pd.read_excel(
-            paths['inputs']['eia_heat_rates'],
-            skiprows=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11],
-            na_values=['Not Available', 'Not Applicable']
-        )
-        df_oc, df_rc = wc.water_use_sensitivies(
-            df_gen_info_water,
-            df_eia_heat_rates
-        )
-        g_oc, g_rc = wc.sensitivity(df_oc, df_rc)
-        g_oc.savefig(paths['outputs']['oc_sensitivity'])
-        g_rc.savefig(paths['outputs']['rc_sensitivity'])
-        print('Success: water_use_sensitivies')
-
-    # Time-series simulation
-    if not os.path.exists(paths['outputs']['water_use']):
-        df_exogenous = wc.process_exogenous(paths)
-        fig = wc.raw_exogenous(df_exogenous)
-        fig.savefig(paths['outputs']['raw_exogenous'])
-        print('Success: raw_exogenous')
-        df_eia_heat_rates = pd.read_excel(
-            paths['inputs']['eia_heat_rates'],
-            skiprows=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11],
-            na_values=['Not Available', 'Not Applicable']
-        )
-        df_gen_info_water = pd.read_csv(paths['outputs']['gen_info_water'])
-        df_water_use = wc.time_series_simulation(
-            df_gen_info_water,
-            df_exogenous,
-            df_eia_heat_rates
-        )
-        df_water_use.to_csv(paths['outputs']['water_use'])
-        print('Success: time_series_simulation')
-
-        df_water_use = pd.read_csv(
-            paths['outputs']['water_use'],
-            parse_dates=[1]
-        )
-        g_with, g_con = wc.time_series(df_water_use)
-        g_with.savefig(paths['outputs']['with_timeseries'])
-        g_con.savefig(paths['outputs']['con_timeseries'])
 
     # Power simulation simulation inputs
     if not os.path.exists(paths['outputs']['loads']):

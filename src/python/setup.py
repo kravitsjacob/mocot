@@ -15,8 +15,9 @@ setuptools.setup(
         'sympy',
         'pandas',
         'tables',
-        'pandapower',
-        'PyYAML'
+        'pandapower >= 2.10.1',
+        'PyYAML',
+        'matpowercaseframes'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

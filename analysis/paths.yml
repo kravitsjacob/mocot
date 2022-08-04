@@ -1,7 +1,6 @@
 inputs:
   case: "analysis/io/inputs/ACTIVSg200/case_ACTIVSg200.m"
-  matpowercase: "analysis/io/inputs/synthetic_grid/case.mat"
-  geninfo: "analysis/io/inputs/synthetic_grid/gen_info.csv"
+  gen_info: "analysis/io/inputs/from_matpower/gen_info.csv"
   gen_matches: "analysis/io/inputs/manual_gen_matching/gen_matches.csv"
   eia_raw: "analysis/io/inputs/eia_thermoelectric_water_use"
   eia_heat_rates: "analysis/io/inputs/eia_heat_rates/Table_A6_Approximate_Heat_Rates_for_Electricity_-_and_Heat_Content_of_Electricity.xlsx"
