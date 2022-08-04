@@ -814,6 +814,42 @@ def clean_system_load(df_miso):
     return df_system_load
 
 
+def create_node_load(df_system_load, df_miso, net):
+
+    # Initialization
+    np.random.seed(1008)
+    df_load_ls = []
+    df_def_load = net.load[['bus', 'p_mw']]
+    df_system_load['DATE'] = pd.to_datetime(df_system_load['DATE'])
+
+    # To load factors
+    avg_load = df_miso['ActualLoad'].mean()
+    df_system_load['load_factor'] = df_system_load['ActualLoad']/avg_load
+
+    # For date in df_system_load
+    for _, row in df_system_load.iterrows():
+        # Create temporary dataframe
+        df_temp = pd.DataFrame(df_def_load['bus'])
+        df_temp['load_mw'] = df_def_load['p_mw'] * row['load_factor']
+        df_temp['datetime'] = row['DATE']
+
+        # Store in df list
+        df_load_ls.append(df_temp)
+
+    # Concat
+    df_node_load = pd.concat(df_load_ls, axis=0, ignore_index=True)
+
+    # Add some randomness by multiplying by normal distribution
+    df_node_load['load_mw'] = df_node_load['load_mw'].apply(
+        lambda x: x * np.random.normal(loc=1.0, scale=0.1)
+    )
+
+    # Index
+    df_node_load['hour_index'] = df_node_load['datetime'].dt.hour
+
+    return df_node_load
+
+
 def time_series_simulation(df_gen_info_water, df_exogenous, df_eia_heat_rates):
     """Time series simulation
 

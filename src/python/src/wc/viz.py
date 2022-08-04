@@ -111,6 +111,18 @@ def temperatures(df_exogenous):
 
 
 def system_load(df_system_load):
+    """Basic plot of system-level loading
+
+    Parameters
+    ----------
+    df_system_load : pandas.DataFrame
+        System loading
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        Plot of system loading
+    """
     # Parse dates
     df_system_load['DATE'] = pd.to_datetime(df_system_load['DATE'])
 

@@ -52,6 +52,15 @@ def main():
         df_system_load.to_csv(paths['outputs']['df_system_load'])
 
     # Bus-level loads
+    if not os.path.exists(paths['outputs']['df_node_load']):
+        net = pandapower.from_pickle(paths['outputs']['case_match'])
+        df_system_load = pd.read_csv(
+            paths['outputs']['df_system_load'],
+            index_col=0
+        )
+        df_miso = pd.read_csv(paths['inputs']['miso_load'])
+        df_node_load = wc.core.create_node_load(df_system_load, df_miso, net)
+        df_node_load.to_csv(paths['outputs']['df_node_load'])
 
 
 if __name__ == '__main__':
