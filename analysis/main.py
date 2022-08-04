@@ -26,18 +26,18 @@ def main():
     if not os.path.exists(paths['outputs']['case_match']):
         net = pandapower.from_pickle(paths['outputs']['case'])
         df_gen_matches = pd.read_csv(paths['inputs']['gen_matches'])
-        net = wc.generator_match(net, df_gen_matches)
+        net = wc.core.generator_match(net, df_gen_matches)
         pandapower.to_pickle(net, paths['outputs']['case_match'])
         print('Success: generator_match')
 
     # Synthetic grid cooling system information
     if not os.path.exists(paths['outputs']['gen_info_water']):
-        df_eia = wc.import_eia(paths['inputs']['eia_raw'])
+        df_eia = wc.core.import_eia(paths['inputs']['eia_raw'])
         df_eia.to_hdf(paths['outputs']['eia'], key='df_eia', mode='w')
         print('Success: import_eia')
         net = pandapower.from_pickle(paths['outputs']['case_match'])
-        df_gen_info = wc.network_to_gen_info(net)
-        df_gen_info_water = wc.get_cooling_system(df_eia, df_gen_info)
+        df_gen_info = wc.core.network_to_gen_info(net)
+        df_gen_info_water = wc.core.get_cooling_system(df_eia, df_gen_info)
         df_gen_info_water.to_csv(paths['outputs']['gen_info_water'])
         print('Success: get_cooling_system')
 

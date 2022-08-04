@@ -1,4 +1,4 @@
-Data from MATPOWER case, provided for download at https://osf.io/8h6pc/
+Data from previous publication, provided for download at https://osf.io/8h6pc/
 
 @article{kravits_incorporating_2022,
 	title = {Incorporating thermoelectric power plant water use into multi-objective optimal power flow},
