@@ -846,6 +846,9 @@ def create_node_load(df_system_load, df_miso, net):
 
     # Index
     df_node_load['hour_index'] = df_node_load['datetime'].dt.hour
+    df_node_load['day_index'] = (
+        df_node_load['datetime'] - df_node_load['datetime'][0]
+    ).dt.days
 
     return df_node_load
 
