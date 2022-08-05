@@ -30,73 +30,108 @@ function time_series_loads!(network_data_multi::Dict)
 end
 
 
-function network_to_df(data::Dict, obj_name::String)
+function state_df(results, obj_type, props)
     """
-    Extract object from network
+    Extract states from day-resolution multi-network data (at hourly-resolution)
+
+    # Arguments
+    - `nw_data::Dict`: multi network data (e.g., network_data_multi["nw"])
+    - `obj_type::String`: Type of object (e.g., "gen")
+    - `props::Array`: Object properties to extract
+    """
+
+    # Initialization
+    df = DataFrames.DataFrame()
+
+
+    for d in 1:length(results)
+
+        # Extract day data
+        day_results = results[string(d)]
+
+        # Get results for that day
+        df_day = multi_network_to_df(
+            day_results["solution"]["nw"],
+            obj_type,
+            props
+        )
+
+        # Assign day
+        df_day[:, "day"] .= string(d)
+
+        # Append to state dataframe
+        DataFrames.append!(df, df_day)
+    end
+
+    return df
+
+end
+
+
+function multi_network_to_df(multi_nw_data::Dict, obj_type::String, props::Array)
+    """
+    Extract object information from hourly-resolution multi network data
+
+    # Arguments
+    - `nw_data::Dict`: multi network data (e.g., network_data_multi["nw"])
+    - `obj_type::String`: Type of object (e.g., "gen")
+    - `props::Array`: Object properties to extract
+    """
+    # Initialization
+    df = DataFrames.DataFrame()
+
+    # Loop through hours
+    for h in 1:length(multi_nw_data)
+
+        # Extract network data
+        nw_data = multi_nw_data[string(h)]
+        
+        # Convert to dataframe
+        df_temp = network_to_df(nw_data, obj_type, props)
+
+        # Add timestep
+        df_temp[:, "hour"] .= string(h)
+
+        # Append to network dataframe
+        DataFrames.append!(df, df_temp)
+    end
+    
+    return df
+
+end
+
+
+function network_to_df(nw_data::Dict, obj_type::String, props::Array)
+    """
+    Extract dataframe from network
 
     # Arguments
     - `data::Dict`: Network data
-    - `obj_name::String`: Name of object
+    - `obj_type::String`: Type of object (e.g., "gen")
+    - `props::Array`: Object properties to extract
     """
     # Initialization
     df = DataFrames.DataFrame()
 
     # Loop each object
-    for (obj_name, obj_dict) in data[obj_name]
-        # Drop multi-entry TODO flatten
-        delete!(obj_dict, "source_id")
-        delete!(obj_dict, "cost")
+    for (obj_name, obj_dict) in nw_data[obj_type]
+        # Get properties
+        filtered_obj_dict=Dict{String, Any}()
+        for prop in props
+            filtered_obj_dict[prop] = obj_dict[prop]
+        end
+
+        # Add name
+        filtered_obj_dict["obj_name"] = obj_name
 
         # Object DataFrame
-        df_obj = DataFrames.DataFrame(obj_dict)
-
-        # Assign name
-        df_obj[:, "name"] .= obj_name
+        df_obj = DataFrames.DataFrame(filtered_obj_dict)
 
         # Append to network dataframe
         DataFrames.append!(df, df_obj)
     end
 
     return df
-end
-
-
-function multi_network_to_df(nw_data::Dict, obj_name::String)
-    """
-    Extract object from multi network
-
-    # Arguments
-    - `nw_data::Dict`: multi network data (network_data_multi["nw"])
-    - `obj_name::Dict`: multi network data
-    """
-    # TODO should call network_to_df
-    # Initialization
-    df = DataFrames.DataFrame()
-
-    # Loop through hours
-    for h in 1:length(nw_data)
-
-        # Loop each object in the hour
-        for (obj_name, obj_dict) in nw_data[string(h)][obj_name]
-            # Drop source_id
-            delete!(obj_dict, "source_id")
-
-            # Object DataFrame
-            df_obj = DataFrames.DataFrame(obj_dict)
-
-            # Assign name
-            df_obj[:, "name"] .= obj_name
-
-            # Assign hour
-            df_obj[:, "hour"] .= h
-
-            # Append to network dataframe
-            DataFrames.append!(df, df_obj)
-        end
-    end
-    
-    return df
-
 end
 
 

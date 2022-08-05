@@ -20,6 +20,8 @@ outputs:
   system_load: "analysis/io/outputs/figures/system_load.pdf"
   df_node_load: "analysis/io/outputs/exogenous/node_load.csv"
   node_load: "analysis/io/outputs/figures/node_load.pdf"
+  results: "analysis/io/outputs/states/results.jld2"
+  df_gen_states: "analysis/io/outputs/states/gen_states.csv"
 
   df_gen_noramp: "analysis/io/outputs/power_system/df_gen_noramp.csv"
   df_gen_pminfo: "analysis/io/outputs/power_system/df_gen_pminfo.csv"
