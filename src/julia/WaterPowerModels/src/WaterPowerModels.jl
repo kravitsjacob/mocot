@@ -5,12 +5,45 @@ import JuMP
 import DataFrames
 
 
+function update_load!(network_data_multi::Dict, df_node_load::DataFrames.DataFrame, d::Int)
+    """
+    Update loads for network data 
+
+    # Arguments
+    - `network_data_multi::Dict`: Multi network data
+    - `df_node_load::DataFrames.DataFrame`: DataFrame of node-level loads
+    - `d::Int`: Day index
+    """
+    for h in 1:length(network_data_multi)
+        # Extract network data
+        nw_data = network_data_multi["nw"][string(h)]
+
+        for load in values(nw_data["load"])
+            # Pandapower indexing
+            pp_d = d-1
+            pp_bus = load["load_bus"] - 1
+            
+            # Filters
+            df_node_load_filter = df_node_load[in(pp_d).(df_node_load.day_index), :]
+            df_node_load_filter = df_node_load_filter[in(h).(df_node_load_filter.hour_index), :]
+            df_node_load_filter = df_node_load_filter[in(pp_bus).(df_node_load_filter.bus), :]
+            load_mw = df_node_load_filter[!, "load_mw"][1]
+            load_pu = load_mw/100.0
+
+            # Set load
+            load["pd"] = load_pu
+        end
+    end
+
+    return network_data_multi
+end
+
 function time_series_loads!(network_data_multi::Dict)
     """
     Create a time series loads.
 
     # Arguments
-    - `n::Dict`: multi network data
+    - `network_data_multi::Dict`: multi network data
     """
     # Create load factors
     morning = repeat([0.9], 6)

@@ -6,6 +6,7 @@ using CSV
 using JuMP
 using YAML
 using JLD2
+using DataFrames
 
 function main()
     # Paths
@@ -18,7 +19,16 @@ function main()
     network_data = PowerModels.parse_file(paths["inputs"]["case"])
     network_data_multi = PowerModels.replicate(network_data, h_total)
     
+    # Exogenous imports
+    df_node_load = DataFrames.DataFrame(CSV.File(paths["outputs"]["df_node_load"]))
+
     for d in 1:d_total
+        # Update loads
+        network_data_multi = WaterPowerModels.update_load!(
+            network_data_multi,
+            df_node_load,
+            d
+        )
 
         # Create power system model
         pm = PowerModels.instantiate_model(
