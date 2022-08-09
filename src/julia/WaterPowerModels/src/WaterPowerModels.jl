@@ -255,4 +255,35 @@ function once_through_consumption(;
     return beta_con
 end
 
+function recirculating_withdrawal(;
+    eta_net:: Float64,
+    k_os:: Float64,
+    beta_proc:: Float64,
+    eta_cc:: Int64,
+    k_sens:: Float64,
+    h_fg=2.454,
+    rho_w=1.0,
+)
+    """
+    Recirculating withdrawal model
+
+    # Arguments
+    `eta_net:: Float64`: Ratio of electricity generation rate to thermal input
+    `k_os:: Float64`: Thermal input lost to non-cooling system sinks
+    `beta_proc:: Float64`: Non-cooling rate in L/MWh
+    `eta_cc:: Int64`: Number of cooling cycles between 2 and 10
+    `k_sens:: Float64`: Heat load rejected
+    `h_fg:: Float64`: Latent heat of vaporization of water, by default 2.454 MJ/kg
+    `rho_w:: Float64`: Desnity of Water kg/L, by default 1.0
+    """
+    # Model
+    efficiency = 3600 * (1-eta_net-k_os) / eta_net
+    physics = (1 - k_sens) / (rho_w * h_fg)
+    blowdown = 1 + 1 / (eta_cc - 1)
+    beta_with = efficiency * physics * blowdown + beta_proc
+
+    return beta_with
+end
+
+
 end # module
