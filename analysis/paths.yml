@@ -22,6 +22,8 @@ outputs:
   node_load: "analysis/io/outputs/figures/node_load.pdf"
   results: "analysis/io/outputs/states/results.jld2"
   df_gen_states: "analysis/io/outputs/states/gen_states.csv"
+  gen_no_water: "analysis/io/outputs/figures/gen_no_water.pdf"
+  df_gen_info_pm: "analysis/io/outputs/synthetic_grid/gen_info_pm.csv"
 
   df_gen_noramp: "analysis/io/outputs/power_system/df_gen_noramp.csv"
   df_gen_pminfo: "analysis/io/outputs/power_system/df_gen_pminfo.csv"

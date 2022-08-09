@@ -18,7 +18,7 @@ function main()
     d_total = 7
     network_data = PowerModels.parse_file(paths["inputs"]["case"])
     network_data_multi = PowerModels.replicate(network_data, h_total)
-    
+
     # Exogenous imports
     df_node_load = DataFrames.DataFrame(CSV.File(paths["outputs"]["df_node_load"]))
 
@@ -52,6 +52,10 @@ function main()
     # Store states
     df_gen_states = WaterPowerModels.state_df(results, "gen", ["pg"])
     CSV.write(paths["outputs"]["df_gen_states"], df_gen_states)
+
+    # Static network information
+    df_gen_info_pm = WaterPowerModels.network_to_df(network_data, "gen", ["gen_bus"])
+    CSV.write(paths["outputs"]["df_gen_info_pm"], df_gen_info_pm)
 
  end
  
