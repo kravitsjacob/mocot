@@ -276,17 +276,24 @@ def loads(df_loads):
     return fig
 
 
-def gen_timeseries(df_gen, df_gen_pminfo, df_gen_info_water):
+def gen_timeseries(
+    df_gen_states,
+    df_gen_info_water,
+    df_gen_info_pm,
+    df_node_load
+):
     """Plot generator timeseries power output
 
     Parameters
     ----------
-    df_gen : pandas.DataFrame
+    df_gen_states : pandas.DataFrame
         Generator output DataFrame
-    df_gen_pminfo : pandas.DataFrame
-        Generator PowerModel information DataFrame
     df_gen_info_water : pandas.DataFrame
         Generator water information DataFrame
+    df_gen_info_pm : pandas.DataFrame
+        Generator PowerModel information DataFrame
+    df_node_load : pandas.DataFrame
+        Loads (just for datetime)
 
     Returns
     -------
@@ -294,11 +301,11 @@ def gen_timeseries(df_gen, df_gen_pminfo, df_gen_info_water):
         Plots of once-through
     """
     # Get powermodels information
-    df_gen = pd.merge(
-        df_gen,
-        df_gen_pminfo[['name', 'gen_bus']],
-        left_on='name',
-        right_on='name',
+    df_gen_states = pd.merge(
+        df_gen_states,
+        df_gen_info_pm,
+        left_on='obj_name',
+        right_on='obj_name',
         how='left'
     )
 
@@ -309,21 +316,38 @@ def gen_timeseries(df_gen, df_gen_pminfo, df_gen_info_water):
         '923 Cooling Type',
         'Plant Name'
     ]
-    df_gen = pd.merge(
-        df_gen,
+    df_gen_states = pd.merge(
+        df_gen_states,
         df_gen_info_water[mergecols],
         left_on='gen_bus',
         right_on='MATPOWER Index',
         how='left'
     )
 
+    # Get datetime
+    df_node_load['datetime'] = pd.to_datetime(df_node_load['datetime'])
+    df_node_load['pm_hour'] = df_node_load['hour_index'] + 1
+    df_node_load['pm_day'] = df_node_load['day_index'] + 1
+    mergecols = [
+        'datetime',
+        'pm_hour',
+        'pm_day'
+    ]
+    df_gen_states = pd.merge(
+        df_gen_states,
+        df_node_load[mergecols],
+        left_on=['hour', 'day'],
+        right_on=['pm_hour', 'pm_day'],
+        how='left'
+    )
+
     # Create labels
-    df_gen['Fuel/Cooling'] = \
-        df_gen['MATPOWER Fuel'] + '/' + df_gen['923 Cooling Type']
+    df_gen_states['Fuel/Cooling'] = \
+        df_gen_states['MATPOWER Fuel'] + '/' + df_gen_states['923 Cooling Type']
 
     # Plot
     g = sns.FacetGrid(
-        df_gen,
+        df_gen_states,
         row='Fuel/Cooling',
         sharey=False,
         sharex=True,
@@ -332,17 +356,18 @@ def gen_timeseries(df_gen, df_gen_pminfo, df_gen_info_water):
     )
     g = g.map_dataframe(
         sns.lineplot,
-        x='hour',
+        x='datetime',
         y='pg',
         hue='Plant Name',
         style='Plant Name',
-        units='name',
+        units='obj_name',
         estimator=None,
         lw=0.5,
     )
     for ax in g.axes:
         ax[0].legend(loc='center', bbox_to_anchor=(1.2, 0.5))
-    g.set_axis_labels(x_var='Hour', y_var='Power Output [p.u.]')
+    g.set_axis_labels(y_var='Power Output [p.u.]', x_var='')
+    plt.xticks(rotation=45)
     plt.tight_layout()
 
     return g
