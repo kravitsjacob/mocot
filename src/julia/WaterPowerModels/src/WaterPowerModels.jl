@@ -199,4 +199,17 @@ function add_ramping_constraints!(pm, h_total)
 end
 
 
+function once_through_withdrawal(;
+    eta_net:: Float64,
+    k_os:: Float64,
+    delta_t:: Float64,
+    beta_proc:: Float64,
+    rho_w=1.0,
+    c_p=0.04184,
+)
+
+    return 34616
+end
+
+
 end # module
