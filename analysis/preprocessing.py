@@ -51,7 +51,7 @@ def main():
         df_system_load = wc.core.clean_system_load(df_miso)
         df_system_load.to_csv(paths['outputs']['df_system_load'])
 
-    # Bus-level loads
+    # Node-level loads
     if not os.path.exists(paths['outputs']['df_node_load']):
         net = pandapower.from_pickle(paths['outputs']['case_match'])
         df_system_load = pd.read_csv(

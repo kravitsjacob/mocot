@@ -823,8 +823,8 @@ def create_node_load(df_system_load, df_miso, net):
     df_system_load['DATE'] = pd.to_datetime(df_system_load['DATE'])
 
     # To load factors
-    avg_load = df_miso['ActualLoad'].mean()
-    df_system_load['load_factor'] = df_system_load['ActualLoad']/avg_load
+    median_load = df_miso['ActualLoad'].median()
+    df_system_load['load_factor'] = df_system_load['ActualLoad']/median_load
 
     # For date in df_system_load
     for _, row in df_system_load.iterrows():
@@ -841,7 +841,7 @@ def create_node_load(df_system_load, df_miso, net):
 
     # Add some randomness by multiplying by normal distribution
     df_node_load['load_mw'] = df_node_load['load_mw'].apply(
-        lambda x: x * np.random.normal(loc=1.0, scale=0.1)
+        lambda x: x * np.random.uniform(low=0.9, high=1.1)
     )
 
     # Index
