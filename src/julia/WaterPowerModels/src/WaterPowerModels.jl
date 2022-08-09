@@ -207,8 +207,22 @@ function once_through_withdrawal(;
     rho_w=1.0,
     c_p=0.04184,
 )
+    """
+    Once through withdrawal model
 
-    return 34616
+    # Arguments
+    - `eta_net:: Float64`: Ratio of electricity generation rate to thermal input
+    - `k_os:: Float64`: Thermal input lost to non-cooling system sinks
+    - `delta_t:: Float64`: Inlet/outlet water temperature difference in C
+    - `beta_proc:: Float64`: Non-cooling rate in L/MWh
+    - `rho_w=1.0`: Desnity of Water kg/L, by default 1.0
+    - `c_p=0.04184`: Specific head of water in MJ/(kg-K), by default 0.04184
+    """
+    efficiency = 3600 * (1-eta_net-k_os) / eta_net
+    physics = 1 / (rho_w*c_p*delta_t)
+    beta_with = efficiency * physics + beta_proc
+
+    return beta_with
 end
 
 
