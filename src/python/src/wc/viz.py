@@ -343,7 +343,9 @@ def gen_timeseries(
 
     # Create labels
     df_gen_states['Fuel/Cooling'] = \
-        df_gen_states['MATPOWER Fuel'] + '/' + df_gen_states['923 Cooling Type']
+        df_gen_states['MATPOWER Fuel'] + \
+        '/' \
+        + df_gen_states['923 Cooling Type']
 
     # Plot
     g = sns.FacetGrid(
