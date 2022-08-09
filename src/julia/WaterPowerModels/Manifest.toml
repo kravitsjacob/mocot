@@ -174,6 +174,12 @@ version = "0.10.30"
 deps = ["Random"]
 uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
 
+[[deps.Infiltrator]]
+deps = ["InteractiveUtils", "Markdown", "REPL", "UUIDs"]
+git-tree-sha1 = "3567973c48a166ba6f61467d579907073e72f193"
+uuid = "5903a43b-9cc3-4c30-8d17-598619ec4e9b"
+version = "1.6.1"
+
 [[deps.InfrastructureModels]]
 deps = ["JuMP", "Memento"]
 git-tree-sha1 = "cca034ca1ae73e08bf4db63f158474d40d7dad9a"
