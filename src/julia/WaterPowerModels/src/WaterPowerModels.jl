@@ -226,4 +226,33 @@ function once_through_withdrawal(;
 end
 
 
+function once_through_consumption(;
+    eta_net:: Float64,
+    k_os:: Float64,
+    delta_t:: Float64,
+    beta_proc:: Float64,
+    k_de=0.01,
+    rho_w=1.0,
+    c_p=0.04184,
+)
+    """
+    Once through consumption model
+
+    # Arguments
+    - `eta_net:: Float64`: Ratio of electricity generation rate to thermal input
+    - `k_os:: Float64`: Thermal input lost to non-cooling system sinks
+    - `delta_t:: Float64`: Inlet/outlet water temperature difference in C
+    - `beta_proc:: Float64`: Non-cooling rate in L/MWh
+    - `k_de:: Float64`: Downstream evaporation, by default 0.01
+    - `rho_w:: Float64`: Desnity of Water kg/L, by default 1.0
+    - `c_p:: Float64`: Specific heat of water in MJ/(kg-K), by default 0.04184
+    """
+    # Model
+    efficiency = 3600 * (1-eta_net-k_os) / eta_net
+    physics = k_de / (rho_w*c_p*delta_t)
+    beta_con = efficiency * physics + beta_proc
+
+    return beta_con
+end
+
 end # module
