@@ -285,5 +285,38 @@ function recirculating_withdrawal(;
     return beta_with
 end
 
+function recirculating_consumption(;
+    eta_net:: Float64,
+    k_os:: Float64,
+    beta_proc:: Float64,
+    eta_cc:: Int64,
+    k_sens:: Float64,
+    k_bd=1.0,
+    h_fg=2.454,
+    rho_w=1.0
+)
+    """
+    Recirculating consumption model
+
+    # Arguments
+    eta_net:: Float64`: Ratio of electricity generation rate to thermal input
+    k_os:: Float64`: Thermal input lost to non-cooling system sinks
+    beta_proc:: Float64`: Non-cooling rate in L/MWh
+    eta_cc:: Int64`: Number of cooling cycles between 2 and 10
+    k_sens:: Float64`: Heat load rejected
+    k_bd:: Float64`: Blowdown discharge fraction. Plants in water abundant areas
+    are able to legally discharge most of their cooling tower blowndown according
+    to Rutberg et al. 2011.
+    h_fg:: Float64`: Latent heat of vaporization of water, default 2.454 MJ/kg
+    rho_w:: Float64`: Desnity of Water kg/L, by default 1.0
+    """
+    # Model
+    efficiency = 3600 * (1-eta_net-k_os) / eta_net
+    physics = (1 - k_sens) / (rho_w * h_fg)
+    blowdown = 1 + (1 - k_bd) / (eta_cc - 1)
+    beta_con = efficiency * physics * blowdown + beta_proc
+
+    return beta_con
+end
 
 end # module
