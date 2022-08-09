@@ -10,6 +10,6 @@ Multi-Objective Coordination of Thermoelectric Water Use
 
 # Debugging Julia
 1) In terminal activate julia env `$ julia --project=analysis/julia_env`
-2) Prepare `main.jl` for development by adding `using Infiltrator` and `using Revise` to the first two lines
-3) Set breakpoint where appropriate using `@Infiltrator.infiltrate` be sure to `import Infiltrator` at the top of each script. Note, it will throw a warning as it thingks you are adding a not-included dependency.
+2) Run `using Infiltrator` and `using Revise` to add debugging functionality and ensure the development dependencies are recompiled.
+3) Set breakpoint where appropriate using `@Infiltrator.infiltrate` be sure to `import Infiltrator` at the top of development packages. Note, it will throw a warning as it thinks you are adding a not-included dependency.
 4) Evaluate using `include("analysis/main.jl")`
