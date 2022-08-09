@@ -13,7 +13,8 @@ function test_once_through_withdrawal()
         delta_t=5.0,
         beta_proc=200.0
     )
-    Test.@test beta_with == 34616
+    Test.@test isapprox(beta_with, 34616.0, atol=1 )
+
 end
 
 
