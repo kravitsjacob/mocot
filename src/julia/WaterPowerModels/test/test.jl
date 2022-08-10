@@ -40,19 +40,22 @@ using WaterPowerModels
 end
 
 @Test.testset "Test for daily_water_use" begin
-pg = 1.0
-df_eia_heat_rates = DataFrames.DataFrame(XLSX.readtable("analysis/io/inputs/eia_heat_rates/Table_A6_Approximate_Heat_Rates_for_Electricity_-_and_Heat_Content_of_Electricity.xlsx", "Annual Data"))
-exogenous_dict = Dict("air_temperature"=>25.0, "water_temperature"=>25.0)
+    pg = 1.0
+    df_eia_heat_rates = DataFrames.DataFrame(XLSX.readtable("analysis/io/inputs/eia_heat_rates/Table_A6_Approximate_Heat_Rates_for_Electricity_-_and_Heat_Content_of_Electricity.xlsx", "Annual Data"))
+    air_temperature = 25.0
+    water_temperature = 25.0
 
-# Once-through coal
-gen_info_dict = Dict("fuel_type"=>"coal", "cool"=>"OC")
-beta_with, beta_con = WaterPowerModels.daily_water_use(pg, exogenous_dict, gen_info_dict, df_eia_heat_rates)
-@Test.test isapprox(beta_with, 20992, atol=1)
-@Test.test isapprox(beta_con, 407, atol=1)
+    # Once-through coal
+    fuel = "coal"
+    cool = "OC"
+    beta_with, beta_con = WaterPowerModels.daily_water_use(pg, air_temperature, water_temperature, fuel, cool, df_eia_heat_rates)
+    @Test.test isapprox(beta_with, 20992, atol=1)
+    @Test.test isapprox(beta_con, 407, atol=1)
 
-# Recirculating coal
-gen_info_dict = Dict("fuel_type"=>"nuclear", "cool"=>"RC")
-beta_with, beta_con = WaterPowerModels.daily_water_use(pg, exogenous_dict, gen_info_dict, df_eia_heat_rates)
-@Test.test isapprox(beta_with, 3290.0, atol=1)
-@Test.test isapprox(beta_con, 2634.0, atol=1)
+    # Recirculating nuclear
+    fuel = "nuclear"
+    cool = "RC"
+    beta_with, beta_con = WaterPowerModels.daily_water_use(pg, air_temperature, water_temperature, fuel, cool, df_eia_heat_rates)
+    @Test.test isapprox(beta_with, 3290.0, atol=1)
+    @Test.test isapprox(beta_con, 2634.0, atol=1)
 end
