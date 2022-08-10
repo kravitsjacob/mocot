@@ -306,12 +306,32 @@ function get_eta_net(fuel:: String, df_eia_heat_rates:: DataFrames.DataFrame)
     return eta_net
 end
 
+function get_beta_proc(fuel:: String)
+    """
+    Get water withdrawal from non-cooling processes in [L/MWh] based on DOE-NETL model
+
+    # Arguments
+    `fuel:: String`: Fuel code
+    """
+    if fuel == "coal"
+        beta_proc = 200.0
+    else
+        beta_proc = 10.0
+    end
+
+    return beta_proc
+end
+
 function daily_water_use(
     pg:: Float64,
     exogenous_dict:: Dict{String:: Any},
     gen_info_dict:: Dict{String:: Any},
     df_eia_heat_rates:: DataFrames.DataFrame
 )
+    # Unpack exogenous
+    water_temperature = exogenous_dict["water_temperature"]
+    air_temperature = exogenous_dict["air_temperature"]
+
     # Unpack generator information
     fuel = gen_info_dict["fuel_type"]
     cool = gen_info_dict["cool"]
@@ -319,17 +339,27 @@ function daily_water_use(
     # Get coefficients
     k_os = get_k_os(fuel)
     eta_net = get_eta_net(fuel, df_eia_heat_rates)
-    # beta_proc = get_beta_proc(fuel)
+    beta_proc = get_beta_proc(fuel)
 
     # Run simulation
     if cool == "OC"
         # Delta t processing
         max_temp = 32.0
-        delta_t = max_temp - df_exogenous["water_temperature"]
+        delta_t = max_temp - water_temperature
 
         # Water models
-        beta_with = once_through_withdrawal(eta_net, k_os, j, beta_proc)
-        beta_con = once_through_consumption(eta_net, k_os, j, beta_proc)
+        beta_with = once_through_withdrawal(
+            eta_net=eta_net,
+            k_os=k_os,
+            delta_t=delta_t,
+            beta_proc=beta_proc
+        )
+        beta_con = once_through_consumption(
+            eta_net=eta_net,
+            k_os=k_os,
+            delta_t=delta_t,
+            beta_proc=beta_proc
+        )
 
     elseif cool == "RC" || cool == "RI"
         eta_cc = 5
@@ -340,6 +370,8 @@ function daily_water_use(
         beta_con = recirculating_consumption(eta_net, k_os, beta_proc, eta_cc, get_k_sens(j))
     
     end
+
+    return beta_with, beta_con
 end
 
 end # module
