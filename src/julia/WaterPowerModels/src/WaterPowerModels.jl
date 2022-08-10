@@ -339,18 +339,22 @@ end
 
 function daily_water_use(
     pg:: Float64,
-    exogenous_dict:: Dict{String:: Any},
-    gen_info_dict:: Dict{String:: Any},
+    water_temperature:: Float64,
+    air_temperature:: Float64,
+    fuel:: String,
+    cool:: String,
     df_eia_heat_rates:: DataFrames.DataFrame
 )
-    # Unpack exogenous
-    water_temperature = exogenous_dict["water_temperature"]
-    air_temperature = exogenous_dict["air_temperature"]
+    """
+    Daily water use models
 
-    # Unpack generator information
-    fuel = gen_info_dict["fuel_type"]
-    cool = gen_info_dict["cool"]
-
+    # Arguments
+    `water_temperature:: Float64`: Water temperature in C
+    `air_temperature:: Float64`: Dry bulb temperature of inlet air C
+    `fuel:: String`: Fuel type
+    `cool:: String`: Cooling system type
+    `df_eia_heat_rates:: DataFrames.DataFrame`: DataFrame of eia heat rates
+    """
     # Get coefficients
     k_os = get_k_os(fuel)
     eta_net = get_eta_net(fuel, df_eia_heat_rates)
