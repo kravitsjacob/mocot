@@ -39,30 +39,6 @@ function update_load!(network_data_multi::Dict, df_node_load::DataFrames.DataFra
     return network_data_multi
 end
 
-function time_series_loads!(network_data_multi::Dict)
-    """
-    Create a time series loads.
-
-    # Arguments
-    - `network_data_multi::Dict`: multi network data
-    """
-    # Create load factors
-    morning = repeat([0.9], 6)
-    mid = repeat([1.2], 8)
-    afternoon = repeat([1.6], 4)
-    night = repeat([0.9], 6)
-    load_factors = vcat(morning, mid, afternoon, night)
-
-    # Apply load factors
-    for (h, network_timeslice) in network_data_multi["nw"]
-        for load in values(network_timeslice["load"])
-            load["pd"] = load_factors[parse(Int64, h)] * load["pd"]
-        end
-    end
-
-    return network_data_multi::Dict
-end
-
 
 function state_df(results, obj_type, props)
     """
@@ -167,37 +143,6 @@ function network_to_df(nw_data::Dict, obj_type::String, props::Array)
 
     return df
 end
-
-
-function add_ramping_constraints!(pm, h_total)
-    """
-    Add generator ramping constraints to nuclear generator
-
-    # Arguments
-    - `pm`: Power model
-    - `h_total::Int64`: Number of hours 
-    """
-    ramp_up = 1.0
-    ramp_down = 1.0
-    gen_name = 47
-
-    begin
-        # Ramping up
-        JuMP.@constraint(
-            pm.model,
-            [h in 1:h_total-1],
-            PowerModels.var(pm, h+1, :pg, gen_name) - PowerModels.var(pm, h, :pg, gen_name) <= ramp_up
-        )
-        # Ramping up
-        JuMP.@constraint(
-            pm.model,
-            [h in 2:h_total],
-            PowerModels.var(pm, h-1, :pg, gen_name) - PowerModels.var(pm, h, :pg, gen_name) <= ramp_down
-        )
-    end
-    return pm
-end
-
 
 function once_through_withdrawal(;
     eta_net:: Float64,
