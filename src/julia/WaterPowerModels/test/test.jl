@@ -52,6 +52,13 @@ end
     @Test.test isapprox(beta_with, 20992, atol=1)
     @Test.test isapprox(beta_con, 407, atol=1)
 
+    # Recirculating coal
+    fuel = "coal"
+    cool = "RC"
+    beta_with, beta_con = WaterPowerModels.daily_water_use(pg, air_temperature, water_temperature, fuel, cool, df_eia_heat_rates)
+    @Test.test isapprox(beta_with, 2855.0, atol=1)
+    @Test.test isapprox(beta_con, 2324.0, atol=1)
+
     # Recirculating nuclear
     fuel = "nuclear"
     cool = "RC"
