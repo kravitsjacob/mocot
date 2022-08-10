@@ -3,6 +3,7 @@ module WaterPowerModels
 import PowerModels
 import JuMP
 import DataFrames
+import Statistics
 import Infiltrator  # For debugging only
 
 
@@ -280,20 +281,45 @@ function get_k_os(fuel:: String)
     return k_os
 end
 
+function get_eta_net(fuel:: String, df_eia_heat_rates:: DataFrames.DataFrame)
+    """
+    Get net efficiency of plant
+    
+    # Arguments
+    `fuel:: String`: Fuel code
+    `df_eia_heat_rates:: DataFrames.DataFrame`: DataFrame of eia heat rates
+    """
+    if fuel == "coal"
+        col_name = "Electricity Net Generation, Coal Plants Heat Rate"
+    elseif fuel == "ng"
+        col_name = "Electricity Net Generation, Natural Gas Plants Heat Rate"
+    elseif fuel == "nuclear"
+        col_name = "Electricity Net Generation, Nuclear Plants Heat Rate"
+    end
+
+    # Median heat rate
+    eta_net = Statistics.median(skipmissing(df_eia_heat_rates[!, col_name]))
+
+    # Convert to ratio
+    eta_net = 3412.0/eta_net
+
+    return eta_net
+end
+
 function daily_water_use(
     pg:: Float64,
     exogenous_dict:: Dict{String:: Any},
     gen_info_dict:: Dict{String:: Any},
+    df_eia_heat_rates:: DataFrames.DataFrame
 )
     # Unpack generator information
     fuel = gen_info_dict["fuel_type"]
-    # cool = gen_info_dict["cool"]
+    cool = gen_info_dict["cool"]
 
     # Get coefficients
     k_os = get_k_os(fuel)
     eta_net = get_eta_net(fuel, df_eia_heat_rates)
-    @Infiltrator.infiltrate
-    beta_proc = get_beta_proc(fuel)
+    # beta_proc = get_beta_proc(fuel)
 
     # Run simulation
     if cool == "OC"
