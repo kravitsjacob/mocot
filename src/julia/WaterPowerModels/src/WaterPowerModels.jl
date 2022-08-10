@@ -275,7 +275,7 @@ function get_k_os(fuel:: String)
     elseif fuel == "ng"
         k_os = 0.20
     elseif fuel == "nuclear"
-        k_os = 0
+        k_os = 0.0
     end
 
     return k_os
@@ -322,6 +322,21 @@ function get_beta_proc(fuel:: String)
     return beta_proc
 end
 
+function get_k_sens(t_inlet:: Float64)
+    """
+    Get heat load rejected through convection
+
+    # Arguments
+    `t_inlet:: Float64`: Dry bulb temperature of inlet air C
+    """
+    term_1 = -0.000279*t_inlet^3
+    term_2 = 0.00109*t_inlet^2
+    term_3 = -0.345*t_inlet
+    k_sens = term_1 + term_2 + term_3 + 26.7
+    k_sens = k_sens/100  # Convert to ratio
+    return k_sens
+end
+
 function daily_water_use(
     pg:: Float64,
     exogenous_dict:: Dict{String:: Any},
@@ -364,10 +379,23 @@ function daily_water_use(
     elseif cool == "RC" || cool == "RI"
         eta_cc = 5
         # Get k_sens
-        k_sens = get_k_sens(a)
-        beta_with = recirculating_withdrawal(eta_net, k_os, beta_proc, eta_cc, get_k_sens(j))
- 
-        beta_con = recirculating_consumption(eta_net, k_os, beta_proc, eta_cc, get_k_sens(j))
+        k_sens = get_k_sens(air_temperature)
+
+        # Water models
+        beta_with = recirculating_withdrawal(
+            eta_net=eta_net, 
+            k_os=k_os, 
+            beta_proc=beta_proc, 
+            eta_cc=eta_cc, 
+            k_sens=k_sens
+        )
+        beta_con = recirculating_consumption(
+            eta_net=eta_net,
+            k_os=k_os,
+            beta_proc=beta_proc,
+            eta_cc=eta_cc,
+            k_sens=k_sens,
+        )
     
     end
 
