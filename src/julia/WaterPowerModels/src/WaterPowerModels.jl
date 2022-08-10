@@ -74,7 +74,6 @@ function state_df(results, obj_type, props)
     end
 
     return df
-
 end
 
 
@@ -107,7 +106,6 @@ function multi_network_to_df(multi_nw_data::Dict, obj_type::String, props::Array
     end
     
     return df
-
 end
 
 
@@ -262,6 +260,60 @@ function recirculating_consumption(;
     beta_con = efficiency * physics * blowdown + beta_proc
 
     return beta_con
+end
+
+function get_k_os(fuel:: String)
+    """
+    Get other sinks fraction from DOE-NETL reference models
+
+    # Arguments
+    `fuel:: String`: Fuel code
+    """
+    if fuel == "coal"
+        k_os = 0.12
+    elseif fuel == "ng"
+        k_os = 0.20
+    elseif fuel == "nuclear"
+        k_os = 0
+    end
+
+    return k_os
+end
+
+function daily_water_use(
+    pg:: Float64,
+    exogenous_dict:: Dict{String:: Any},
+    gen_info_dict:: Dict{String:: Any},
+)
+    # Unpack generator information
+    fuel = gen_info_dict["fuel_type"]
+    # cool = gen_info_dict["cool"]
+
+    # Get coefficients
+    k_os = get_k_os(fuel)
+    eta_net = get_eta_net(fuel, df_eia_heat_rates)
+    @Infiltrator.infiltrate
+    beta_proc = get_beta_proc(fuel)
+
+    # Run simulation
+    if cool == "OC"
+        # Delta t processing
+        max_temp = 32.0
+        delta_t = max_temp - df_exogenous["water_temperature"]
+
+        # Water models
+        beta_with = once_through_withdrawal(eta_net, k_os, j, beta_proc)
+        beta_con = once_through_consumption(eta_net, k_os, j, beta_proc)
+
+    elseif cool == "RC" || cool == "RI"
+        eta_cc = 5
+        # Get k_sens
+        k_sens = get_k_sens(a)
+        beta_with = recirculating_withdrawal(eta_net, k_os, beta_proc, eta_cc, get_k_sens(j))
+ 
+        beta_con = recirculating_consumption(eta_net, k_os, beta_proc, eta_cc, get_k_sens(j))
+    
+    end
 end
 
 end # module
