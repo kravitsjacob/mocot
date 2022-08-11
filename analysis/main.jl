@@ -13,7 +13,9 @@ using XLSX
 function main()
     # Initialization
     paths = YAML.load_file("analysis/paths.yml")
-    results = Dict{String, Dict}()
+    power_results = Dict{String, Dict}()
+    with_results = Dict{String, Dict}()
+    con_results = Dict{String, Dict}()
     df_gen_info_water = DataFrames.DataFrame(CSV.File(paths["outputs"]["gen_info_water"]))
     df_eia_heat_rates = DataFrames.DataFrame(XLSX.readtable(paths["inputs"]["eia_heat_rates"], "Annual Data"))
     df_air_water = DataFrames.DataFrame(CSV.File(paths["outputs"]["df_air_water"]))
@@ -71,6 +73,8 @@ function main()
         water_temperature = air_water[!, "water_temperature"][1]
 
         # Water use
+        gen_beta_with = Dict()
+        gen_beta_con = Dict()
         for row in DataFrames.eachrow(df_gen_pg)
             # Get generator information
             gen_name = row["obj_name"]
@@ -84,21 +88,22 @@ function main()
                 cool,
                 df_eia_heat_rates
             )
-            @infiltrate
-            
+            gen_beta_with[gen_name] = beta_with
+            gen_beta_con[gen_name] = beta_con   
         end
 
         # Store results for that day
-        results[string(d)] = day_results
+        power_results[string(d)] = day_results
+        with_results[string(d)] = gen_beta_with
+        con_results[string(d)] = gen_beta_con
 
     end
-
     # Checkpoint
-    JLD2.save(paths["outputs"]["results"], results)
-    results = JLD2.load(paths["outputs"]["results"])
+    JLD2.save(paths["outputs"]["results"], power_results)
+    power_results = JLD2.load(paths["outputs"]["results"])
 
     # Store states
-    df_gen_states = WaterPowerModels.state_df(results, "gen", ["pg"])
+    df_gen_states = WaterPowerModels.state_df(power_results, "gen", ["pg"])
     CSV.write(paths["outputs"]["df_gen_states"], df_gen_states)
 
     # Static network information
