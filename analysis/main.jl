@@ -37,6 +37,10 @@ function main()
     # Exogenous imports
     df_node_load = DataFrames.DataFrame(CSV.File(paths["outputs"]["df_node_load"]))
 
+    # Initialize water use based on 25.0 C
+    gen_beta_with = Dict{String, Dict}()
+    gen_beta_con = Dict{String, Dict}()
+
     for d in 1:d_total
         # Update loads
         network_data_multi = WaterPowerModels.update_load!(
@@ -51,6 +55,8 @@ function main()
             PowerModels.DCPPowerModel,
             PowerModels.build_mn_opf
         )
+        
+        # Add penalties based on gen_beta_with and gen_beta_con
 
         # Solve power system model
         day_results = PowerModels.optimize_model!(pm, optimizer=Ipopt.Optimizer)
