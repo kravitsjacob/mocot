@@ -276,6 +276,8 @@ function get_k_os(fuel:: String)
         k_os = 0.20
     elseif fuel == "nuclear"
         k_os = 0.0
+    elseif fuel == "wind"
+        k_os = 0.0
     end
 
     return k_os
@@ -295,13 +297,19 @@ function get_eta_net(fuel:: String, df_eia_heat_rates:: DataFrames.DataFrame)
         col_name = "Electricity Net Generation, Natural Gas Plants Heat Rate"
     elseif fuel == "nuclear"
         col_name = "Electricity Net Generation, Nuclear Plants Heat Rate"
+    elseif fuel == "wind"
+        col_name = "Wind"
     end
 
-    # Median heat rate
-    eta_net = Statistics.median(skipmissing(df_eia_heat_rates[!, col_name]))
+    if col_name != "Wind"
+        # Median heat rate
+        eta_net = Statistics.median(skipmissing(df_eia_heat_rates[!, col_name]))
 
-    # Convert to ratio
-    eta_net = 3412.0/eta_net
+        # Convert to ratio
+        eta_net = 3412.0/eta_net
+    else
+        eta_net = 0
+    end
 
     return eta_net
 end
@@ -338,7 +346,6 @@ function get_k_sens(t_inlet:: Float64)
 end
 
 function daily_water_use(
-    pg:: Float64,
     water_temperature:: Float64,
     air_temperature:: Float64,
     fuel:: String,
@@ -400,6 +407,10 @@ function daily_water_use(
             eta_cc=eta_cc,
             k_sens=k_sens,
         )
+
+    elseif cool == "No Cooling System"
+        beta_with = 0.0
+        beta_con = 0.0
     
     end
 
