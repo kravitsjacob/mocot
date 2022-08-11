@@ -1,5 +1,6 @@
 using WaterPowerModels
 
+using Infiltrator
 using PowerModels
 using Ipopt
 using CSV
@@ -20,6 +21,10 @@ function main()
     df_eia_heat_rates = DataFrames.DataFrame(XLSX.readtable(paths["inputs"]["eia_heat_rates"], "Annual Data"))
     df_air_water = DataFrames.DataFrame(CSV.File(paths["outputs"]["df_air_water"]))
 
+    # Decisions
+    w_with = 1.0
+    w_con = 1.0
+
     # Import static network
     h_total = 24
     d_total = 7
@@ -38,9 +43,29 @@ function main()
     df_node_load = DataFrames.DataFrame(CSV.File(paths["outputs"]["df_node_load"]))
 
     # Initialize water use based on 25.0 C
-    gen_beta_with = Dict{String, Dict}()
-    gen_beta_con = Dict{String, Dict}()
+    d = 0
+    gen_beta_with = Dict{String, Float64}()
+    gen_beta_con = Dict{String, Float64}()
+    water_temperature = 25.0
+    air_temperature = 25.0
+    for row in DataFrames.eachrow(df_gen_info)
+        gen_name = row["obj_name"]
+        fuel =  string(row["MATPOWER Fuel"])
+        cool = string(row["923 Cooling Type"])
+        beta_with, beta_con = WaterPowerModels.daily_water_use(
+            water_temperature,
+            air_temperature,
+            fuel,
+            cool,
+            df_eia_heat_rates
+        )
+        gen_beta_with[gen_name] = beta_with
+        gen_beta_con[gen_name] = beta_con   
+    end
+    with_results[string(d)] = gen_beta_with
+    con_results[string(d)] = gen_beta_con
 
+    # Simulation
     for d in 1:d_total
         # Update loads
         network_data_multi = WaterPowerModels.update_load!(
@@ -56,27 +81,17 @@ function main()
             PowerModels.build_mn_opf
         )
         
-        # Add penalties based on gen_beta_with and gen_beta_con
-        current_objective = JuMP.objective_function(pm.model)
-        a = -9999999.99999999999999 * PowerModels.var(pm, 1, :pg, 47)
-        new_objective = @expression(pm.model, current_objective + a)
-        set_objective_function(pm.model, new_objective)
-
-        # Function
-        # model = pm.model
-        # add_water_terms!(model, beta_dict, w)
-
-        # initialize empty water_terms
-            # For h in hour
-                # for g in generators
-                    # Create beta term
-                    # Apply weight
-                    # Add to water_terms
-        # Get current objectives
-        # Create new objective
-        # Set objective on model
-
-
+        # Add water use penalities
+        pm = WaterPowerModels.add_water_terms!(
+            pm,
+            with_results[string(d-1)],
+            w_with
+        )
+        pm = WaterPowerModels.add_water_terms!(
+            pm,
+            con_results[string(d-1)],
+            w_con
+        )
 
         # Solve power system model
         day_results = PowerModels.optimize_model!(pm, optimizer=Ipopt.Optimizer)
