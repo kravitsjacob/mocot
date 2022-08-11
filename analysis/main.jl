@@ -16,6 +16,7 @@ function main()
     results = Dict{String, Dict}()
     df_gen_info_water = DataFrames.DataFrame(CSV.File(paths["outputs"]["gen_info_water"]))
     df_eia_heat_rates = DataFrames.DataFrame(XLSX.readtable(paths["inputs"]["eia_heat_rates"], "Annual Data"))
+    df_air_water = DataFrames.DataFrame(CSV.File(paths["outputs"]["df_air_water"]))
 
     # Import static network
     h_total = 24
@@ -62,20 +63,28 @@ function main()
             DataFrames.groupby(df_gen_pg, :obj_name),
             :pg => Statistics.mean
         )
+
+        # Exogenous air and water temperatures
+        d_pp = d - 1
+        air_water = df_air_water[in([d_pp]).(df_air_water.Column1), :]
+        air_temperature = air_water[!, "air_temperature"][1]
+        water_temperature = air_water[!, "water_temperature"][1]
+
         # Water use
         for row in DataFrames.eachrow(df_gen_pg)
             # Get generator information
             gen_name = row["obj_name"]
             gen_info = df_gen_info[in([gen_name]).(df_gen_info.obj_name), :]
-            fuel = gen_info[!, "MATPOWER Fuel"]
-            cool = gen_info[!, "923 Cooling Type"]
-            daily_water_use(
-                water_temperature:: Float64,
-                air_temperature:: Float64,
+            fuel = string(gen_info[!, "MATPOWER Fuel"][1])
+            cool = string(gen_info[!, "923 Cooling Type"][1])
+            beta_with, beta_con = WaterPowerModels.daily_water_use(
+                water_temperature,
+                air_temperature,
                 fuel,
                 cool,
                 df_eia_heat_rates
             )
+            @infiltrate
             
         end
 
