@@ -57,6 +57,26 @@ function main()
         )
         
         # Add penalties based on gen_beta_with and gen_beta_con
+        current_objective = JuMP.objective_function(pm.model)
+        a = -9999999.99999999999999 * PowerModels.var(pm, 1, :pg, 47)
+        new_objective = @expression(pm.model, current_objective + a)
+        set_objective_function(pm.model, new_objective)
+
+        # Function
+        # model = pm.model
+        # add_water_terms!(model, beta_dict, w)
+
+        # initialize empty water_terms
+            # For h in hour
+                # for g in generators
+                    # Create beta term
+                    # Apply weight
+                    # Add to water_terms
+        # Get current objectives
+        # Create new objective
+        # Set objective on model
+
+
 
         # Solve power system model
         day_results = PowerModels.optimize_model!(pm, optimizer=Ipopt.Optimizer)
