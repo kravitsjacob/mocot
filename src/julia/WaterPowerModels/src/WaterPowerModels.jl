@@ -119,6 +119,8 @@ function network_to_df(nw_data::Dict, obj_type::String, props::Array)
     - `obj_type::String`: Type of object (e.g., "gen")
     - `props::Array`: Object properties to extract
     """
+    # Dev note, potentially the same as Replace with PowerModels.component_table(pm.data["nw"][string(h)], "gen", ["pg"])
+
     # Initialization
     df = DataFrames.DataFrame()
 
@@ -415,6 +417,42 @@ function daily_water_use(
     end
 
     return beta_with, beta_con
+end
+
+function add_water_terms!(
+    pm,
+    beta_dict:: Dict{String, Float64},
+    w:: Float64,
+)
+    """
+    Add water use terms to objective function
+    
+    # Arguments
+    `pm:: Any`: Any PowerModel
+    `beta_dict:: Dict{String, Float64}`: Dictionary of beta values
+    `w:: Float64`: Weight for water use
+    """
+    # Setup
+    water_terms = 0.0
+    nw_data = pm.data["nw"]
+
+    # Loop through hours
+    for h in 1:length(nw_data)
+        for (gen_name, beta_val) in beta_dict
+            gen_index = parse(Int64, gen_name)
+            gen_water_term = w * beta_val * PowerModels.var(
+                pm, h, :pg, gen_index
+            )
+            water_terms = water_terms + gen_water_term
+        end
+    end
+    
+    # Update objective function
+    current_objective = JuMP.objective_function(pm.model)
+    new_objective = @JuMP.expression(pm.model, current_objective + water_terms)
+    JuMP.set_objective_function(pm.model, new_objective)
+
+    return pm
 end
 
 end # module
