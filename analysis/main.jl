@@ -8,12 +8,14 @@ using YAML
 using JLD2
 using Statistics
 using DataFrames
+using XLSX
 
 function main()
     # Initialization
     paths = YAML.load_file("analysis/paths.yml")
     results = Dict{String, Dict}()
     df_gen_info_water = DataFrames.DataFrame(CSV.File(paths["outputs"]["gen_info_water"]))
+    df_eia_heat_rates = DataFrames.DataFrame(XLSX.readtable(paths["inputs"]["eia_heat_rates"], "Annual Data"))
 
     # Import static network
     h_total = 24
@@ -50,7 +52,7 @@ function main()
         # Solve power system model
         day_results = PowerModels.optimize_model!(pm, optimizer=Ipopt.Optimizer)
         
-        # Water use
+        # Group generators
         df_gen_pg = WaterPowerModels.multi_network_to_df(
             day_results["solution"]["nw"],
             "gen",
@@ -60,14 +62,19 @@ function main()
             DataFrames.groupby(df_gen_pg, :obj_name),
             :pg => Statistics.mean
         )
+        # Water use
         for row in DataFrames.eachrow(df_gen_pg)
-            @infiltrate
+            # Get generator information
+            gen_name = row["obj_name"]
+            gen_info = df_gen_info[in([gen_name]).(df_gen_info.obj_name), :]
+            fuel = gen_info[!, "MATPOWER Fuel"]
+            cool = gen_info[!, "923 Cooling Type"]
             daily_water_use(
                 water_temperature:: Float64,
                 air_temperature:: Float64,
-                fuel:: String,
-                cool:: String,
-                df_eia_heat_rates:: DataFrames.DataFrame
+                fuel,
+                cool,
+                df_eia_heat_rates
             )
             
         end
