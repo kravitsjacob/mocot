@@ -504,7 +504,7 @@ function simulation(
 
     # Commit all generators
     network_data = WaterPowerModels.set_all_gens!(network_data, "gen_status", 1)
-    network_data = WaterPowerModels.set_all_gens!(network_data, "pmin", 0.0)
+    network_data = WaterPowerModels.set_all_gens!(network_data, "pmin", 0.001)
     network_data_multi = PowerModels.replicate(network_data, h_total)
 
     # Static network information
