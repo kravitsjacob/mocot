@@ -1,6 +1,5 @@
-using WaterPowerModels
+using Revise
 
-using Infiltrator
 using PowerModels
 using Ipopt
 using CSV
@@ -10,6 +9,9 @@ using JLD2
 using Statistics
 using DataFrames
 using XLSX
+
+using WaterPowerModels
+
 
 function main()
     # Initialization
@@ -29,6 +31,7 @@ function main()
     h_total = 24
     d_total = 7
     network_data = PowerModels.parse_file(paths["inputs"]["case"])
+    network_data = WaterPowerModels.commit_all_gens!(network_data)
     network_data_multi = PowerModels.replicate(network_data, h_total)
 
     # Static network information
@@ -80,7 +83,7 @@ function main()
             PowerModels.DCPPowerModel,
             PowerModels.build_mn_opf
         )
-        
+
         # Add water use penalities
         pm = WaterPowerModels.add_water_terms!(
             pm,
@@ -114,8 +117,8 @@ function main()
         water_temperature = air_water[!, "water_temperature"][1]
 
         # Water use
-        gen_beta_with = Dict()
-        gen_beta_con = Dict()
+        gen_beta_with = Dict{String, Float64}()
+        gen_beta_con = Dict{String, Float64}()
         for row in DataFrames.eachrow(df_gen_pg)
             # Get generator information
             gen_name = row["obj_name"]
