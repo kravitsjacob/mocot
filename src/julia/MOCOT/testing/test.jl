@@ -43,7 +43,7 @@ paths = YAML.load_file("analysis/paths.yml")
 end
 
 @Test.testset "Test for daily_water_use" begin
-    df_eia_heat_rates = DataFrames.DataFrame(XLSX.readtable("analysis/io/inputs/eia_heat_rates/Table_A6_Approximate_Heat_Rates_for_Electricity_-_and_Heat_Content_of_Electricity.xlsx", "Annual Data"))
+    df_eia_heat_rates = DataFrames.DataFrame(XLSX.readtable(paths["inputs"]["eia_heat_rates"], "Annual Data"))
     air_temperature = 25.0
     water_temperature = 25.0
 
