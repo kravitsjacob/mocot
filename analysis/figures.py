@@ -30,10 +30,10 @@ def main():
         fig.savefig(paths['outputs']['node_load'])
 
     # Generator output (no water weights)
-    if not os.path.exists(paths['outputs']['gen_no_water']):
+    if not os.path.exists(paths['outputs']['no_water_weights']):
+        df_gen_states = pd.read_csv(paths['outputs']['df_no_water_weights'])
         df_gen_info_water = pd.read_csv(paths['outputs']['gen_info_water'])
         df_gen_info_pm = pd.read_csv(paths['outputs']['df_gen_info_pm'])
-        df_gen_states = pd.read_csv(paths['outputs']['df_gen_states'])
         df_node_load = pd.read_csv(paths['outputs']['df_node_load'])
         g = wc.viz.gen_timeseries(
             df_gen_states,
@@ -41,15 +41,21 @@ def main():
             df_gen_info_pm,
             df_node_load
         )
-        g.savefig(paths['outputs']['gen_no_water'])
-
-    # # Power simulation simulation with ramping limits
-    # if not os.path.exists(paths['outputs']['gen_ramp']):
-    #     df_gen_info_water = pd.read_csv(paths['outputs']['gen_info_water'])
-    #     df_gen_pminfo = pd.read_csv(paths['outputs']['df_gen_pminfo'])
-    #     df_gen = pd.read_csv(paths['outputs']['df_gen_ramp'])
-    #     g = wc.viz.gen_timeseries(df_gen, df_gen_pminfo, df_gen_info_water)
-    #     g.savefig(paths['outputs']['gen_ramp'])
+        g.savefig(paths['outputs']['no_water_weights'])
+    
+    # Generator output (withdrawal weight)
+    if not os.path.exists(paths['outputs']['water_weights']):
+        df_gen_states = pd.read_csv(paths['outputs']['df_water_weights'])
+        df_gen_info_water = pd.read_csv(paths['outputs']['gen_info_water'])
+        df_gen_info_pm = pd.read_csv(paths['outputs']['df_gen_info_pm'])
+        df_node_load = pd.read_csv(paths['outputs']['df_node_load'])
+        g = wc.viz.gen_timeseries(
+            df_gen_states,
+            df_gen_info_water,
+            df_gen_info_pm,
+            df_node_load
+        )
+        g.savefig(paths['outputs']['water_weights'])
 
 
 if __name__ == '__main__':
