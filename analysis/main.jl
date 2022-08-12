@@ -4,6 +4,7 @@ using YAML
 using CSV
 using XLSX
 using DataFrames
+using PowerModels
 
 using MOCOT
 

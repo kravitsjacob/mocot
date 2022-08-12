@@ -502,12 +502,12 @@ function simulation(
     d_total = 7
 
     # Commit all generators
-    network_data = WaterPowerModels.set_all_gens!(network_data, "gen_status", 1)
-    network_data = WaterPowerModels.set_all_gens!(network_data, "pmin", 0.0)
+    network_data = MOCOT.set_all_gens!(network_data, "gen_status", 1)
+    network_data = MOCOT.set_all_gens!(network_data, "pmin", 0.0)
     network_data_multi = PowerModels.replicate(network_data, h_total)
 
     # Static network information
-    df_gen_info_pm = WaterPowerModels.network_to_df(network_data, "gen", ["gen_bus"])
+    df_gen_info_pm = MOCOT.network_to_df(network_data, "gen", ["gen_bus"])
     df_gen_info = DataFrames.leftjoin(
         df_gen_info_pm,
         df_gen_info_water,
@@ -524,7 +524,7 @@ function simulation(
         gen_name = row["obj_name"]
         fuel =  string(row["MATPOWER Fuel"])
         cool = string(row["923 Cooling Type"])
-        beta_with, beta_con = WaterPowerModels.daily_water_use(
+        beta_with, beta_con = MOCOT.daily_water_use(
             water_temperature,
             air_temperature,
             fuel,
@@ -540,7 +540,7 @@ function simulation(
     # Simulation
     for d in 1:d_total
         # Update loads
-        network_data_multi = WaterPowerModels.update_load!(
+        network_data_multi = MOCOT.update_load!(
             network_data_multi,
             df_node_load,
             d
@@ -554,12 +554,12 @@ function simulation(
         )
 
         # Add water use penalities
-        pm = WaterPowerModels.add_water_terms!(
+        pm = MOCOT.add_water_terms!(
             pm,
             with_results[string(d-1)],
             w_with
         )
-        pm = WaterPowerModels.add_water_terms!(
+        pm = MOCOT.add_water_terms!(
             pm,
             con_results[string(d-1)],
             w_con
@@ -569,7 +569,7 @@ function simulation(
         day_results = PowerModels.optimize_model!(pm, optimizer=Ipopt.Optimizer)
         
         # Group generators
-        df_gen_pg = WaterPowerModels.multi_network_to_df(
+        df_gen_pg = MOCOT.multi_network_to_df(
             day_results["solution"]["nw"],
             "gen",
             ["pg"]
@@ -594,7 +594,7 @@ function simulation(
             gen_info = df_gen_info[in([gen_name]).(df_gen_info.obj_name), :]
             fuel = string(gen_info[!, "MATPOWER Fuel"][1])
             cool = string(gen_info[!, "923 Cooling Type"][1])
-            beta_with, beta_con = WaterPowerModels.daily_water_use(
+            beta_with, beta_con = MOCOT.daily_water_use(
                 water_temperature,
                 air_temperature,
                 fuel,
