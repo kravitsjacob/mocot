@@ -31,7 +31,10 @@ function main()
     h_total = 24
     d_total = 7
     network_data = PowerModels.parse_file(paths["inputs"]["case"])
-    network_data = WaterPowerModels.commit_all_gens!(network_data)
+
+    # Commit all generators
+    network_data = WaterPowerModels.set_all_gens!(network_data, "gen_status", 1)
+    network_data = WaterPowerModels.set_all_gens!(network_data, "pmin", 0.0)
     network_data_multi = PowerModels.replicate(network_data, h_total)
 
     # Static network information
