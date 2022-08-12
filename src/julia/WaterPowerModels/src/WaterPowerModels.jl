@@ -455,4 +455,17 @@ function add_water_terms!(
     return pm
 end
 
+function commit_all_gens!(nw_data)
+    """
+    Commit all generators in a network
+
+    # Arguments
+    - `nw_data::Dict`: Network data
+    """
+    for gen_dict in values(nw_data["gen"])
+        gen_dict["gen_status"] = 1
+    end
+    return nw_data
+end
+
 end # module
