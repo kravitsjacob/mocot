@@ -5,7 +5,6 @@ import JuMP
 import DataFrames
 import Statistics
 import Ipopt
-import Infiltrator  # For debugging only
 
 
 function update_load!(network_data_multi::Dict, df_node_load::DataFrames.DataFrame, d::Int)
