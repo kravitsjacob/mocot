@@ -4,7 +4,7 @@ import yaml
 import os
 import pandas as pd
 
-import wc
+import mocot
 
 
 def main():
@@ -14,19 +14,19 @@ def main():
     # Daily average air/water temperature
     if not os.path.exists(paths['outputs']['temperatures']):
         df_air_water = pd.read_csv(paths['outputs']['df_air_water'])
-        fig = wc.viz.temperatures(df_air_water)
+        fig = mocot.viz.temperatures(df_air_water)
         fig.savefig(paths['outputs']['temperatures'])
 
     # System hourly load data
     if not os.path.exists(paths['outputs']['system_load']):
         df_system_load = pd.read_csv(paths['outputs']['df_system_load'])
-        fig = wc.viz.system_load(df_system_load)
+        fig = mocot.viz.system_load(df_system_load)
         fig.savefig(paths['outputs']['system_load'])
 
     # Node hourly load data
     if not os.path.exists(paths['outputs']['node_load']):
         df_node_load = pd.read_csv(paths['outputs']['df_node_load'])
-        fig = wc.viz.node_load(df_node_load)
+        fig = mocot.viz.node_load(df_node_load)
         fig.savefig(paths['outputs']['node_load'])
 
     # Generator output (no water weights)
@@ -35,7 +35,7 @@ def main():
         df_gen_info_water = pd.read_csv(paths['outputs']['gen_info_water'])
         df_gen_info_pm = pd.read_csv(paths['outputs']['df_gen_info_pm'])
         df_node_load = pd.read_csv(paths['outputs']['df_node_load'])
-        g = wc.viz.gen_timeseries(
+        g = mocot.viz.gen_timeseries(
             df_gen_states,
             df_gen_info_water,
             df_gen_info_pm,
@@ -49,7 +49,7 @@ def main():
         df_gen_info_water = pd.read_csv(paths['outputs']['gen_info_water'])
         df_gen_info_pm = pd.read_csv(paths['outputs']['df_gen_info_pm'])
         df_node_load = pd.read_csv(paths['outputs']['df_node_load'])
-        g = wc.viz.gen_timeseries(
+        g = mocot.viz.gen_timeseries(
             df_gen_states,
             df_gen_info_water,
             df_gen_info_pm,

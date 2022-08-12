@@ -1,7 +1,7 @@
 """Test for core"""
 
 import unittest
-import wc
+import mocot
 
 
 class CoreTest(unittest.TestCase):
@@ -9,7 +9,7 @@ class CoreTest(unittest.TestCase):
         """
         Test for once_through_withdrawal
         """
-        beta_with = wc.once_through_withdrawal(
+        beta_with = mocot.core.once_through_withdrawal(
             eta_net=0.25,
             k_os=0.25,
             delta_t=5,
@@ -21,7 +21,7 @@ class CoreTest(unittest.TestCase):
         """
         Test for reciruclating_withdrawal
         """
-        beta_with = wc.recirculating_withdrawal(
+        beta_with = mocot.core.recirculating_withdrawal(
             eta_net=0.20,
             k_os=0.25,
             beta_proc=200,
@@ -34,8 +34,8 @@ class CoreTest(unittest.TestCase):
         """
         Test for getting k_sens
         """
-        self.assertAlmostEqual(wc.get_k_sens(t_inlet=22), 0.17, 2)
-        self.assertAlmostEqual(wc.get_k_sens(t_inlet=30), 0.10, 2)
+        self.assertAlmostEqual(mocot.core.get_k_sens(t_inlet=22), 0.17, 2)
+        self.assertAlmostEqual(mocot.core.get_k_sens(t_inlet=30), 0.10, 2)
 
 
 if __name__ == '__main__':

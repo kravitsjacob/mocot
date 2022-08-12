@@ -6,7 +6,7 @@ import os
 import pandas as pd
 import yaml
 
-import wc
+import mocot
 
 
 def main():
@@ -17,7 +17,7 @@ def main():
     if not os.path.exists(paths['outputs']['case']):
         net = pandapower.converter.from_mpc(paths['inputs']['case'])
         df_gen_info = pd.read_csv(paths['inputs']['gen_info'])
-        net = wc.core.grid_setup(net, df_gen_info)
+        net = mocot.core.grid_setup(net, df_gen_info)
         pandapower.to_pickle(net, paths['outputs']['case'])
         print('Success: grid_setup')
 
@@ -25,30 +25,30 @@ def main():
     if not os.path.exists(paths['outputs']['case_match']):
         net = pandapower.from_pickle(paths['outputs']['case'])
         df_gen_matches = pd.read_csv(paths['inputs']['gen_matches'])
-        net = wc.core.generator_match(net, df_gen_matches)
+        net = mocot.core.generator_match(net, df_gen_matches)
         pandapower.to_pickle(net, paths['outputs']['case_match'])
         print('Success: generator_match')
 
     # Add cooling systems to synthetic grid
     if not os.path.exists(paths['outputs']['gen_info_water']):
-        df_eia = wc.core.import_eia(paths['inputs']['eia_raw'])
+        df_eia = mocot.core.import_eia(paths['inputs']['eia_raw'])
         df_eia.to_hdf(paths['outputs']['eia'], key='df_eia', mode='w')
         print('Success: import_eia')
         net = pandapower.from_pickle(paths['outputs']['case_match'])
-        df_gen_info = wc.core.network_to_gen_info(net)
-        df_gen_info_water = wc.core.get_cooling_system(df_eia, df_gen_info)
+        df_gen_info = mocot.core.network_to_gen_info(net)
+        df_gen_info_water = mocot.core.get_cooling_system(df_eia, df_gen_info)
         df_gen_info_water.to_csv(paths['outputs']['gen_info_water'])
         print('Success: get_cooling_system')
 
     # Water and air temperature
     if not os.path.exists(paths['outputs']['df_air_water']):
-        df_air_water = wc.core.process_exogenous(paths)
+        df_air_water = mocot.core.process_exogenous(paths)
         df_air_water.to_csv(paths['outputs']['df_air_water'])
 
     # System-level loads
     if not os.path.exists(paths['outputs']['df_system_load']):
         df_miso = pd.read_csv(paths['inputs']['miso_load'])
-        df_system_load = wc.core.clean_system_load(df_miso)
+        df_system_load = mocot.core.clean_system_load(df_miso)
         df_system_load.to_csv(paths['outputs']['df_system_load'])
 
     # Node-level loads
@@ -59,7 +59,7 @@ def main():
             index_col=0
         )
         df_miso = pd.read_csv(paths['inputs']['miso_load'])
-        df_node_load = wc.core.create_node_load(df_system_load, df_miso, net)
+        df_node_load = mocot.core.create_node_load(df_system_load, df_miso, net)
         df_node_load.to_csv(paths['outputs']['df_node_load'])
 
 
