@@ -2,7 +2,7 @@
 import setuptools
 
 setuptools.setup(
-    name="wc",
+    name="mocot",
     version="0.0.0b0",
     author="Jacob Kravits",
     author_email="kravitsjacob@gmail.com",
