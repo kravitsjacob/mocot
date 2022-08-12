@@ -20,14 +20,11 @@ outputs:
   system_load: "analysis/io/outputs/figures/system_load.pdf"
   df_node_load: "analysis/io/outputs/exogenous/node_load.csv"
   node_load: "analysis/io/outputs/figures/node_load.pdf"
-  results: "analysis/io/outputs/states/results.jld2"
-  df_gen_states: "analysis/io/outputs/states/gen_states.csv"
-  gen_no_water: "analysis/io/outputs/figures/gen_no_water.pdf"
   df_gen_info_pm: "analysis/io/outputs/synthetic_grid/gen_info_pm.csv"
 
-  df_gen_noramp: "analysis/io/outputs/power_system/df_gen_noramp.csv"
-  df_gen_pminfo: "analysis/io/outputs/power_system/df_gen_pminfo.csv"
-  gen_noramp: "analysis/io/outputs/figures/gen_noramp.pdf"
-  gen_ramp: "analysis/io/outputs/figures/gen_ramp.pdf"
-  df_gen_ramp: "analysis/io/outputs/power_system/df_gen_ramp.csv"
-  formulation: "analysis/io/outputs/power_system/formulation.txt"
+  df_no_water_weights: "analysis/io/outputs/states/df_no_water_weights.csv"
+  no_water_weights: "analysis/io/outputs/figures/no_water_weights.pdf"
+
+  df_water_weights: "analysis/io/outputs/states/df_water_weights.csv"
+  water_weights: "analysis/io/outputs/figures/water_weights.pdf"
+
