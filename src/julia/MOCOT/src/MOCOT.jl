@@ -1,4 +1,4 @@
-module WaterPowerModels
+module MOCOT
 
 import PowerModels
 import JuMP

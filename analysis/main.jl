@@ -5,7 +5,7 @@ using CSV
 using XLSX
 using DataFrames
 
-using WaterPowerModels
+using MOCOT
 
 
 function main()
@@ -18,7 +18,7 @@ function main()
     network_data = PowerModels.parse_file(paths["inputs"]["case"])
 
     # Simulation with no water weights
-    power_results, with_results, con_results, df_gen_info_pm = WaterPowerModels.simulation(
+    power_results, with_results, con_results, df_gen_info_pm = MOCOT.simulation(
         df_gen_info_water, 
         df_eia_heat_rates, 
         df_air_water,
@@ -27,11 +27,11 @@ function main()
         w_with=0.0,
         w_con=0.0,
     )
-    df_gen_states = WaterPowerModels.state_df(power_results, "gen", ["pg"])
+    df_gen_states = MOCOT.state_df(power_results, "gen", ["pg"])
     CSV.write(paths["outputs"]["df_no_water_weights"], df_gen_states)
 
     # Simulation with withdrawal weight
-    power_results, with_results, con_results, df_gen_info_pm = WaterPowerModels.simulation(
+    power_results, with_results, con_results, df_gen_info_pm = MOCOT.simulation(
         df_gen_info_water, 
         df_eia_heat_rates, 
         df_air_water,
@@ -40,7 +40,7 @@ function main()
         w_with=1.0,
         w_con=0.0,
     )
-    df_gen_states = WaterPowerModels.state_df(power_results, "gen", ["pg"])
+    df_gen_states = MOCOT.state_df(power_results, "gen", ["pg"])
     CSV.write(paths["outputs"]["df_water_weights"], df_gen_states)
 
     # Static network information
