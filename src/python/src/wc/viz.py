@@ -347,6 +347,9 @@ def gen_timeseries(
         '/' \
         + df_gen_states['923 Cooling Type']
 
+    # Round generator output
+    df_gen_states['pg'] = df_gen_states['pg'].round(3)
+
     # Plot
     g = sns.FacetGrid(
         df_gen_states,
