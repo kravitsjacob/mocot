@@ -16,7 +16,9 @@ def main():
     # Generator cooling systems information
     if not os.path.exists(paths['outputs']['gen_info_water']):
         # Generator information from previous study
-        df_gen_info_matpower = pd.read_csv(paths['inputs']['gen_info_matpower'])
+        df_gen_info_matpower = pd.read_csv(
+            paths['inputs']['gen_info_matpower']
+        )
         df_gen_info_matches = pd.read_csv(paths['inputs']['gen_info_matches'])
         df_gen_info = pd.merge(df_gen_info_matpower, df_gen_info_matches)
 
