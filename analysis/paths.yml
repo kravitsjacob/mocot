@@ -21,9 +21,9 @@ outputs:
   no_water_weights: "analysis/io/outputs/states/df_no_water_weights.csv"
   water_weights: "analysis/io/outputs/states/df_water_weights.csv"
 
-figures:
-  system_load: "analysis/io/outputs/figures/system_load.pdf"
-  node_load: "analysis/io/outputs/figures/node_load.pdf"
-  no_water_weights: "analysis/io/outputs/figures/no_water_weights.pdf"
-  water_weights: "analysis/io/outputs/figures/water_weights.pdf"
-  temperatures: "analysis/io/outputs/figures/temperatures.pdf"
+  figures:
+    system_load: "analysis/io/outputs/figures/system_load.pdf"
+    node_load: "analysis/io/outputs/figures/node_load.pdf"
+    no_water_weights: "analysis/io/outputs/figures/no_water_weights.pdf"
+    water_weights: "analysis/io/outputs/figures/water_weights.pdf"
+    temperatures: "analysis/io/outputs/figures/temperatures.pdf"
