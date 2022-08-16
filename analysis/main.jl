@@ -40,6 +40,7 @@ function main()
         df_air_water,
         df_node_load,
         network_data,
+        df_gen_ramp,
         w_with=1.0,
         w_con=0.0,
     )

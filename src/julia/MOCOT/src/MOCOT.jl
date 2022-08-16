@@ -469,7 +469,29 @@ function add_ramp_rates!(
     `gen_ramp_up:: Dict{String, Float64}`: Dictionary ramp up values for each generator
     `gen_ramp_down:: Dict{String, Float64}`: Dictionary ramp down values for each generator
     """
-    @Infiltrator.infiltrate
+    nw_data = pm.data["nw"]
+    h_total = length(nw_data)
+
+    for gen_name in keys(gen_ramp_up)
+        # Extract ramp rates
+        ramp_up = gen_ramp_up[gen_name]
+        ramp_down = gen_ramp_down[gen_name]
+        
+        gen_index = parse(Int, gen_name)
+
+        # Ramping up
+        JuMP.@constraint(
+            pm.model,
+            [h in 1:h_total-1],
+            PowerModels.var(pm, h+1, :pg, gen_index) - PowerModels.var(pm, h, :pg, gen_index) <= ramp_up
+        )
+        # Ramping down
+        JuMP.@constraint(
+            pm.model,
+            [h in 1:h_total-1],
+            PowerModels.var(pm, h, :pg, gen_index) - PowerModels.var(pm, h+1, :pg, gen_index) >= ramp_down
+        )
+    end
     return pm
 end
 
