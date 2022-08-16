@@ -473,9 +473,9 @@ function add_ramp_rates!(
     h_total = length(nw_data)
 
     for gen_name in keys(gen_ramp_up)
-        # Extract ramp rates
-        ramp_up = gen_ramp_up[gen_name]
-        ramp_down = gen_ramp_down[gen_name]
+        # Extract ramp rates to pu
+        ramp_up = gen_ramp_up[gen_name]/100.0 
+        ramp_down = gen_ramp_down[gen_name]/100.0
         
         gen_index = parse(Int, gen_name)
 
