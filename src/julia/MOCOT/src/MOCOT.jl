@@ -5,6 +5,7 @@ import JuMP
 import DataFrames
 import Statistics
 import Ipopt
+import Infiltrator
 
 
 function update_load!(network_data_multi::Dict, df_node_load::DataFrames.DataFrame, d::Int)
@@ -455,6 +456,23 @@ function add_water_terms!(
     return pm
 end
 
+function add_ramp_rates!(
+    pm,
+    gen_ramp_up:: Dict{String, Float64},
+    gen_ramp_down:: Dict{String, Float64},
+)
+    """
+    Add ramp rates to model
+
+    # Arguments
+    `pm:: Any`: Any PowerModel
+    `gen_ramp_up:: Dict{String, Float64}`: Dictionary ramp up values for each generator
+    `gen_ramp_down:: Dict{String, Float64}`: Dictionary ramp down values for each generator
+    """
+    @Infiltrator.infiltrate
+    return pm
+end
+
 function set_all_gens!(nw_data, prop:: String, val)
     """
     Change property on all generators in a network
@@ -476,6 +494,7 @@ function simulation(
     df_air_water:: DataFrames.DataFrame,
     df_node_load:: DataFrames.DataFrame,
     network_data:: Dict,
+    df_gen_ramp:: DataFrames.DataFrame
     ;
     w_with:: Float64=0.0,
     w_con:: Float64=0.0,
@@ -488,6 +507,7 @@ function simulation(
     - `df_eia_heat_rates:: DataFrames.DataFrame`: EIA heat rates
     - `df_air_water:: DataFrames.DataFrame`: Exogenous air and water temperatures
     - `df_node_load:: DataFrames.DataFrame`: Node-level loads
+    - `df_gen_ramp:: DataFrames.DataFrame`: Generator ramping 
     - `network_data:: Dict`: PowerModels Network data
     - `w_with:: Float64=0.0`: Withdrawal weight
     - `w_con:: Float64=0.0`: Consumption weight
@@ -513,6 +533,19 @@ function simulation(
         df_gen_info_water,
         on = :gen_bus => Symbol("MATPOWER Index")
     )
+    df_gen_info = DataFrames.leftjoin(
+        df_gen_info,
+        df_gen_ramp[!, ["MATPOWER Index", "Ramp Rate Up (MW/hr)", "Ramp Rate Down (MW/hr)"]],
+        on = :gen_bus => Symbol("MATPOWER Index"),
+    )
+
+    # Prepare generator ramping
+    gen_ramp_up = Dict{String, Float64}()
+    gen_ramp_down = Dict{String, Float64}()
+    for row in DataFrames.eachrow(df_gen_info)
+        gen_ramp_up[string(row["obj_name"])] = float(row["Ramp Rate Up (MW/hr)"])
+        gen_ramp_down[string(row["obj_name"])] = float(row["Ramp Rate Down (MW/hr)"])
+    end
 
     # Initialize water use based on 25.0 C
     d = 0
@@ -564,6 +597,9 @@ function simulation(
             con_results[string(d-1)],
             w_con
         )
+
+        # Add ramp rates
+        pm = add_ramp_rates!(pm, gen_ramp_up, gen_ramp_down)
 
         # Solve power system model
         day_results = PowerModels.optimize_model!(pm, optimizer=Ipopt.Optimizer)

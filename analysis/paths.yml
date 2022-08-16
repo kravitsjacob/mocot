@@ -8,6 +8,7 @@ inputs:
   noaa_temperature_headers: "analysis/io/inputs/noaa_air_temperature/headers.txt"
   usgs_temperature_data: "analysis/io/inputs/usgs_water_temperature/05558300.txt"
   miso_load: "analysis/io/inputs/miso_load_data/20190101-20200101 MISO Forecasted Cleared & Actual Load.csv"
+  gen_ramp: "analysis/io/inputs/ramp_rates/gen_ramp.xlsx"
 
 outputs:
   case: "analysis/io/outputs/synthetic_grid/case.p"

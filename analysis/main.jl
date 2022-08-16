@@ -16,6 +16,7 @@ function main()
     df_eia_heat_rates = DataFrames.DataFrame(XLSX.readtable(paths["inputs"]["eia_heat_rates"], "Annual Data"))
     df_air_water = DataFrames.DataFrame(CSV.File(paths["outputs"]["df_air_water"]))
     df_node_load = DataFrames.DataFrame(CSV.File(paths["outputs"]["df_node_load"]))
+    df_gen_ramp = DataFrames.DataFrame(XLSX.readtable(paths["inputs"]["gen_ramp"], "gen_ramp"))
     network_data = PowerModels.parse_file(paths["inputs"]["case"])
 
     # Simulation with no water weights
@@ -25,6 +26,7 @@ function main()
         df_air_water,
         df_node_load,
         network_data,
+        df_gen_ramp,
         w_with=0.0,
         w_con=0.0,
     )
