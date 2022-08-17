@@ -13,6 +13,7 @@ inputs:
 
 outputs:
   gen_info_water: "analysis/io/outputs/synthetic_grid/gen_info_water.csv"
+  gen_info_main: "analysis/io/outputs/synthetic_grid/gen_info_main.csv"
   gen_info_water_ramp: "analysis/io/outputs/synthetic_grid/gen_info_water_ramp.csv"
   air_water: "analysis/io/outputs/exogenous/air_water.csv"
   system_load: "analysis/io/outputs/exogenous/system_load.csv"

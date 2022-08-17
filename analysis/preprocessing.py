@@ -47,6 +47,16 @@ def main():
             'Source'
         ]
         df_gen_info_water_ramp = df_gen_info_water_ramp.drop(drop_cols, axis=1)
+
+        # Anonymous plant names
+        powerworld_plants = \
+            df_gen_info_water_ramp['POWERWORLD Plant Name'].unique()
+        anonymous_plants = \
+            [f'Plant {i}' for i in range(1, len(powerworld_plants) + 1)]
+        d = dict(zip(powerworld_plants, anonymous_plants))
+        df_gen_info_water_ramp['Plant Name'] = \
+            df_gen_info_water_ramp['POWERWORLD Plant Name'].map(d)
+
         df_gen_info_water_ramp.to_csv(
             paths['outputs']['gen_info_water_ramp'],
             index=False
