@@ -29,33 +29,17 @@ def main():
         fig = mocot.viz.node_load(df_node_load)
         fig.savefig(paths['outputs']['figures']['node_load'])
 
-    # # Generator output (no water weights)
-    # if not os.path.exists(paths['figures']['water_weights']):
-    #     df_gen_states = pd.read_csv(paths['outputs']['water_weights'])
-    #     df_gen_info_water = pd.read_csv(paths['outputs']['gen_info_water'])
-    #     df_gen_info_pm = pd.read_csv(paths['outputs']['gen_info_pm'])
-    #     df_node_load = pd.read_csv(paths['outputs']['node_load'])
-    #     g = mocot.viz.gen_timeseries(
-    #         df_gen_states,
-    #         df_gen_info_water,
-    #         df_gen_info_pm,
-    #         df_node_load
-    #     )
-    #     g.savefig(paths['figures']['no_water_weights'])
-
-    # # Generator output (withdrawal weight)
-    # if not os.path.exists(paths['figures']['water_weights']):
-    #     df_gen_states = pd.read_csv(paths['outputs']['water_weights'])
-    #     df_gen_info_water = pd.read_csv(paths['outputs']['gen_info_water'])
-    #     df_gen_info_pm = pd.read_csv(paths['outputs']['df_gen_info_pm'])
-    #     df_node_load = pd.read_csv(paths['outputs']['node_load'])
-    #     g = mocot.viz.gen_timeseries(
-    #         df_gen_states,
-    #         df_gen_info_water,
-    #         df_gen_info_pm,
-    #         df_node_load
-    #     )
-    #     g.savefig(paths['figures']['water_weights'])
+    # Generator output (no water weights)
+    if not os.path.exists(paths['outputs']['figures']['no_water_weights']):
+        df_gen_states = pd.read_csv(paths['outputs']['no_water_weights'])
+        df_gen_info = pd.read_csv(paths['outputs']['gen_info_main'])
+        df_node_load = pd.read_csv(paths['outputs']['node_load'])
+        g = mocot.viz.gen_timeseries(
+            df_gen_states,
+            df_gen_info,
+            df_node_load
+        )
+        g.savefig(paths['outputs']['figures']['no_water_weights'])
 
 
 if __name__ == '__main__':

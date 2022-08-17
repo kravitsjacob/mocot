@@ -112,8 +112,7 @@ def node_load(df_node_load):
 
 def gen_timeseries(
     df_gen_states,
-    df_gen_info_water,
-    df_gen_info_pm,
+    df_gen_info,
     df_node_load
 ):
     """Plot generator timeseries power output
@@ -122,10 +121,8 @@ def gen_timeseries(
     ----------
     df_gen_states : pandas.DataFrame
         Generator output DataFrame
-    df_gen_info_water : pandas.DataFrame
-        Generator water information DataFrame
-    df_gen_info_pm : pandas.DataFrame
-        Generator PowerModel information DataFrame
+    df_gen_info : pandas.DataFrame
+        Generator information DataFrame
     df_node_load : pandas.DataFrame
         Loads (just for datetime)
 
@@ -134,34 +131,19 @@ def gen_timeseries(
     seaborn.axisgrid.FacetGrid
         Plots of once-through
     """
-    # Get powermodels information
+    # Add generator information
     df_gen_states = pd.merge(
         df_gen_states,
-        df_gen_info_pm,
+        df_gen_info,
         left_on='obj_name',
         right_on='obj_name',
         how='left'
     )
 
-    # Get water information
-    mergecols = [
-        'MATPOWER Index',
-        'MATPOWER Fuel',
-        '923 Cooling Type',
-        'Plant Name'
-    ]
-    df_gen_states = pd.merge(
-        df_gen_states,
-        df_gen_info_water[mergecols],
-        left_on='gen_bus',
-        right_on='MATPOWER Index',
-        how='left'
-    )
-
-    # Get datetime
+    # Add datetime
     df_node_load['datetime'] = pd.to_datetime(df_node_load['datetime'])
-    df_node_load['pm_hour'] = df_node_load['hour_index'] + 1
-    df_node_load['pm_day'] = df_node_load['day_index'] + 1
+    df_node_load['pm_hour'] = df_node_load['hour_index']
+    df_node_load['pm_day'] = df_node_load['day_index']
     mergecols = [
         'datetime',
         'pm_hour',
@@ -206,7 +188,7 @@ def gen_timeseries(
     for ax in g.axes:
         ax[0].legend(loc='center', bbox_to_anchor=(1.2, 0.5))
     g.set_axis_labels(y_var='Power Output [p.u.]', x_var='')
-    plt.xticks(rotation=45)
+    plt.xticks(rotation=90)
     plt.tight_layout()
 
     return g
