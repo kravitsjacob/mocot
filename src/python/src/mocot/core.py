@@ -158,6 +158,11 @@ def process_exogenous(paths):
     df_exogenous = df_exogenous.resample('d', on='datetime').mean()
     df_exogenous = df_exogenous.reset_index()
 
+    # Index
+    df_exogenous['day_index'] = (
+        df_exogenous['datetime'] - df_exogenous['datetime'][0]
+    ).dt.days + 1
+
     return df_exogenous
 
 
@@ -233,6 +238,6 @@ def create_node_load(df_system_load, df_miso, net):
     df_node_load['hour_index'] = df_node_load['datetime'].dt.hour
     df_node_load['day_index'] = (
         df_node_load['datetime'] - df_node_load['datetime'][0]
-    ).dt.days
+    ).dt.days + 1
 
     return df_node_load
