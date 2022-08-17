@@ -43,11 +43,10 @@ function update_load!(network_data_multi::Dict, df_node_load:: DataFrames.DataFr
 
         for load in values(nw_data["load"])
             # Pandapower indexing
-            pp_d = d-1
             pp_bus = load["load_bus"] - 1
             
             # Filters
-            df_node_load_filter = df_node_load[in(pp_d).(df_node_load.day_index), :]
+            df_node_load_filter = df_node_load[in(d).(df_node_load.day_index), :]
             df_node_load_filter = df_node_load_filter[in(h).(df_node_load_filter.hour_index), :]
             df_node_load_filter = df_node_load_filter[in(pp_bus).(df_node_load_filter.bus), :]
             load_mw = df_node_load_filter[!, "load_mw"][1]
@@ -75,8 +74,7 @@ function state_df(results, obj_type, props)
     # Initialization
     df = DataFrames.DataFrame()
 
-
-    for d in 1:length(results)
+    for d in 1:length(results)-1
 
         # Extract day data
         day_results = results[string(d)]
@@ -518,40 +516,37 @@ end
 
 function add_ramp_rates!(
     pm,
-    gen_ramp_up:: Dict{String, Float64},
-    gen_ramp_down:: Dict{String, Float64},
+    gen_ramp:: Dict{String, Float64},
 )
     """
     Add ramp rates to model
 
     # Arguments
     `pm:: Any`: Any PowerModel
-    `gen_ramp_up:: Dict{String, Float64}`: Dictionary ramp up values for each generator
-    `gen_ramp_down:: Dict{String, Float64}`: Dictionary ramp down values for each generator
+    `gen_ramp:: Dict{String, Float64}`: Dictionary ramp values for each generator
     """
     nw_data = pm.data["nw"]
     h_total = length(nw_data)
 
-    for gen_name in keys(gen_ramp_up)
+    for gen_name in keys(gen_ramp)
         # Extract ramp rates to pu
-        ramp_up = gen_ramp_up[gen_name]/100.0 
-        ramp_down = gen_ramp_down[gen_name]/100.0
+        ramp = gen_ramp[gen_name]/100.0 
         
         gen_index = parse(Int, gen_name)
-
         # Ramping up
         JuMP.@constraint(
             pm.model,
             [h in 1:h_total-1],
-            PowerModels.var(pm, h+1, :pg, gen_index) - PowerModels.var(pm, h, :pg, gen_index) <= ramp_up
+            PowerModels.var(pm, h+1, :pg, gen_index) - PowerModels.var(pm, h, :pg, gen_index) <= ramp
         )
         # Ramping down
         JuMP.@constraint(
             pm.model,
             [h in 1:h_total-1],
-            PowerModels.var(pm, h, :pg, gen_index) - PowerModels.var(pm, h+1, :pg, gen_index) >= ramp_down
+            PowerModels.var(pm, h+1, :pg, gen_index) - PowerModels.var(pm, h, :pg, gen_index) >= -1.0 * ramp
         )
     end
+
     return pm
 end
 
@@ -597,6 +592,9 @@ function simulation(
     h_total = 24
     d_total = 7
     state = Dict{String, Dict}()
+    state["power"] = Dict("0" => Dict())
+    state["withdraw_rate"] = Dict("0" => Dict{String, Float64}())
+    state["consumption_rate"] = Dict("0" => Dict{String, Float64}())
 
     # Prepare generator ramping
     gen_ramp = Dict{String, Float64}()
@@ -620,87 +618,62 @@ function simulation(
         df_gen_info,
         df_eia_heat_rates
     )
-    state["withdraw"] = Dict("0" => gen_beta_with)
-    state["consumption"] = Dict("0" => gen_beta_con)
+    state["withdraw_rate"]["0"] = gen_beta_with
+    state["consumption_rate"]["0"] = gen_beta_con
 
     # Simulation
     for d in 1:d_total
-        # # Update loads
-        # network_data_multi = MOCOT.update_load!(
-        #     network_data_multi,
-        #     df_node_load,
-        #     d
-        # )
+        # Update loads
+        # TODO port to constraint version
+        network_data_multi = MOCOT.update_load!(
+            network_data_multi,
+            df_node_load,
+            d
+        )
 
         # Create power system model
+        # TODO move to outside the loop
         pm = PowerModels.instantiate_model(
             network_data_multi,
             PowerModels.DCPPowerModel,
             PowerModels.build_mn_opf
         )
 
-        # # Add water use penalities
-        # pm = MOCOT.add_water_terms!(
-        #     pm,
-        #     with_results[string(d-1)],
-        #     w_with
-        # )
-        # pm = MOCOT.add_water_terms!(
-        #     pm,
-        #     con_results[string(d-1)],
-        #     w_con
-        # )
+        # Add ramp rates
+        pm = add_ramp_rates!(pm, gen_ramp)
 
-        # # Add ramp rates
-        # pm = add_ramp_rates!(pm, gen_ramp_up, gen_ramp_down)
+        # Add water use penalities
+        pm = MOCOT.add_water_terms!(
+            pm,
+            state["withdraw_rate"][string(d-1)],
+            w_with
+        )
+        pm = MOCOT.add_water_terms!(
+            pm,
+            state["consumption_rate"][string(d-1)],
+            w_con
+        )
 
         # Solve power system model
-        day_results = PowerModels.optimize_model!(pm, optimizer=Ipopt.Optimizer)
-  
-        
-        # Group generators
-        df_gen_pg = MOCOT.multi_network_to_df(
-            day_results["solution"]["nw"],
-            "gen",
-            ["pg"]
-        )
-        df_gen_pg = DataFrames.combine(
-            DataFrames.groupby(df_gen_pg, :obj_name),
-            :pg => Statistics.mean
-        )
+        state["power"][string(d)] = PowerModels.optimize_model!(pm, optimizer=Ipopt.Optimizer)
 
         # Exogenous air and water temperatures
-        d_pp = d - 1
-        air_water = df_air_water[in([d_pp]).(df_air_water.Column1), :]
-        air_temperature = air_water[!, "air_temperature"][1]
-        water_temperature = air_water[!, "water_temperature"][1]
+        filter_air_water = df_air_water[in([d]).(df_air_water.day_index), :]
+        air_temperature = filter_air_water[!, "air_temperature"][1]
+        water_temperature = filter_air_water[!, "water_temperature"][1]
 
         # Water use
-        gen_beta_with = Dict{String, Float64}()
-        gen_beta_con = Dict{String, Float64}()
-        for row in DataFrames.eachrow(df_gen_pg)
-            # Get generator information
-            gen_name = row["obj_name"]
-            gen_info = df_gen_info[in([gen_name]).(df_gen_info.obj_name), :]
-            fuel = string(gen_info[!, "MATPOWER Fuel"][1])
-            cool = string(gen_info[!, "923 Cooling Type"][1])
-            beta_with, beta_con = MOCOT.water_use(
-                water_temperature,
-                air_temperature,
-                fuel,
-                cool,
-                df_eia_heat_rates
-            )
-            gen_beta_with[gen_name] = beta_with
-            gen_beta_con[gen_name] = beta_con   
-        end
-
-        # Store results for that day
-        power_results[string(d)] = day_results
-        with_results[string(d)] = gen_beta_with
-        con_results[string(d)] = gen_beta_con
+        gen_beta_with, gen_beta_con = MOCOT.gen_water_use(
+            water_temperature,
+            air_temperature,
+            df_gen_info,
+            df_eia_heat_rates
+        )
+        state["withdraw_rate"][string(d)] = gen_beta_with
+        state["consumption_rate"][string(d)] = gen_beta_con
     end
-    return power_results, with_results, con_results, df_gen_info_pm
+
+    return state
 end
 
 end # module
