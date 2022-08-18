@@ -24,6 +24,7 @@ function main()
 
     # Initialization
     df_gen_info = MOCOT.get_gen_info(network_data, df_gen_info_water_ramp)
+    CSV.write(paths["outputs"]["gen_info_main"], df_gen_info)
 
     # Simulation with no water weights
     state = MOCOT.simulation(
@@ -35,11 +36,21 @@ function main()
         w_with=0.0,
         w_con=0.0,
     )
-
-    # Exports
     df_gen_states = MOCOT.state_df(state["power"], "gen", ["pg"])
     CSV.write(paths["outputs"]["no_water_weights"], df_gen_states)
-    CSV.write(paths["outputs"]["gen_info_main"], df_gen_info)
+
+    # Simulation with no water weights
+    state = MOCOT.simulation(
+        network_data,
+        df_gen_info, 
+        df_eia_heat_rates, 
+        df_air_water,
+        df_node_load,
+        w_with=1.0,
+        w_con=0.0,
+    )
+    df_gen_states = MOCOT.state_df(state["power"], "gen", ["pg"])
+    CSV.write(paths["outputs"]["with_water_weights"], df_gen_states)
 
  end
  

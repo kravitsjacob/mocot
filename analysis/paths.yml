@@ -23,11 +23,11 @@ outputs:
   node_load: "analysis/io/outputs/exogenous/node_load.csv"
   gen_info_pm: "analysis/io/outputs/synthetic_grid/gen_info_pm.csv"
   no_water_weights: "analysis/io/outputs/states/no_water_weights.csv"
-  water_weights: "analysis/io/outputs/states/water_weights.csv"
+  with_water_weights: "analysis/io/outputs/states/with_water_weights.csv"
 
   figures:
     system_load: "analysis/io/outputs/figures/system_load.pdf"
     node_load: "analysis/io/outputs/figures/node_load.pdf"
     no_water_weights: "analysis/io/outputs/figures/no_water_weights.pdf"
-    water_weights: "analysis/io/outputs/figures/water_weights.pdf"
+    with_water_weights: "analysis/io/outputs/figures/with_water_weights.pdf"
     temperatures: "analysis/io/outputs/figures/temperatures.pdf"
