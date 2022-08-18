@@ -11,7 +11,8 @@ inputs:
   miso_load: "analysis/io/inputs/miso_load_data/20190101-20200101 MISO Forecasted Cleared & Actual Load.csv"
   
   testing:
-    node_test: "analysis/io/inputs/testing/node_load_testing.csv"
+    miso_load: "analysis/io/inputs/testing/system_load_testing.csv"
+    node_load: "analysis/io/inputs/testing/node_load_testing.csv"
 
 outputs:
   gen_info_water: "analysis/io/outputs/synthetic_grid/gen_info_water.csv"
