@@ -10,6 +10,8 @@ inputs:
   usgs_temperature_data: "analysis/io/inputs/usgs_water_temperature/05558300.txt"
   miso_load: "analysis/io/inputs/miso_load_data/20190101-20200101 MISO Forecasted Cleared & Actual Load.csv"
   
+  testing:
+    node_test: "analysis/io/inputs/testing/node_load_testing.csv"
 
 outputs:
   gen_info_water: "analysis/io/outputs/synthetic_grid/gen_info_water.csv"
