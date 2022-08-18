@@ -630,7 +630,7 @@ function simulation(
             df_node_load,
             d
         )
-        @Infiltrator.infiltrate
+
         # Create power system model
         # TODO move to outside the loop
         pm = PowerModels.instantiate_model(

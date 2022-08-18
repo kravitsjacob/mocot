@@ -30,7 +30,7 @@ def main():
         fig.savefig(paths['outputs']['figures']['node_load'])
 
     # Generator output (no water weights)
-    if os.path.exists(paths['outputs']['figures']['no_water_weights']):
+    if not os.path.exists(paths['outputs']['figures']['no_water_weights']):
         df_gen_states = pd.read_csv(paths['outputs']['no_water_weights'])
         df_gen_info = pd.read_csv(paths['outputs']['gen_info_main'])
         df_system_load = pd.read_csv(paths['outputs']['system_load'])
