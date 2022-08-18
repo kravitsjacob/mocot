@@ -12,6 +12,7 @@ inputs:
   
   testing:
     no_load: "analysis/io/inputs/testing/no_load.csv"
+    spikes: "analysis/io/inputs/testing/spikes.csv"
 
 outputs:
   gen_info_water: "analysis/io/outputs/synthetic_grid/gen_info_water.csv"
