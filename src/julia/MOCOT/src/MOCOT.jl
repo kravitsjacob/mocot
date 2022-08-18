@@ -37,7 +37,7 @@ function update_load!(network_data_multi::Dict, df_node_load:: DataFrames.DataFr
     - `df_node_load::DataFrames.DataFrame`: DataFrame of node-level loads
     - `d::Int`: Day index
     """
-    for h in 1:length(network_data_multi)
+    for h in 1:length(network_data_multi["nw"])
         # Extract network data
         nw_data = network_data_multi["nw"][string(h)]
 
