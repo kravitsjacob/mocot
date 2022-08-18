@@ -53,6 +53,20 @@ def main():
         )
         g.savefig(paths['outputs']['figures']['with_water_weights'])
 
+    # Generator output (multi-weight)
+    if not os.path.exists(paths['outputs']['figures']['multi_weights']):
+        df_gen_no = pd.read_csv(paths['outputs']['no_water_weights'])
+        df_gen_with = pd.read_csv(paths['outputs']['with_water_weights'])
+        df_gen_info = pd.read_csv(paths['outputs']['gen_info_main'])
+        df_system_load = pd.read_csv(paths['outputs']['system_load'])
+        g = mocot.viz.multi_gen_timeseries(
+            df_gen_no,
+            df_gen_with,
+            df_gen_info,
+            df_system_load
+        )
+        g.savefig(paths['outputs']['figures']['multi_weights'])
+
 
 if __name__ == '__main__':
     main()

@@ -31,3 +31,4 @@ outputs:
     no_water_weights: "analysis/io/outputs/figures/no_water_weights.pdf"
     with_water_weights: "analysis/io/outputs/figures/with_water_weights.pdf"
     temperatures: "analysis/io/outputs/figures/temperatures.pdf"
+    multi_weights: "analysis/io/outputs/figures/multi_weights.pdf"

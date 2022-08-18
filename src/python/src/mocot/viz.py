@@ -202,3 +202,102 @@ def gen_timeseries(
     plt.tight_layout()
 
     return g
+
+
+def multi_gen_timeseries(
+    df_gen_no,
+    df_gen_with,
+    df_gen_info,
+    df_system_load
+):
+    """Plot generator timeseries power output
+
+    Parameters
+    ----------
+    df_gen_no : pandas.DataFrame
+        Generator output DataFrame with no water weights
+    df_gen_with : pandas.DataFrame
+        Generator output DataFrame with water weights
+    df_gen_info : pandas.DataFrame
+        Generator information DataFrame
+    df_system_load : pandas.DataFrame
+        System loads
+
+    Returns
+    -------
+    seaborn.axisgrid.FacetGrid
+        Plots of once-through
+    """
+    # Combine with/without
+    df_gen_no['Type'] = 'No Water Weight'
+    df_gen_with['Type'] = 'High Withdrawal Weight'
+    df_gen_states = pd.concat(
+        [df_gen_no, df_gen_with],
+        axis=0
+    )
+
+    # Add generator information
+    df_gen_states = pd.merge(
+        df_gen_states,
+        df_gen_info,
+        left_on='obj_name',
+        right_on='obj_name',
+        how='left'
+    )
+
+    # Add datetime
+    df_system_load['DATE'] = pd.to_datetime(df_system_load['DATE'])
+    df_system_load = df_system_load.rename(
+        {'hour_index': 'hour', 'day_index': 'day'},
+        axis=1
+    )
+    mergecols = [
+        'DATE',
+        'hour',
+        'day',
+    ]
+    df_gen_states = pd.merge(
+        df_gen_states,
+        df_system_load[mergecols],
+        left_on=['hour', 'day'],
+        right_on=['hour', 'day'],
+        how='left'
+    )
+
+    # Create labels
+    df_gen_states['Fuel/Cooling'] = \
+        df_gen_states['MATPOWER Fuel'] + \
+        '/' \
+        + df_gen_states['923 Cooling Type']
+
+    # Round generator output
+    df_gen_states['pg'] = df_gen_states['pg'].round(3)
+
+    # Plot
+    g = sns.FacetGrid(
+        df_gen_states,
+        row='Fuel/Cooling',
+        col='Type',
+        sharey='row',
+        sharex=True,
+        aspect=6.0,
+        height=1.3,
+    )
+    g = g.map_dataframe(
+        sns.lineplot,
+        x='DATE',
+        y='pg',
+        hue='Plant Name',
+        style='Plant Name',
+        units='obj_name',
+        estimator=None,
+        lw=0.5,
+    )
+    for ax in g.axes:
+        ax[0].legend(loc='center', bbox_to_anchor=(1.2, 0.5))
+    g.set_axis_labels(y_var='Power [p.u.]', x_var='')
+    for axes in g.axes.flat:
+        _ = axes.set_xticklabels(axes.get_xticklabels(), rotation=90)
+    plt.tight_layout()
+
+    return g
