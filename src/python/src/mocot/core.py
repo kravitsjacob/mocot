@@ -188,7 +188,7 @@ def clean_system_load(df_miso):
     start = '2019-07-01'
     end = '2019-07-08'
     selection = \
-        (df_system_load['DATE'] > start) & (df_system_load['DATE'] < end)
+        (df_system_load['DATE'] >= start) & (df_system_load['DATE'] < end)
     df_system_load = df_system_load[selection]
 
     # Linearly interpolate missing data
@@ -200,6 +200,12 @@ def clean_system_load(df_miso):
         other=(df_ff + df_bf)/2
     )
     df_system_load = df_system_load.reset_index()
+
+    # Index
+    df_system_load['hour_index'] = df_system_load['DATE'].dt.hour + 1.0
+    df_system_load['day_index'] = (
+        df_system_load['DATE'] - df_system_load['DATE'][0]
+    ).dt.days + 1
 
     return df_system_load
 
@@ -222,6 +228,8 @@ def create_node_load(df_system_load, df_miso, net):
         df_temp = pd.DataFrame(df_def_load['bus'])
         df_temp['load_mw'] = df_def_load['p_mw'] * row['load_factor']
         df_temp['datetime'] = row['DATE']
+        df_temp['day_index'] = row['day_index']
+        df_temp['hour_index'] = row['hour_index']
 
         # Store in df list
         df_load_ls.append(df_temp)
@@ -233,11 +241,5 @@ def create_node_load(df_system_load, df_miso, net):
     df_node_load['load_mw'] = df_node_load['load_mw'].apply(
         lambda x: x * np.random.uniform(low=0.9, high=1.1)
     )
-
-    # Index
-    df_node_load['hour_index'] = df_node_load['datetime'].dt.hour
-    df_node_load['day_index'] = (
-        df_node_load['datetime'] - df_node_load['datetime'][0]
-    ).dt.days + 1
 
     return df_node_load
