@@ -113,7 +113,7 @@ def node_load(df_node_load):
 def gen_timeseries(
     df_gen_states,
     df_gen_info,
-    df_node_load
+    df_system_load
 ):
     """Plot generator timeseries power output
 
@@ -123,8 +123,8 @@ def gen_timeseries(
         Generator output DataFrame
     df_gen_info : pandas.DataFrame
         Generator information DataFrame
-    df_node_load : pandas.DataFrame
-        Loads (just for datetime)
+    df_system_load : pandas.DataFrame
+        System loads
 
     Returns
     -------
@@ -141,19 +141,21 @@ def gen_timeseries(
     )
 
     # Add datetime
-    df_node_load['datetime'] = pd.to_datetime(df_node_load['datetime'])
-    df_node_load['pm_hour'] = df_node_load['hour_index']
-    df_node_load['pm_day'] = df_node_load['day_index']
+    df_system_load['DATE'] = pd.to_datetime(df_system_load['DATE'])
+    df_system_load = df_system_load.rename(
+        {'hour_index': 'hour', 'day_index': 'day'},
+        axis=1
+    )
     mergecols = [
-        'datetime',
-        'pm_hour',
-        'pm_day'
+        'DATE',
+        'hour',
+        'day',
     ]
     df_gen_states = pd.merge(
         df_gen_states,
-        df_node_load[mergecols],
+        df_system_load[mergecols],
         left_on=['hour', 'day'],
-        right_on=['pm_hour', 'pm_day'],
+        right_on=['hour', 'day'],
         how='left'
     )
 
@@ -162,6 +164,14 @@ def gen_timeseries(
         df_gen_states['MATPOWER Fuel'] + \
         '/' \
         + df_gen_states['923 Cooling Type']
+
+    # Add loads
+    df_system_load = df_system_load.rename({'ActualLoad': 'pg'}, axis=1)
+    df_system_load['Plant Name'] = 'System Load'
+    df_system_load['Fuel/Cooling'] = 'System Load'
+    df_system_load['obj_name'] = 'System Load'
+    df_system_load['pg'] = df_system_load['pg']/100.0
+    df_gen_states = pd.concat([df_gen_states, df_system_load])
 
     # Round generator output
     df_gen_states['pg'] = df_gen_states['pg'].round(3)
@@ -172,12 +182,12 @@ def gen_timeseries(
         row='Fuel/Cooling',
         sharey=False,
         sharex=True,
-        aspect=4.5,
-        height=2.0,
+        aspect=5.0,
+        height=1.7,
     )
     g = g.map_dataframe(
         sns.lineplot,
-        x='datetime',
+        x='DATE',
         y='pg',
         hue='Plant Name',
         style='Plant Name',
