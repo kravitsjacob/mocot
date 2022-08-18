@@ -70,7 +70,7 @@ def main():
 
     # System-level loads
     if not os.path.exists(paths['outputs']['system_load']):
-        df_miso = pd.read_csv(paths['inputs']['testing']['spikes'])
+        df_miso = pd.read_csv(paths['inputs']['miso_load'])
         df_system_load = mocot.core.clean_system_load(df_miso)
         df_system_load.to_csv(paths['outputs']['system_load'], index=False)
 
