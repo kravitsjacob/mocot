@@ -6,6 +6,7 @@ import DataFrames
 import Statistics
 import Ipopt
 import Infiltrator
+import CSV
 
 
 function get_gen_info(
@@ -514,19 +515,18 @@ function add_water_terms!(
     return pm
 end
 
-function add_ramp_rates!(
+function add_within_day_ramp_rates!(
     pm,
     gen_ramp:: Dict{String, Float64},
 )
     """
-    Add ramp rates to model
+    Add hourly ramp rates to model
 
     # Arguments
     `pm:: Any`: Any PowerModel
     `gen_ramp:: Dict{String, Float64}`: Dictionary ramp values for each generator
     """
-    nw_data = pm.data["nw"]
-    h_total = length(nw_data)
+    h_total = length(pm.data["nw"])
 
     for gen_name in keys(gen_ramp)
         # Extract ramp rates to pu
@@ -547,6 +547,49 @@ function add_ramp_rates!(
         )
     end
 
+    return pm
+end
+
+function add_day_to_day_ramp_rates!(
+    pm,
+    gen_ramp:: Dict{String, Float64},
+    state:: Dict{String, Dict},
+    d:: Int64,
+)
+    """
+    Add day-to-day ramp rates to model
+
+    # Arguments
+    `pm:: Any`: Any PowerModel
+    `gen_ramp:: Dict{String, Float64}`: Dictionary ramp values for each generator
+    `state:: Dict{String, Dict}`: Current state dictionary
+    `d:: Int64`: Current day index
+    """
+    h = 1
+    h_previous = 24
+    results_previous_day = state["power"][string(d-1)]["solution"]["nw"]
+    results_previous_hour = results_previous_day[string(h_previous)]
+
+    for gen_name in keys(gen_ramp)
+        # Extract ramp rates to pu
+        ramp = gen_ramp[gen_name]/100.0 
+
+        # Previous power output
+        pg_previous = results_previous_hour["gen"][gen_name]["pg"]
+
+        # Ramping up
+        gen_index = parse(Int, gen_name)
+        JuMP.@constraint(
+            pm.model,
+            pg_previous - PowerModels.var(pm, h, :pg, gen_index) <= ramp
+        )
+
+        # Ramping down
+        JuMP.@constraint(
+            pm.model,
+            PowerModels.var(pm, h, :pg, gen_index) - pg_previous <= ramp
+        )
+    end
     return pm
 end
 
@@ -640,7 +683,19 @@ function simulation(
         )
 
         # Add ramp rates
-        pm = add_ramp_rates!(pm, gen_ramp)
+        pm = add_within_day_ramp_rates!(pm, gen_ramp)
+        
+        # formulation = JuMP.latex_formulation(pm.model)
+        # open("before constraint.text", "w") do file
+        #     write(file, string(formulation))
+
+        if d > 1
+            pm = add_day_to_day_ramp_rates!(pm, gen_ramp, state, d)
+        end
+
+        # formulation = JuMP.latex_formulation(pm.model)
+        # open("after constraint.text", "w") do file
+        #     write(file, string(formulation))
 
         # Add water use penalities
         pm = MOCOT.add_water_terms!(
