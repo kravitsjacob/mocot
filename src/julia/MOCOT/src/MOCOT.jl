@@ -589,8 +589,8 @@ function simulation(
     - `w_con:: Float64=0.0`: Consumption weight
     """
     # Initialization
-    h_total = 24
-    d_total = 7
+    d_total = trunc(Int64, maximum(df_node_load[!, "day_index"])) 
+    h_total = trunc(Int64, maximum(df_node_load[!, "hour_index"]))
     state = Dict{String, Dict}()
     state["power"] = Dict("0" => Dict())
     state["withdraw_rate"] = Dict("0" => Dict{String, Float64}())
@@ -630,7 +630,7 @@ function simulation(
             df_node_load,
             d
         )
-
+        @Infiltrator.infiltrate
         # Create power system model
         # TODO move to outside the loop
         pm = PowerModels.instantiate_model(
