@@ -536,14 +536,14 @@ function add_ramp_rates!(
         # Ramping up
         JuMP.@constraint(
             pm.model,
-            [h in 1:h_total-1],
-            PowerModels.var(pm, h+1, :pg, gen_index) - PowerModels.var(pm, h, :pg, gen_index) <= ramp
+            [h in 2:h_total],
+            PowerModels.var(pm, h-1, :pg, gen_index) - PowerModels.var(pm, h, :pg, gen_index) <= ramp
         )
         # Ramping down
         JuMP.@constraint(
             pm.model,
-            [h in 1:h_total-1],
-            PowerModels.var(pm, h+1, :pg, gen_index) - PowerModels.var(pm, h, :pg, gen_index) >= -1.0 * ramp
+            [h in 2:h_total],
+            PowerModels.var(pm, h, :pg, gen_index) - PowerModels.var(pm, h-1, :pg, gen_index) <= ramp
         )
     end
 
