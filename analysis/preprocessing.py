@@ -71,17 +71,25 @@ def main():
     # System-level loads
     if not os.path.exists(paths['outputs']['system_load']):
         df_miso = pd.read_csv(paths['inputs']['miso_load'])
-        df_system_load = mocot.core.clean_system_load(df_miso)
+        df_system_load = mocot.core.clean_system_load(
+            df_miso
+        )
         df_system_load.to_csv(paths['outputs']['system_load'], index=False)
 
     # Node-level loads
     if not os.path.exists(paths['outputs']['node_load']):
         net = pandapower.converter.from_mpc(paths['inputs']['case'])
+        df_miso = pd.read_csv(paths['inputs']['miso_load'])
         df_system_load = pd.read_csv(paths['outputs']['system_load'])
-        df_miso_load = pd.read_csv(paths['inputs']['miso_load'])
-        df_node_load = mocot.core.create_node_load(
-            df_system_load, df_miso_load, net
+        df_synthetic_node_loads = pd.read_csv(
+            paths['inputs']['synthetic_node_loads'],
+            header=1,
+            low_memory=False
         )
+        df_node_load, df_hour_to_hour = mocot.core.create_node_load(
+            df_system_load, df_synthetic_node_loads, df_miso, net
+        )
+        df_hour_to_hour.to_csv(paths['outputs']['hour_to_hour'], index=False)
         df_node_load.to_csv(paths['outputs']['node_load'], index=False)
 
 

@@ -201,6 +201,10 @@ def clean_system_load(df_miso):
     )
     df_system_load = df_system_load.reset_index()
 
+    # Add load factors
+    avg_load = df_miso['ActualLoad'].mean()
+    df_system_load['load_factor'] = df_system_load['ActualLoad']/avg_load
+
     # Index
     df_system_load['hour_index'] = df_system_load['DATE'].dt.hour + 1.0
     df_system_load['day_index'] = (
@@ -210,26 +214,71 @@ def clean_system_load(df_miso):
     return df_system_load
 
 
-def create_node_load(df_system_load, df_miso, net):
+def create_node_load(df_system_load, df_synthetic_node_loads, df_miso, net):
+    """
+    Create node-level loads
 
+    Parameters
+    ----------
+    df_system_load : pandas.DataFrame
+        System-level loads
+    df_synthetic_node_loads : pandas.DataFrame
+        Synthetic node loads
+    df_miso : pandas.DataFrame
+        Miso loads (for datetime)
+    net : pandapower.network
+        Network
+
+    Returns
+    -------
+    pandas.DataFrame
+        Node loads
+    """
     # Initialization
-    np.random.seed(1008)
     df_load_ls = []
     df_def_load = net.load[['bus', 'p_mw']]
     df_system_load['DATE'] = pd.to_datetime(df_system_load['DATE'])
+    df_miso['DATE'] = pd.to_datetime(df_miso['DATE'])
 
-    # To load factors
-    median_load = df_miso['ActualLoad'].median()
-    df_system_load['load_factor'] = df_system_load['ActualLoad']/median_load
+    # Relative hour-to-hour variation
+    df_temp = df_synthetic_node_loads.iloc[0:-1, 5:-1]
+    df_temp_shift = df_synthetic_node_loads.iloc[1:, 5:-1]
+    df_temp.index = range(1, len(df_temp) + 1)
+    df_hour_to_hour = df_temp/df_temp_shift
 
-    # For date in df_system_load
-    for _, row in df_system_load.iterrows():
+    # Filter by dates
+    df_hour_to_hour.insert(0, 'DATE', df_miso['DATE'])
+    start = '2019-07-01'
+    end = '2019-07-08'
+    selection = \
+        (df_hour_to_hour['DATE'] >= start) & (df_hour_to_hour['DATE'] < end)
+    df_hour_to_hour = df_hour_to_hour[selection]
+
+    # Drop generators
+    df_hour_to_hour = df_hour_to_hour.iloc[
+        :, :len(df_def_load) + 1  # Skip date
+    ]
+
+    # Apply node-load model
+    for i, row in df_system_load.iterrows():
+
         # Create temporary dataframe
         df_temp = pd.DataFrame(df_def_load['bus'])
-        df_temp['load_mw'] = df_def_load['p_mw'] * row['load_factor']
+
+        # Indexing information
         df_temp['datetime'] = row['DATE']
         df_temp['day_index'] = row['day_index']
         df_temp['hour_index'] = row['hour_index']
+
+        # Average magnitude of loads
+        df_temp['load_mw'] = df_def_load['p_mw']
+
+        # Applying system load factor
+        df_temp['load_mw'] = df_temp['load_mw'] * row['load_factor']
+
+        # Applying hour-to-hour
+        hour_to_hour_factors = df_hour_to_hour.iloc[i, 1:].values  # Skip date
+        df_temp['load_mw'] = df_def_load['p_mw'] * hour_to_hour_factors
 
         # Store in df list
         df_load_ls.append(df_temp)
@@ -237,9 +286,4 @@ def create_node_load(df_system_load, df_miso, net):
     # Concat
     df_node_load = pd.concat(df_load_ls, axis=0, ignore_index=True)
 
-    # Add some randomness by multiplying by normal distribution
-    df_node_load['load_mw'] = df_node_load['load_mw'].apply(
-        lambda x: x * np.random.uniform(low=0.9, high=1.1)
-    )
-
-    return df_node_load
+    return df_node_load, df_hour_to_hour
