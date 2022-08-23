@@ -354,8 +354,12 @@ def multi_gen_timeseries(
         col='Type',
         sharey='row',
         sharex=True,
-        aspect=6.0,
-        height=1.3,
+        aspect=2.5,
+        height=2.0,
+        gridspec_kws={
+            'wspace': 0.5,
+            'hspace': 0.1
+        }
     )
     g = g.map_dataframe(
         sns.lineplot,
@@ -367,11 +371,24 @@ def multi_gen_timeseries(
         estimator=None,
         lw=0.5,
     )
-    for ax in g.axes:
-        ax[0].legend(loc='center', bbox_to_anchor=(1.2, 0.5))
-    g.set_axis_labels(y_var='Power [p.u.]', x_var='')
-    for axes in g.axes.flat:
-        _ = axes.set_xticklabels(axes.get_xticklabels(), rotation=90)
-    plt.tight_layout()
+    titles = [
+        'coal/OC',
+        'coal/RC',
+        'ng/None',
+        'Coal/RI',
+        'wind/None',
+        'ng/RI',
+        'nuclear/RC'
+    ]
+    for i, ax in enumerate(g.axes):
+        ax[0].legend(loc='center', bbox_to_anchor=(1.25, 0.5), title=titles[i])
+        ax[0].set_title('')
+        ax[1].set_title('')
+    g.set_axis_labels(y_var='', x_var='')
+    g.axes[3, 0].set_ylabel('Power [p.u.]')
+    g.axes[0, 0].set_title('No Water Weight')
+    g.axes[0, 1].set_title('Withdrawal Weight')
+    g.axes[-1, 0].tick_params(axis='x', rotation=90)
+    g.axes[-1, 1].tick_params(axis='x', rotation=90)
 
     return g
