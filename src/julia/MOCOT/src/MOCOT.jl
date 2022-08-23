@@ -667,7 +667,6 @@ function simulation(
     # Simulation
     for d in 1:d_total
         # Update loads
-        # TODO port to constraint version
         network_data_multi = MOCOT.update_load!(
             network_data_multi,
             df_node_load,
@@ -675,7 +674,6 @@ function simulation(
         )
 
         # Create power system model
-        # TODO move to outside the loop
         pm = PowerModels.instantiate_model(
             network_data_multi,
             PowerModels.DCPPowerModel,
