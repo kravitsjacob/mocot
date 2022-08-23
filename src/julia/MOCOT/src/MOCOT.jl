@@ -685,17 +685,9 @@ function simulation(
         # Add ramp rates
         pm = add_within_day_ramp_rates!(pm, gen_ramp)
         
-        # formulation = JuMP.latex_formulation(pm.model)
-        # open("before constraint.text", "w") do file
-        #     write(file, string(formulation))
-
         if d > 1
             pm = add_day_to_day_ramp_rates!(pm, gen_ramp, state, d)
         end
-
-        # formulation = JuMP.latex_formulation(pm.model)
-        # open("after constraint.text", "w") do file
-        #     write(file, string(formulation))
 
         # Add water use penalities
         pm = MOCOT.add_water_terms!(
