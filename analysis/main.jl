@@ -27,7 +27,7 @@ function main()
     CSV.write(paths["outputs"]["gen_info_main"], df_gen_info)
 
     # Simulation with no water weights
-    state = MOCOT.simulation(
+    (objectives, state) = MOCOT.simulation(
         network_data,
         df_gen_info, 
         df_eia_heat_rates, 
@@ -36,11 +36,15 @@ function main()
         w_with=0.0,
         w_con=0.0,
     )
-    df_gen_states = MOCOT.state_df(state["power"], "gen", ["pg"])
+    CSV.write(
+        paths["outputs"]["obj_no_water_weights"],
+        DataFrames.DataFrame(objectives)
+    )
+    df_gen_states = MOCOT.pm_state_df(state["power"], "gen", ["pg"])
     CSV.write(paths["outputs"]["no_water_weights"], df_gen_states)
 
     # Simulation with no water weights
-    state = MOCOT.simulation(
+    (objectives, state) = MOCOT.simulation(
         network_data,
         df_gen_info, 
         df_eia_heat_rates, 
@@ -49,7 +53,11 @@ function main()
         w_with=1.0,
         w_con=0.0,
     )
-    df_gen_states = MOCOT.state_df(state["power"], "gen", ["pg"])
+    CSV.write(
+        paths["outputs"]["obj_with_water_weights"],
+        DataFrames.DataFrame(objectives)
+    )
+    df_gen_states = MOCOT.pm_state_df(state["power"], "gen", ["pg"])
     CSV.write(paths["outputs"]["with_water_weights"], df_gen_states)
 
  end
