@@ -62,9 +62,9 @@ function update_load!(network_data_multi::Dict, df_node_load:: DataFrames.DataFr
 end
 
 
-function state_df(results, obj_type, props)
+function pm_state_df(results, obj_type, props)
     """
-    Extract states from day-resolution multi-network data (at hourly-resolution)
+    Extract states from day-resolution powermodels multi-network data (at hourly-resolution)
 
     # Arguments
     - `nw_data::Dict`: multi network data (e.g., network_data_multi["nw"])
@@ -86,6 +86,38 @@ function state_df(results, obj_type, props)
             obj_type,
             props
         )
+
+        # Assign day
+        df_day[:, "day"] .= string(d)
+
+        # Append to state dataframe
+        DataFrames.append!(df, df_day)
+    end
+
+    return df
+end
+
+
+function custom_state_df(state:: Dict{String, Dict}, prop:: String)
+    """
+    Extract states dataframe from day-resolution state dictionary
+
+    # Arguments
+    - `state:: Dict{String, Dict}`: State dictionary
+    - `prop:: String`: Property to query
+    """
+    # Initialization
+    df = DataFrames.DataFrame()
+
+    prop_state = state[prop]
+
+    for d in keys(prop_state)
+
+        # Get data for one day
+        df_day = DataFrames.stack(DataFrames.DataFrame(prop_state[string(d)]))
+
+        # Cleaning data
+        DataFrames.rename!(df_day, :variable => :obj_name, :value => Symbol(prop))
 
         # Assign day
         df_day[:, "day"] .= string(d)
@@ -718,7 +750,24 @@ function simulation(
         state["consumption_rate"][string(d)] = gen_beta_con
     end
 
-    return state
+    # Compute objectives
+    objectives = get_objectives(state)
+
+    return (objectives, state)
+end
+
+function get_objectives(
+    state:: Dict{String, Dict}
+)
+    objectives = Dict{String, Float64}
+
+    df_withdraw = MOCOT.custom_state_df(state, "withdraw_rate")
+    df_consumption = MOCOT.custom_state_df(state, "consumption_rate")
+    @Infiltrator.infiltrate
+    df_gen_states = MOCOT.pm_state_df(state["power"], "gen", ["pg"])
+
+
+    return objectives
 end
 
 end # module
