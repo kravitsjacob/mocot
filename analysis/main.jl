@@ -21,7 +21,6 @@ function main()
     df_air_water = DataFrames.DataFrame(CSV.File(paths["outputs"]["air_water"]))
     df_node_load = DataFrames.DataFrame(CSV.File(paths["outputs"]["node_load"]))
     network_data = PowerModels.parse_file(paths["inputs"]["case"])
-
     # Initialization
     df_gen_info = MOCOT.get_gen_info(network_data, df_gen_info_water_ramp)
     CSV.write(paths["outputs"]["gen_info_main"], df_gen_info)

@@ -751,15 +751,31 @@ function simulation(
     end
 
     # Compute objectives
-    objectives = get_objectives(state)
+    objectives = get_objectives(state, network_data)
 
     return (objectives, state)
 end
 
 function get_objectives(
-    state:: Dict{String, Dict}
+    state:: Dict{String, Dict},
+    network_data:: Dict{String, Any}
 )
+    """
+    Computing simulation objectives
+    
+    # Arguments
+    - `state:: Dict{String, Dict}`: State dictionary
+    - `network_data:: Dict`: PowerModels Network data
+    """
     objectives = Dict{String, Float64}()
+
+    # Cost coefficients
+    cost_tab = PowerModels.component_table(network_data, "gen", ["cost"])
+    df_cost = DataFrames.DataFrame(cost_tab, ["obj_name", "cost"])
+    df_cost[!, "obj_name"] = string.(df_cost[!, "obj_name"])
+    df_cost[!, "c_per_mw2_pu"] = extract_from_array_column(df_cost[!, "cost"], 1)
+    df_cost[!, "c_per_mw_pu"] = extract_from_array_column(df_cost[!, "cost"], 2)
+    df_cost[!, "c"] = extract_from_array_column(df_cost[!, "cost"], 3)
 
     # Organize states
     df_withdraw = MOCOT.custom_state_df(state, "withdraw_rate")
@@ -777,12 +793,41 @@ function get_objectives(
         df_consumption,
         on = [:obj_name, :day]
     )
+    df = DataFrames.leftjoin(
+        df,
+        df_cost,
+        on = [:obj_name]
+    )
+
+    # Compute cost objectives
+    objectives["f_gen"] = DataFrames.sum(DataFrames.skipmissing(
+        df.c .+ df.pg .* df.c_per_mw_pu .+ df.pg.^2 .* df.c_per_mw2_pu
+    ))
 
     # Compute water objectives
-    objectives["f_with"] = DataFrames.sum(df[!, "pg"] .* df[!, "withdraw_rate"])
-    objectives["f_con"] = DataFrames.sum(df[!, "pg"] .* df[!, "consumption_rate"])
+    objectives["f_with"] = DataFrames.sum(df[!, "pg"] .* 100.0 .* df[!, "withdraw_rate"])  # Per unit conversion
+    objectives["f_con"] = DataFrames.sum(df[!, "pg"] .* 100.0 .* df[!, "consumption_rate"])  # Per unit conversion
 
     return objectives
+end
+
+function extract_from_array_column(array_col, i:: Int)
+    """
+    Extract elements from a DataFrame column of arrays
+
+    # Arguments
+    - `array_col`: DataFrame column of array (e.g., df.col)
+    - `i:: Int`: Index to retrieve
+    """
+    extract = map(eachrow(array_col)) do row
+        try
+            row[1][i]
+        catch
+            missing
+        end
+    end
+
+    return extract
 end
 
 end # module
