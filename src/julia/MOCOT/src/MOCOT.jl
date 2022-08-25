@@ -759,13 +759,28 @@ end
 function get_objectives(
     state:: Dict{String, Dict}
 )
-    objectives = Dict{String, Float64}
+    objectives = Dict{String, Float64}()
 
+    # Organize states
     df_withdraw = MOCOT.custom_state_df(state, "withdraw_rate")
     df_consumption = MOCOT.custom_state_df(state, "consumption_rate")
-    @Infiltrator.infiltrate
     df_gen_states = MOCOT.pm_state_df(state["power"], "gen", ["pg"])
 
+    # Combine into one dataframe
+    df = DataFrames.leftjoin(
+        df_gen_states,
+        df_withdraw,
+        on = [:obj_name, :day]
+    )
+    df = DataFrames.leftjoin(
+        df,
+        df_consumption,
+        on = [:obj_name, :day]
+    )
+
+    # Compute water objectives
+    objectives["f_with"] = DataFrames.sum(df[!, "pg"] .* df[!, "withdraw_rate"])
+    objectives["f_con"] = DataFrames.sum(df[!, "pg"] .* df[!, "consumption_rate"])
 
     return objectives
 end
