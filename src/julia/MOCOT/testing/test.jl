@@ -1,6 +1,8 @@
+using Revise
 using Test
 using DataFrames
 using YAML
+using CSV
 using XLSX
 using PowerModels
 using JuMP
@@ -50,21 +52,21 @@ end
     # Once-through coal
     fuel = "coal"
     cool = "OC"
-    beta_with, beta_con = MOCOT.daily_water_use(air_temperature, water_temperature, fuel, cool, df_eia_heat_rates)
+    beta_with, beta_con = MOCOT.water_use(air_temperature, water_temperature, fuel, cool, df_eia_heat_rates)
     @Test.test isapprox(beta_with, 20992, atol=1)
     @Test.test isapprox(beta_con, 407, atol=1)
 
     # Recirculating coal
     fuel = "coal"
     cool = "RC"
-    beta_with, beta_con = MOCOT.daily_water_use(air_temperature, water_temperature, fuel, cool, df_eia_heat_rates)
+    beta_with, beta_con = MOCOT.water_use(air_temperature, water_temperature, fuel, cool, df_eia_heat_rates)
     @Test.test isapprox(beta_with, 2855.0, atol=1)
     @Test.test isapprox(beta_con, 2324.0, atol=1)
 
     # Recirculating nuclear
     fuel = "nuclear"
     cool = "RC"
-    beta_with, beta_con = MOCOT.daily_water_use(air_temperature, water_temperature, fuel, cool, df_eia_heat_rates)
+    beta_with, beta_con = MOCOT.water_use(air_temperature, water_temperature, fuel, cool, df_eia_heat_rates)
     @Test.test isapprox(beta_with, 3290.0, atol=1)
     @Test.test isapprox(beta_con, 2634.0, atol=1)
 end

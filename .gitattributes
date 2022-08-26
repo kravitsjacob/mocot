@@ -1,3 +1,4 @@
 analysis/io/inputs/ACTIVSg200* linguist-generated=true
 *.m linguist-generated=true
 *.aux linguist-generated=true
+analysis/io/inputs/ACTIVSg_Time_Series/ACTIVISg2000_load_time_series_MW.csv filter=lfs diff=lfs merge=lfs -text
