@@ -54,8 +54,23 @@ function simulation(
 
     # Prepare generator ramping
     gen_ramp = Dict{String, Float64}()
+    w_with = Dict{String, Float64}()
+    w_con = Dict{String, Float64}()
     for row in DataFrames.eachrow(df_gen_info)
         gen_ramp[string(row["obj_name"])] = float(row["Ramp Rate (MW/hr)"])
+        if row["MATPOWER Fuel"] == "coal"
+            w_with[string(row["obj_name"])] = w_with_coal
+            w_con[string(row["obj_name"])] = w_con_coal
+        elseif row["MATPOWER Fuel"] == "ng"
+            w_with[string(row["obj_name"])] = w_with_ng
+            w_con[string(row["obj_name"])] = w_con_ng
+        elseif row["MATPOWER Fuel"] == "nuclear"
+            w_with[string(row["obj_name"])] = w_with_nuc
+            w_con[string(row["obj_name"])] = w_con_nuc
+        else
+            w_with[string(row["obj_name"])] = 0.0
+            w_con[string(row["obj_name"])] = 0.0
+        end
     end
 
     # Commit all generators
