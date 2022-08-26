@@ -260,3 +260,26 @@ function extract_from_array_column(array_col, i:: Int)
 
     return extract
 end
+
+
+function multiply_dicts(dict_array:: Array)
+    """
+    Multiply corresponding entries in two dictionaries
+
+    # Arguments
+    - `dict_array:: Array`: Array of dictionaries with matching indices
+    """
+    # Setup
+    result = Dict{Any, Any}()
+    ref_dict = dict_array[1]
+
+    # Multiplying corresponding entries
+    for (key, val) in ref_dict
+        for dict_entry in dict_array[2:end]
+            val = val * dict_entry[key]
+        end
+        result[key] = val
+    end
+
+    return result
+end
