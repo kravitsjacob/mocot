@@ -57,6 +57,7 @@ function once_through_consumption(;
     return beta_con
 end
 
+
 function recirculating_withdrawal(;
     eta_net:: Float64,
     k_os:: Float64,
@@ -86,6 +87,7 @@ function recirculating_withdrawal(;
 
     return beta_with
 end
+
 
 function recirculating_consumption(;
     eta_net:: Float64,
@@ -121,6 +123,7 @@ function recirculating_consumption(;
     return beta_con
 end
 
+
 function get_k_os(fuel:: String)
     """
     Get other sinks fraction from DOE-NETL reference models
@@ -140,6 +143,7 @@ function get_k_os(fuel:: String)
 
     return k_os
 end
+
 
 function get_eta_net(fuel:: String, df_eia_heat_rates:: DataFrames.DataFrame)
     """
@@ -172,6 +176,7 @@ function get_eta_net(fuel:: String, df_eia_heat_rates:: DataFrames.DataFrame)
     return eta_net
 end
 
+
 function get_beta_proc(fuel:: String)
     """
     Get water withdrawal from non-cooling processes in [L/MWh] based on DOE-NETL model
@@ -187,6 +192,7 @@ function get_beta_proc(fuel:: String)
 
     return beta_proc
 end
+
 
 function get_k_sens(t_inlet:: Float64)
     """
