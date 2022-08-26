@@ -105,3 +105,20 @@ end
     @Test.test isapprox(linear_terms[PowerModels.var(pm, 1, :pg, 2)], -1.99981e7, atol=1)
     @Test.test isapprox(linear_terms[PowerModels.var(pm, 24, :pg, 2)], -1.99981e7, atol=1)
 end
+
+
+@Test.testset "multiply_dicts" begin
+    # Setup
+    a = Dict{String, Float64}(
+        "1" => 5.0,
+        "2" => 6.0
+    )
+    b = Dict{String, Float64}(
+        "1" => 10.0,
+        "2" => 20.0
+    )
+    test_dict = MOCOT.multiply_dicts([a, b])
+
+    @Test.test isequal(test_dict["1"], 50.0)
+    @Test.test isequal(test_dict["2"], 120.0)
+end
