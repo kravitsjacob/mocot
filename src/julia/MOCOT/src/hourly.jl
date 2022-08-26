@@ -1,37 +1,34 @@
-# Functions for hourly-resolution model
+# Functions for hourly-resolution multinetwork PowerModel model
 
 
-function add_water_terms!(
+function add_linear_obj_terms!(
     pm,
-    beta_dict:: Dict{String, Float64},
-    w:: Dict{String, Float64},
+    linear_coef:: Dict{String, Float64},
 )
     """
-    Add water use terms to objective function
+    Add linear objective function terms
     
     # Arguments
     `pm:: Any`: Any PowerModel
-    `beta_dict:: Dict{String, Float64}`: Dictionary of beta values
-    `w:: Dict{String, Float64}`: Weight for water use
+    `linear_coef:: Dict{String, Float64}`: Dictionary generator names and coefficients
     """
     # Setup
-    water_terms = 0.0
+    terms = 0.0
     nw_data = pm.data["nw"]
-
     # Loop through hours
     for h in 1:length(nw_data)
-        for (gen_name, beta_val) in beta_dict
+        for (gen_name, coef) in linear_coef
             gen_index = parse(Int64, gen_name)
-            gen_water_term = w[gen_name] * beta_val * PowerModels.var(
+            gen_term = coef * PowerModels.var(
                 pm, h, :pg, gen_index
             )
-            water_terms = water_terms + gen_water_term
+            terms = terms + gen_term
         end
     end
     
     # Update objective function
     current_objective = JuMP.objective_function(pm.model)
-    new_objective = @JuMP.expression(pm.model, current_objective + water_terms)
+    new_objective = @JuMP.expression(pm.model, current_objective + terms)
     JuMP.set_objective_function(pm.model, new_objective)
 
     return pm

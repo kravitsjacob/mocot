@@ -1,15 +1,12 @@
 using Revise
 using Test
 using DataFrames
-using YAML
 using CSV
 using XLSX
 using PowerModels
 using JuMP
 
 using MOCOT
-
-paths = YAML.load_file("analysis/paths.yml")
 
 @Test.testset "Fundamental Water Use Models" begin
     beta_with = MOCOT.once_through_withdrawal(
@@ -45,7 +42,10 @@ paths = YAML.load_file("analysis/paths.yml")
 end
 
 @Test.testset "Test for daily_water_use" begin
-    df_eia_heat_rates = DataFrames.DataFrame(XLSX.readtable(paths["inputs"]["eia_heat_rates"], "Annual Data"))
+    df_eia_heat_rates = DataFrames.DataFrame(XLSX.readtable(
+        "src/julia/MOCOT/testing/Table_A6_Approximate_Heat_Rates_for_Electricity_-_and_Heat_Content_of_Electricity.xlsx",
+        "Annual Data"
+    ))
     air_temperature = 25.0
     water_temperature = 25.0
 
@@ -71,17 +71,16 @@ end
     @Test.test isapprox(beta_con, 2634.0, atol=1)
 end
 
-@Test.testset "Test for add_water_terms" begin
+@Test.testset "Test for add_linear_obj_terms!" begin
     # Setup
-    beta_dict = Dict{String, Float64}(
-        "1" => -1000000.0,
-        "2" => -10000000.0
+    linear_coef = Dict{String, Float64}(
+        "1" => -1000000.0 * 2.0,
+        "2" => -10000000.0 * 2.0
     )
-    w = 2.0
 
     # Import static network
     h_total = 24
-    network_data = PowerModels.parse_file(paths["inputs"]["case"])
+    network_data = PowerModels.parse_file("src/julia/MOCOT/testing/case_ACTIVSg200.m")
     network_data_multi = PowerModels.replicate(network_data, h_total)
 
     # Create power system model
@@ -92,10 +91,9 @@ end
     )
 
     # Add water terms
-    pm = MOCOT.add_water_terms!(
+    pm = MOCOT.add_linear_obj_terms!(
         pm,
-        beta_dict,
-        w
+        linear_coef,
     )
 
     # Tests
