@@ -4,7 +4,7 @@
 function add_water_terms!(
     pm,
     beta_dict:: Dict{String, Float64},
-    w:: Float64,
+    w:: Dict{String, Float64},
 )
     """
     Add water use terms to objective function
@@ -12,7 +12,7 @@ function add_water_terms!(
     # Arguments
     `pm:: Any`: Any PowerModel
     `beta_dict:: Dict{String, Float64}`: Dictionary of beta values
-    `w:: Float64`: Weight for water use
+    `w:: Dict{String, Float64}`: Weight for water use
     """
     # Setup
     water_terms = 0.0
@@ -22,7 +22,7 @@ function add_water_terms!(
     for h in 1:length(nw_data)
         for (gen_name, beta_val) in beta_dict
             gen_index = parse(Int64, gen_name)
-            gen_water_term = w * beta_val * PowerModels.var(
+            gen_water_term = w[gen_name] * beta_val * PowerModels.var(
                 pm, h, :pg, gen_index
             )
             water_terms = water_terms + gen_water_term
