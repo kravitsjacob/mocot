@@ -116,6 +116,7 @@ function simulation(
         end
 
         # Add water use penalities
+        @Infiltrator.infiltrate
         pm = add_water_terms!(
             pm,
             state["withdraw_rate"][string(d-1)],
