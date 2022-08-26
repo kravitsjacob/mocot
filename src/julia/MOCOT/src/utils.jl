@@ -270,7 +270,7 @@ function multiply_dicts(dict_array:: Array)
     - `dict_array:: Array`: Array of dictionaries with matching indices
     """
     # Setup
-    result = Dict{Any, Any}()
+    result = Dict{String, Float64}()
     ref_dict = dict_array[1]
 
     # Multiplying corresponding entries

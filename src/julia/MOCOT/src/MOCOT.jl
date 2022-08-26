@@ -115,17 +115,14 @@ function simulation(
             pm = add_day_to_day_ramp_rates!(pm, gen_ramp, state, d)
         end
 
-        # Add water use penalities
-        @Infiltrator.infiltrate
-        pm = add_water_terms!(
+        # Add water use terms
+        pm = add_linear_obj_terms!(
             pm,
-            state["withdraw_rate"][string(d-1)],
-            w_with
+            multiply_dicts([state["withdraw_rate"][string(d-1)], w_with])
         )
-        pm = add_water_terms!(
+        pm = add_linear_obj_terms!(
             pm,
-            state["consumption_rate"][string(d-1)],
-            w_con
+            multiply_dicts([state["consumption_rate"][string(d-1)], w_con])
         )
 
         # Solve power system model
