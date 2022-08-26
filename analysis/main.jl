@@ -34,8 +34,12 @@ function main()
         df_eia_heat_rates, 
         df_air_water,
         df_node_load,
-        w_with=0.0,
-        w_con=0.0,
+        w_with_coal=0.0,
+        w_con_coal=0.0,
+        w_with_ng=0.0,
+        w_con_ng=0.0,
+        w_with_nuc=0.0,
+        w_con_nuc=0.0,
     )
     CSV.write(
         paths["outputs"]["obj_no_water_weights"],

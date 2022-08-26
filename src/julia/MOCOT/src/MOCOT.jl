@@ -9,6 +9,7 @@ import Infiltrator
 import CSV
 
 include("read.jl")
+include("utils.jl")
 
 function update_load!(network_data_multi::Dict, df_node_load:: DataFrames.DataFrame, d::Int)
     """
@@ -606,21 +607,6 @@ function add_day_to_day_ramp_rates!(
     return pm
 end
 
-function set_all_gens!(nw_data, prop:: String, val)
-    """
-    Change property on all generators in a network
-
-    # Arguments
-    - `nw_data::Dict`: Network data
-    - `prop:: String`: Generator property name
-    - `val`: Value to set
-    """
-    for gen_dict in values(nw_data["gen"])
-        gen_dict[prop] = val
-    end
-    return nw_data
-end
-
 
 function simulation(
     network_data:: Dict,
@@ -629,8 +615,12 @@ function simulation(
     df_air_water:: DataFrames.DataFrame,
     df_node_load:: DataFrames.DataFrame,
     ;
-    w_with:: Float64=0.0,
-    w_con:: Float64=0.0,
+    w_with_coal:: Float64=0.0,
+    w_con_coal:: Float64=0.0,
+    w_with_ng:: Float64=0.0,
+    w_con_ng:: Float64=0.0,
+    w_with_nuc:: Float64=0.0,
+    w_con_nuc:: Float64=0.0,
 )
     """
     Simulation of water and energy system
@@ -641,8 +631,12 @@ function simulation(
     - `df_eia_heat_rates:: DataFrames.DataFrame`: EIA heat rates
     - `df_air_water:: DataFrames.DataFrame`: Exogenous air and water temperatures
     - `df_node_load:: DataFrames.DataFrame`: Node-level loads
-    - `w_with:: Float64=0.0`: Withdrawal weight
-    - `w_con:: Float64=0.0`: Consumption weight
+    - `w_with_coal:: Float64`: Coal withdrawal weight
+    - `w_con_coal:: Float64`: Coal consumption weight
+    - `w_with_ng:: Float64`: Natural gas withdrawal weight
+    - `w_con_ng:: Float64`: Natural gas consumption weight
+    - `w_with_nuc:: Float64`: Nuclear withdrawal weight
+    - `w_con_nuc:: Float64`: Nuclear consumption weight
     """
     # Initialization
     d_total = trunc(Int64, maximum(df_node_load[!, "day_index"])) 
@@ -659,8 +653,8 @@ function simulation(
     end
 
     # Commit all generators
-    network_data = MOCOT.set_all_gens!(network_data, "gen_status", 1)
-    network_data = MOCOT.set_all_gens!(network_data, "pmin", 0.0)
+    network_data = set_all_gens!(network_data, "gen_status", 1)
+    network_data = set_all_gens!(network_data, "pmin", 0.0)
 
     # Make multinetwork
     network_data_multi = PowerModels.replicate(network_data, h_total)
