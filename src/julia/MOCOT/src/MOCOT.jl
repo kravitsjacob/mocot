@@ -8,26 +8,7 @@ import Ipopt
 import Infiltrator
 import CSV
 
-
-function get_gen_info(
-    network_data:: Dict,
-    df_gen_info_water_ramp:: DataFrames.DataFrame
-)
-    """
-    Get generator information by merging PowerModels and MATPOWER data
-
-    # Arguments
-    - `network_data:: Dict`: Network data 
-    - `df_gen_info_water_ramp:: DataFrames.DataFrame`: Generator information from preprocessing
-    """
-    df_gen_info_pm = MOCOT.network_to_df(network_data, "gen", ["gen_bus"])
-    df_gen_info = DataFrames.leftjoin(
-        df_gen_info_pm,
-        df_gen_info_water_ramp,
-        on = :gen_bus => Symbol("MATPOWER Index")
-    )
-    return df_gen_info
-end
+include("read.jl")
 
 function update_load!(network_data_multi::Dict, df_node_load:: DataFrames.DataFrame, d::Int)
     """
