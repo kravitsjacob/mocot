@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 import seaborn as sns
 import pandas as pd
+import paxplot
 sns.set()
 
 
@@ -392,3 +393,107 @@ def multi_gen_timeseries(
     g.axes[-1, 1].tick_params(axis='x', rotation=90)
 
     return g
+
+
+def normal_parallel(
+    df_objs
+):
+    """Objective parallel plots for normal scenarios
+
+    Parameters
+    ----------
+    df_objs : pandas.DataFrame
+        Objectives dataframe
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
+    # Prepare data
+    df_objs = df_objs.rename(
+        {
+            'f_con_peak': '$f_{con,peak}$ [L]',
+            'f_con_tot': '$f_{con,tot}$ [L]',
+            'f_gen': '$f_{gen}$ [\$]',  # noqa
+            'f_with_peak': '$f_{with,peak}$ [L]',
+            'f_with_tot': '$f_{with,tot}$ [L]'
+        },
+        axis=1
+    )
+    df_objs['dec_scenario'] = df_objs['dec_scenario'].replace({
+        'High w_with_coal': 'High $w_{with,coal}$',
+        'High w_con_coal': 'High $w_{con,coal}$',
+        'High w_with_ng': 'High $w_{with,ng}$',
+        'High w_con_ng': 'High $w_{con,ng}$',
+        'High w_with_nuc': 'High $w_{with,nuc}$',
+        'High w_con_nuc': 'High $w_{con,nuc}$'
+    })
+    df_data = df_objs.iloc[:, :-2]
+    df_data.insert(0, 'Decision Label', df_objs['dec_scenario'])
+    cols = df_data.columns
+
+    # Create figure
+    sns.reset_orig()
+    paxfig = paxplot.pax_parallel(n_axes=len(cols))
+    paxfig.plot(df_data.to_numpy())
+
+    # Axes
+    paxfig.set_lim(
+        ax_idx=1,
+        bottom=2.5e7,
+        top=5.0e7
+    )
+    paxfig.set_ticks(
+        ax_idx=1,
+        ticks=[25e6, 37.5e6, 50e6],
+        labels=['2.5e7', '3.75e7', '5e7']
+    )
+    paxfig.set_lim(
+        ax_idx=2,
+        bottom=1.5e8,
+        top=3.5e8
+    )
+    paxfig.set_ticks(
+        ax_idx=2,
+        ticks=[1.5e8, 2.5e8, 3.5e8],
+        labels=['1.5e8', '2.5e8', '3.5e8']
+    )
+    paxfig.set_lim(
+        ax_idx=3,
+        bottom=4.5e6,
+        top=6.5e6
+    )
+    paxfig.set_ticks(
+        ax_idx=3,
+        ticks=[4.5e6, 5.5e6, 6.5e6],
+        labels=['4.5e6', '5.5e6', '6.5e6']
+    )
+    paxfig.set_lim(
+        ax_idx=4,
+        bottom=0,
+        top=6e8
+    )
+    paxfig.set_ticks(
+        ax_idx=4,
+        ticks=[0, 2e8, 4e8, 6e8],
+        labels=['0', '2e8', '4e8', '6e8']
+    )
+    paxfig.set_lim(
+        ax_idx=5,
+        bottom=0,
+        top=4e9
+    )
+    paxfig.set_ticks(
+        ax_idx=5,
+        ticks=[0, 1e9, 2e9, 3e9, 4e9],
+        labels=['0', '1e9', '2e9', '3e9', '4e9']
+    )
+
+    # Add labels
+    paxfig.set_labels(cols)
+
+    # Dimensions
+    paxfig.set_size_inches(11, 4)
+
+    return paxfig

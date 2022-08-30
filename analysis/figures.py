@@ -41,43 +41,11 @@ def main():
         fig = mocot.viz.node_load(df_node_load)
         fig.savefig(paths['outputs']['figures']['node_load'])
 
-    # Generator output (no water weights)
-    if not os.path.exists(paths['outputs']['figures']['no_water_weights']):
-        df_gen_states = pd.read_csv(paths['outputs']['no_water_weights'])
-        df_gen_info = pd.read_csv(paths['outputs']['gen_info_main'])
-        df_system_load = pd.read_csv(paths['outputs']['system_load'])
-        g = mocot.viz.gen_timeseries(
-            df_gen_states,
-            df_gen_info,
-            df_system_load
-        )
-        g.savefig(paths['outputs']['figures']['no_water_weights'])
-
-    # Generator output (withdrawal weight)
-    if not os.path.exists(paths['outputs']['figures']['with_water_weights']):
-        df_gen_states = pd.read_csv(paths['outputs']['with_water_weights'])
-        df_gen_info = pd.read_csv(paths['outputs']['gen_info_main'])
-        df_system_load = pd.read_csv(paths['outputs']['system_load'])
-        g = mocot.viz.gen_timeseries(
-            df_gen_states,
-            df_gen_info,
-            df_system_load
-        )
-        g.savefig(paths['outputs']['figures']['with_water_weights'])
-
-    # Generator output (multi-weight)
-    if not os.path.exists(paths['outputs']['figures']['multi_weights']):
-        df_gen_no = pd.read_csv(paths['outputs']['no_water_weights'])
-        df_gen_with = pd.read_csv(paths['outputs']['with_water_weights'])
-        df_gen_info = pd.read_csv(paths['outputs']['gen_info_main'])
-        df_system_load = pd.read_csv(paths['outputs']['system_load'])
-        g = mocot.viz.multi_gen_timeseries(
-            df_gen_no,
-            df_gen_with,
-            df_gen_info,
-            df_system_load
-        )
-        g.savefig(paths['outputs']['figures']['multi_weights'])
+    # Decisions and Objective Performances
+    if not os.path.exists(paths['outputs']['figures']['normal_parallel']):
+        df_objs = pd.read_csv(paths["outputs"]["objectives"])
+        fig = mocot.viz.normal_parallel(df_objs)
+        fig.savefig(paths['outputs']['figures']['normal_parallel'])
 
 
 if __name__ == '__main__':
