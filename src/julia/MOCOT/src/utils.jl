@@ -235,8 +235,17 @@ function get_objectives(
     ))
 
     # Compute water objectives
-    objectives["f_with"] = DataFrames.sum(df[!, "pg"] .* 100.0 .* df[!, "withdraw_rate"])  # Per unit conversion
-    objectives["f_con"] = DataFrames.sum(df[!, "pg"] .* 100.0 .* df[!, "consumption_rate"])  # Per unit conversion
+    df[!, "hourly_withdrawal"] = df[!, "pg"] .* 100.0 .* df[!, "withdraw_rate"]  # Per unit conversion
+    df[!, "hourly_consumption"] = df[!, "pg"] .* 100.0 .* df[!, "consumption_rate"]  # Per unit conversion
+    df_daily = DataFrames.combine(
+        DataFrames.groupby(df, [:day]),
+        :hourly_withdrawal => sum,
+        :hourly_consumption => sum
+    )
+    objectives["f_with_peak"] = DataFrames.maximum(df_daily.hourly_withdrawal_sum)
+    objectives["f_con_peak"] = DataFrames.maximum(df_daily.hourly_consumption_sum)
+    objectives["f_with_tot"] = DataFrames.sum(df[!, "hourly_withdrawal"])
+    objectives["f_con_tot"] = DataFrames.sum(df[!, "hourly_consumption"])
 
     return objectives
 end
