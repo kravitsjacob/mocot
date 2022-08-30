@@ -94,6 +94,8 @@ function simulation(
 
     # Simulation
     for d in 1:d_total
+        println("Simulation Day:" * string(d))
+
         # Update loads
         network_data_multi = update_load!(
             network_data_multi,
