@@ -28,7 +28,9 @@ function main()
     # Simulation
     df_config = DataFrames.DataFrame(CSV.File(paths["inputs"]["simulation_config"]))
     df_objs = DataFrames.DataFrame()
+    df_states = DataFrames.DataFrame()
     for row in DataFrames.eachrow(df_config[1:2,:])
+        # Simulation
         (objectives, state) = MOCOT.simulation(
             network_data,
             df_gen_info, 
@@ -42,15 +44,29 @@ function main()
             w_with_nuc=row["w_with_nuc"],
             w_con_nuc=row["w_con_nuc"],
         )
-        DataFrames.append!(df_objs, DataFrames.DataFrame(objectives))
+        
+        # Objectives
+        df_temp_objs = DataFrames.DataFrame(objectives)
+        df_temp_objs[!, "Scenario"] .= row.Scenario
+
+        # Generator states
+        df_gen_states = MOCOT.pm_state_df(state["power"], "gen", ["pg"])
+        df_gen_states[!, "Scenario"] .= row.Scenario
+
+        # Store in dataframe
+        DataFrames.append!(df_states, df_gen_states)
+        DataFrames.append!(df_objs, df_temp_objs)
     end
+
+    # Export
+    CSV.write(
+        paths["outputs"]["states"],
+        df_states
+    )
     CSV.write(
         paths["outputs"]["objectives"],
         df_objs
     )
-
-    # df_gen_states = MOCOT.pm_state_df(state["power"], "gen", ["pg"])
-    # CSV.write(paths["outputs"]["no_water_weights"], df_gen_states)
 
     # Generator information export
     CSV.write(paths["outputs"]["gen_info_main"], df_gen_info)

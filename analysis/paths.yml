@@ -25,13 +25,13 @@ outputs:
   node_load: "analysis/io/outputs/exogenous/node_load.csv"
   hour_to_hour: "analysis/io/outputs/exogenous/hour_to_hour.csv"
   gen_info_pm: "analysis/io/outputs/synthetic_grid/gen_info_pm.csv"
+  states: "analysis/io/outputs/states/states.csv"
+  objectives: "analysis/io/outputs/objectives/objectives.csv"
 
   figures:
     system_load: "analysis/io/outputs/figures/system_load.pdf"
     system_load_factor: "analysis/io/outputs/figures/system_load_factor.pdf"
     node_load: "analysis/io/outputs/figures/node_load.pdf"
     hour_node_load: "analysis/io/outputs/figures/hour_node_load.pdf"
-    no_water_weights: "analysis/io/outputs/figures/no_water_weights.pdf"
-    with_water_weights: "analysis/io/outputs/figures/with_water_weights.pdf"
     temperatures: "analysis/io/outputs/figures/temperatures.pdf"
-    multi_weights: "analysis/io/outputs/figures/multi_weights.pdf"
+
