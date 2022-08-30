@@ -47,11 +47,13 @@ function main()
         
         # Objectives
         df_temp_objs = DataFrames.DataFrame(objectives)
-        df_temp_objs[!, "Scenario"] .= row.Scenario
+        df_temp_objs[!, "dec_scenario"] .= row.dec_scenario
+        df_temp_objs[!, "gen_scenario"] .= row.gen_scenario
 
         # Generator states
         df_gen_states = MOCOT.pm_state_df(state["power"], "gen", ["pg"])
-        df_gen_states[!, "Scenario"] .= row.Scenario
+        df_gen_states[!, "dec_scenario"] .= row.dec_scenario
+        df_gen_states[!, "gen_scenario"] .= row.gen_scenario
 
         # Store in dataframe
         DataFrames.append!(df_states, df_gen_states)
