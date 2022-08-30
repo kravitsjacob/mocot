@@ -29,7 +29,7 @@ function main()
     df_config = DataFrames.DataFrame(CSV.File(paths["inputs"]["simulation_config"]))
     df_objs = DataFrames.DataFrame()
     df_states = DataFrames.DataFrame()
-    for row in DataFrames.eachrow(df_config[1:2,:])
+    for row in DataFrames.eachrow(df_config)
         # Simulation
         (objectives, state) = MOCOT.simulation(
             network_data,
