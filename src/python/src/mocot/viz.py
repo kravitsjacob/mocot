@@ -444,33 +444,33 @@ def normal_parallel(
     # Axes
     paxfig.set_lim(
         ax_idx=1,
-        bottom=2.5e7,
+        bottom=1.0e7,
         top=5.0e7
     )
     paxfig.set_ticks(
         ax_idx=1,
-        ticks=[25e6, 37.5e6, 50e6],
-        labels=['2.5e7', '3.75e7', '5e7']
+        ticks=[1e7, 2e7, 3e7, 4e7, 5e7],
+        labels=['1e7', '2e7', '3e7', '4e7', '5e7']
     )
     paxfig.set_lim(
         ax_idx=2,
-        bottom=1.5e8,
-        top=3.5e8
+        bottom=0.0e8,
+        top=4.0e8
     )
     paxfig.set_ticks(
         ax_idx=2,
-        ticks=[1.5e8, 2.5e8, 3.5e8],
-        labels=['1.5e8', '2.5e8', '3.5e8']
+        ticks=[0.0e8, 1e8, 2e8, 3e8, 4e8],
+        labels=['0', '1e8', '2e8', '3e8', '4e8']
     )
     paxfig.set_lim(
         ax_idx=3,
-        bottom=4.5e6,
-        top=6.5e6
+        bottom=5.0e6,
+        top=7.0e6
     )
     paxfig.set_ticks(
         ax_idx=3,
-        ticks=[4.5e6, 5.5e6, 6.5e6],
-        labels=['4.5e6', '5.5e6', '6.5e6']
+        ticks=[4.0e6, 5.0e6, 6.0e6, 7.0e6],
+        labels=['4.0e6', '5.0e6', '6.0e6', '7.0e6']
     )
     paxfig.set_lim(
         ax_idx=4,
@@ -562,22 +562,22 @@ def no_nuclear_parallel(
     paxfig.set_lim(
         ax_idx=2,
         bottom=0.0e8,
-        top=3.0e8
+        top=4.0e8
     )
     paxfig.set_ticks(
         ax_idx=2,
-        ticks=[0.0e8, 1e8, 2e8, 3e8],
-        labels=['0', '1e8', '2e8', '3e8']
+        ticks=[0.0e8, 1e8, 2e8, 3e8, 4e8],
+        labels=['0', '1e8', '2e8', '3e8', '4e8']
     )
     paxfig.set_lim(
         ax_idx=3,
-        bottom=6.0e6,
+        bottom=5.0e6,
         top=7.0e6
     )
     paxfig.set_ticks(
         ax_idx=3,
-        ticks=[6.0e6, 6.5e6, 7.0e6],
-        labels=['6.0e6', '6.5e6', '7.0e6']
+        ticks=[4.0e6, 5.0e6, 6.0e6, 7.0e6],
+        labels=['4.0e6', '5.0e6', '6.0e6', '7.0e6']
     )
     paxfig.set_lim(
         ax_idx=4,
