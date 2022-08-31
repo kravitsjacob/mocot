@@ -73,8 +73,7 @@ function simulation(
         end
     end
 
-    # Commit all generators
-    network_data = set_all_gens!(network_data, "gen_status", 1)
+    # Adjust generator capacity
     network_data = set_all_gens!(network_data, "pmin", 0.0)
 
     # Make multinetwork

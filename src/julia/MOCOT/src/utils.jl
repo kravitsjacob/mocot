@@ -1,5 +1,22 @@
 # Utilities
 
+function update_commit_status!(network_data, gen_scenario:: String)
+    """
+    Update the commit status of generators in network data
+
+    # Arguments
+    - `network_data::Dict`: Network data (e.g., network_data_multi["nw"])
+    - `gen_scenario:: String`: Generator scenario
+    """
+    if gen_scenario == "Normal"
+        network_data = set_all_gens!(network_data, "gen_status", 1)
+    elseif gen_scenario == "No Nuclear"
+        network_data = set_all_gens!(network_data, "gen_status", 1)
+        network_data["gen"]["47"]["gen_status"]=0
+    end
+    return network_data
+end
+
 
 function set_all_gens!(nw_data, prop:: String, val)
     """
