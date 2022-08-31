@@ -41,11 +41,17 @@ def main():
         fig = mocot.viz.node_load(df_node_load)
         fig.savefig(paths['outputs']['figures']['node_load'])
 
-    # Decisions and Objective Performances
+    # Normal Objective Performances
     if not os.path.exists(paths['outputs']['figures']['normal_parallel']):
         df_objs = pd.read_csv(paths["outputs"]["objectives"])
         fig = mocot.viz.normal_parallel(df_objs)
         fig.savefig(paths['outputs']['figures']['normal_parallel'])
+
+    # No Nuclear Objective Performances
+    if not os.path.exists(paths['outputs']['figures']['no_nuclear_parallel']):
+        df_objs = pd.read_csv(paths["outputs"]["objectives"])
+        fig = mocot.viz.no_nuclear_parallel(df_objs)
+        fig.savefig(paths['outputs']['figures']['no_nuclear_parallel'])
 
 
 if __name__ == '__main__':
