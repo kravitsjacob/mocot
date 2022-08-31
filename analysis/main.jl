@@ -30,6 +30,9 @@ function main()
     df_objs = DataFrames.DataFrame()
     df_states = DataFrames.DataFrame()
     for row in DataFrames.eachrow(df_config)
+        println(string(row["gen_scenario"]))
+        println(string(row["dec_scenario"]))
+
         # Update generator status
         network_data = MOCOT.update_commit_status!(network_data, string(row["gen_scenario"]))
 
