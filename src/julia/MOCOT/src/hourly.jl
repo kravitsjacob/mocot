@@ -53,18 +53,26 @@ function add_within_day_ramp_rates!(
         ramp = gen_ramp[gen_name]/100.0 
         
         gen_index = parse(Int, gen_name)
-        # Ramping up
-        JuMP.@constraint(
-            pm.model,
-            [h in 2:h_total],
-            PowerModels.var(pm, h-1, :pg, gen_index) - PowerModels.var(pm, h, :pg, gen_index) <= ramp
-        )
-        # Ramping down
-        JuMP.@constraint(
-            pm.model,
-            [h in 2:h_total],
-            PowerModels.var(pm, h, :pg, gen_index) - PowerModels.var(pm, h-1, :pg, gen_index) <= ramp
-        )
+        try
+            # Ramping up
+            JuMP.@constraint(
+                pm.model,
+                [h in 2:h_total],
+                PowerModels.var(pm, h-1, :pg, gen_index) - PowerModels.var(pm, h, :pg, gen_index) <= ramp
+            )
+            # Ramping down
+            JuMP.@constraint(
+                pm.model,
+                [h in 2:h_total],
+                PowerModels.var(pm, h, :pg, gen_index) - PowerModels.var(pm, h-1, :pg, gen_index) <= ramp
+            )
+        catch
+            println(
+                """
+                Ramping constraint for generator $gen_name was specified but the corresponding decision variable was not found.
+                """
+            )
+        end
     end
 
     return pm
