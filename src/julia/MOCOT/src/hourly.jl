@@ -19,10 +19,18 @@ function add_linear_obj_terms!(
     for h in 1:length(nw_data)
         for (gen_name, coef) in linear_coef
             gen_index = parse(Int64, gen_name)
-            gen_term = coef * PowerModels.var(
-                pm, h, :pg, gen_index
-            )
-            terms = terms + gen_term
+            try
+                gen_term = coef * PowerModels.var(
+                    pm, h, :pg, gen_index
+                )
+                terms = terms + gen_term
+            catch
+                println(
+                    """
+                    Linear term for generator $gen_name was specified but the corresponding decision variable was not found.
+                    """
+                )
+            end
         end
     end
     
@@ -103,21 +111,29 @@ function add_day_to_day_ramp_rates!(
         # Extract ramp rates to pu
         ramp = gen_ramp[gen_name]/100.0 
 
-        # Previous power output
-        pg_previous = results_previous_hour["gen"][gen_name]["pg"]
+        try
+            # Previous power output
+            pg_previous = results_previous_hour["gen"][gen_name]["pg"]
 
-        # Ramping up
-        gen_index = parse(Int, gen_name)
-        JuMP.@constraint(
-            pm.model,
-            pg_previous - PowerModels.var(pm, h, :pg, gen_index) <= ramp
-        )
+            # Ramping up
+            gen_index = parse(Int, gen_name)
+            JuMP.@constraint(
+                pm.model,
+                pg_previous - PowerModels.var(pm, h, :pg, gen_index) <= ramp
+            )
 
-        # Ramping down
-        JuMP.@constraint(
-            pm.model,
-            PowerModels.var(pm, h, :pg, gen_index) - pg_previous <= ramp
-        )
+            # Ramping down
+            JuMP.@constraint(
+                pm.model,
+                PowerModels.var(pm, h, :pg, gen_index) - pg_previous <= ramp
+            )
+        catch
+            println(
+                """
+                Day-to-day ramping constraint for generator $gen_name was specified but the corresponding decision variable was not found.
+                """
+            )
+        end
     end
     return pm
 end
