@@ -325,3 +325,22 @@ function get_gen_ramp(df_gen_info)
 
     return gen_ramp
 end
+
+
+function add_prop!(network_data:: Dict, obj_type:: String, prop_name:: String, obj_names, prop_vals)
+    """
+    Add property to PowerModel
+
+    # Arguments
+    - `network_data:: Dict`: PowerModels network data
+    - `obj_type:: String`: Type of object in network data (e.g., "gen")
+    - `prop_name:: String`: Property name to add
+    - `obj_names`: Ordered iterable of object names in network_data
+    - `prop_vals`: Ordered iterable of property values
+    """
+    for (i, obj_name) in enumerate(obj_names)
+        network_data[obj_type][obj_name][prop_name] = prop_vals[i]
+    end
+
+    return network_data
+end
