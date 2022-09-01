@@ -34,39 +34,6 @@ function update_all_gens!(nw_data, prop:: String, val)
 end
 
 
-function update_load!(network_data_multi::Dict, df_node_load:: DataFrames.DataFrame, d::Int)
-    """
-    Update loads for network data 
-
-    # Arguments
-    - `network_data_multi::Dict`: Multi network data
-    - `df_node_load::DataFrames.DataFrame`: DataFrame of node-level loads
-    - `d::Int`: Day index
-    """
-    for h in 1:length(network_data_multi["nw"])
-        # Extract network data
-        nw_data = network_data_multi["nw"][string(h)]
-
-        for load in values(nw_data["load"])
-            # Pandapower indexing
-            pp_bus = load["load_bus"] - 1
-            
-            # Filters
-            df_node_load_filter = df_node_load[in(d).(df_node_load.day_index), :]
-            df_node_load_filter = df_node_load_filter[in(h).(df_node_load_filter.hour_index), :]
-            df_node_load_filter = df_node_load_filter[in(pp_bus).(df_node_load_filter.bus), :]
-            load_mw = df_node_load_filter[!, "load_mw"][1]
-            load_pu = load_mw/100.0
-
-            # Set load
-            load["pd"] = load_pu
-        end
-    end
-
-    return network_data_multi
-end
-
-
 function pm_state_df(results, obj_type, props)
     """
     Extract states from day-resolution powermodels multi-network data (at hourly-resolution)
@@ -359,4 +326,40 @@ function get_eta_net(fuel:: String, df_eia_heat_rates:: DataFrames.DataFrame)
     end
 
     return eta_net
+end
+
+
+function get_exogenous(df_air_water, df_node_load)
+
+    exogenous = Dict{String, Any}()
+
+    # Air and water temperatures
+    water_temperature = Dict{String, Float64}()
+    air_temperature = Dict{String, Float64}()
+    for row in eachrow(df_air_water)
+        water_temperature[string(row["day_index"])] = row["water_temperature"]
+        air_temperature[string(row["day_index"])] = row["air_temperature"]
+    end
+    exogenous["water_temperature"] = water_temperature
+    exogenous["air_temperature"] = air_temperature
+
+    # Node loads
+    d_nodes = Dict{String, Any}()
+    for d in DataFrames.unique(df_node_load[!, "day_index"])
+        df_day = df_node_load[in(d).(df_node_load.day_index), :]
+        h_nodes = Dict{String, Any}()
+        for h in DataFrames.unique(df_node_load[!, "hour_index"])
+            df_hour = df_day[in(h).(df_day.hour_index), :]
+            nodes = Dict{String, Any}()
+            for row in eachrow(df_hour)
+                nodes[string(row["bus"])] = row["load_mw"]
+            end
+            h_nodes[string(trunc(Int, h))] = nodes
+        end
+        d_nodes[string(trunc(Int, d))] = h_nodes
+    end
+    exogenous["node_load"] = d_nodes
+
+    return exogenous
+
 end
