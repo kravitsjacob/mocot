@@ -1,0 +1,322 @@
+# Functions for running at a daily-resolution simulation
+
+
+function once_through_withdrawal(;
+    eta_net:: Float64,
+    k_os:: Float64,
+    delta_t:: Float64,
+    beta_proc:: Float64,
+    rho_w=1.0,
+    c_p=0.04184,
+)
+    """
+    Once through withdrawal model
+
+    # Arguments
+    - `eta_net:: Float64`: Ratio of electricity generation rate to thermal input
+    - `k_os:: Float64`: Thermal input lost to non-cooling system sinks
+    - `delta_t:: Float64`: Inlet/outlet water temperature difference in C
+    - `beta_proc:: Float64`: Non-cooling rate in L/MWh
+    - `rho_w=1.0`: Desnity of Water kg/L, by default 1.0
+    - `c_p=0.04184`: Specific head of water in MJ/(kg-K), by default 0.04184
+    """
+    efficiency = 3600 * (1-eta_net-k_os) / eta_net
+    physics = 1 / (rho_w*c_p*delta_t)
+    beta_with = efficiency * physics + beta_proc
+
+    return beta_with
+end
+
+
+function once_through_consumption(;
+    eta_net:: Float64,
+    k_os:: Float64,
+    delta_t:: Float64,
+    beta_proc:: Float64,
+    k_de=0.01,
+    rho_w=1.0,
+    c_p=0.04184,
+)
+    """
+    Once through consumption model
+
+    # Arguments
+    - `eta_net:: Float64`: Ratio of electricity generation rate to thermal input
+    - `k_os:: Float64`: Thermal input lost to non-cooling system sinks
+    - `delta_t:: Float64`: Inlet/outlet water temperature difference in C
+    - `beta_proc:: Float64`: Non-cooling rate in L/MWh
+    - `k_de:: Float64`: Downstream evaporation, by default 0.01
+    - `rho_w:: Float64`: Desnity of Water kg/L, by default 1.0
+    - `c_p:: Float64`: Specific heat of water in MJ/(kg-K), by default 0.04184
+    """
+    # Model
+    efficiency = 3600 * (1-eta_net-k_os) / eta_net
+    physics = k_de / (rho_w*c_p*delta_t)
+    beta_con = efficiency * physics + beta_proc
+
+    return beta_con
+end
+
+
+function recirculating_withdrawal(;
+    eta_net:: Float64,
+    k_os:: Float64,
+    beta_proc:: Float64,
+    eta_cc:: Int64,
+    k_sens:: Float64,
+    h_fg=2.454,
+    rho_w=1.0,
+)
+    """
+    Recirculating withdrawal model
+
+    # Arguments
+    `eta_net:: Float64`: Ratio of electricity generation rate to thermal input
+    `k_os:: Float64`: Thermal input lost to non-cooling system sinks
+    `beta_proc:: Float64`: Non-cooling rate in L/MWh
+    `eta_cc:: Int64`: Number of cooling cycles between 2 and 10
+    `k_sens:: Float64`: Heat load rejected
+    `h_fg:: Float64`: Latent heat of vaporization of water, by default 2.454 MJ/kg
+    `rho_w:: Float64`: Desnity of Water kg/L, by default 1.0
+    """
+    # Model
+    efficiency = 3600 * (1-eta_net-k_os) / eta_net
+    physics = (1 - k_sens) / (rho_w * h_fg)
+    blowdown = 1 + 1 / (eta_cc - 1)
+    beta_with = efficiency * physics * blowdown + beta_proc
+
+    return beta_with
+end
+
+
+function recirculating_consumption(;
+    eta_net:: Float64,
+    k_os:: Float64,
+    beta_proc:: Float64,
+    eta_cc:: Int64,
+    k_sens:: Float64,
+    k_bd=1.0,
+    h_fg=2.454,
+    rho_w=1.0
+)
+    """
+    Recirculating consumption model
+
+    # Arguments
+    eta_net:: Float64`: Ratio of electricity generation rate to thermal input
+    k_os:: Float64`: Thermal input lost to non-cooling system sinks
+    beta_proc:: Float64`: Non-cooling rate in L/MWh
+    eta_cc:: Int64`: Number of cooling cycles between 2 and 10
+    k_sens:: Float64`: Heat load rejected
+    k_bd:: Float64`: Blowdown discharge fraction. Plants in water abundant areas
+    are able to legally discharge most of their cooling tower blowndown according
+    to Rutberg et al. 2011.
+    h_fg:: Float64`: Latent heat of vaporization of water, default 2.454 MJ/kg
+    rho_w:: Float64`: Desnity of Water kg/L, by default 1.0
+    """
+    # Model
+    efficiency = 3600 * (1-eta_net-k_os) / eta_net
+    physics = (1 - k_sens) / (rho_w * h_fg)
+    blowdown = 1 + (1 - k_bd) / (eta_cc - 1)
+    beta_con = efficiency * physics * blowdown + beta_proc
+
+    return beta_con
+end
+
+
+function get_k_os(fuel:: String)
+    """
+    Get other sinks fraction from DOE-NETL reference models
+
+    # Arguments
+    `fuel:: String`: Fuel code
+    """
+    if fuel == "coal"
+        k_os = 0.12
+    elseif fuel == "ng"
+        k_os = 0.20
+    elseif fuel == "nuclear"
+        k_os = 0.0
+    elseif fuel == "wind"
+        k_os = 0.0
+    end
+
+    return k_os
+end
+
+
+function get_eta_net(fuel:: String, df_eia_heat_rates:: DataFrames.DataFrame)
+    """
+    Get net efficiency of plant
+    
+    # Arguments
+    `fuel:: String`: Fuel code
+    `df_eia_heat_rates:: DataFrames.DataFrame`: DataFrame of eia heat rates
+    """
+    if fuel == "coal"
+        col_name = "Electricity Net Generation, Coal Plants Heat Rate"
+    elseif fuel == "ng"
+        col_name = "Electricity Net Generation, Natural Gas Plants Heat Rate"
+    elseif fuel == "nuclear"
+        col_name = "Electricity Net Generation, Nuclear Plants Heat Rate"
+    elseif fuel == "wind"
+        col_name = "Wind"
+    end
+
+    if col_name != "Wind"
+        # Median heat rate
+        eta_net = Statistics.median(skipmissing(df_eia_heat_rates[!, col_name]))
+
+        # Convert to ratio
+        eta_net = 3412.0/eta_net
+    else
+        eta_net = 0
+    end
+
+    return eta_net
+end
+
+
+function get_beta_proc(fuel:: String)
+    """
+    Get water withdrawal from non-cooling processes in [L/MWh] based on DOE-NETL model
+
+    # Arguments
+    `fuel:: String`: Fuel code
+    """
+    if fuel == "coal"
+        beta_proc = 200.0
+    else
+        beta_proc = 10.0
+    end
+
+    return beta_proc
+end
+
+
+function get_k_sens(t_inlet:: Float64)
+    """
+    Get heat load rejected through convection
+
+    # Arguments
+    `t_inlet:: Float64`: Dry bulb temperature of inlet air C
+    """
+    term_1 = -0.000279*t_inlet^3
+    term_2 = 0.00109*t_inlet^2
+    term_3 = -0.345*t_inlet
+    k_sens = term_1 + term_2 + term_3 + 26.7
+    k_sens = k_sens/100  # Convert to ratio
+    return k_sens
+end
+
+
+function gen_water_use(
+    water_temperature:: Float64,
+    air_temperature:: Float64,
+    df_gen_info:: DataFrames.DataFrame,
+    df_eia_heat_rates:: DataFrames.DataFrame
+)
+    """
+    Run water use model for every generator
+    
+    # Arguments
+    - `water_temperature:: Float64`: Water temperature in C
+    - `air_temperature:: Float64`: Dry bulb temperature of inlet air C
+    - `df_gen_info:: DataFrames.DataFrame`: Generator information
+    - `df_eia_heat_rates:: DataFrames.DataFrame`: DataFrame of eia heat rates
+    """
+    # Initialization
+    gen_beta_with = Dict{String, Float64}()
+    gen_beta_con = Dict{String, Float64}()
+
+    # Water use for each generator
+    for row in DataFrames.eachrow(df_gen_info)
+        obj_name = row["obj_name"]
+        fuel =  string(row["MATPOWER Fuel"])
+        cool = string(row["923 Cooling Type"])
+        beta_with, beta_con = MOCOT.water_use(
+            water_temperature,
+            air_temperature,
+            fuel,
+            cool,
+            df_eia_heat_rates
+        )
+        gen_beta_with[obj_name] = beta_with
+        gen_beta_con[obj_name] = beta_con   
+    end
+
+    return gen_beta_with, gen_beta_con
+end
+
+
+function water_use(
+    water_temperature:: Float64,
+    air_temperature:: Float64,
+    fuel:: String,
+    cool:: String,
+    df_eia_heat_rates:: DataFrames.DataFrame
+)
+    """
+    Water use model
+
+    # Arguments
+    `water_temperature:: Float64`: Water temperature in C
+    `air_temperature:: Float64`: Dry bulb temperature of inlet air C
+    `fuel:: String`: Fuel type
+    `cool:: String`: Cooling system type
+    `df_eia_heat_rates:: DataFrames.DataFrame`: DataFrame of eia heat rates
+    """
+    # Get coefficients
+    k_os = get_k_os(fuel)
+    eta_net = get_eta_net(fuel, df_eia_heat_rates)
+    beta_proc = get_beta_proc(fuel)
+
+    # Run simulation
+    if cool == "OC"
+        # Delta t processing
+        max_temp = 32.0
+        delta_t = max_temp - water_temperature
+
+        # Water models
+        beta_with = once_through_withdrawal(
+            eta_net=eta_net,
+            k_os=k_os,
+            delta_t=delta_t,
+            beta_proc=beta_proc
+        )
+        beta_con = once_through_consumption(
+            eta_net=eta_net,
+            k_os=k_os,
+            delta_t=delta_t,
+            beta_proc=beta_proc
+        )
+
+    elseif cool == "RC" || cool == "RI"
+        eta_cc = 5
+        # Get k_sens
+        k_sens = get_k_sens(air_temperature)
+
+        # Water models
+        beta_with = recirculating_withdrawal(
+            eta_net=eta_net, 
+            k_os=k_os, 
+            beta_proc=beta_proc, 
+            eta_cc=eta_cc, 
+            k_sens=k_sens
+        )
+        beta_con = recirculating_consumption(
+            eta_net=eta_net,
+            k_os=k_os,
+            beta_proc=beta_proc,
+            eta_cc=eta_cc,
+            k_sens=k_sens,
+        )
+
+    elseif cool == "No Cooling System"
+        beta_with = 0.0
+        beta_con = 0.0
+    
+    end
+
+    return beta_with, beta_con
+end

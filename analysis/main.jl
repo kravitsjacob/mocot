@@ -2,9 +2,7 @@ using Revise
 
 using YAML
 using CSV
-using XLSX
 using DataFrames
-using PowerModels
 
 using MOCOT
 
@@ -12,53 +10,74 @@ using MOCOT
 function main()
     # Import
     paths = YAML.load_file("analysis/paths.yml")
-    df_gen_info_water_ramp = DataFrames.DataFrame(
-        CSV.File(paths["outputs"]["gen_info_water_ramp"])
+    (
+        df_gen_info_water_ramp,
+        df_eia_heat_rates,
+        df_air_water,
+        df_node_load,
+        network_data,
+        df_gen_info
+    ) = MOCOT.read_inputs(
+        paths["outputs"]["gen_info_water_ramp"], 
+        paths["inputs"]["eia_heat_rates"],
+        paths["outputs"]["air_water"],
+        paths["outputs"]["node_load"],
+        paths["inputs"]["case"]
     )
-    df_eia_heat_rates = DataFrames.DataFrame(
-        XLSX.readtable(paths["inputs"]["eia_heat_rates"], "Annual Data")
+
+    # Simulation
+    df_config = DataFrames.DataFrame(CSV.File(paths["inputs"]["simulation_config"]))
+    df_objs = DataFrames.DataFrame()
+    df_states = DataFrames.DataFrame()
+    for row in DataFrames.eachrow(df_config)
+        println(string(row["gen_scenario"]))
+        println(string(row["dec_scenario"]))
+
+        # Update generator status
+        network_data = MOCOT.update_commit_status!(network_data, string(row["gen_scenario"]))
+
+        # Simulation
+        (objectives, state) = MOCOT.simulation(
+            network_data,
+            df_gen_info, 
+            df_eia_heat_rates, 
+            df_air_water,
+            df_node_load,
+            w_with_coal=row["w_with_coal"],
+            w_con_coal=row["w_con_coal"],
+            w_with_ng=row["w_with_ng"],
+            w_con_ng=row["w_con_ng"],
+            w_with_nuc=row["w_with_nuc"],
+            w_con_nuc=row["w_con_nuc"],
+        )
+        
+        # Objectives
+        df_temp_objs = DataFrames.DataFrame(objectives)
+        df_temp_objs[!, "dec_scenario"] .= row.dec_scenario
+        df_temp_objs[!, "gen_scenario"] .= row.gen_scenario
+
+        # Generator states
+        df_gen_states = MOCOT.pm_state_df(state["power"], "gen", ["pg"])
+        df_gen_states[!, "dec_scenario"] .= row.dec_scenario
+        df_gen_states[!, "gen_scenario"] .= row.gen_scenario
+
+        # Store in dataframe
+        DataFrames.append!(df_states, df_gen_states)
+        DataFrames.append!(df_objs, df_temp_objs)
+    end
+
+    # Export
+    CSV.write(
+        paths["outputs"]["states"],
+        df_states
     )
-    df_air_water = DataFrames.DataFrame(CSV.File(paths["outputs"]["air_water"]))
-    df_node_load = DataFrames.DataFrame(CSV.File(paths["outputs"]["node_load"]))
-    network_data = PowerModels.parse_file(paths["inputs"]["case"])
-    # Initialization
-    df_gen_info = MOCOT.get_gen_info(network_data, df_gen_info_water_ramp)
+    CSV.write(
+        paths["outputs"]["objectives"],
+        df_objs
+    )
+
+    # Generator information export
     CSV.write(paths["outputs"]["gen_info_main"], df_gen_info)
-
-    # Simulation with no water weights
-    (objectives, state) = MOCOT.simulation(
-        network_data,
-        df_gen_info, 
-        df_eia_heat_rates, 
-        df_air_water,
-        df_node_load,
-        w_with=0.0,
-        w_con=0.0,
-    )
-    CSV.write(
-        paths["outputs"]["obj_no_water_weights"],
-        DataFrames.DataFrame(objectives)
-    )
-    df_gen_states = MOCOT.pm_state_df(state["power"], "gen", ["pg"])
-    CSV.write(paths["outputs"]["no_water_weights"], df_gen_states)
-
-    # Simulation with no water weights
-    (objectives, state) = MOCOT.simulation(
-        network_data,
-        df_gen_info, 
-        df_eia_heat_rates, 
-        df_air_water,
-        df_node_load,
-        w_with=1.0,
-        w_con=0.0,
-    )
-    CSV.write(
-        paths["outputs"]["obj_with_water_weights"],
-        DataFrames.DataFrame(objectives)
-    )
-    df_gen_states = MOCOT.pm_state_df(state["power"], "gen", ["pg"])
-    CSV.write(paths["outputs"]["with_water_weights"], df_gen_states)
-
  end
  
 

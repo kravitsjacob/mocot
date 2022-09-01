@@ -1,9 +1,9 @@
 """Visualization Functions"""
 
 import matplotlib.pyplot as plt
-import matplotlib
 import seaborn as sns
 import pandas as pd
+import paxplot
 sns.set()
 
 
@@ -184,8 +184,222 @@ def node_load(df_node_load):
     return fig
 
 
-def gen_timeseries(
-    df_gen_states,
+def normal_parallel(
+    df_objs
+):
+    """Objective parallel plots for normal scenarios
+
+    Parameters
+    ----------
+    df_objs : pandas.DataFrame
+        Objectives dataframe
+
+    Returns
+    -------
+    PaxFigure
+        Parallel plot
+    """
+    # Filter
+    df_objs = df_objs[df_objs['gen_scenario'] == 'Normal']
+
+    # Prepare data
+    df_objs = df_objs.rename(
+        {
+            'f_con_peak': '$f_{con,peak}$ [L]',
+            'f_con_tot': '$f_{con,tot}$ [L]',
+            'f_gen': '$f_{gen}$ [\$]',  # noqa
+            'f_with_peak': '$f_{with,peak}$ [L]',
+            'f_with_tot': '$f_{with,tot}$ [L]'
+        },
+        axis=1
+    )
+    df_objs['dec_scenario'] = df_objs['dec_scenario'].replace({
+        'High w_with_coal': 'High $w_{with,coal}$',
+        'High w_con_coal': 'High $w_{con,coal}$',
+        'High w_with_ng': 'High $w_{with,ng}$',
+        'High w_con_ng': 'High $w_{con,ng}$',
+        'High w_with_nuc': 'High $w_{with,nuc}$',
+        'High w_con_nuc': 'High $w_{con,nuc}$'
+    })
+    df_data = df_objs.iloc[:, :-2]
+    df_data.insert(0, 'Decision Label', df_objs['dec_scenario'])
+    cols = df_data.columns
+
+    # Create figure
+    sns.reset_orig()
+    paxfig = paxplot.pax_parallel(n_axes=len(cols))
+    paxfig.plot(df_data.to_numpy())
+
+    # Axes
+    paxfig.set_lim(
+        ax_idx=1,
+        bottom=1.0e7,
+        top=5.0e7
+    )
+    paxfig.set_ticks(
+        ax_idx=1,
+        ticks=[1e7, 2e7, 3e7, 4e7, 5e7],
+        labels=['1e7', '2e7', '3e7', '4e7', '5e7']
+    )
+    paxfig.set_lim(
+        ax_idx=2,
+        bottom=0.0e8,
+        top=4.0e8
+    )
+    paxfig.set_ticks(
+        ax_idx=2,
+        ticks=[0.0e8, 1e8, 2e8, 3e8, 4e8],
+        labels=['0', '1e8', '2e8', '3e8', '4e8']
+    )
+    paxfig.set_lim(
+        ax_idx=3,
+        bottom=5.0e6,
+        top=7.0e6
+    )
+    paxfig.set_ticks(
+        ax_idx=3,
+        ticks=[4.0e6, 5.0e6, 6.0e6, 7.0e6],
+        labels=['4.0e6', '5.0e6', '6.0e6', '7.0e6']
+    )
+    paxfig.set_lim(
+        ax_idx=4,
+        bottom=0,
+        top=6e8
+    )
+    paxfig.set_ticks(
+        ax_idx=4,
+        ticks=[0, 2e8, 4e8, 6e8],
+        labels=['0', '2e8', '4e8', '6e8']
+    )
+    paxfig.set_lim(
+        ax_idx=5,
+        bottom=0,
+        top=4e9
+    )
+    paxfig.set_ticks(
+        ax_idx=5,
+        ticks=[0, 1e9, 2e9, 3e9, 4e9],
+        labels=['0', '1e9', '2e9', '3e9', '4e9']
+    )
+
+    # Add labels
+    paxfig.set_labels(cols)
+
+    # Dimensions
+    paxfig.set_size_inches(8.5, 4)
+
+    return paxfig
+
+
+def no_nuclear_parallel(
+    df_objs
+):
+    """Objective parallel plots for no nuclear scenarios
+
+    Parameters
+    ----------
+    df_objs : pandas.DataFrame
+        Objectives dataframe
+
+    Returns
+    -------
+    PaxFigure
+        Parallel plot
+    """
+    # Filter
+    df_objs = df_objs[df_objs['gen_scenario'] == 'No Nuclear']
+
+    # Prepare data
+    df_objs = df_objs.rename(
+        {
+            'f_con_peak': '$f_{con,peak}$ [L]',
+            'f_con_tot': '$f_{con,tot}$ [L]',
+            'f_gen': '$f_{gen}$ [\$]',  # noqa
+            'f_with_peak': '$f_{with,peak}$ [L]',
+            'f_with_tot': '$f_{with,tot}$ [L]'
+        },
+        axis=1
+    )
+    df_objs['dec_scenario'] = df_objs['dec_scenario'].replace({
+        'High w_with_coal': 'High $w_{with,coal}$',
+        'High w_con_coal': 'High $w_{con,coal}$',
+        'High w_with_ng': 'High $w_{with,ng}$',
+        'High w_con_ng': 'High $w_{con,ng}$',
+        'High w_with_nuc': 'High $w_{with,nuc}$',
+        'High w_con_nuc': 'High $w_{con,nuc}$'
+    })
+    df_data = df_objs.iloc[:, :-2]
+    df_data.insert(0, 'Decision Label', df_objs['dec_scenario'])
+    cols = df_data.columns
+
+    # Create figure
+    sns.reset_orig()
+    paxfig = paxplot.pax_parallel(n_axes=len(cols))
+    paxfig.plot(df_data.to_numpy())
+
+    # Axes
+    paxfig.set_lim(
+        ax_idx=1,
+        bottom=1.0e7,
+        top=5.0e7
+    )
+    paxfig.set_ticks(
+        ax_idx=1,
+        ticks=[1e7, 2e7, 3e7, 4e7, 5e7],
+        labels=['1e7', '2e7', '3e7', '4e7', '5e7']
+    )
+    paxfig.set_lim(
+        ax_idx=2,
+        bottom=0.0e8,
+        top=4.0e8
+    )
+    paxfig.set_ticks(
+        ax_idx=2,
+        ticks=[0.0e8, 1e8, 2e8, 3e8, 4e8],
+        labels=['0', '1e8', '2e8', '3e8', '4e8']
+    )
+    paxfig.set_lim(
+        ax_idx=3,
+        bottom=5.0e6,
+        top=7.0e6
+    )
+    paxfig.set_ticks(
+        ax_idx=3,
+        ticks=[4.0e6, 5.0e6, 6.0e6, 7.0e6],
+        labels=['4.0e6', '5.0e6', '6.0e6', '7.0e6']
+    )
+    paxfig.set_lim(
+        ax_idx=4,
+        bottom=0,
+        top=6e8
+    )
+    paxfig.set_ticks(
+        ax_idx=4,
+        ticks=[0, 2e8, 4e8, 6e8],
+        labels=['0', '2e8', '4e8', '6e8']
+    )
+    paxfig.set_lim(
+        ax_idx=5,
+        bottom=0,
+        top=4e9
+    )
+    paxfig.set_ticks(
+        ax_idx=5,
+        ticks=[0, 1e9, 2e9, 3e9, 4e9],
+        labels=['0', '1e9', '2e9', '3e9', '4e9']
+    )
+
+    # Add labels
+    paxfig.set_labels(cols)
+
+    # Dimensions
+    paxfig.set_size_inches(8.5, 4)
+
+    return paxfig
+
+
+def normal_gen_timeseries(
+    df_states,
     df_gen_info,
     df_system_load
 ):
@@ -193,7 +407,7 @@ def gen_timeseries(
 
     Parameters
     ----------
-    df_gen_states : pandas.DataFrame
+    df_states : pandas.DataFrame
         Generator output DataFrame
     df_gen_info : pandas.DataFrame
         Generator information DataFrame
@@ -205,114 +419,12 @@ def gen_timeseries(
     seaborn.axisgrid.FacetGrid
         Plots of once-through
     """
-    # Add generator information
-    df_gen_states = pd.merge(
-        df_gen_states,
-        df_gen_info,
-        left_on='obj_name',
-        right_on='obj_name',
-        how='left'
-    )
-
-    # Add datetime
-    df_system_load['DATE'] = pd.to_datetime(df_system_load['DATE'])
-    df_system_load = df_system_load.rename(
-        {'hour_index': 'hour', 'day_index': 'day'},
-        axis=1
-    )
-    mergecols = [
-        'DATE',
-        'hour',
-        'day',
-    ]
-    df_gen_states = pd.merge(
-        df_gen_states,
-        df_system_load[mergecols],
-        left_on=['hour', 'day'],
-        right_on=['hour', 'day'],
-        how='left'
-    )
-
-    # Create labels
-    df_gen_states['Fuel/Cooling'] = \
-        df_gen_states['MATPOWER Fuel'] + \
-        '/' \
-        + df_gen_states['923 Cooling Type']
-
-    # Add loads
-    df_system_load = df_system_load.rename({'ActualLoad': 'pg'}, axis=1)
-    df_system_load['Plant Name'] = 'System Load'
-    df_system_load['Fuel/Cooling'] = 'System Load'
-    df_system_load['obj_name'] = 'System Load'
-    df_system_load['pg'] = df_system_load['pg']/100.0
-    df_gen_states = pd.concat([df_gen_states, df_system_load])
-
-    # Round generator output
-    df_gen_states['pg'] = df_gen_states['pg'].round(3)
-
-    # Plot
-    g = sns.FacetGrid(
-        df_gen_states,
-        row='Fuel/Cooling',
-        sharey=False,
-        sharex=True,
-        aspect=5.0,
-        height=1.7,
-    )
-    g = g.map_dataframe(
-        sns.lineplot,
-        x='DATE',
-        y='pg',
-        hue='Plant Name',
-        style='Plant Name',
-        units='obj_name',
-        estimator=None,
-        lw=0.5,
-    )
-    for ax in g.axes:
-        ax[0].legend(loc='center', bbox_to_anchor=(1.2, 0.5))
-    g.set_axis_labels(y_var='Power Output [p.u.]', x_var='')
-    plt.xticks(rotation=90)
-    plt.tight_layout()
-
-    return g
-
-
-def multi_gen_timeseries(
-    df_gen_no,
-    df_gen_with,
-    df_gen_info,
-    df_system_load
-):
-    """Plot generator timeseries power output
-
-    Parameters
-    ----------
-    df_gen_no : pandas.DataFrame
-        Generator output DataFrame with no water weights
-    df_gen_with : pandas.DataFrame
-        Generator output DataFrame with water weights
-    df_gen_info : pandas.DataFrame
-        Generator information DataFrame
-    df_system_load : pandas.DataFrame
-        System loads
-
-    Returns
-    -------
-    seaborn.axisgrid.FacetGrid
-        Plots of once-through
-    """
-    # Combine with/without
-    df_gen_no['Type'] = 'No Water Weight'
-    df_gen_with['Type'] = 'High Withdrawal Weight'
-    df_gen_states = pd.concat(
-        [df_gen_no, df_gen_with],
-        axis=0
-    )
+    # Filter scenario
+    df_states = df_states[df_states['gen_scenario'] == 'Normal']
 
     # Add generator information
     df_gen_states = pd.merge(
-        df_gen_states,
+        df_states,
         df_gen_info,
         left_on='obj_name',
         right_on='obj_name',
@@ -351,14 +463,14 @@ def multi_gen_timeseries(
     g = sns.FacetGrid(
         df_gen_states,
         row='Fuel/Cooling',
-        col='Type',
+        col='dec_scenario',
         sharey='row',
         sharex=True,
-        aspect=2.5,
-        height=2.0,
+        aspect=0.9,
+        height=1.8,
         gridspec_kws={
-            'wspace': 0.5,
-            'hspace': 0.1
+            'wspace': 0.05,
+            'hspace': 0.10
         }
     )
     g = g.map_dataframe(
@@ -371,7 +483,7 @@ def multi_gen_timeseries(
         estimator=None,
         lw=0.5,
     )
-    titles = [
+    row_titles = [
         'coal/OC',
         'coal/RC',
         'ng/None',
@@ -381,14 +493,147 @@ def multi_gen_timeseries(
         'nuclear/RC'
     ]
     for i, ax in enumerate(g.axes):
-        ax[0].legend(loc='center', bbox_to_anchor=(1.25, 0.5), title=titles[i])
-        ax[0].set_title('')
-        ax[1].set_title('')
+        for ax_row in ax:
+            ax_row.set_title('')
+        ax[-1].legend(
+            loc='center',
+            bbox_to_anchor=(1.55, 0.5),
+            title=row_titles[i]
+        )
     g.set_axis_labels(y_var='', x_var='')
     g.axes[3, 0].set_ylabel('Power [p.u.]')
-    g.axes[0, 0].set_title('No Water Weight')
-    g.axes[0, 1].set_title('Withdrawal Weight')
-    g.axes[-1, 0].tick_params(axis='x', rotation=90)
-    g.axes[-1, 1].tick_params(axis='x', rotation=90)
+    col_titles = [
+        'No weights',
+        'High $w_{with,coal}$',
+        'High $w_{con,coal}$',
+        'High $w_{with,ng}$',
+        'High $w_{con,ng}$',
+        'High $w_{with,nuc}$',
+        'High $w_{con,nuc}$'
+    ]
+    for i, ax in enumerate(g.axes[0]):
+        ax.set_title(col_titles[i])
+    for ax in g.axes[-1]:
+        ax.tick_params(axis='x', rotation=90)
+    g.figure.subplots_adjust(right=0.87)
+
+    return g
+
+
+def nonuclear_gen_timeseries(
+    df_states,
+    df_gen_info,
+    df_system_load
+):
+    """Plot generator timeseries power output
+
+    Parameters
+    ----------
+    df_states : pandas.DataFrame
+        Generator output DataFrame
+    df_gen_info : pandas.DataFrame
+        Generator information DataFrame
+    df_system_load : pandas.DataFrame
+        System loads
+
+    Returns
+    -------
+    seaborn.axisgrid.FacetGrid
+        Plots of once-through
+    """
+    # Filter scenario
+    df_states = df_states[df_states['gen_scenario'] == 'No Nuclear']
+
+    # Add generator information
+    df_gen_states = pd.merge(
+        df_states,
+        df_gen_info,
+        left_on='obj_name',
+        right_on='obj_name',
+        how='left'
+    )
+
+    # Add datetime
+    df_system_load['DATE'] = pd.to_datetime(df_system_load['DATE'])
+    df_system_load = df_system_load.rename(
+        {'hour_index': 'hour', 'day_index': 'day'},
+        axis=1
+    )
+    mergecols = [
+        'DATE',
+        'hour',
+        'day',
+    ]
+    df_gen_states = pd.merge(
+        df_gen_states,
+        df_system_load[mergecols],
+        left_on=['hour', 'day'],
+        right_on=['hour', 'day'],
+        how='left'
+    )
+
+    # Create labels
+    df_gen_states['Fuel/Cooling'] = \
+        df_gen_states['MATPOWER Fuel'] + \
+        '/' \
+        + df_gen_states['923 Cooling Type']
+
+    # Round generator output
+    df_gen_states['pg'] = df_gen_states['pg'].round(3)
+
+    # Plot
+    g = sns.FacetGrid(
+        df_gen_states,
+        row='Fuel/Cooling',
+        col='dec_scenario',
+        sharey='row',
+        sharex=True,
+        aspect=0.9,
+        height=1.9,
+        gridspec_kws={
+            'wspace': 0.05,
+            'hspace': 0.10
+        }
+    )
+    g = g.map_dataframe(
+        sns.lineplot,
+        x='DATE',
+        y='pg',
+        hue='Plant Name',
+        style='Plant Name',
+        units='obj_name',
+        estimator=None,
+        lw=0.5,
+    )
+    row_titles = [
+        'coal/OC',
+        'coal/RC',
+        'ng/None',
+        'Coal/RI',
+        'wind/None',
+        'ng/RI',
+    ]
+    for i, ax in enumerate(g.axes):
+        for ax_row in ax:
+            ax_row.set_title('')
+        ax[-1].legend(
+            loc='center',
+            bbox_to_anchor=(1.55, 0.5),
+            title=row_titles[i]
+        )
+    g.set_axis_labels(y_var='', x_var='')
+    g.axes[3, 0].set_ylabel('Power [p.u.]')
+    col_titles = [
+        'No weights',
+        'High $w_{with,coal}$',
+        'High $w_{con,coal}$',
+        'High $w_{with,ng}$',
+        'High $w_{con,ng}$',
+    ]
+    for i, ax in enumerate(g.axes[0]):
+        ax.set_title(col_titles[i])
+    for ax in g.axes[-1]:
+        ax.tick_params(axis='x', rotation=90)
+    g.figure.subplots_adjust(right=0.85)
 
     return g
