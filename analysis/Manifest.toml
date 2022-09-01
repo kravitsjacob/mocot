@@ -340,7 +340,7 @@ uuid = "d00139f3-1899-568f-a2f0-47f597d42d70"
 version = "5.1.1+0"
 
 [[deps.MOCOT]]
-deps = ["DataFrames", "Ipopt", "JuMP", "PowerModels", "Statistics", "XLSX", "YAML"]
+deps = ["CSV", "DataFrames", "Infiltrator", "Ipopt", "JuMP", "PowerModels", "Revise", "Statistics", "XLSX"]
 path = "../src/julia/MOCOT"
 uuid = "5c3fdc54-6994-4d60-92ef-82aee31cdcaf"
 version = "0.0.0"
