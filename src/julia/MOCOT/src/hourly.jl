@@ -43,41 +43,38 @@ function add_linear_obj_terms!(
 end
 
 
-function add_within_day_ramp_rates!(
-    pm,
-    gen_ramp:: Dict{String, Float64},
-)
+function add_within_day_ramp_rates!(pm)
     """
     Add hourly ramp rates to model
 
     # Arguments
     `pm:: Any`: Any PowerModel
-    `gen_ramp:: Dict{String, Float64}`: Dictionary ramp values for each generator
     """
-    h_total = length(pm.data["nw"])
-
-    for gen_name in keys(gen_ramp)
+    multi_network_data = pm.data["nw"]
+    h_total = length(multi_network_data)
+    
+    for (obj_name, obj_props) in multi_network_data["1"]["gen"]
         # Extract ramp rates to pu
-        ramp = gen_ramp[gen_name]/100.0 
+        ramp = obj_props["cus_ramp_rate"]/100.0 
         
-        gen_index = parse(Int, gen_name)
+        obj_index = parse(Int, obj_name)
         try
             # Ramping up
             JuMP.@constraint(
                 pm.model,
                 [h in 2:h_total],
-                PowerModels.var(pm, h-1, :pg, gen_index) - PowerModels.var(pm, h, :pg, gen_index) <= ramp
+                PowerModels.var(pm, h-1, :pg, obj_index) - PowerModels.var(pm, h, :pg, obj_index) <= ramp
             )
             # Ramping down
             JuMP.@constraint(
                 pm.model,
                 [h in 2:h_total],
-                PowerModels.var(pm, h, :pg, gen_index) - PowerModels.var(pm, h-1, :pg, gen_index) <= ramp
+                PowerModels.var(pm, h, :pg, obj_index) - PowerModels.var(pm, h-1, :pg, obj_index) <= ramp
             )
         catch
             println(
                 """
-                Ramping constraint for generator $gen_name was specified but the corresponding decision variable was not found.
+                Ramping constraint for generator $obj_index was specified but the corresponding decision variable was not found.
                 """
             )
         end
