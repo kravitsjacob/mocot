@@ -309,3 +309,19 @@ function multiply_dicts(dict_array:: Array)
 
     return result
 end
+
+
+function get_gen_ramp(df_gen_info)
+    """
+    Getting generator ramping dictionary
+
+    # Arguments
+    - `df_gen_info:: DataFrames.DataFrame`: generator information dataframe
+    """
+    gen_ramp = Dict{String, Float64}()
+    for row in DataFrames.eachrow(df_gen_info)
+        gen_ramp[string(row["obj_name"])] = float(row["Ramp Rate (MW/hr)"])
+    end
+
+    return gen_ramp
+end
