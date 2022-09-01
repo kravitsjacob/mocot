@@ -1,7 +1,6 @@
 """Visualization Functions"""
 
 import matplotlib.pyplot as plt
-import matplotlib
 import seaborn as sns
 import pandas as pd
 import paxplot
@@ -183,222 +182,6 @@ def node_load(df_node_load):
     plt.tight_layout()
 
     return fig
-
-
-def gen_timeseries(
-    df_gen_states,
-    df_gen_info,
-    df_system_load
-):
-    """Plot generator timeseries power output
-
-    Parameters
-    ----------
-    df_gen_states : pandas.DataFrame
-        Generator output DataFrame
-    df_gen_info : pandas.DataFrame
-        Generator information DataFrame
-    df_system_load : pandas.DataFrame
-        System loads
-
-    Returns
-    -------
-    seaborn.axisgrid.FacetGrid
-        Plots of once-through
-    """
-    # Add generator information
-    df_gen_states = pd.merge(
-        df_gen_states,
-        df_gen_info,
-        left_on='obj_name',
-        right_on='obj_name',
-        how='left'
-    )
-
-    # Add datetime
-    df_system_load['DATE'] = pd.to_datetime(df_system_load['DATE'])
-    df_system_load = df_system_load.rename(
-        {'hour_index': 'hour', 'day_index': 'day'},
-        axis=1
-    )
-    mergecols = [
-        'DATE',
-        'hour',
-        'day',
-    ]
-    df_gen_states = pd.merge(
-        df_gen_states,
-        df_system_load[mergecols],
-        left_on=['hour', 'day'],
-        right_on=['hour', 'day'],
-        how='left'
-    )
-
-    # Create labels
-    df_gen_states['Fuel/Cooling'] = \
-        df_gen_states['MATPOWER Fuel'] + \
-        '/' \
-        + df_gen_states['923 Cooling Type']
-
-    # Add loads
-    df_system_load = df_system_load.rename({'ActualLoad': 'pg'}, axis=1)
-    df_system_load['Plant Name'] = 'System Load'
-    df_system_load['Fuel/Cooling'] = 'System Load'
-    df_system_load['obj_name'] = 'System Load'
-    df_system_load['pg'] = df_system_load['pg']/100.0
-    df_gen_states = pd.concat([df_gen_states, df_system_load])
-
-    # Round generator output
-    df_gen_states['pg'] = df_gen_states['pg'].round(3)
-
-    # Plot
-    g = sns.FacetGrid(
-        df_gen_states,
-        row='Fuel/Cooling',
-        sharey=False,
-        sharex=True,
-        aspect=5.0,
-        height=1.7,
-    )
-    g = g.map_dataframe(
-        sns.lineplot,
-        x='DATE',
-        y='pg',
-        hue='Plant Name',
-        style='Plant Name',
-        units='obj_name',
-        estimator=None,
-        lw=0.5,
-    )
-    for ax in g.axes:
-        ax[0].legend(loc='center', bbox_to_anchor=(1.2, 0.5))
-    g.set_axis_labels(y_var='Power Output [p.u.]', x_var='')
-    plt.xticks(rotation=90)
-    plt.tight_layout()
-
-    return g
-
-
-def normal_gen_timeseries(
-    df_states,
-    df_gen_info,
-    df_system_load
-):
-    """Plot generator timeseries power output
-
-    Parameters
-    ----------
-    df_states : pandas.DataFrame
-        Generator output DataFrame
-    df_gen_info : pandas.DataFrame
-        Generator information DataFrame
-    df_system_load : pandas.DataFrame
-        System loads
-
-    Returns
-    -------
-    seaborn.axisgrid.FacetGrid
-        Plots of once-through
-    """
-    # Filter scenario
-    df_states = df_states[df_states['gen_scenario'] == 'Normal']
-
-    # Add generator information
-    df_gen_states = pd.merge(
-        df_states,
-        df_gen_info,
-        left_on='obj_name',
-        right_on='obj_name',
-        how='left'
-    )
-
-    # Add datetime
-    df_system_load['DATE'] = pd.to_datetime(df_system_load['DATE'])
-    df_system_load = df_system_load.rename(
-        {'hour_index': 'hour', 'day_index': 'day'},
-        axis=1
-    )
-    mergecols = [
-        'DATE',
-        'hour',
-        'day',
-    ]
-    df_gen_states = pd.merge(
-        df_gen_states,
-        df_system_load[mergecols],
-        left_on=['hour', 'day'],
-        right_on=['hour', 'day'],
-        how='left'
-    )
-
-    # Create labels
-    df_gen_states['Fuel/Cooling'] = \
-        df_gen_states['MATPOWER Fuel'] + \
-        '/' \
-        + df_gen_states['923 Cooling Type']
-
-    # Round generator output
-    df_gen_states['pg'] = df_gen_states['pg'].round(3)
-
-    # Plot
-    g = sns.FacetGrid(
-        df_gen_states,
-        row='Fuel/Cooling',
-        col='dec_scenario',
-        sharey='row',
-        sharex=True,
-        aspect=0.9,
-        height=1.8,
-        gridspec_kws={
-            'wspace': 0.05,
-            'hspace': 0.10
-        }
-    )
-    g = g.map_dataframe(
-        sns.lineplot,
-        x='DATE',
-        y='pg',
-        hue='Plant Name',
-        style='Plant Name',
-        units='obj_name',
-        estimator=None,
-        lw=0.5,
-    )
-    row_titles = [
-        'coal/OC',
-        'coal/RC',
-        'ng/None',
-        'Coal/RI',
-        'wind/None',
-        'ng/RI',
-        'nuclear/RC'
-    ]
-    for i, ax in enumerate(g.axes):
-        for ax_row in ax:
-            ax_row.set_title('')
-        ax[-1].legend(
-            loc='center',
-            bbox_to_anchor=(1.55, 0.5),
-            title=row_titles[i]
-        )
-    g.set_axis_labels(y_var='', x_var='')
-    g.axes[3, 0].set_ylabel('Power [p.u.]')
-    col_titles = [
-        'No weights',
-        'High $w_{with,coal}$',
-        'High $w_{con,coal}$',
-        'High $w_{with,ng}$',
-        'High $w_{con,ng}$',
-        'High $w_{with,nuc}$',
-        'High $w_{con,nuc}$'
-    ]
-    for i, ax in enumerate(g.axes[0]):
-        ax.set_title(col_titles[i])
-    for ax in g.axes[-1]:
-        ax.tick_params(axis='x', rotation=90)
-    g.figure.subplots_adjust(right=0.87)
-
-    return g
 
 
 def normal_parallel(
@@ -613,3 +396,244 @@ def no_nuclear_parallel(
     paxfig.set_size_inches(8.5, 4)
 
     return paxfig
+
+
+def normal_gen_timeseries(
+    df_states,
+    df_gen_info,
+    df_system_load
+):
+    """Plot generator timeseries power output
+
+    Parameters
+    ----------
+    df_states : pandas.DataFrame
+        Generator output DataFrame
+    df_gen_info : pandas.DataFrame
+        Generator information DataFrame
+    df_system_load : pandas.DataFrame
+        System loads
+
+    Returns
+    -------
+    seaborn.axisgrid.FacetGrid
+        Plots of once-through
+    """
+    # Filter scenario
+    df_states = df_states[df_states['gen_scenario'] == 'Normal']
+
+    # Add generator information
+    df_gen_states = pd.merge(
+        df_states,
+        df_gen_info,
+        left_on='obj_name',
+        right_on='obj_name',
+        how='left'
+    )
+
+    # Add datetime
+    df_system_load['DATE'] = pd.to_datetime(df_system_load['DATE'])
+    df_system_load = df_system_load.rename(
+        {'hour_index': 'hour', 'day_index': 'day'},
+        axis=1
+    )
+    mergecols = [
+        'DATE',
+        'hour',
+        'day',
+    ]
+    df_gen_states = pd.merge(
+        df_gen_states,
+        df_system_load[mergecols],
+        left_on=['hour', 'day'],
+        right_on=['hour', 'day'],
+        how='left'
+    )
+
+    # Create labels
+    df_gen_states['Fuel/Cooling'] = \
+        df_gen_states['MATPOWER Fuel'] + \
+        '/' \
+        + df_gen_states['923 Cooling Type']
+
+    # Round generator output
+    df_gen_states['pg'] = df_gen_states['pg'].round(3)
+
+    # Plot
+    g = sns.FacetGrid(
+        df_gen_states,
+        row='Fuel/Cooling',
+        col='dec_scenario',
+        sharey='row',
+        sharex=True,
+        aspect=0.9,
+        height=1.8,
+        gridspec_kws={
+            'wspace': 0.05,
+            'hspace': 0.10
+        }
+    )
+    g = g.map_dataframe(
+        sns.lineplot,
+        x='DATE',
+        y='pg',
+        hue='Plant Name',
+        style='Plant Name',
+        units='obj_name',
+        estimator=None,
+        lw=0.5,
+    )
+    row_titles = [
+        'coal/OC',
+        'coal/RC',
+        'ng/None',
+        'Coal/RI',
+        'wind/None',
+        'ng/RI',
+        'nuclear/RC'
+    ]
+    for i, ax in enumerate(g.axes):
+        for ax_row in ax:
+            ax_row.set_title('')
+        ax[-1].legend(
+            loc='center',
+            bbox_to_anchor=(1.55, 0.5),
+            title=row_titles[i]
+        )
+    g.set_axis_labels(y_var='', x_var='')
+    g.axes[3, 0].set_ylabel('Power [p.u.]')
+    col_titles = [
+        'No weights',
+        'High $w_{with,coal}$',
+        'High $w_{con,coal}$',
+        'High $w_{with,ng}$',
+        'High $w_{con,ng}$',
+        'High $w_{with,nuc}$',
+        'High $w_{con,nuc}$'
+    ]
+    for i, ax in enumerate(g.axes[0]):
+        ax.set_title(col_titles[i])
+    for ax in g.axes[-1]:
+        ax.tick_params(axis='x', rotation=90)
+    g.figure.subplots_adjust(right=0.87)
+
+    return g
+
+
+def nonuclear_gen_timeseries(
+    df_states,
+    df_gen_info,
+    df_system_load
+):
+    """Plot generator timeseries power output
+
+    Parameters
+    ----------
+    df_states : pandas.DataFrame
+        Generator output DataFrame
+    df_gen_info : pandas.DataFrame
+        Generator information DataFrame
+    df_system_load : pandas.DataFrame
+        System loads
+
+    Returns
+    -------
+    seaborn.axisgrid.FacetGrid
+        Plots of once-through
+    """
+    # Filter scenario
+    df_states = df_states[df_states['gen_scenario'] == 'No Nuclear']
+
+    # Add generator information
+    df_gen_states = pd.merge(
+        df_states,
+        df_gen_info,
+        left_on='obj_name',
+        right_on='obj_name',
+        how='left'
+    )
+
+    # Add datetime
+    df_system_load['DATE'] = pd.to_datetime(df_system_load['DATE'])
+    df_system_load = df_system_load.rename(
+        {'hour_index': 'hour', 'day_index': 'day'},
+        axis=1
+    )
+    mergecols = [
+        'DATE',
+        'hour',
+        'day',
+    ]
+    df_gen_states = pd.merge(
+        df_gen_states,
+        df_system_load[mergecols],
+        left_on=['hour', 'day'],
+        right_on=['hour', 'day'],
+        how='left'
+    )
+
+    # Create labels
+    df_gen_states['Fuel/Cooling'] = \
+        df_gen_states['MATPOWER Fuel'] + \
+        '/' \
+        + df_gen_states['923 Cooling Type']
+
+    # Round generator output
+    df_gen_states['pg'] = df_gen_states['pg'].round(3)
+
+    # Plot
+    g = sns.FacetGrid(
+        df_gen_states,
+        row='Fuel/Cooling',
+        col='dec_scenario',
+        sharey='row',
+        sharex=True,
+        aspect=0.9,
+        height=1.9,
+        gridspec_kws={
+            'wspace': 0.05,
+            'hspace': 0.10
+        }
+    )
+    g = g.map_dataframe(
+        sns.lineplot,
+        x='DATE',
+        y='pg',
+        hue='Plant Name',
+        style='Plant Name',
+        units='obj_name',
+        estimator=None,
+        lw=0.5,
+    )
+    row_titles = [
+        'coal/OC',
+        'coal/RC',
+        'ng/None',
+        'Coal/RI',
+        'wind/None',
+        'ng/RI',
+    ]
+    for i, ax in enumerate(g.axes):
+        for ax_row in ax:
+            ax_row.set_title('')
+        ax[-1].legend(
+            loc='center',
+            bbox_to_anchor=(1.55, 0.5),
+            title=row_titles[i]
+        )
+    g.set_axis_labels(y_var='', x_var='')
+    g.axes[3, 0].set_ylabel('Power [p.u.]')
+    col_titles = [
+        'No weights',
+        'High $w_{with,coal}$',
+        'High $w_{con,coal}$',
+        'High $w_{with,ng}$',
+        'High $w_{con,ng}$',
+    ]
+    for i, ax in enumerate(g.axes[0]):
+        ax.set_title(col_titles[i])
+    for ax in g.axes[-1]:
+        ax.tick_params(axis='x', rotation=90)
+    g.figure.subplots_adjust(right=0.85)
+
+    return g

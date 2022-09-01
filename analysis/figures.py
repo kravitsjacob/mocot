@@ -41,13 +41,13 @@ def main():
         fig = mocot.viz.node_load(df_node_load)
         fig.savefig(paths['outputs']['figures']['node_load'])
 
-    # Normal Objective Performances
+    # Normal objective performances
     if not os.path.exists(paths['outputs']['figures']['normal_parallel']):
         df_objs = pd.read_csv(paths["outputs"]["objectives"])
         fig = mocot.viz.normal_parallel(df_objs)
         fig.savefig(paths['outputs']['figures']['normal_parallel'])
 
-    # No Nuclear Objective Performances
+    # No nuclear objective Performances
     if not os.path.exists(paths['outputs']['figures']['no_nuclear_parallel']):
         df_objs = pd.read_csv(paths["outputs"]["objectives"])
         fig = mocot.viz.no_nuclear_parallel(df_objs)
@@ -64,6 +64,18 @@ def main():
             df_system_load
         )
         fig.savefig(paths['outputs']['figures']['normal_output'])
+
+    # No nuclear generator output
+    if not os.path.exists(paths['outputs']['figures']['no_nuclear_output']):
+        df_states = pd.read_csv(paths["outputs"]["states"])
+        df_gen_info = pd.read_csv(paths['outputs']['gen_info_main'])
+        df_system_load = pd.read_csv(paths['outputs']['system_load'])
+        fig = mocot.viz.nonuclear_gen_timeseries(
+            df_states,
+            df_gen_info,
+            df_system_load
+        )
+        fig.savefig(paths['outputs']['figures']['no_nuclear_output'])
 
 
 if __name__ == '__main__':

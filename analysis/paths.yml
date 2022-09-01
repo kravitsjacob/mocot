@@ -37,4 +37,4 @@ outputs:
     normal_parallel: "analysis/io/outputs/figures/normal_parallel.pdf"
     no_nuclear_parallel: "analysis/io/outputs/figures/no_nuclear_parallel.pdf"
     normal_output: "analysis/io/outputs/figures/normal_output.pdf"
-
+    no_nuclear_output: "analysis/io/outputs/figures/no_nuclear_output.pdf"
