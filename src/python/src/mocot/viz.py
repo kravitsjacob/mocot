@@ -279,9 +279,8 @@ def gen_timeseries(
     return g
 
 
-def multi_gen_timeseries(
-    df_gen_no,
-    df_gen_with,
+def normal_gen_timeseries(
+    df_states,
     df_gen_info,
     df_system_load
 ):
@@ -289,10 +288,8 @@ def multi_gen_timeseries(
 
     Parameters
     ----------
-    df_gen_no : pandas.DataFrame
-        Generator output DataFrame with no water weights
-    df_gen_with : pandas.DataFrame
-        Generator output DataFrame with water weights
+    df_states : pandas.DataFrame
+        Generator output DataFrame
     df_gen_info : pandas.DataFrame
         Generator information DataFrame
     df_system_load : pandas.DataFrame
@@ -303,17 +300,12 @@ def multi_gen_timeseries(
     seaborn.axisgrid.FacetGrid
         Plots of once-through
     """
-    # Combine with/without
-    df_gen_no['Type'] = 'No Water Weight'
-    df_gen_with['Type'] = 'High Withdrawal Weight'
-    df_gen_states = pd.concat(
-        [df_gen_no, df_gen_with],
-        axis=0
-    )
+    # Filter scenario
+    df_states = df_states[df_states['gen_scenario'] == 'Normal']
 
     # Add generator information
     df_gen_states = pd.merge(
-        df_gen_states,
+        df_states,
         df_gen_info,
         left_on='obj_name',
         right_on='obj_name',
@@ -352,14 +344,14 @@ def multi_gen_timeseries(
     g = sns.FacetGrid(
         df_gen_states,
         row='Fuel/Cooling',
-        col='Type',
+        col='dec_scenario',
         sharey='row',
         sharex=True,
-        aspect=2.5,
-        height=2.0,
+        aspect=0.9,
+        height=1.8,
         gridspec_kws={
-            'wspace': 0.5,
-            'hspace': 0.1
+            'wspace': 0.05,
+            'hspace': 0.10
         }
     )
     g = g.map_dataframe(
@@ -372,7 +364,7 @@ def multi_gen_timeseries(
         estimator=None,
         lw=0.5,
     )
-    titles = [
+    row_titles = [
         'coal/OC',
         'coal/RC',
         'ng/None',
@@ -382,15 +374,29 @@ def multi_gen_timeseries(
         'nuclear/RC'
     ]
     for i, ax in enumerate(g.axes):
-        ax[0].legend(loc='center', bbox_to_anchor=(1.25, 0.5), title=titles[i])
-        ax[0].set_title('')
-        ax[1].set_title('')
+        for ax_row in ax:
+            ax_row.set_title('')
+        ax[-1].legend(
+            loc='center',
+            bbox_to_anchor=(1.55, 0.5),
+            title=row_titles[i]
+        )
     g.set_axis_labels(y_var='', x_var='')
     g.axes[3, 0].set_ylabel('Power [p.u.]')
-    g.axes[0, 0].set_title('No Water Weight')
-    g.axes[0, 1].set_title('Withdrawal Weight')
-    g.axes[-1, 0].tick_params(axis='x', rotation=90)
-    g.axes[-1, 1].tick_params(axis='x', rotation=90)
+    col_titles = [
+        'No weights',
+        'High $w_{with,coal}$',
+        'High $w_{con,coal}$',
+        'High $w_{with,ng}$',
+        'High $w_{con,ng}$',
+        'High $w_{with,nuc}$',
+        'High $w_{con,nuc}$'
+    ]
+    for i, ax in enumerate(g.axes[0]):
+        ax.set_title(col_titles[i])
+    for ax in g.axes[-1]:
+        ax.tick_params(axis='x', rotation=90)
+    g.figure.subplots_adjust(right=0.87)
 
     return g
 

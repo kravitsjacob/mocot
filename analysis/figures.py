@@ -53,6 +53,18 @@ def main():
         fig = mocot.viz.no_nuclear_parallel(df_objs)
         fig.savefig(paths['outputs']['figures']['no_nuclear_parallel'])
 
+    # Normal generator output
+    if not os.path.exists(paths['outputs']['figures']['normal_output']):
+        df_states = pd.read_csv(paths["outputs"]["states"])
+        df_gen_info = pd.read_csv(paths['outputs']['gen_info_main'])
+        df_system_load = pd.read_csv(paths['outputs']['system_load'])
+        fig = mocot.viz.normal_gen_timeseries(
+            df_states,
+            df_gen_info,
+            df_system_load
+        )
+        fig.savefig(paths['outputs']['figures']['normal_output'])
+
 
 if __name__ == '__main__':
     main()
