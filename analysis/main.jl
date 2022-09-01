@@ -74,7 +74,6 @@ function main()
         # Simulation
         (objectives, state) = MOCOT.simulation(
             network_data,
-            df_eia_heat_rates, 
             df_air_water,
             df_node_load,
             w_with_coal=row["w_with_coal"],

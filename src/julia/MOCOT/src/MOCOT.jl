@@ -16,7 +16,6 @@ include("hourly.jl")
 
 function simulation(
     network_data:: Dict,
-    df_eia_heat_rates:: DataFrames.DataFrame, 
     df_air_water:: DataFrames.DataFrame,
     df_node_load:: DataFrames.DataFrame,
     ;
@@ -32,7 +31,6 @@ function simulation(
 
     # Arguments
     - `network_data:: Dict`: PowerModels Network data
-    - `df_eia_heat_rates:: DataFrames.DataFrame`: EIA heat rates
     - `df_air_water:: DataFrames.DataFrame`: Exogenous air and water temperatures
     - `df_node_load:: DataFrames.DataFrame`: Node-level loads
     - `w_with_coal:: Float64`: Coal withdrawal weight
