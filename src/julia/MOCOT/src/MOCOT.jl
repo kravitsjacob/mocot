@@ -83,8 +83,7 @@ function simulation(
     gen_beta_with, gen_beta_con = gen_water_use(
         water_temperature,
         air_temperature,
-        df_gen_info,
-        df_eia_heat_rates
+        network_data,
     )
     state["withdraw_rate"]["0"] = gen_beta_with
     state["consumption_rate"]["0"] = gen_beta_con
@@ -136,8 +135,7 @@ function simulation(
         gen_beta_with, gen_beta_con = gen_water_use(
             water_temperature,
             air_temperature,
-            df_gen_info,
-            df_eia_heat_rates
+            network_data,
         )
         state["withdraw_rate"][string(d)] = gen_beta_with
         state["consumption_rate"][string(d)] = gen_beta_con
