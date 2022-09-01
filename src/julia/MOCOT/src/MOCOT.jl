@@ -68,7 +68,7 @@ function simulation(
     end
 
     # Adjust generator capacity
-    network_data = set_all_gens!(network_data, "pmin", 0.0)
+    network_data = update_all_gens!(network_data, "pmin", 0.0)
 
     # Make multinetwork
     network_data_multi = PowerModels.replicate(network_data, h_total)
