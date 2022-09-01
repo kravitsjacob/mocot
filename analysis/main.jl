@@ -25,6 +25,44 @@ function main()
         paths["inputs"]["case"]
     )
 
+    # Add custom network properties
+    network_data = MOCOT.add_prop!(
+        network_data,
+        "gen",
+        "cus_ramp_rate",
+        df_gen_info[!, "obj_name"],
+        df_gen_info[!, "Ramp Rate (MW/hr)"]
+    )
+    network_data = MOCOT.add_prop!(
+        network_data,
+        "gen",
+        "cus_fuel",
+        df_gen_info[!, "obj_name"],
+        df_gen_info[!, "MATPOWER Fuel"]
+    )
+    network_data = MOCOT.add_prop!(
+        network_data,
+        "gen",
+        "cus_cool",
+        df_gen_info[!, "obj_name"],
+        df_gen_info[!, "923 Cooling Type"]
+    )
+
+    # Heat rates
+    df_gen_info = transform!(
+        df_gen_info,
+        Symbol("MATPOWER Fuel") => ByRow(fuel -> MOCOT.get_eta_net(string(fuel), df_eia_heat_rates)) => "Heat Rate"
+    )
+    network_data = MOCOT.add_prop!(
+        network_data,
+        "gen",
+        "cus_heat_rate",
+        df_gen_info[!, "obj_name"],
+        df_gen_info[!, "Heat Rate"]
+    )
+    gen_ramp = MOCOT.get_gen_ramp(df_gen_info)
+
+
     # Simulation
     df_config = DataFrames.DataFrame(CSV.File(paths["inputs"]["simulation_config"]))
     df_objs = DataFrames.DataFrame()
@@ -39,6 +77,7 @@ function main()
         # Simulation
         (objectives, state) = MOCOT.simulation(
             network_data,
+            gen_ramp,
             df_gen_info, 
             df_eia_heat_rates, 
             df_air_water,

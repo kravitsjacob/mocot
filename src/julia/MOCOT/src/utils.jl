@@ -311,22 +311,6 @@ function multiply_dicts(dict_array:: Array)
 end
 
 
-function get_gen_ramp(df_gen_info)
-    """
-    Getting generator ramping dictionary
-
-    # Arguments
-    - `df_gen_info:: DataFrames.DataFrame`: generator information dataframe
-    """
-    gen_ramp = Dict{String, Float64}()
-    for row in DataFrames.eachrow(df_gen_info)
-        gen_ramp[string(row["obj_name"])] = float(row["Ramp Rate (MW/hr)"])
-    end
-
-    return gen_ramp
-end
-
-
 function add_prop!(network_data:: Dict, obj_type:: String, prop_name:: String, obj_names, prop_vals)
     """
     Add property to PowerModel
@@ -343,4 +327,36 @@ function add_prop!(network_data:: Dict, obj_type:: String, prop_name:: String, o
     end
 
     return network_data
+end
+
+
+function get_eta_net(fuel:: String, df_eia_heat_rates:: DataFrames.DataFrame)
+    """
+    Get net efficiency of plant
+    
+    # Arguments
+    `fuel:: String`: Fuel code
+    `df_eia_heat_rates:: DataFrames.DataFrame`: DataFrame of eia heat rates
+    """
+    if fuel == "coal"
+        col_name = "Electricity Net Generation, Coal Plants Heat Rate"
+    elseif fuel == "ng"
+        col_name = "Electricity Net Generation, Natural Gas Plants Heat Rate"
+    elseif fuel == "nuclear"
+        col_name = "Electricity Net Generation, Nuclear Plants Heat Rate"
+    elseif fuel == "wind"
+        col_name = "Wind"
+    end
+
+    if col_name != "Wind"
+        # Median heat rate
+        eta_net = Statistics.median(skipmissing(df_eia_heat_rates[!, col_name]))
+
+        # Convert to ratio
+        eta_net = 3412.0/eta_net
+    else
+        eta_net = 0
+    end
+
+    return eta_net
 end
