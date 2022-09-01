@@ -111,7 +111,7 @@ function simulation(
         pm = add_within_day_ramp_rates!(pm)
 
         if d > 1
-            pm = add_day_to_day_ramp_rates!(pm, gen_ramp, state, d)
+            pm = add_day_to_day_ramp_rates!(pm, state, d)
         end
 
         # Add water use terms
