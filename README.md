@@ -13,3 +13,6 @@ Multi-Objective Coordination of Thermoelectric Water Use
 2) Run `using Infiltrator` to add debugging functionality.
 3) Set breakpoint where appropriate using `@Infiltrator.infiltrate` be sure to `import Infiltrator` at the top of development packages. Note, it will throw a warning as it thinks you are adding a not-included dependency.
 4) Evaluate using `include("analysis/main.jl")`
+
+### Notes on old commits/releases
+Releases of week-01 to week-09 were regenerated due to migration away from git lfs. Thus, their release data all occur on the same day. 
