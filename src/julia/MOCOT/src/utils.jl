@@ -329,8 +329,14 @@ function get_eta_net(fuel:: String, df_eia_heat_rates:: DataFrames.DataFrame)
 end
 
 
-function get_exogenous(df_air_water, df_node_load)
+function get_exogenous(df_air_water:: DataFrames.DataFrame, df_node_load:: DataFrames.DataFrame)
+    """
+    Format exogenous parameters
 
+    # Arguments
+    - `df_air_water:: DataFrames.DataFrame`: Air and water temperature dataframe
+    - `df_node_load:: DataFrames.DataFrame`: Node-level load dataframe
+    """
     exogenous = Dict{String, Any}()
 
     # Air and water temperatures
@@ -344,12 +350,18 @@ function get_exogenous(df_air_water, df_node_load)
     exogenous["air_temperature"] = air_temperature
 
     # Node loads
+
+    # Days
     d_nodes = Dict{String, Any}()
     for d in DataFrames.unique(df_node_load[!, "day_index"])
-        df_day = df_node_load[in(d).(df_node_load.day_index), :]
+        df_d = df_node_load[in(d).(df_node_load.day_index), :]
+
+        # Hours
         h_nodes = Dict{String, Any}()
         for h in DataFrames.unique(df_node_load[!, "hour_index"])
-            df_hour = df_day[in(h).(df_day.hour_index), :]
+            df_hour = df_d[in(h).(df_d.hour_index), :]
+
+            # Nodes
             nodes = Dict{String, Any}()
             for row in eachrow(df_hour)
                 nodes[string(row["bus"])] = row["load_mw"]

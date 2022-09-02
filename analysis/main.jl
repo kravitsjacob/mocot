@@ -47,6 +47,7 @@ function main()
         df_gen_info[!, "obj_name"],
         convert.(String, df_gen_info[!, "923 Cooling Type"])
     )
+
     # Heat rates
     df_gen_info = transform!(
         df_gen_info,
@@ -60,7 +61,10 @@ function main()
         convert.(Float64, df_gen_info[!, "Heat Rate"])
     )
 
-    # Simulation
+    # Exogenous
+    exogenous = MOCOT.get_exogenous(df_air_water, df_node_load)
+
+    # Run simulation
     df_config = DataFrames.DataFrame(CSV.File(paths["inputs"]["simulation_config"]))
     df_objs = DataFrames.DataFrame()
     df_states = DataFrames.DataFrame()
@@ -74,6 +78,7 @@ function main()
         # Simulation
         (objectives, state) = MOCOT.simulation(
             network_data,
+            exogenous,
             df_air_water,
             df_node_load,
             w_with_coal=row["w_with_coal"],
