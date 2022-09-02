@@ -16,7 +16,7 @@ include("hourly.jl")
 
 function simulation(
     network_data:: Dict,
-    df_air_water:: DataFrames.DataFrame,
+    exogenous:: Dict,
     df_node_load:: DataFrames.DataFrame,
     ;
     w_with_coal:: Float64=0.0,
@@ -31,7 +31,7 @@ function simulation(
 
     # Arguments
     - `network_data:: Dict`: PowerModels Network data
-    - `df_air_water:: DataFrames.DataFrame`: Exogenous air and water temperatures
+    - `exogenous:: Dict`: Exogenous parameter data [<parameter_name>][<timestep>]...[<timestep>]
     - `df_node_load:: DataFrames.DataFrame`: Node-level loads
     - `w_with_coal:: Float64`: Coal withdrawal weight
     - `w_con_coal:: Float64`: Coal consumption weight
@@ -122,15 +122,10 @@ function simulation(
         # Solve power system model
         state["power"][string(d)] = PowerModels.optimize_model!(pm, optimizer=Ipopt.Optimizer)
 
-        # Exogenous air and water temperatures
-        filter_air_water = df_air_water[in([d]).(df_air_water.day_index), :]
-        air_temperature = filter_air_water[!, "air_temperature"][1]
-        water_temperature = filter_air_water[!, "water_temperature"][1]
-
         # Water use
         gen_beta_with, gen_beta_con = gen_water_use(
-            water_temperature,
-            air_temperature,
+            exogenous["water_temperature"][string(d)],
+            exogenous["air_temperature"][string(d)],
             network_data,
         )
         state["withdraw_rate"][string(d)] = gen_beta_with

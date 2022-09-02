@@ -10,6 +10,7 @@ function read_inputs(
     air_water_path:: String,
     node_load_path:: String,
     case_path:: String,
+    simulation_config_path:: String
 )
     """
     Wrapper function for reading inputs
@@ -20,6 +21,7 @@ function read_inputs(
     - `air_water_path:: String`: Path to air and water exogenous
     - `node_load_path:: String`: Path to node load exogenous
     - `case_path:: String`: Path to MATPOWER case
+    - `simulation_config_path:: String`:: Path to simulation configuration file
     """
     # Reading inputs
     df_gen_info_water_ramp = DataFrames.DataFrame(
@@ -30,8 +32,9 @@ function read_inputs(
     )
     df_air_water = DataFrames.DataFrame(CSV.File(air_water_path))
     df_node_load = DataFrames.DataFrame(CSV.File(node_load_path))
+    df_config = DataFrames.DataFrame(CSV.File(simulation_config_path))
     network_data = PowerModels.parse_file(case_path)
-
+    
     # Generator information
     df_gen_info = MOCOT.get_gen_info(network_data, df_gen_info_water_ramp)
 
@@ -41,7 +44,8 @@ function read_inputs(
         df_air_water,
         df_node_load,
         network_data,
-        df_gen_info
+        df_gen_info,
+        df_config
     )
     return inputs
 end

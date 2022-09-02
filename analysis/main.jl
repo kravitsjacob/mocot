@@ -16,13 +16,15 @@ function main()
         df_air_water,
         df_node_load,
         network_data,
-        df_gen_info
+        df_gen_info,
+        df_config
     ) = MOCOT.read_inputs(
         paths["outputs"]["gen_info_water_ramp"], 
         paths["inputs"]["eia_heat_rates"],
         paths["outputs"]["air_water"],
         paths["outputs"]["node_load"],
-        paths["inputs"]["case"]
+        paths["inputs"]["case"],
+        paths["inputs"]["simulation_config"]
     )
 
     # Add custom network properties
@@ -61,14 +63,15 @@ function main()
         convert.(Float64, df_gen_info[!, "Heat Rate"])
     )
 
-    # Exogenous
+    # Exogenous parameters
     exogenous = MOCOT.get_exogenous(df_air_water, df_node_load)
 
     # Run simulation
-    df_config = DataFrames.DataFrame(CSV.File(paths["inputs"]["simulation_config"]))
     df_objs = DataFrames.DataFrame()
     df_states = DataFrames.DataFrame()
     for row in DataFrames.eachrow(df_config)
+
+        # Output
         println(string(row["gen_scenario"]))
         println(string(row["dec_scenario"]))
 
