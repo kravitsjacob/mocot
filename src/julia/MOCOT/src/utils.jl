@@ -364,7 +364,13 @@ function get_exogenous(df_air_water:: DataFrames.DataFrame, df_node_load:: DataF
             # Nodes
             nodes = Dict{String, Any}()
             for row in eachrow(df_hour)
-                nodes[string(row["bus"])] = row["load_mw"]
+                # Pandapower indexing
+                pandapower_bus = row["bus"]
+
+                # PowerModels indexing
+                powermodels_bus = row["bus"] + 1
+
+                nodes[string(powermodels_bus)] = row["load_mw"]
             end
             h_nodes[string(trunc(Int, h))] = nodes
         end

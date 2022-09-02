@@ -82,7 +82,6 @@ function main()
         (objectives, state) = MOCOT.simulation(
             network_data,
             exogenous,
-            df_node_load,
             w_with_coal=row["w_with_coal"],
             w_con_coal=row["w_con_coal"],
             w_with_ng=row["w_with_ng"],

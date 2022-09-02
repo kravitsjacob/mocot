@@ -133,3 +133,30 @@ function add_day_to_day_ramp_rates!(
     end
     return pm
 end
+
+
+function update_load!(network_data_multi::Dict, day_loads:: Dict)
+    """
+    Update loads for network data 
+
+    # Arguments
+    - `network_data_multi::Dict`: Multi network data
+    - `day_loads:: Dict`: Loads for one day with buses as keys and loads as values
+    """
+    # Looping over hours
+    for (h, network_data) in network_data_multi["nw"]
+
+        # Looping over loads
+        for load in values(network_data["load"])
+            # Extracting load
+            bus = string(load["load_bus"])
+            load_mw = day_loads[h][bus]
+            load_pu = load_mw/100.0
+
+            # Set load
+            load["pd"] = load_pu
+        end
+    end
+
+    return network_data_multi
+end

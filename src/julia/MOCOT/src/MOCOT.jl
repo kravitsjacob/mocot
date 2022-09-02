@@ -17,7 +17,6 @@ include("hourly.jl")
 function simulation(
     network_data:: Dict,
     exogenous:: Dict,
-    df_node_load:: DataFrames.DataFrame,
     ;
     w_with_coal:: Float64=0.0,
     w_con_coal:: Float64=0.0,
@@ -32,7 +31,6 @@ function simulation(
     # Arguments
     - `network_data:: Dict`: PowerModels Network data
     - `exogenous:: Dict`: Exogenous parameter data [<parameter_name>][<timestep>]...[<timestep>]
-    - `df_node_load:: DataFrames.DataFrame`: Node-level loads
     - `w_with_coal:: Float64`: Coal withdrawal weight
     - `w_con_coal:: Float64`: Coal consumption weight
     - `w_with_ng:: Float64`: Natural gas withdrawal weight
@@ -91,8 +89,7 @@ function simulation(
         # Update loads
         network_data_multi = update_load!(
             network_data_multi,
-            df_node_load,
-            d
+            exogenous["node_load"][string(d)]
         )
 
         # Create power system model
