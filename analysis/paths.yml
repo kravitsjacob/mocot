@@ -3,6 +3,7 @@ inputs:
   gen_info_matpower: "analysis/io/inputs/from_previous_study/gen_info_matpower.csv"
   gen_info_matches: "analysis/io/inputs/from_previous_study/gen_info_matches.csv"
   gen_info_ramp: "analysis/io/inputs/ramp_rates/gen_info_ramp.xlsx"
+  gen_info_emit: "analysis/io/inputs/eia_emissions/emission_rates.csv"
   eia_raw: "analysis/io/inputs/eia_thermoelectric_water_use"
   eia_heat_rates: "analysis/io/inputs/eia_heat_rates/Table_A6_Approximate_Heat_Rates_for_Electricity_-_and_Heat_Content_of_Electricity.xlsx"
   noaa_temperature_data: "analysis/io/inputs/noaa_air_temperature/CRNH0203-2019-IL_Champaign_9_SW.txt"
@@ -17,9 +18,10 @@ inputs:
     spikes: "analysis/io/inputs/testing/spikes.csv"
 
 outputs:
-  gen_info_water: "analysis/io/outputs/synthetic_grid/gen_info_water.csv"
   gen_info_main: "analysis/io/outputs/synthetic_grid/gen_info_main.csv"
+  gen_info_water: "analysis/io/outputs/synthetic_grid/gen_info_water.csv"
   gen_info_water_ramp: "analysis/io/outputs/synthetic_grid/gen_info_water_ramp.csv"
+  gen_info_water_ramp_emit: "analysis/io/outputs/synthetic_grid/gen_info_water_ramp_emit.csv"
   air_water: "analysis/io/outputs/exogenous/air_water.csv"
   system_load: "analysis/io/outputs/exogenous/system_load.csv"
   node_load: "analysis/io/outputs/exogenous/node_load.csv"

@@ -63,6 +63,24 @@ def main():
         )
         print('Success: Adding ramping information')
 
+    # Add emission coefficients
+    if not os.path.exists(paths['outputs']['gen_info_water_ramp_emit']):
+        df_gen_info_water_ramp = pd.read_csv(
+            paths['outputs']['gen_info_water_ramp'],
+        )
+        df_gen_info_emit = pd.read_csv(paths['inputs']['gen_info_emit'])
+        df_gen_info_water_ramp_emit = pd.merge(
+            df_gen_info_water_ramp,
+            df_gen_info_emit,
+        )
+        df_gen_info_water_ramp_emit['Emission Rate lbs per MWh'] = \
+            df_gen_info_water_ramp_emit['Emission Rate lbs per kWh']/1000.0
+        df_gen_info_water_ramp_emit.to_csv(
+            paths['outputs']['gen_info_water_ramp_emit'],
+            index=False
+        )
+        print('Success: Adding emission information')
+
     # Water and air temperature
     if not os.path.exists(paths['outputs']['air_water']):
         df_air_water = mocot.core.process_exogenous(paths)
