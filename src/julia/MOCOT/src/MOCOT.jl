@@ -16,10 +16,7 @@ include("hourly.jl")
 
 function simulation(
     network_data:: Dict,
-    df_gen_info:: DataFrames.DataFrame,
-    df_eia_heat_rates:: DataFrames.DataFrame, 
-    df_air_water:: DataFrames.DataFrame,
-    df_node_load:: DataFrames.DataFrame,
+    exogenous:: Dict,
     ;
     w_with_coal:: Float64=0.0,
     w_con_coal:: Float64=0.0,
@@ -33,10 +30,7 @@ function simulation(
 
     # Arguments
     - `network_data:: Dict`: PowerModels Network data
-    - `df_gen_info:: DataFrames.DataFrame`: Generator information
-    - `df_eia_heat_rates:: DataFrames.DataFrame`: EIA heat rates
-    - `df_air_water:: DataFrames.DataFrame`: Exogenous air and water temperatures
-    - `df_node_load:: DataFrames.DataFrame`: Node-level loads
+    - `exogenous:: Dict`: Exogenous parameter data [<parameter_name>][<timestep>]...[<timestep>]
     - `w_with_coal:: Float64`: Coal withdrawal weight
     - `w_con_coal:: Float64`: Coal consumption weight
     - `w_with_ng:: Float64`: Natural gas withdrawal weight
@@ -45,36 +39,34 @@ function simulation(
     - `w_con_nuc:: Float64`: Nuclear consumption weight
     """
     # Initialization
-    d_total = trunc(Int64, maximum(df_node_load[!, "day_index"])) 
-    h_total = trunc(Int64, maximum(df_node_load[!, "hour_index"]))
+    d_total = length(exogenous["node_load"]) 
+    h_total = length(exogenous["node_load"]["1"])
     state = Dict{String, Dict}()
     state["power"] = Dict("0" => Dict())
     state["withdraw_rate"] = Dict("0" => Dict{String, Float64}())
     state["consumption_rate"] = Dict("0" => Dict{String, Float64}())
 
-    # Prepare generator ramping
-    gen_ramp = Dict{String, Float64}()
+    # Processing decision vectors
     w_with = Dict{String, Float64}()
     w_con = Dict{String, Float64}()
-    for row in DataFrames.eachrow(df_gen_info)
-        gen_ramp[string(row["obj_name"])] = float(row["Ramp Rate (MW/hr)"])
-        if row["MATPOWER Fuel"] == "coal"
-            w_with[string(row["obj_name"])] = w_with_coal
-            w_con[string(row["obj_name"])] = w_con_coal
-        elseif row["MATPOWER Fuel"] == "ng"
-            w_with[string(row["obj_name"])] = w_with_ng
-            w_con[string(row["obj_name"])] = w_con_ng
-        elseif row["MATPOWER Fuel"] == "nuclear"
-            w_with[string(row["obj_name"])] = w_with_nuc
-            w_con[string(row["obj_name"])] = w_con_nuc
+    for (obj_name, obj_props) in network_data["gen"]
+        if obj_props["cus_fuel"] == "coal"
+            w_with[obj_name] = w_with_coal
+            w_con[obj_name] = w_con_coal
+        elseif obj_props["cus_fuel"] == "ng"
+            w_with[obj_name] = w_with_ng
+            w_con[obj_name] = w_con_ng
+        elseif obj_props["cus_fuel"] == "nuclear"
+            w_with[obj_name] = w_with_nuc
+            w_con[obj_name] = w_con_nuc
         else
-            w_with[string(row["obj_name"])] = 0.0
-            w_con[string(row["obj_name"])] = 0.0
+            w_with[obj_name] = 0.0
+            w_con[obj_name] = 0.0
         end
     end
 
     # Adjust generator capacity
-    network_data = set_all_gens!(network_data, "pmin", 0.0)
+    network_data = update_all_gens!(network_data, "pmin", 0.0)
 
     # Make multinetwork
     network_data_multi = PowerModels.replicate(network_data, h_total)
@@ -85,8 +77,7 @@ function simulation(
     gen_beta_with, gen_beta_con = gen_water_use(
         water_temperature,
         air_temperature,
-        df_gen_info,
-        df_eia_heat_rates
+        network_data,
     )
     state["withdraw_rate"]["0"] = gen_beta_with
     state["consumption_rate"]["0"] = gen_beta_con
@@ -98,8 +89,7 @@ function simulation(
         # Update loads
         network_data_multi = update_load!(
             network_data_multi,
-            df_node_load,
-            d
+            exogenous["node_load"][string(d)]
         )
 
         # Create power system model
@@ -110,10 +100,10 @@ function simulation(
         )
 
         # Add ramp rates
-        pm = add_within_day_ramp_rates!(pm, gen_ramp)
-        
+        pm = add_within_day_ramp_rates!(pm)
+
         if d > 1
-            pm = add_day_to_day_ramp_rates!(pm, gen_ramp, state, d)
+            pm = add_day_to_day_ramp_rates!(pm, state, d)
         end
 
         # Add water use terms
@@ -127,19 +117,16 @@ function simulation(
         )
 
         # Solve power system model
-        state["power"][string(d)] = PowerModels.optimize_model!(pm, optimizer=Ipopt.Optimizer)
-
-        # Exogenous air and water temperatures
-        filter_air_water = df_air_water[in([d]).(df_air_water.day_index), :]
-        air_temperature = filter_air_water[!, "air_temperature"][1]
-        water_temperature = filter_air_water[!, "water_temperature"][1]
+        state["power"][string(d)] = PowerModels.optimize_model!(
+            pm,
+            optimizer=Ipopt.Optimizer
+        )
 
         # Water use
         gen_beta_with, gen_beta_con = gen_water_use(
-            water_temperature,
-            air_temperature,
-            df_gen_info,
-            df_eia_heat_rates
+            exogenous["water_temperature"][string(d)],
+            exogenous["air_temperature"][string(d)],
+            network_data,
         )
         state["withdraw_rate"][string(d)] = gen_beta_with
         state["consumption_rate"][string(d)] = gen_beta_con

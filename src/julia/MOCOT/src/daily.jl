@@ -145,38 +145,6 @@ function get_k_os(fuel:: String)
 end
 
 
-function get_eta_net(fuel:: String, df_eia_heat_rates:: DataFrames.DataFrame)
-    """
-    Get net efficiency of plant
-    
-    # Arguments
-    `fuel:: String`: Fuel code
-    `df_eia_heat_rates:: DataFrames.DataFrame`: DataFrame of eia heat rates
-    """
-    if fuel == "coal"
-        col_name = "Electricity Net Generation, Coal Plants Heat Rate"
-    elseif fuel == "ng"
-        col_name = "Electricity Net Generation, Natural Gas Plants Heat Rate"
-    elseif fuel == "nuclear"
-        col_name = "Electricity Net Generation, Nuclear Plants Heat Rate"
-    elseif fuel == "wind"
-        col_name = "Wind"
-    end
-
-    if col_name != "Wind"
-        # Median heat rate
-        eta_net = Statistics.median(skipmissing(df_eia_heat_rates[!, col_name]))
-
-        # Convert to ratio
-        eta_net = 3412.0/eta_net
-    else
-        eta_net = 0
-    end
-
-    return eta_net
-end
-
-
 function get_beta_proc(fuel:: String)
     """
     Get water withdrawal from non-cooling processes in [L/MWh] based on DOE-NETL model
@@ -213,8 +181,7 @@ end
 function gen_water_use(
     water_temperature:: Float64,
     air_temperature:: Float64,
-    df_gen_info:: DataFrames.DataFrame,
-    df_eia_heat_rates:: DataFrames.DataFrame
+    network_data:: Dict
 )
     """
     Run water use model for every generator
@@ -222,24 +189,20 @@ function gen_water_use(
     # Arguments
     - `water_temperature:: Float64`: Water temperature in C
     - `air_temperature:: Float64`: Dry bulb temperature of inlet air C
-    - `df_gen_info:: DataFrames.DataFrame`: Generator information
-    - `df_eia_heat_rates:: DataFrames.DataFrame`: DataFrame of eia heat rates
+    - `network_data:: Dict`: PowerModels network data
     """
     # Initialization
     gen_beta_with = Dict{String, Float64}()
     gen_beta_con = Dict{String, Float64}()
 
     # Water use for each generator
-    for row in DataFrames.eachrow(df_gen_info)
-        obj_name = row["obj_name"]
-        fuel =  string(row["MATPOWER Fuel"])
-        cool = string(row["923 Cooling Type"])
+    for (obj_name, obj_props) in network_data["gen"]
         beta_with, beta_con = MOCOT.water_use(
             water_temperature,
             air_temperature,
-            fuel,
-            cool,
-            df_eia_heat_rates
+            obj_props["cus_fuel"],
+            obj_props["cus_cool"],
+            obj_props["cus_heat_rate"]
         )
         gen_beta_with[obj_name] = beta_with
         gen_beta_con[obj_name] = beta_con   
@@ -254,7 +217,7 @@ function water_use(
     air_temperature:: Float64,
     fuel:: String,
     cool:: String,
-    df_eia_heat_rates:: DataFrames.DataFrame
+    eta_net:: Float64
 )
     """
     Water use model
@@ -264,11 +227,10 @@ function water_use(
     `air_temperature:: Float64`: Dry bulb temperature of inlet air C
     `fuel:: String`: Fuel type
     `cool:: String`: Cooling system type
-    `df_eia_heat_rates:: DataFrames.DataFrame`: DataFrame of eia heat rates
+    `eta_net:: Float64`:: Heat rate
     """
     # Get coefficients
     k_os = get_k_os(fuel)
-    eta_net = get_eta_net(fuel, df_eia_heat_rates)
     beta_proc = get_beta_proc(fuel)
 
     # Run simulation

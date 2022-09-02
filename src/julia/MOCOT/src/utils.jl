@@ -9,16 +9,16 @@ function update_commit_status!(network_data, gen_scenario:: String)
     - `gen_scenario:: String`: Generator scenario
     """
     if gen_scenario == "Normal"
-        network_data = set_all_gens!(network_data, "gen_status", 1)
+        network_data = update_all_gens!(network_data, "gen_status", 1)
     elseif gen_scenario == "No Nuclear"
-        network_data = set_all_gens!(network_data, "gen_status", 1)
+        network_data = update_all_gens!(network_data, "gen_status", 1)
         network_data["gen"]["47"]["gen_status"]=0
     end
     return network_data
 end
 
 
-function set_all_gens!(nw_data, prop:: String, val)
+function update_all_gens!(nw_data, prop:: String, val)
     """
     Change property on all generators in a network
 
@@ -31,39 +31,6 @@ function set_all_gens!(nw_data, prop:: String, val)
         gen_dict[prop] = val
     end
     return nw_data
-end
-
-
-function update_load!(network_data_multi::Dict, df_node_load:: DataFrames.DataFrame, d::Int)
-    """
-    Update loads for network data 
-
-    # Arguments
-    - `network_data_multi::Dict`: Multi network data
-    - `df_node_load::DataFrames.DataFrame`: DataFrame of node-level loads
-    - `d::Int`: Day index
-    """
-    for h in 1:length(network_data_multi["nw"])
-        # Extract network data
-        nw_data = network_data_multi["nw"][string(h)]
-
-        for load in values(nw_data["load"])
-            # Pandapower indexing
-            pp_bus = load["load_bus"] - 1
-            
-            # Filters
-            df_node_load_filter = df_node_load[in(d).(df_node_load.day_index), :]
-            df_node_load_filter = df_node_load_filter[in(h).(df_node_load_filter.hour_index), :]
-            df_node_load_filter = df_node_load_filter[in(pp_bus).(df_node_load_filter.bus), :]
-            load_mw = df_node_load_filter[!, "load_mw"][1]
-            load_pu = load_mw/100.0
-
-            # Set load
-            load["pd"] = load_pu
-        end
-    end
-
-    return network_data_multi
 end
 
 
@@ -308,4 +275,109 @@ function multiply_dicts(dict_array:: Array)
     end
 
     return result
+end
+
+
+function add_prop!(network_data:: Dict, obj_type:: String, prop_name:: String, obj_names, prop_vals)
+    """
+    Add property to PowerModel
+
+    # Arguments
+    - `network_data:: Dict`: PowerModels network data
+    - `obj_type:: String`: Type of object in network data (e.g., "gen")
+    - `prop_name:: String`: Property name to add
+    - `obj_names`: Ordered iterable of object names in network_data
+    - `prop_vals`: Ordered iterable of property values
+    """
+    for (i, obj_name) in enumerate(obj_names)
+        network_data[obj_type][obj_name][prop_name] = prop_vals[i]
+    end
+
+    return network_data
+end
+
+
+function get_eta_net(fuel:: String, df_eia_heat_rates:: DataFrames.DataFrame)
+    """
+    Get net efficiency of plant
+    
+    # Arguments
+    `fuel:: String`: Fuel code
+    `df_eia_heat_rates:: DataFrames.DataFrame`: DataFrame of eia heat rates
+    """
+    if fuel == "coal"
+        col_name = "Electricity Net Generation, Coal Plants Heat Rate"
+    elseif fuel == "ng"
+        col_name = "Electricity Net Generation, Natural Gas Plants Heat Rate"
+    elseif fuel == "nuclear"
+        col_name = "Electricity Net Generation, Nuclear Plants Heat Rate"
+    elseif fuel == "wind"
+        col_name = "Wind"
+    end
+
+    if col_name != "Wind"
+        # Median heat rate
+        eta_net = Statistics.median(skipmissing(df_eia_heat_rates[!, col_name]))
+
+        # Convert to ratio
+        eta_net = 3412.0/eta_net
+    else
+        eta_net = 0
+    end
+
+    return eta_net
+end
+
+
+function get_exogenous(df_air_water:: DataFrames.DataFrame, df_node_load:: DataFrames.DataFrame)
+    """
+    Format exogenous parameters
+
+    # Arguments
+    - `df_air_water:: DataFrames.DataFrame`: Air and water temperature dataframe
+    - `df_node_load:: DataFrames.DataFrame`: Node-level load dataframe
+    """
+    exogenous = Dict{String, Any}()
+
+    # Air and water temperatures
+    water_temperature = Dict{String, Float64}()
+    air_temperature = Dict{String, Float64}()
+    for row in eachrow(df_air_water)
+        water_temperature[string(row["day_index"])] = row["water_temperature"]
+        air_temperature[string(row["day_index"])] = row["air_temperature"]
+    end
+    exogenous["water_temperature"] = water_temperature
+    exogenous["air_temperature"] = air_temperature
+
+    # Node loads
+
+    # Days
+    d_nodes = Dict{String, Any}()
+    for d in DataFrames.unique(df_node_load[!, "day_index"])
+        df_d = df_node_load[in(d).(df_node_load.day_index), :]
+
+        # Hours
+        h_nodes = Dict{String, Any}()
+        for h in DataFrames.unique(df_node_load[!, "hour_index"])
+            df_hour = df_d[in(h).(df_d.hour_index), :]
+
+            # Nodes
+            nodes = Dict{String, Any}()
+            for row in eachrow(df_hour)
+                # Pandapower indexing
+                pandapower_bus = row["bus"]
+
+                # PowerModels indexing
+                powermodels_bus = row["bus"] + 1
+
+                nodes[string(powermodels_bus)] = row["load_mw"]
+            end
+            h_nodes[string(trunc(Int, h))] = nodes
+        end
+        d_nodes[string(trunc(Int, d))] = h_nodes
+    end
+    exogenous["node_load"] = d_nodes
+
+    return exogenous
+
 end

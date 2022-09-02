@@ -16,20 +16,62 @@ function main()
         df_air_water,
         df_node_load,
         network_data,
-        df_gen_info
+        df_gen_info,
+        df_config
     ) = MOCOT.read_inputs(
         paths["outputs"]["gen_info_water_ramp"], 
         paths["inputs"]["eia_heat_rates"],
         paths["outputs"]["air_water"],
         paths["outputs"]["node_load"],
-        paths["inputs"]["case"]
+        paths["inputs"]["case"],
+        paths["inputs"]["simulation_config"]
     )
 
-    # Simulation
-    df_config = DataFrames.DataFrame(CSV.File(paths["inputs"]["simulation_config"]))
+    # Add custom network properties
+    network_data = MOCOT.add_prop!(
+        network_data,
+        "gen",
+        "cus_ramp_rate",
+        df_gen_info[!, "obj_name"],
+        convert.(Float64, df_gen_info[!, "Ramp Rate (MW/hr)"])
+    )
+    network_data = MOCOT.add_prop!(
+        network_data,
+        "gen",
+        "cus_fuel",
+        df_gen_info[!, "obj_name"],
+        convert.(String, df_gen_info[!, "MATPOWER Fuel"])
+    )
+    network_data = MOCOT.add_prop!(
+        network_data,
+        "gen",
+        "cus_cool",
+        df_gen_info[!, "obj_name"],
+        convert.(String, df_gen_info[!, "923 Cooling Type"])
+    )
+
+    # Heat rates
+    df_gen_info = transform!(
+        df_gen_info,
+        Symbol("MATPOWER Fuel") => ByRow(fuel -> MOCOT.get_eta_net(string(fuel), df_eia_heat_rates)) => "Heat Rate"
+    )
+    network_data = MOCOT.add_prop!(
+        network_data,
+        "gen",
+        "cus_heat_rate",
+        df_gen_info[!, "obj_name"],
+        convert.(Float64, df_gen_info[!, "Heat Rate"])
+    )
+
+    # Exogenous parameters
+    exogenous = MOCOT.get_exogenous(df_air_water, df_node_load)
+
+    # Run simulation
     df_objs = DataFrames.DataFrame()
     df_states = DataFrames.DataFrame()
     for row in DataFrames.eachrow(df_config)
+
+        # Output
         println(string(row["gen_scenario"]))
         println(string(row["dec_scenario"]))
 
@@ -39,10 +81,7 @@ function main()
         # Simulation
         (objectives, state) = MOCOT.simulation(
             network_data,
-            df_gen_info, 
-            df_eia_heat_rates, 
-            df_air_water,
-            df_node_load,
+            exogenous,
             w_with_coal=row["w_with_coal"],
             w_con_coal=row["w_con_coal"],
             w_with_ng=row["w_with_ng"],

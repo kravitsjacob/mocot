@@ -43,41 +43,38 @@ function add_linear_obj_terms!(
 end
 
 
-function add_within_day_ramp_rates!(
-    pm,
-    gen_ramp:: Dict{String, Float64},
-)
+function add_within_day_ramp_rates!(pm)
     """
     Add hourly ramp rates to model
 
     # Arguments
-    `pm:: Any`: Any PowerModel
-    `gen_ramp:: Dict{String, Float64}`: Dictionary ramp values for each generator
+    `pm:: Any`: PowerModel with custom ramp rate defined
     """
-    h_total = length(pm.data["nw"])
+    network_data_multi = pm.data["nw"]
+    h_total = length(network_data_multi)
 
-    for gen_name in keys(gen_ramp)
+    for (obj_name, obj_props) in network_data_multi["1"]["gen"]
         # Extract ramp rates to pu
-        ramp = gen_ramp[gen_name]/100.0 
+        ramp = obj_props["cus_ramp_rate"]/100.0 
         
-        gen_index = parse(Int, gen_name)
+        obj_index = parse(Int, obj_name)
         try
             # Ramping up
             JuMP.@constraint(
                 pm.model,
                 [h in 2:h_total],
-                PowerModels.var(pm, h-1, :pg, gen_index) - PowerModels.var(pm, h, :pg, gen_index) <= ramp
+                PowerModels.var(pm, h-1, :pg, obj_index) - PowerModels.var(pm, h, :pg, obj_index) <= ramp
             )
             # Ramping down
             JuMP.@constraint(
                 pm.model,
                 [h in 2:h_total],
-                PowerModels.var(pm, h, :pg, gen_index) - PowerModels.var(pm, h-1, :pg, gen_index) <= ramp
+                PowerModels.var(pm, h, :pg, obj_index) - PowerModels.var(pm, h-1, :pg, obj_index) <= ramp
             )
         catch
             println(
                 """
-                Ramping constraint for generator $gen_name was specified but the corresponding decision variable was not found.
+                Ramping constraint for generator $obj_index was specified but the corresponding decision variable was not found.
                 """
             )
         end
@@ -89,7 +86,6 @@ end
 
 function add_day_to_day_ramp_rates!(
     pm,
-    gen_ramp:: Dict{String, Float64},
     state:: Dict{String, Dict},
     d:: Int64,
 )
@@ -97,8 +93,7 @@ function add_day_to_day_ramp_rates!(
     Add day-to-day ramp rates to model
 
     # Arguments
-    `pm:: Any`: Any PowerModel
-    `gen_ramp:: Dict{String, Float64}`: Dictionary ramp values for each generator
+    `pm:: Any`: PowerModel with custom ramp rate defined
     `state:: Dict{String, Dict}`: Current state dictionary
     `d:: Int64`: Current day index
     """
@@ -106,34 +101,62 @@ function add_day_to_day_ramp_rates!(
     h_previous = 24
     results_previous_day = state["power"][string(d-1)]["solution"]["nw"]
     results_previous_hour = results_previous_day[string(h_previous)]
-
-    for gen_name in keys(gen_ramp)
+    network_data_multi = pm.data["nw"]
+    
+    for (obj_name, obj_props) in network_data_multi["1"]["gen"]
         # Extract ramp rates to pu
-        ramp = gen_ramp[gen_name]/100.0 
+        ramp = obj_props["cus_ramp_rate"]/100.0 
 
         try
             # Previous power output
-            pg_previous = results_previous_hour["gen"][gen_name]["pg"]
+            pg_previous = results_previous_hour["gen"][obj_name]["pg"]
 
             # Ramping up
-            gen_index = parse(Int, gen_name)
+            obj_index = parse(Int, obj_name)
             JuMP.@constraint(
                 pm.model,
-                pg_previous - PowerModels.var(pm, h, :pg, gen_index) <= ramp
+                pg_previous - PowerModels.var(pm, h, :pg, obj_index) <= ramp
             )
 
             # Ramping down
             JuMP.@constraint(
                 pm.model,
-                PowerModels.var(pm, h, :pg, gen_index) - pg_previous <= ramp
+                PowerModels.var(pm, h, :pg, obj_index) - pg_previous <= ramp
             )
         catch
             println(
                 """
-                Day-to-day ramping constraint for generator $gen_name was specified but the corresponding decision variable was not found.
+                Day-to-day ramping constraint for generator $obj_name was specified but the corresponding decision variable was not found.
                 """
             )
         end
     end
     return pm
+end
+
+
+function update_load!(network_data_multi::Dict, day_loads:: Dict)
+    """
+    Update loads for network data 
+
+    # Arguments
+    - `network_data_multi::Dict`: Multi network data
+    - `day_loads:: Dict`: Loads for one day with buses as keys and loads as values
+    """
+    # Looping over hours
+    for (h, network_data) in network_data_multi["nw"]
+
+        # Looping over loads
+        for load in values(network_data["load"])
+            # Extracting load
+            bus = string(load["load_bus"])
+            load_mw = day_loads[h][bus]
+            load_pu = load_mw/100.0
+
+            # Set load
+            load["pd"] = load_pu
+        end
+    end
+
+    return network_data_multi
 end
