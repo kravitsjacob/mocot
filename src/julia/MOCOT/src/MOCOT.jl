@@ -41,8 +41,8 @@ function simulation(
     - `w_con_nuc:: Float64`: Nuclear consumption weight
     """
     # Initialization
-    d_total = trunc(Int64, maximum(df_node_load[!, "day_index"])) 
-    h_total = trunc(Int64, maximum(df_node_load[!, "hour_index"]))
+    d_total = length(exogenous["node_load"]) 
+    h_total = length(exogenous["node_load"]["1"])
     state = Dict{String, Dict}()
     state["power"] = Dict("0" => Dict())
     state["withdraw_rate"] = Dict("0" => Dict{String, Float64}())
