@@ -183,20 +183,19 @@ function get_objectives(
     """
     objectives = Dict{String, Float64}()
 
-    # Cost coefficients
-    cost_tab = PowerModels.component_table(network_data, "gen", ["cost"])
-    df_cost = DataFrames.DataFrame(cost_tab, ["obj_name", "cost"])
+    # Static coefficients from network
+    cost_tab = PowerModels.component_table(network_data, "gen", ["cost", "cus_emit"])
+    df_cost = DataFrames.DataFrame(cost_tab, ["obj_name", "cost", "cus_emit"])
     df_cost[!, "obj_name"] = string.(df_cost[!, "obj_name"])
+    df_cost[!, "cus_emit"] = float.(df_cost[!, "cus_emit"])
     df_cost[!, "c_per_mw2_pu"] = extract_from_array_column(df_cost[!, "cost"], 1)
     df_cost[!, "c_per_mw_pu"] = extract_from_array_column(df_cost[!, "cost"], 2)
     df_cost[!, "c"] = extract_from_array_column(df_cost[!, "cost"], 3)
 
-    # Organize states
+    # States-dependent coefficients
     df_withdraw = MOCOT.custom_state_df(state, "withdraw_rate")
     df_consumption = MOCOT.custom_state_df(state, "consumption_rate")
     df_gen_states = MOCOT.pm_state_df(state["power"], "gen", ["pg"])
-
-    # Combine into one dataframe
     df = DataFrames.leftjoin(
         df_gen_states,
         df_withdraw,
@@ -230,6 +229,10 @@ function get_objectives(
     objectives["f_con_peak"] = DataFrames.maximum(df_daily.hourly_consumption_sum)
     objectives["f_with_tot"] = DataFrames.sum(df[!, "hourly_withdrawal"])
     objectives["f_con_tot"] = DataFrames.sum(df[!, "hourly_consumption"])
+
+    # Compute emission objectives
+    df[!, "hourly_emit"] = df[!, "pg"] .* 100.0 .* df[!, "cus_emit"]  # Per unit conversion
+    objectives["f_emit"] = DataFrames.sum(df[!, "hourly_emit"])
 
     return objectives
 end

@@ -6,7 +6,7 @@ import DataFrames
 import Statistics
 import Ipopt
 import CSV
-import Infiltrator  # For debugging only
+import Infiltrator  # For debugging using @Infiltrator.infiltrate
 
 include("read.jl")
 include("utils.jl")
