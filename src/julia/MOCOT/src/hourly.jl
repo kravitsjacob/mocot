@@ -50,10 +50,10 @@ function add_within_day_ramp_rates!(pm)
     # Arguments
     `pm:: Any`: PowerModel with custom ramp rate defined
     """
-    multi_network_data = pm.data["nw"]
-    h_total = length(multi_network_data)
+    network_data_multi = pm.data["nw"]
+    h_total = length(network_data_multi)
 
-    for (obj_name, obj_props) in multi_network_data["1"]["gen"]
+    for (obj_name, obj_props) in network_data_multi["1"]["gen"]
         # Extract ramp rates to pu
         ramp = obj_props["cus_ramp_rate"]/100.0 
         
@@ -101,9 +101,9 @@ function add_day_to_day_ramp_rates!(
     h_previous = 24
     results_previous_day = state["power"][string(d-1)]["solution"]["nw"]
     results_previous_hour = results_previous_day[string(h_previous)]
-    multi_network_data = pm.data["nw"]
+    network_data_multi = pm.data["nw"]
     
-    for (obj_name, obj_props) in multi_network_data["1"]["gen"]
+    for (obj_name, obj_props) in network_data_multi["1"]["gen"]
         # Extract ramp rates to pu
         ramp = obj_props["cus_ramp_rate"]/100.0 
 

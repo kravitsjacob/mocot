@@ -117,7 +117,10 @@ function simulation(
         )
 
         # Solve power system model
-        state["power"][string(d)] = PowerModels.optimize_model!(pm, optimizer=Ipopt.Optimizer)
+        state["power"][string(d)] = PowerModels.optimize_model!(
+            pm,
+            optimizer=Ipopt.Optimizer
+        )
 
         # Water use
         gen_beta_with, gen_beta_con = gen_water_use(
