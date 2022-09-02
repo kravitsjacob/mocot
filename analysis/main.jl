@@ -11,7 +11,6 @@ function main()
     # Import
     paths = YAML.load_file("analysis/paths.yml")
     (
-        df_gen_info_water_ramp,
         df_eia_heat_rates,
         df_air_water,
         df_node_load,
@@ -19,7 +18,7 @@ function main()
         df_gen_info,
         df_config
     ) = MOCOT.read_inputs(
-        paths["outputs"]["gen_info_water_ramp"], 
+        paths["outputs"]["gen_info_water_ramp_emit"],
         paths["inputs"]["eia_heat_rates"],
         paths["outputs"]["air_water"],
         paths["outputs"]["node_load"],
@@ -48,6 +47,13 @@ function main()
         "cus_cool",
         df_gen_info[!, "obj_name"],
         convert.(String, df_gen_info[!, "923 Cooling Type"])
+    )
+    network_data = MOCOT.add_prop!(
+        network_data,
+        "gen",
+        "cus_emit",
+        df_gen_info[!, "obj_name"],
+        convert.(Float64, df_gen_info[!, "Emission Rate lbs per MWh"])
     )
 
     # Heat rates
@@ -89,7 +95,7 @@ function main()
             w_with_nuc=row["w_with_nuc"],
             w_con_nuc=row["w_con_nuc"],
         )
-        
+
         # Objectives
         df_temp_objs = DataFrames.DataFrame(objectives)
         df_temp_objs[!, "dec_scenario"] .= row.dec_scenario
@@ -117,7 +123,7 @@ function main()
 
     # Generator information export
     CSV.write(paths["outputs"]["gen_info_main"], df_gen_info)
- end
- 
+end
 
- main()
+
+main()
