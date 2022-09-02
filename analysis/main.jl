@@ -72,6 +72,14 @@ function main()
     # Exogenous parameters
     exogenous = MOCOT.get_exogenous(df_air_water, df_node_load)
 
+    # # Debugging
+    # exogenous["node_load"] = Dict(
+    #     "1" =>  exogenous["node_load"]["1"],
+    #     "2" =>  exogenous["node_load"]["2"],
+    #     "3" =>  exogenous["node_load"]["3"]
+    # )
+    # df_config = df_config[1:2, :]
+
     # Run simulation
     df_objs = DataFrames.DataFrame()
     df_states = DataFrames.DataFrame()
