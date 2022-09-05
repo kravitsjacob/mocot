@@ -264,7 +264,12 @@ function themal_limits(
         beta_with = beta_with_limit
 
         # Solve for delta t
-        delta_t_with = once_through_withdrawal_for_delta(eta_net=eta_net, k_os=k_os, beta_with_limit=beta_with, beta_proc=beta_proc)
+        delta_t_with = once_through_withdrawal_for_delta(
+            eta_net=eta_net,
+            k_os=k_os,
+            beta_with_limit=beta_with,
+            beta_proc=beta_proc
+        )
     end
 
     # Consumption limits
@@ -272,7 +277,12 @@ function themal_limits(
         beta_con = beta_con_limit
         
         # Solve for delta t
-        delta_t_con = once_through_consumption_for_delta(eta_net=eta_net, k_os=k_os, beta_con_limit=beta_con, beta_proc=beta_proc)
+        delta_t_con = once_through_consumption_for_delta(
+            eta_net=eta_net,
+            k_os=k_os,
+            beta_con_limit=beta_con,
+            beta_proc=beta_proc
+        )
     end
 
     # Discharge temperature
