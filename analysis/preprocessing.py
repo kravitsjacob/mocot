@@ -81,6 +81,27 @@ def main():
         )
         print('Success: Adding emission information')
 
+    # Add emission coefficients
+    if not os.path.exists(
+        paths['outputs']['gen_info_water_ramp_emit_waterlim']
+    ):
+        df_gen_info_water_ramp_emit = pd.read_csv(
+            paths['outputs']['gen_info_water_ramp_emit']
+        )
+        df_gen_info_waterlim = pd.read_csv(
+            paths['inputs']['gen_info_waterlim']
+        )
+        df_gen_info_water_ramp_emit_waterlim = pd.merge(
+            df_gen_info_water_ramp_emit,
+            df_gen_info_waterlim,
+            how='left'
+        )
+        df_gen_info_water_ramp_emit_waterlim.to_csv(
+            paths['outputs']['gen_info_water_ramp_emit_waterlim'],
+            index=False
+        )
+        print('Success: Adding water use limits')
+
     # Water and air temperature
     if not os.path.exists(paths['outputs']['air_water']):
         df_air_water = mocot.core.process_exogenous(paths)
