@@ -1,12 +1,15 @@
 # mocot
 Multi-Objective Coordination of Thermoelectric Water Use
 
-# Running Python Components
+# Python Preprocessing
 1) Install the python package`$ pip install --editable src/python`
 2) Run the analysis`$ python analysis/preprocessing.py`
 
-# Running Julia Components
+# Julia Simulation
 1) Use julia environment (with package installed) and run analysis`$ julia --project=analysis analysis/main.jl`
+
+# Julia Tests
+1) Use julia environment (with package installed) and run test `$ julia --project=src/julia/MOCOT src/julia/MOCOT/testing/test.jl`
 
 # Debugging Julia
 1) In terminal activate julia env `$ julia --project=analysis`
