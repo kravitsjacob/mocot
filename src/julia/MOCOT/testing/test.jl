@@ -42,31 +42,27 @@ using MOCOT
 end
 
 @Test.testset "Test for daily_water_use" begin
-    df_eia_heat_rates = DataFrames.DataFrame(XLSX.readtable(
-        "src/julia/MOCOT/testing/Table_A6_Approximate_Heat_Rates_for_Electricity_-_and_Heat_Content_of_Electricity.xlsx",
-        "Annual Data"
-    ))
     air_temperature = 25.0
     water_temperature = 25.0
 
     # Once-through coal
     fuel = "coal"
     cool = "OC"
-    beta_with, beta_con = MOCOT.water_use(air_temperature, water_temperature, fuel, cool, df_eia_heat_rates)
+    beta_with, beta_con = MOCOT.water_use(air_temperature, water_temperature, fuel, cool, 0.32694518972786507)
     @Test.test isapprox(beta_with, 20992, atol=1)
     @Test.test isapprox(beta_con, 407, atol=1)
 
     # Recirculating coal
     fuel = "coal"
     cool = "RC"
-    beta_with, beta_con = MOCOT.water_use(air_temperature, water_temperature, fuel, cool, df_eia_heat_rates)
+    beta_with, beta_con = MOCOT.water_use(air_temperature, water_temperature, fuel, cool, 0.32694518972786507)
     @Test.test isapprox(beta_with, 2855.0, atol=1)
     @Test.test isapprox(beta_con, 2324.0, atol=1)
 
     # Recirculating nuclear
     fuel = "nuclear"
     cool = "RC"
-    beta_with, beta_con = MOCOT.water_use(air_temperature, water_temperature, fuel, cool, df_eia_heat_rates)
+    beta_with, beta_con = MOCOT.water_use(air_temperature, water_temperature, fuel, cool, 0.3236270511239685)
     @Test.test isapprox(beta_with, 3290.0, atol=1)
     @Test.test isapprox(beta_con, 2634.0, atol=1)
 end
