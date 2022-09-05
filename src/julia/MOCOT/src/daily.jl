@@ -236,7 +236,7 @@ function water_use(
     # Run simulation
     if cool == "OC"
         # Delta t processing
-        max_temp = 32.0
+        max_temp = 33.7
         delta_t = max_temp - water_temperature
 
         # Water models
