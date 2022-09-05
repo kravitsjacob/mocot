@@ -49,8 +49,8 @@ end
     fuel = "coal"
     cool = "OC"
     beta_with, beta_con = MOCOT.water_use(air_temperature, water_temperature, fuel, cool, 0.32694518972786507)
-    @Test.test isapprox(beta_with, 20992, atol=1)
-    @Test.test isapprox(beta_con, 407, atol=1)
+    @Test.test isapprox(beta_with, 16929.0, atol=1)
+    @Test.test isapprox(beta_con, 367.0, atol=1)
 
     # Recirculating coal
     fuel = "coal"
@@ -65,6 +65,44 @@ end
     beta_with, beta_con = MOCOT.water_use(air_temperature, water_temperature, fuel, cool, 0.3236270511239685)
     @Test.test isapprox(beta_with, 3290.0, atol=1)
     @Test.test isapprox(beta_con, 2634.0, atol=1)
+end
+
+@Test.testset "Test for generator water use with thermal limits" begin
+    # Setup    
+    air_temperature = 25.0
+    water_temperature = 15.5
+    network_data = PowerModels.parse_file("src/julia/MOCOT/testing/case_ACTIVSg200.m")
+    obj_names = ["1", "2", "3", "4", "5", "7", "8", "9", "10", "11", "12", "13", "21", "26", "27", "28", "29", "30", "32", "33", "34", "35", "36", "45", "46", "6", "22", "23", "24", "25", "31", "14", "15", "16", "17", "18", "19", "20", "37", "38", "39", "40", "41", "42", "43", "44", "48", "49", "47"]
+
+    # Add custom network properties
+    network_data = MOCOT.add_prop!(
+        network_data,
+        "gen",
+        "cus_heat_rate",
+        obj_names,
+        [0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.3236270511239685]
+    )
+    network_data = MOCOT.add_prop!(
+        network_data,
+        "gen",
+        "cus_fuel",
+        obj_names,
+        ["coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "wind", "wind", "wind", "wind", "wind", "wind", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "nuclear"]
+    )
+    network_data = MOCOT.add_prop!(
+        network_data,
+        "gen",
+        "cus_cool",
+        obj_names,
+        ["OC", "OC", "OC", "OC", "OC", "RI", "RI", "RI", "RI", "RI", "RI", "RI", "OC", "OC", "OC", "OC", "RC", "RC", "OC", "OC", "OC", "OC", "OC", "OC", "OC", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "RI", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "RI", "RI", "RC"]
+    )
+
+    gen_beta_with, gen_beta_con = MOCOT.gen_water_use(
+        water_temperature,
+        air_temperature,
+        network_data
+    )
+
 end
 
 @Test.testset "Test for add_linear_obj_terms!" begin
