@@ -142,7 +142,8 @@ def main():
             'w_con_nuc': {'min': 0.0, 'max': 2.0, 'steps': 3}
         }
         df_dec_exog = mocot.core.grid_sample(grid_specs)
-        df_dec_exog['dec_label'] = df_dec_exog.index.astype(str).str.zfill(6)
+        df_dec_exog['dec_label'] = 'D' + \
+            df_dec_exog.index.astype(str).str.zfill(6)
         df_dec_exog['gen_scenario'] = 'Normal'
         df_dec_exog.to_csv(
             paths['outputs']['dec_exog'],
