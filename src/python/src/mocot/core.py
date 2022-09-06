@@ -2,8 +2,10 @@
 
 
 import os
+from typing import Dict
 import pandas as pd
 import numpy as np
+import itertools
 
 
 def import_eia(path_to_eia):
@@ -287,3 +289,45 @@ def create_node_load(df_system_load, df_synthetic_node_loads, df_miso, net):
     df_node_load = pd.concat(df_load_ls, axis=0, ignore_index=True)
 
     return df_node_load, df_hour_to_hour
+
+
+def grid_sample(grid_specs: Dict):
+    """
+    Pandas-based grid sampling function
+    Parameters
+    ----------
+    gridspecs: Dict
+        Grid specifications, must have the form of
+        {
+            'var_1': {'min': float, 'max': float, 'steps': int},
+            'var_2': {'min': float, 'max': float, 'steps': int},
+        }
+        These reflect the variable names, minimum value of grid sampling,
+        maximum value of grid sampling, and number of steps respectively.
+
+    Returns
+    -------
+    df_grid: DataFrame
+        Dataframe of grid sampling. Will have columns of names specified in
+        'var' list
+    """
+    # Get linear spaces
+    linspace_list = []
+    var_names = []
+    for var_name, var_specs in grid_specs.items():
+        linspace_list.append(
+            np.linspace(
+                var_specs['min'],
+                var_specs['max'],
+                int(var_specs['steps'])
+            )
+        )
+        var_names.append(var_name)
+
+    # Create dataframe
+    df_grid = pd.DataFrame(
+        list(itertools.product(*linspace_list)),
+        columns=var_names
+    )
+
+    return df_grid
