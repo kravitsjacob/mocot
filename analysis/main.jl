@@ -18,7 +18,7 @@ function main()
         df_gen_info,
         df_config
     ) = MOCOT.read_inputs(
-        paths["outputs"]["gen_info_water_ramp_emit"],
+        paths["outputs"]["gen_info_water_ramp_emit_waterlim"],
         paths["inputs"]["eia_heat_rates"],
         paths["outputs"]["air_water"],
         paths["outputs"]["node_load"],
@@ -54,6 +54,20 @@ function main()
         "cus_emit",
         df_gen_info[!, "obj_name"],
         convert.(Float64, df_gen_info[!, "Emission Rate lbs per MWh"])
+    )
+    network_data = MOCOT.add_prop!(
+        network_data,
+        "gen",
+        "cus_with_limit",
+        df_gen_info[!, "obj_name"],
+        df_gen_info[!, "Withdrawal Limit [L/MWh]"]
+    )
+    network_data = MOCOT.add_prop!(
+        network_data,
+        "gen",
+        "cus_con_limit",
+        df_gen_info[!, "obj_name"],
+        df_gen_info[!, "Consumption Limit [L/MWh]"]
     )
 
     # Heat rates
