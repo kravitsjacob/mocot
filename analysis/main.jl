@@ -116,7 +116,7 @@ function main()
             w_with_ng=row["w_with_ng"],
             w_con_ng=row["w_con_ng"],
             w_with_nuc=row["w_with_nuc"],
-            w_con_nuc=row["w_con_nuc"],
+            w_con_nuc=row["w_con_nuc"]
         )
 
         # Objectives
@@ -138,17 +138,18 @@ function main()
         DataFrames.append!(df_objs, df_temp_objs)
         DataFrames.append!(df_discharge_violation_states, df_temp_discharge_violation_states)
         DataFrames.append!(df_power_states, df_temp_power_states)
+
+        # Export as simulation progresses
+        CSV.write(
+            paths["outputs"]["power_states"],
+            df_power_states
+        )
+        CSV.write(
+            paths["outputs"]["discharge_violation_states"],
+            df_discharge_violation_states
+        )
     end
 
-    # Export
-    CSV.write(
-        paths["outputs"]["power_states"],
-        df_power_states
-    )
-    CSV.write(
-        paths["outputs"]["discharge_violation_states"],
-        df_discharge_violation_states
-    )
     CSV.write(
         paths["outputs"]["objectives"],
         df_objs
