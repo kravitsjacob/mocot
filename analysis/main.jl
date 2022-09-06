@@ -86,17 +86,18 @@ function main()
     # Exogenous parameters
     exogenous = MOCOT.get_exogenous(df_air_water, df_node_load)
 
-    # # Debugging
-    # exogenous["node_load"] = Dict(
-    #     "1" =>  exogenous["node_load"]["1"],
-    #     "2" =>  exogenous["node_load"]["2"],
-    #     "3" =>  exogenous["node_load"]["3"]
-    # )
-    # df_config = df_config[1:2, :]
+    # Debugging
+    exogenous["node_load"] = Dict(
+        "1" =>  exogenous["node_load"]["1"],
+        "2" =>  exogenous["node_load"]["2"],
+        "3" =>  exogenous["node_load"]["3"]
+    )
+    df_config = df_config[1:2, :]
 
     # Run simulation
     df_objs = DataFrames.DataFrame()
-    df_states = DataFrames.DataFrame()
+    df_power_states = DataFrames.DataFrame()
+    df_discharge_violation_states = DataFrames.DataFrame()
     for row in DataFrames.eachrow(df_config)
 
         # Output
@@ -123,20 +124,30 @@ function main()
         df_temp_objs[!, "dec_scenario"] .= row.dec_scenario
         df_temp_objs[!, "gen_scenario"] .= row.gen_scenario
 
-        # Generator states
-        df_gen_states = MOCOT.pm_state_df(state["power"], "gen", ["pg"])
-        df_gen_states[!, "dec_scenario"] .= row.dec_scenario
-        df_gen_states[!, "gen_scenario"] .= row.gen_scenario
+        # Power states
+        df_temp_power_states = MOCOT.pm_state_df(state["power"], "gen", ["pg"])
+        df_temp_power_states[!, "dec_scenario"] .= row.dec_scenario
+        df_temp_power_states[!, "gen_scenario"] .= row.gen_scenario
+
+        # Discharge violation states
+        df_temp_discharge_violation_states = MOCOT.custom_state_df(state, "discharge_violation")
+        df_temp_discharge_violation_states[!, "dec_scenario"] .= row.dec_scenario
+        df_temp_discharge_violation_states[!, "gen_scenario"] .= row.gen_scenario
 
         # Store in dataframe
-        DataFrames.append!(df_states, df_gen_states)
         DataFrames.append!(df_objs, df_temp_objs)
+        DataFrames.append!(df_discharge_violation_states, df_temp_discharge_violation_states)
+        DataFrames.append!(df_power_states, df_temp_power_states)
     end
 
     # Export
     CSV.write(
-        paths["outputs"]["states"],
-        df_states
+        paths["outputs"]["power_states"],
+        df_power_states
+    )
+    CSV.write(
+        paths["outputs"]["discharge_violation_states"],
+        df_discharge_violation_states
     )
     CSV.write(
         paths["outputs"]["objectives"],

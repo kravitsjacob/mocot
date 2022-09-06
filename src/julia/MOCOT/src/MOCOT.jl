@@ -45,6 +45,7 @@ function simulation(
     state["power"] = Dict("0" => Dict())
     state["withdraw_rate"] = Dict("0" => Dict{String, Float64}())
     state["consumption_rate"] = Dict("0" => Dict{String, Float64}())
+    state["discharge_violation"] = Dict("0" => Dict{String, Float64}())
 
     # Processing decision vectors
     w_with = Dict{String, Float64}()
@@ -123,11 +124,12 @@ function simulation(
         )
 
         # Water use
-        gen_beta_with, gen_beta_con = gen_water_use(
+        gen_beta_with, gen_beta_con, gen_discharge_violation = gen_water_use(
             exogenous["water_temperature"][string(d)],
             exogenous["air_temperature"][string(d)],
             network_data,
         )
+        state["discharge_violation"][string(d)] = gen_discharge_violation
         state["withdraw_rate"][string(d)] = gen_beta_with
         state["consumption_rate"][string(d)] = gen_beta_con
     end

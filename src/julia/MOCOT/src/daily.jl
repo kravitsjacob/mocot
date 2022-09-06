@@ -259,6 +259,9 @@ function themal_limits(
     - `beta_proc:: Float64`: Non-cooling rate in L/MWh
     - `eta_net:: Float64`: Ratio of electricity generation rate to thermal input
     """
+    delta_t_con = 0.0
+    delta_t_with = 0.0
+
     # Withdrawal limits
     if beta_with >= beta_with_limit
         beta_with = beta_with_limit
