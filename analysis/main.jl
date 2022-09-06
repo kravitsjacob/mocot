@@ -125,7 +125,7 @@ function main()
         df_temp_objs[!, "gen_scenario"] .= row.gen_scenario
 
         # Power states
-        df_temp_power_states = MOCOT.pm_state_df(state["power"], "gen", ["pg"])
+        df_temp_power_states = MOCOT.pm_state_df(state, "power", "gen", ["pg"])
         df_temp_power_states[!, "dec_scenario"] .= row.dec_scenario
         df_temp_power_states[!, "gen_scenario"] .= row.gen_scenario
 

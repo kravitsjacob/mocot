@@ -34,18 +34,19 @@ function update_all_gens!(nw_data, prop:: String, val)
 end
 
 
-function pm_state_df(results, obj_type, props)
+function pm_state_df(state, prop, obj_type, obj_props)
     """
-    Extract states from day-resolution powermodels multi-network data (at hourly-resolution)
+    Extract states from day-resolution PowerModels multi-network data (at hourly-resolution)
 
     # Arguments
-    - `nw_data::Dict`: multi network data (e.g., network_data_multi["nw"])
+    - `state:: Dict{String, Dict}`: State dictionary
+    - `prop:: String`: Property to query
     - `obj_type::String`: Type of object (e.g., "gen")
-    - `props::Array`: Object properties to extract
+    - `obj_props::Array`: Object properties to extract
     """
-
-    # Initialization
+    # Setup
     df = DataFrames.DataFrame()
+    results = state[prop]
 
     for d in 1:length(results)-1
 
@@ -56,7 +57,7 @@ function pm_state_df(results, obj_type, props)
         df_day = multi_network_to_df(
             day_results["solution"]["nw"],
             obj_type,
-            props
+            obj_props
         )
 
         # Assign day
@@ -195,7 +196,7 @@ function get_objectives(
     # States-dependent coefficients
     df_withdraw = MOCOT.custom_state_df(state, "withdraw_rate")
     df_consumption = MOCOT.custom_state_df(state, "consumption_rate")
-    df_gen_states = MOCOT.pm_state_df(state["power"], "gen", ["pg"])
+    df_gen_states = MOCOT.pm_state_df(state, "power", "gen", ["pg"])
     df = DataFrames.leftjoin(
         df_gen_states,
         df_withdraw,
