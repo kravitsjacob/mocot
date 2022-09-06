@@ -185,55 +185,64 @@ function get_objectives(
     objectives = Dict{String, Float64}()
 
     # Static coefficients from network
-    cost_tab = PowerModels.component_table(network_data, "gen", ["cost", "cus_emit"])
-    df_cost = DataFrames.DataFrame(cost_tab, ["obj_name", "cost", "cus_emit"])
-    df_cost[!, "obj_name"] = string.(df_cost[!, "obj_name"])
-    df_cost[!, "cus_emit"] = float.(df_cost[!, "cus_emit"])
-    df_cost[!, "c_per_mw2_pu"] = extract_from_array_column(df_cost[!, "cost"], 1)
-    df_cost[!, "c_per_mw_pu"] = extract_from_array_column(df_cost[!, "cost"], 2)
-    df_cost[!, "c"] = extract_from_array_column(df_cost[!, "cost"], 3)
+    coef_tab = PowerModels.component_table(network_data, "gen", ["cost", "cus_emit"])
+    df_coef = DataFrames.DataFrame(coef_tab, ["obj_name", "cost", "cus_emit"])
+    df_coef[!, "obj_name"] = string.(df_coef[!, "obj_name"])
+    df_coef[!, "cus_emit"] = float.(df_coef[!, "cus_emit"])
+    df_coef[!, "c_per_mw2_pu"] = extract_from_array_column(df_coef[!, "cost"], 1)
+    df_coef[!, "c_per_mw_pu"] = extract_from_array_column(df_coef[!, "cost"], 2)
+    df_coef[!, "c"] = extract_from_array_column(df_coef[!, "cost"], 3)
 
     # States-dependent coefficients
-    df_withdraw = MOCOT.custom_state_df(state, "withdraw_rate")
-    df_consumption = MOCOT.custom_state_df(state, "consumption_rate")
-    df_gen_states = MOCOT.pm_state_df(state, "power", "gen", ["pg"])
-    df = DataFrames.leftjoin(
-        df_gen_states,
-        df_withdraw,
-        on = [:obj_name, :day]
-    )
-    df = DataFrames.leftjoin(
-        df,
-        df_consumption,
-        on = [:obj_name, :day]
-    )
-    df = DataFrames.leftjoin(
-        df,
-        df_cost,
-        on = [:obj_name]
-    )
+    df_withdraw_states = MOCOT.custom_state_df(state, "withdraw_rate")
+    df_consumption_states = MOCOT.custom_state_df(state, "consumption_rate")
+    df_power_states = MOCOT.pm_state_df(state, "power", "gen", ["pg"])
+    df_discharge_violation_states = MOCOT.custom_state_df(state, "discharge_violation")
 
     # Compute cost objectives
+    df_cost = DataFrames.leftjoin(
+        df_power_states,
+        df_coef,
+        on = [:obj_name]
+    )
     objectives["f_gen"] = DataFrames.sum(DataFrames.skipmissing(
-        df.c .+ df.pg .* df.c_per_mw_pu .+ df.pg.^2 .* df.c_per_mw2_pu
+        df_cost.c .+ df_cost.pg .* df_cost.c_per_mw_pu .+ df_cost.pg.^2 .* df_cost.c_per_mw2_pu
     ))
 
     # Compute water objectives
-    df[!, "hourly_withdrawal"] = df[!, "pg"] .* 100.0 .* df[!, "withdraw_rate"]  # Per unit conversion
-    df[!, "hourly_consumption"] = df[!, "pg"] .* 100.0 .* df[!, "consumption_rate"]  # Per unit conversion
+    df_water = DataFrames.leftjoin(
+        df_power_states,
+        df_withdraw_states,
+        on = [:obj_name, :day]
+    )
+    df_water = DataFrames.leftjoin(
+        df_water,
+        df_consumption_states,
+        on = [:obj_name, :day]
+    )
+    df_water[!, "hourly_withdrawal"] = df_water[!, "pg"] .* 100.0 .* df_water[!, "withdraw_rate"]  # Per unit conversion
+    df_water[!, "hourly_consumption"] = df_water[!, "pg"] .* 100.0 .* df_water[!, "consumption_rate"]  # Per unit conversion
     df_daily = DataFrames.combine(
-        DataFrames.groupby(df, [:day]),
+        DataFrames.groupby(df_water, [:day]),
         :hourly_withdrawal => sum,
         :hourly_consumption => sum
     )
     objectives["f_with_peak"] = DataFrames.maximum(df_daily.hourly_withdrawal_sum)
     objectives["f_con_peak"] = DataFrames.maximum(df_daily.hourly_consumption_sum)
-    objectives["f_with_tot"] = DataFrames.sum(df[!, "hourly_withdrawal"])
-    objectives["f_con_tot"] = DataFrames.sum(df[!, "hourly_consumption"])
+    objectives["f_with_tot"] = DataFrames.sum(df_water[!, "hourly_withdrawal"])
+    objectives["f_con_tot"] = DataFrames.sum(df_water[!, "hourly_consumption"])
+
+    # Compute discharge violation objectives
+    objectives["f_disvi_tot"] = DataFrames.sum(df_discharge_violation_states[!, "discharge_violation"])
 
     # Compute emission objectives
-    df[!, "hourly_emit"] = df[!, "pg"] .* 100.0 .* df[!, "cus_emit"]  # Per unit conversion
-    objectives["f_emit"] = DataFrames.sum(df[!, "hourly_emit"])
+    df_emit = DataFrames.leftjoin(
+        df_power_states,
+        df_coef,
+        on = [:obj_name]
+    )
+    df_emit[!, "hourly_emit"] = df_emit[!, "pg"] .* 100.0 .* df_emit[!, "cus_emit"]  # Per unit conversion
+    objectives["f_emit"] = DataFrames.sum(df_emit[!, "hourly_emit"])
 
     return objectives
 end
