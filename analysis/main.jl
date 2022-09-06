@@ -23,7 +23,7 @@ function main()
         paths["outputs"]["air_water"],
         paths["outputs"]["node_load"],
         paths["inputs"]["case"],
-        paths["inputs"]["dec_exog"]
+        paths["outputs"]["dec_exog"]
     )
 
     # Add custom network properties
