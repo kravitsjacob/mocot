@@ -16,14 +16,14 @@ function main()
         df_node_load,
         network_data,
         df_gen_info,
-        df_config
+        df_dec_exog
     ) = MOCOT.read_inputs(
         paths["outputs"]["gen_info_water_ramp_emit_waterlim"],
         paths["inputs"]["eia_heat_rates"],
         paths["outputs"]["air_water"],
         paths["outputs"]["node_load"],
         paths["inputs"]["case"],
-        paths["inputs"]["simulation_config"]
+        paths["inputs"]["dec_exog"]
     )
 
     # Add custom network properties
@@ -92,17 +92,17 @@ function main()
     #     "2" =>  exogenous["node_load"]["2"],
     #     "3" =>  exogenous["node_load"]["3"]
     # )
-    # df_config = df_config[1:2, :]
+    # df_dec_exog = df_dec_exog[1:2, :]
 
     # Run simulation
     df_objs = DataFrames.DataFrame()
     df_power_states = DataFrames.DataFrame()
     df_discharge_violation_states = DataFrames.DataFrame()
-    for row in DataFrames.eachrow(df_config)
+    for row in DataFrames.eachrow(df_dec_exog)
 
         # Output
         println(string(row["gen_scenario"]))
-        println(string(row["dec_scenario"]))
+        println(string(row["dec_label"]))
 
         # Update generator status
         network_data = MOCOT.update_commit_status!(network_data, string(row["gen_scenario"]))
@@ -121,17 +121,17 @@ function main()
 
         # Objectives
         df_temp_objs = DataFrames.DataFrame(objectives)
-        df_temp_objs[!, "dec_scenario"] .= row.dec_scenario
+        df_temp_objs[!, "dec_label"] .= row.dec_label
         df_temp_objs[!, "gen_scenario"] .= row.gen_scenario
 
         # Power states
         df_temp_power_states = MOCOT.pm_state_df(state, "power", "gen", ["pg"])
-        df_temp_power_states[!, "dec_scenario"] .= row.dec_scenario
+        df_temp_power_states[!, "dec_label"] .= row.dec_label
         df_temp_power_states[!, "gen_scenario"] .= row.gen_scenario
 
         # Discharge violation states
         df_temp_discharge_violation_states = MOCOT.custom_state_df(state, "discharge_violation")
-        df_temp_discharge_violation_states[!, "dec_scenario"] .= row.dec_scenario
+        df_temp_discharge_violation_states[!, "dec_label"] .= row.dec_label
         df_temp_discharge_violation_states[!, "gen_scenario"] .= row.gen_scenario
 
         # Store in dataframe

@@ -12,7 +12,7 @@ inputs:
   usgs_temperature_data: "analysis/io/inputs/usgs_water_temperature/05558300.txt"
   miso_load: "analysis/io/inputs/miso_load_data/20190101-20200101 MISO Forecasted Cleared & Actual Load.csv"
   synthetic_node_loads: "analysis/io/inputs/ACTIVSg_Time_Series/ACTIVISg2000_load_time_series_MW.csv"
-  simulation_config: "analysis/io/inputs/simulation_configs/configs.csv"
+  dec_exog: "analysis/io/inputs/decisions_exogenous/dec_exog.csv"
   
   testing:
     no_load: "analysis/io/inputs/testing/no_load.csv"

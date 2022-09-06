@@ -1,1345 +1,1345 @@
-obj_name,discharge_violation,day,dec_scenario,gen_scenario
-1,0.0,4,No weights,Normal
-2,0.0,4,No weights,Normal
-21,0.0,4,No weights,Normal
-26,0.0,4,No weights,Normal
-27,0.0,4,No weights,Normal
-28,0.0,4,No weights,Normal
-3,0.0,4,No weights,Normal
-32,0.0,4,No weights,Normal
-33,0.0,4,No weights,Normal
-34,0.0,4,No weights,Normal
-35,0.0,4,No weights,Normal
-36,0.0,4,No weights,Normal
-4,0.0,4,No weights,Normal
-45,0.0,4,No weights,Normal
-46,0.0,4,No weights,Normal
-5,0.0,4,No weights,Normal
-1,0.0,1,No weights,Normal
-2,0.0,1,No weights,Normal
-21,0.0,1,No weights,Normal
-26,0.0,1,No weights,Normal
-27,0.0,1,No weights,Normal
-28,0.0,1,No weights,Normal
-3,0.0,1,No weights,Normal
-32,0.0,1,No weights,Normal
-33,0.0,1,No weights,Normal
-34,0.0,1,No weights,Normal
-35,0.0,1,No weights,Normal
-36,0.0,1,No weights,Normal
-4,0.0,1,No weights,Normal
-45,0.0,1,No weights,Normal
-46,0.0,1,No weights,Normal
-5,0.0,1,No weights,Normal
-1,0.0,5,No weights,Normal
-2,0.0,5,No weights,Normal
-21,0.0,5,No weights,Normal
-26,0.0,5,No weights,Normal
-27,0.0,5,No weights,Normal
-28,0.0,5,No weights,Normal
-3,0.0,5,No weights,Normal
-32,0.0,5,No weights,Normal
-33,0.0,5,No weights,Normal
-34,0.0,5,No weights,Normal
-35,0.0,5,No weights,Normal
-36,0.0,5,No weights,Normal
-4,0.0,5,No weights,Normal
-45,0.0,5,No weights,Normal
-46,0.0,5,No weights,Normal
-5,0.0,5,No weights,Normal
-1,0.0,2,No weights,Normal
-2,0.0,2,No weights,Normal
-21,0.0,2,No weights,Normal
-26,0.0,2,No weights,Normal
-27,0.0,2,No weights,Normal
-28,0.0,2,No weights,Normal
-3,0.0,2,No weights,Normal
-32,0.0,2,No weights,Normal
-33,0.0,2,No weights,Normal
-34,0.0,2,No weights,Normal
-35,0.0,2,No weights,Normal
-36,0.0,2,No weights,Normal
-4,0.0,2,No weights,Normal
-45,0.0,2,No weights,Normal
-46,0.0,2,No weights,Normal
-5,0.0,2,No weights,Normal
-1,0.0,6,No weights,Normal
-2,0.0,6,No weights,Normal
-21,0.0,6,No weights,Normal
-26,0.0,6,No weights,Normal
-27,0.0,6,No weights,Normal
-28,0.0,6,No weights,Normal
-3,0.0,6,No weights,Normal
-32,0.0,6,No weights,Normal
-33,0.0,6,No weights,Normal
-34,0.0,6,No weights,Normal
-35,0.0,6,No weights,Normal
-36,0.0,6,No weights,Normal
-4,0.0,6,No weights,Normal
-45,0.0,6,No weights,Normal
-46,0.0,6,No weights,Normal
-5,0.0,6,No weights,Normal
-1,0.0,7,No weights,Normal
-2,0.0,7,No weights,Normal
-21,0.0,7,No weights,Normal
-26,0.0,7,No weights,Normal
-27,0.0,7,No weights,Normal
-28,0.0,7,No weights,Normal
-3,0.0,7,No weights,Normal
-32,0.0,7,No weights,Normal
-33,0.0,7,No weights,Normal
-34,0.0,7,No weights,Normal
-35,0.0,7,No weights,Normal
-36,0.0,7,No weights,Normal
-4,0.0,7,No weights,Normal
-45,0.0,7,No weights,Normal
-46,0.0,7,No weights,Normal
-5,0.0,7,No weights,Normal
-1,0.0,3,No weights,Normal
-2,0.0,3,No weights,Normal
-21,0.0,3,No weights,Normal
-26,0.0,3,No weights,Normal
-27,0.0,3,No weights,Normal
-28,0.0,3,No weights,Normal
-3,0.0,3,No weights,Normal
-32,0.0,3,No weights,Normal
-33,0.0,3,No weights,Normal
-34,0.0,3,No weights,Normal
-35,0.0,3,No weights,Normal
-36,0.0,3,No weights,Normal
-4,0.0,3,No weights,Normal
-45,0.0,3,No weights,Normal
-46,0.0,3,No weights,Normal
-5,0.0,3,No weights,Normal
-1,0.0,4,High w_with_coal,Normal
-2,0.0,4,High w_with_coal,Normal
-21,0.0,4,High w_with_coal,Normal
-26,0.0,4,High w_with_coal,Normal
-27,0.0,4,High w_with_coal,Normal
-28,0.0,4,High w_with_coal,Normal
-3,0.0,4,High w_with_coal,Normal
-32,0.0,4,High w_with_coal,Normal
-33,0.0,4,High w_with_coal,Normal
-34,0.0,4,High w_with_coal,Normal
-35,0.0,4,High w_with_coal,Normal
-36,0.0,4,High w_with_coal,Normal
-4,0.0,4,High w_with_coal,Normal
-45,0.0,4,High w_with_coal,Normal
-46,0.0,4,High w_with_coal,Normal
-5,0.0,4,High w_with_coal,Normal
-1,0.0,1,High w_with_coal,Normal
-2,0.0,1,High w_with_coal,Normal
-21,0.0,1,High w_with_coal,Normal
-26,0.0,1,High w_with_coal,Normal
-27,0.0,1,High w_with_coal,Normal
-28,0.0,1,High w_with_coal,Normal
-3,0.0,1,High w_with_coal,Normal
-32,0.0,1,High w_with_coal,Normal
-33,0.0,1,High w_with_coal,Normal
-34,0.0,1,High w_with_coal,Normal
-35,0.0,1,High w_with_coal,Normal
-36,0.0,1,High w_with_coal,Normal
-4,0.0,1,High w_with_coal,Normal
-45,0.0,1,High w_with_coal,Normal
-46,0.0,1,High w_with_coal,Normal
-5,0.0,1,High w_with_coal,Normal
-1,0.0,5,High w_with_coal,Normal
-2,0.0,5,High w_with_coal,Normal
-21,0.0,5,High w_with_coal,Normal
-26,0.0,5,High w_with_coal,Normal
-27,0.0,5,High w_with_coal,Normal
-28,0.0,5,High w_with_coal,Normal
-3,0.0,5,High w_with_coal,Normal
-32,0.0,5,High w_with_coal,Normal
-33,0.0,5,High w_with_coal,Normal
-34,0.0,5,High w_with_coal,Normal
-35,0.0,5,High w_with_coal,Normal
-36,0.0,5,High w_with_coal,Normal
-4,0.0,5,High w_with_coal,Normal
-45,0.0,5,High w_with_coal,Normal
-46,0.0,5,High w_with_coal,Normal
-5,0.0,5,High w_with_coal,Normal
-1,0.0,2,High w_with_coal,Normal
-2,0.0,2,High w_with_coal,Normal
-21,0.0,2,High w_with_coal,Normal
-26,0.0,2,High w_with_coal,Normal
-27,0.0,2,High w_with_coal,Normal
-28,0.0,2,High w_with_coal,Normal
-3,0.0,2,High w_with_coal,Normal
-32,0.0,2,High w_with_coal,Normal
-33,0.0,2,High w_with_coal,Normal
-34,0.0,2,High w_with_coal,Normal
-35,0.0,2,High w_with_coal,Normal
-36,0.0,2,High w_with_coal,Normal
-4,0.0,2,High w_with_coal,Normal
-45,0.0,2,High w_with_coal,Normal
-46,0.0,2,High w_with_coal,Normal
-5,0.0,2,High w_with_coal,Normal
-1,0.0,6,High w_with_coal,Normal
-2,0.0,6,High w_with_coal,Normal
-21,0.0,6,High w_with_coal,Normal
-26,0.0,6,High w_with_coal,Normal
-27,0.0,6,High w_with_coal,Normal
-28,0.0,6,High w_with_coal,Normal
-3,0.0,6,High w_with_coal,Normal
-32,0.0,6,High w_with_coal,Normal
-33,0.0,6,High w_with_coal,Normal
-34,0.0,6,High w_with_coal,Normal
-35,0.0,6,High w_with_coal,Normal
-36,0.0,6,High w_with_coal,Normal
-4,0.0,6,High w_with_coal,Normal
-45,0.0,6,High w_with_coal,Normal
-46,0.0,6,High w_with_coal,Normal
-5,0.0,6,High w_with_coal,Normal
-1,0.0,7,High w_with_coal,Normal
-2,0.0,7,High w_with_coal,Normal
-21,0.0,7,High w_with_coal,Normal
-26,0.0,7,High w_with_coal,Normal
-27,0.0,7,High w_with_coal,Normal
-28,0.0,7,High w_with_coal,Normal
-3,0.0,7,High w_with_coal,Normal
-32,0.0,7,High w_with_coal,Normal
-33,0.0,7,High w_with_coal,Normal
-34,0.0,7,High w_with_coal,Normal
-35,0.0,7,High w_with_coal,Normal
-36,0.0,7,High w_with_coal,Normal
-4,0.0,7,High w_with_coal,Normal
-45,0.0,7,High w_with_coal,Normal
-46,0.0,7,High w_with_coal,Normal
-5,0.0,7,High w_with_coal,Normal
-1,0.0,3,High w_with_coal,Normal
-2,0.0,3,High w_with_coal,Normal
-21,0.0,3,High w_with_coal,Normal
-26,0.0,3,High w_with_coal,Normal
-27,0.0,3,High w_with_coal,Normal
-28,0.0,3,High w_with_coal,Normal
-3,0.0,3,High w_with_coal,Normal
-32,0.0,3,High w_with_coal,Normal
-33,0.0,3,High w_with_coal,Normal
-34,0.0,3,High w_with_coal,Normal
-35,0.0,3,High w_with_coal,Normal
-36,0.0,3,High w_with_coal,Normal
-4,0.0,3,High w_with_coal,Normal
-45,0.0,3,High w_with_coal,Normal
-46,0.0,3,High w_with_coal,Normal
-5,0.0,3,High w_with_coal,Normal
-1,0.0,4,High w_con_coal,Normal
-2,0.0,4,High w_con_coal,Normal
-21,0.0,4,High w_con_coal,Normal
-26,0.0,4,High w_con_coal,Normal
-27,0.0,4,High w_con_coal,Normal
-28,0.0,4,High w_con_coal,Normal
-3,0.0,4,High w_con_coal,Normal
-32,0.0,4,High w_con_coal,Normal
-33,0.0,4,High w_con_coal,Normal
-34,0.0,4,High w_con_coal,Normal
-35,0.0,4,High w_con_coal,Normal
-36,0.0,4,High w_con_coal,Normal
-4,0.0,4,High w_con_coal,Normal
-45,0.0,4,High w_con_coal,Normal
-46,0.0,4,High w_con_coal,Normal
-5,0.0,4,High w_con_coal,Normal
-1,0.0,1,High w_con_coal,Normal
-2,0.0,1,High w_con_coal,Normal
-21,0.0,1,High w_con_coal,Normal
-26,0.0,1,High w_con_coal,Normal
-27,0.0,1,High w_con_coal,Normal
-28,0.0,1,High w_con_coal,Normal
-3,0.0,1,High w_con_coal,Normal
-32,0.0,1,High w_con_coal,Normal
-33,0.0,1,High w_con_coal,Normal
-34,0.0,1,High w_con_coal,Normal
-35,0.0,1,High w_con_coal,Normal
-36,0.0,1,High w_con_coal,Normal
-4,0.0,1,High w_con_coal,Normal
-45,0.0,1,High w_con_coal,Normal
-46,0.0,1,High w_con_coal,Normal
-5,0.0,1,High w_con_coal,Normal
-1,0.0,5,High w_con_coal,Normal
-2,0.0,5,High w_con_coal,Normal
-21,0.0,5,High w_con_coal,Normal
-26,0.0,5,High w_con_coal,Normal
-27,0.0,5,High w_con_coal,Normal
-28,0.0,5,High w_con_coal,Normal
-3,0.0,5,High w_con_coal,Normal
-32,0.0,5,High w_con_coal,Normal
-33,0.0,5,High w_con_coal,Normal
-34,0.0,5,High w_con_coal,Normal
-35,0.0,5,High w_con_coal,Normal
-36,0.0,5,High w_con_coal,Normal
-4,0.0,5,High w_con_coal,Normal
-45,0.0,5,High w_con_coal,Normal
-46,0.0,5,High w_con_coal,Normal
-5,0.0,5,High w_con_coal,Normal
-1,0.0,2,High w_con_coal,Normal
-2,0.0,2,High w_con_coal,Normal
-21,0.0,2,High w_con_coal,Normal
-26,0.0,2,High w_con_coal,Normal
-27,0.0,2,High w_con_coal,Normal
-28,0.0,2,High w_con_coal,Normal
-3,0.0,2,High w_con_coal,Normal
-32,0.0,2,High w_con_coal,Normal
-33,0.0,2,High w_con_coal,Normal
-34,0.0,2,High w_con_coal,Normal
-35,0.0,2,High w_con_coal,Normal
-36,0.0,2,High w_con_coal,Normal
-4,0.0,2,High w_con_coal,Normal
-45,0.0,2,High w_con_coal,Normal
-46,0.0,2,High w_con_coal,Normal
-5,0.0,2,High w_con_coal,Normal
-1,0.0,6,High w_con_coal,Normal
-2,0.0,6,High w_con_coal,Normal
-21,0.0,6,High w_con_coal,Normal
-26,0.0,6,High w_con_coal,Normal
-27,0.0,6,High w_con_coal,Normal
-28,0.0,6,High w_con_coal,Normal
-3,0.0,6,High w_con_coal,Normal
-32,0.0,6,High w_con_coal,Normal
-33,0.0,6,High w_con_coal,Normal
-34,0.0,6,High w_con_coal,Normal
-35,0.0,6,High w_con_coal,Normal
-36,0.0,6,High w_con_coal,Normal
-4,0.0,6,High w_con_coal,Normal
-45,0.0,6,High w_con_coal,Normal
-46,0.0,6,High w_con_coal,Normal
-5,0.0,6,High w_con_coal,Normal
-1,0.0,7,High w_con_coal,Normal
-2,0.0,7,High w_con_coal,Normal
-21,0.0,7,High w_con_coal,Normal
-26,0.0,7,High w_con_coal,Normal
-27,0.0,7,High w_con_coal,Normal
-28,0.0,7,High w_con_coal,Normal
-3,0.0,7,High w_con_coal,Normal
-32,0.0,7,High w_con_coal,Normal
-33,0.0,7,High w_con_coal,Normal
-34,0.0,7,High w_con_coal,Normal
-35,0.0,7,High w_con_coal,Normal
-36,0.0,7,High w_con_coal,Normal
-4,0.0,7,High w_con_coal,Normal
-45,0.0,7,High w_con_coal,Normal
-46,0.0,7,High w_con_coal,Normal
-5,0.0,7,High w_con_coal,Normal
-1,0.0,3,High w_con_coal,Normal
-2,0.0,3,High w_con_coal,Normal
-21,0.0,3,High w_con_coal,Normal
-26,0.0,3,High w_con_coal,Normal
-27,0.0,3,High w_con_coal,Normal
-28,0.0,3,High w_con_coal,Normal
-3,0.0,3,High w_con_coal,Normal
-32,0.0,3,High w_con_coal,Normal
-33,0.0,3,High w_con_coal,Normal
-34,0.0,3,High w_con_coal,Normal
-35,0.0,3,High w_con_coal,Normal
-36,0.0,3,High w_con_coal,Normal
-4,0.0,3,High w_con_coal,Normal
-45,0.0,3,High w_con_coal,Normal
-46,0.0,3,High w_con_coal,Normal
-5,0.0,3,High w_con_coal,Normal
-1,0.0,4,High w_with_ng,Normal
-2,0.0,4,High w_with_ng,Normal
-21,0.0,4,High w_with_ng,Normal
-26,0.0,4,High w_with_ng,Normal
-27,0.0,4,High w_with_ng,Normal
-28,0.0,4,High w_with_ng,Normal
-3,0.0,4,High w_with_ng,Normal
-32,0.0,4,High w_with_ng,Normal
-33,0.0,4,High w_with_ng,Normal
-34,0.0,4,High w_with_ng,Normal
-35,0.0,4,High w_with_ng,Normal
-36,0.0,4,High w_with_ng,Normal
-4,0.0,4,High w_with_ng,Normal
-45,0.0,4,High w_with_ng,Normal
-46,0.0,4,High w_with_ng,Normal
-5,0.0,4,High w_with_ng,Normal
-1,0.0,1,High w_with_ng,Normal
-2,0.0,1,High w_with_ng,Normal
-21,0.0,1,High w_with_ng,Normal
-26,0.0,1,High w_with_ng,Normal
-27,0.0,1,High w_with_ng,Normal
-28,0.0,1,High w_with_ng,Normal
-3,0.0,1,High w_with_ng,Normal
-32,0.0,1,High w_with_ng,Normal
-33,0.0,1,High w_with_ng,Normal
-34,0.0,1,High w_with_ng,Normal
-35,0.0,1,High w_with_ng,Normal
-36,0.0,1,High w_with_ng,Normal
-4,0.0,1,High w_with_ng,Normal
-45,0.0,1,High w_with_ng,Normal
-46,0.0,1,High w_with_ng,Normal
-5,0.0,1,High w_with_ng,Normal
-1,0.0,5,High w_with_ng,Normal
-2,0.0,5,High w_with_ng,Normal
-21,0.0,5,High w_with_ng,Normal
-26,0.0,5,High w_with_ng,Normal
-27,0.0,5,High w_with_ng,Normal
-28,0.0,5,High w_with_ng,Normal
-3,0.0,5,High w_with_ng,Normal
-32,0.0,5,High w_with_ng,Normal
-33,0.0,5,High w_with_ng,Normal
-34,0.0,5,High w_with_ng,Normal
-35,0.0,5,High w_with_ng,Normal
-36,0.0,5,High w_with_ng,Normal
-4,0.0,5,High w_with_ng,Normal
-45,0.0,5,High w_with_ng,Normal
-46,0.0,5,High w_with_ng,Normal
-5,0.0,5,High w_with_ng,Normal
-1,0.0,2,High w_with_ng,Normal
-2,0.0,2,High w_with_ng,Normal
-21,0.0,2,High w_with_ng,Normal
-26,0.0,2,High w_with_ng,Normal
-27,0.0,2,High w_with_ng,Normal
-28,0.0,2,High w_with_ng,Normal
-3,0.0,2,High w_with_ng,Normal
-32,0.0,2,High w_with_ng,Normal
-33,0.0,2,High w_with_ng,Normal
-34,0.0,2,High w_with_ng,Normal
-35,0.0,2,High w_with_ng,Normal
-36,0.0,2,High w_with_ng,Normal
-4,0.0,2,High w_with_ng,Normal
-45,0.0,2,High w_with_ng,Normal
-46,0.0,2,High w_with_ng,Normal
-5,0.0,2,High w_with_ng,Normal
-1,0.0,6,High w_with_ng,Normal
-2,0.0,6,High w_with_ng,Normal
-21,0.0,6,High w_with_ng,Normal
-26,0.0,6,High w_with_ng,Normal
-27,0.0,6,High w_with_ng,Normal
-28,0.0,6,High w_with_ng,Normal
-3,0.0,6,High w_with_ng,Normal
-32,0.0,6,High w_with_ng,Normal
-33,0.0,6,High w_with_ng,Normal
-34,0.0,6,High w_with_ng,Normal
-35,0.0,6,High w_with_ng,Normal
-36,0.0,6,High w_with_ng,Normal
-4,0.0,6,High w_with_ng,Normal
-45,0.0,6,High w_with_ng,Normal
-46,0.0,6,High w_with_ng,Normal
-5,0.0,6,High w_with_ng,Normal
-1,0.0,7,High w_with_ng,Normal
-2,0.0,7,High w_with_ng,Normal
-21,0.0,7,High w_with_ng,Normal
-26,0.0,7,High w_with_ng,Normal
-27,0.0,7,High w_with_ng,Normal
-28,0.0,7,High w_with_ng,Normal
-3,0.0,7,High w_with_ng,Normal
-32,0.0,7,High w_with_ng,Normal
-33,0.0,7,High w_with_ng,Normal
-34,0.0,7,High w_with_ng,Normal
-35,0.0,7,High w_with_ng,Normal
-36,0.0,7,High w_with_ng,Normal
-4,0.0,7,High w_with_ng,Normal
-45,0.0,7,High w_with_ng,Normal
-46,0.0,7,High w_with_ng,Normal
-5,0.0,7,High w_with_ng,Normal
-1,0.0,3,High w_with_ng,Normal
-2,0.0,3,High w_with_ng,Normal
-21,0.0,3,High w_with_ng,Normal
-26,0.0,3,High w_with_ng,Normal
-27,0.0,3,High w_with_ng,Normal
-28,0.0,3,High w_with_ng,Normal
-3,0.0,3,High w_with_ng,Normal
-32,0.0,3,High w_with_ng,Normal
-33,0.0,3,High w_with_ng,Normal
-34,0.0,3,High w_with_ng,Normal
-35,0.0,3,High w_with_ng,Normal
-36,0.0,3,High w_with_ng,Normal
-4,0.0,3,High w_with_ng,Normal
-45,0.0,3,High w_with_ng,Normal
-46,0.0,3,High w_with_ng,Normal
-5,0.0,3,High w_with_ng,Normal
-1,0.0,4,High w_con_ng,Normal
-2,0.0,4,High w_con_ng,Normal
-21,0.0,4,High w_con_ng,Normal
-26,0.0,4,High w_con_ng,Normal
-27,0.0,4,High w_con_ng,Normal
-28,0.0,4,High w_con_ng,Normal
-3,0.0,4,High w_con_ng,Normal
-32,0.0,4,High w_con_ng,Normal
-33,0.0,4,High w_con_ng,Normal
-34,0.0,4,High w_con_ng,Normal
-35,0.0,4,High w_con_ng,Normal
-36,0.0,4,High w_con_ng,Normal
-4,0.0,4,High w_con_ng,Normal
-45,0.0,4,High w_con_ng,Normal
-46,0.0,4,High w_con_ng,Normal
-5,0.0,4,High w_con_ng,Normal
-1,0.0,1,High w_con_ng,Normal
-2,0.0,1,High w_con_ng,Normal
-21,0.0,1,High w_con_ng,Normal
-26,0.0,1,High w_con_ng,Normal
-27,0.0,1,High w_con_ng,Normal
-28,0.0,1,High w_con_ng,Normal
-3,0.0,1,High w_con_ng,Normal
-32,0.0,1,High w_con_ng,Normal
-33,0.0,1,High w_con_ng,Normal
-34,0.0,1,High w_con_ng,Normal
-35,0.0,1,High w_con_ng,Normal
-36,0.0,1,High w_con_ng,Normal
-4,0.0,1,High w_con_ng,Normal
-45,0.0,1,High w_con_ng,Normal
-46,0.0,1,High w_con_ng,Normal
-5,0.0,1,High w_con_ng,Normal
-1,0.0,5,High w_con_ng,Normal
-2,0.0,5,High w_con_ng,Normal
-21,0.0,5,High w_con_ng,Normal
-26,0.0,5,High w_con_ng,Normal
-27,0.0,5,High w_con_ng,Normal
-28,0.0,5,High w_con_ng,Normal
-3,0.0,5,High w_con_ng,Normal
-32,0.0,5,High w_con_ng,Normal
-33,0.0,5,High w_con_ng,Normal
-34,0.0,5,High w_con_ng,Normal
-35,0.0,5,High w_con_ng,Normal
-36,0.0,5,High w_con_ng,Normal
-4,0.0,5,High w_con_ng,Normal
-45,0.0,5,High w_con_ng,Normal
-46,0.0,5,High w_con_ng,Normal
-5,0.0,5,High w_con_ng,Normal
-1,0.0,2,High w_con_ng,Normal
-2,0.0,2,High w_con_ng,Normal
-21,0.0,2,High w_con_ng,Normal
-26,0.0,2,High w_con_ng,Normal
-27,0.0,2,High w_con_ng,Normal
-28,0.0,2,High w_con_ng,Normal
-3,0.0,2,High w_con_ng,Normal
-32,0.0,2,High w_con_ng,Normal
-33,0.0,2,High w_con_ng,Normal
-34,0.0,2,High w_con_ng,Normal
-35,0.0,2,High w_con_ng,Normal
-36,0.0,2,High w_con_ng,Normal
-4,0.0,2,High w_con_ng,Normal
-45,0.0,2,High w_con_ng,Normal
-46,0.0,2,High w_con_ng,Normal
-5,0.0,2,High w_con_ng,Normal
-1,0.0,6,High w_con_ng,Normal
-2,0.0,6,High w_con_ng,Normal
-21,0.0,6,High w_con_ng,Normal
-26,0.0,6,High w_con_ng,Normal
-27,0.0,6,High w_con_ng,Normal
-28,0.0,6,High w_con_ng,Normal
-3,0.0,6,High w_con_ng,Normal
-32,0.0,6,High w_con_ng,Normal
-33,0.0,6,High w_con_ng,Normal
-34,0.0,6,High w_con_ng,Normal
-35,0.0,6,High w_con_ng,Normal
-36,0.0,6,High w_con_ng,Normal
-4,0.0,6,High w_con_ng,Normal
-45,0.0,6,High w_con_ng,Normal
-46,0.0,6,High w_con_ng,Normal
-5,0.0,6,High w_con_ng,Normal
-1,0.0,7,High w_con_ng,Normal
-2,0.0,7,High w_con_ng,Normal
-21,0.0,7,High w_con_ng,Normal
-26,0.0,7,High w_con_ng,Normal
-27,0.0,7,High w_con_ng,Normal
-28,0.0,7,High w_con_ng,Normal
-3,0.0,7,High w_con_ng,Normal
-32,0.0,7,High w_con_ng,Normal
-33,0.0,7,High w_con_ng,Normal
-34,0.0,7,High w_con_ng,Normal
-35,0.0,7,High w_con_ng,Normal
-36,0.0,7,High w_con_ng,Normal
-4,0.0,7,High w_con_ng,Normal
-45,0.0,7,High w_con_ng,Normal
-46,0.0,7,High w_con_ng,Normal
-5,0.0,7,High w_con_ng,Normal
-1,0.0,3,High w_con_ng,Normal
-2,0.0,3,High w_con_ng,Normal
-21,0.0,3,High w_con_ng,Normal
-26,0.0,3,High w_con_ng,Normal
-27,0.0,3,High w_con_ng,Normal
-28,0.0,3,High w_con_ng,Normal
-3,0.0,3,High w_con_ng,Normal
-32,0.0,3,High w_con_ng,Normal
-33,0.0,3,High w_con_ng,Normal
-34,0.0,3,High w_con_ng,Normal
-35,0.0,3,High w_con_ng,Normal
-36,0.0,3,High w_con_ng,Normal
-4,0.0,3,High w_con_ng,Normal
-45,0.0,3,High w_con_ng,Normal
-46,0.0,3,High w_con_ng,Normal
-5,0.0,3,High w_con_ng,Normal
-1,0.0,4,High w_with_nuc,Normal
-2,0.0,4,High w_with_nuc,Normal
-21,0.0,4,High w_with_nuc,Normal
-26,0.0,4,High w_with_nuc,Normal
-27,0.0,4,High w_with_nuc,Normal
-28,0.0,4,High w_with_nuc,Normal
-3,0.0,4,High w_with_nuc,Normal
-32,0.0,4,High w_with_nuc,Normal
-33,0.0,4,High w_with_nuc,Normal
-34,0.0,4,High w_with_nuc,Normal
-35,0.0,4,High w_with_nuc,Normal
-36,0.0,4,High w_with_nuc,Normal
-4,0.0,4,High w_with_nuc,Normal
-45,0.0,4,High w_with_nuc,Normal
-46,0.0,4,High w_with_nuc,Normal
-5,0.0,4,High w_with_nuc,Normal
-1,0.0,1,High w_with_nuc,Normal
-2,0.0,1,High w_with_nuc,Normal
-21,0.0,1,High w_with_nuc,Normal
-26,0.0,1,High w_with_nuc,Normal
-27,0.0,1,High w_with_nuc,Normal
-28,0.0,1,High w_with_nuc,Normal
-3,0.0,1,High w_with_nuc,Normal
-32,0.0,1,High w_with_nuc,Normal
-33,0.0,1,High w_with_nuc,Normal
-34,0.0,1,High w_with_nuc,Normal
-35,0.0,1,High w_with_nuc,Normal
-36,0.0,1,High w_with_nuc,Normal
-4,0.0,1,High w_with_nuc,Normal
-45,0.0,1,High w_with_nuc,Normal
-46,0.0,1,High w_with_nuc,Normal
-5,0.0,1,High w_with_nuc,Normal
-1,0.0,5,High w_with_nuc,Normal
-2,0.0,5,High w_with_nuc,Normal
-21,0.0,5,High w_with_nuc,Normal
-26,0.0,5,High w_with_nuc,Normal
-27,0.0,5,High w_with_nuc,Normal
-28,0.0,5,High w_with_nuc,Normal
-3,0.0,5,High w_with_nuc,Normal
-32,0.0,5,High w_with_nuc,Normal
-33,0.0,5,High w_with_nuc,Normal
-34,0.0,5,High w_with_nuc,Normal
-35,0.0,5,High w_with_nuc,Normal
-36,0.0,5,High w_with_nuc,Normal
-4,0.0,5,High w_with_nuc,Normal
-45,0.0,5,High w_with_nuc,Normal
-46,0.0,5,High w_with_nuc,Normal
-5,0.0,5,High w_with_nuc,Normal
-1,0.0,2,High w_with_nuc,Normal
-2,0.0,2,High w_with_nuc,Normal
-21,0.0,2,High w_with_nuc,Normal
-26,0.0,2,High w_with_nuc,Normal
-27,0.0,2,High w_with_nuc,Normal
-28,0.0,2,High w_with_nuc,Normal
-3,0.0,2,High w_with_nuc,Normal
-32,0.0,2,High w_with_nuc,Normal
-33,0.0,2,High w_with_nuc,Normal
-34,0.0,2,High w_with_nuc,Normal
-35,0.0,2,High w_with_nuc,Normal
-36,0.0,2,High w_with_nuc,Normal
-4,0.0,2,High w_with_nuc,Normal
-45,0.0,2,High w_with_nuc,Normal
-46,0.0,2,High w_with_nuc,Normal
-5,0.0,2,High w_with_nuc,Normal
-1,0.0,6,High w_with_nuc,Normal
-2,0.0,6,High w_with_nuc,Normal
-21,0.0,6,High w_with_nuc,Normal
-26,0.0,6,High w_with_nuc,Normal
-27,0.0,6,High w_with_nuc,Normal
-28,0.0,6,High w_with_nuc,Normal
-3,0.0,6,High w_with_nuc,Normal
-32,0.0,6,High w_with_nuc,Normal
-33,0.0,6,High w_with_nuc,Normal
-34,0.0,6,High w_with_nuc,Normal
-35,0.0,6,High w_with_nuc,Normal
-36,0.0,6,High w_with_nuc,Normal
-4,0.0,6,High w_with_nuc,Normal
-45,0.0,6,High w_with_nuc,Normal
-46,0.0,6,High w_with_nuc,Normal
-5,0.0,6,High w_with_nuc,Normal
-1,0.0,7,High w_with_nuc,Normal
-2,0.0,7,High w_with_nuc,Normal
-21,0.0,7,High w_with_nuc,Normal
-26,0.0,7,High w_with_nuc,Normal
-27,0.0,7,High w_with_nuc,Normal
-28,0.0,7,High w_with_nuc,Normal
-3,0.0,7,High w_with_nuc,Normal
-32,0.0,7,High w_with_nuc,Normal
-33,0.0,7,High w_with_nuc,Normal
-34,0.0,7,High w_with_nuc,Normal
-35,0.0,7,High w_with_nuc,Normal
-36,0.0,7,High w_with_nuc,Normal
-4,0.0,7,High w_with_nuc,Normal
-45,0.0,7,High w_with_nuc,Normal
-46,0.0,7,High w_with_nuc,Normal
-5,0.0,7,High w_with_nuc,Normal
-1,0.0,3,High w_with_nuc,Normal
-2,0.0,3,High w_with_nuc,Normal
-21,0.0,3,High w_with_nuc,Normal
-26,0.0,3,High w_with_nuc,Normal
-27,0.0,3,High w_with_nuc,Normal
-28,0.0,3,High w_with_nuc,Normal
-3,0.0,3,High w_with_nuc,Normal
-32,0.0,3,High w_with_nuc,Normal
-33,0.0,3,High w_with_nuc,Normal
-34,0.0,3,High w_with_nuc,Normal
-35,0.0,3,High w_with_nuc,Normal
-36,0.0,3,High w_with_nuc,Normal
-4,0.0,3,High w_with_nuc,Normal
-45,0.0,3,High w_with_nuc,Normal
-46,0.0,3,High w_with_nuc,Normal
-5,0.0,3,High w_with_nuc,Normal
-1,0.0,4,High w_con_nuc,Normal
-2,0.0,4,High w_con_nuc,Normal
-21,0.0,4,High w_con_nuc,Normal
-26,0.0,4,High w_con_nuc,Normal
-27,0.0,4,High w_con_nuc,Normal
-28,0.0,4,High w_con_nuc,Normal
-3,0.0,4,High w_con_nuc,Normal
-32,0.0,4,High w_con_nuc,Normal
-33,0.0,4,High w_con_nuc,Normal
-34,0.0,4,High w_con_nuc,Normal
-35,0.0,4,High w_con_nuc,Normal
-36,0.0,4,High w_con_nuc,Normal
-4,0.0,4,High w_con_nuc,Normal
-45,0.0,4,High w_con_nuc,Normal
-46,0.0,4,High w_con_nuc,Normal
-5,0.0,4,High w_con_nuc,Normal
-1,0.0,1,High w_con_nuc,Normal
-2,0.0,1,High w_con_nuc,Normal
-21,0.0,1,High w_con_nuc,Normal
-26,0.0,1,High w_con_nuc,Normal
-27,0.0,1,High w_con_nuc,Normal
-28,0.0,1,High w_con_nuc,Normal
-3,0.0,1,High w_con_nuc,Normal
-32,0.0,1,High w_con_nuc,Normal
-33,0.0,1,High w_con_nuc,Normal
-34,0.0,1,High w_con_nuc,Normal
-35,0.0,1,High w_con_nuc,Normal
-36,0.0,1,High w_con_nuc,Normal
-4,0.0,1,High w_con_nuc,Normal
-45,0.0,1,High w_con_nuc,Normal
-46,0.0,1,High w_con_nuc,Normal
-5,0.0,1,High w_con_nuc,Normal
-1,0.0,5,High w_con_nuc,Normal
-2,0.0,5,High w_con_nuc,Normal
-21,0.0,5,High w_con_nuc,Normal
-26,0.0,5,High w_con_nuc,Normal
-27,0.0,5,High w_con_nuc,Normal
-28,0.0,5,High w_con_nuc,Normal
-3,0.0,5,High w_con_nuc,Normal
-32,0.0,5,High w_con_nuc,Normal
-33,0.0,5,High w_con_nuc,Normal
-34,0.0,5,High w_con_nuc,Normal
-35,0.0,5,High w_con_nuc,Normal
-36,0.0,5,High w_con_nuc,Normal
-4,0.0,5,High w_con_nuc,Normal
-45,0.0,5,High w_con_nuc,Normal
-46,0.0,5,High w_con_nuc,Normal
-5,0.0,5,High w_con_nuc,Normal
-1,0.0,2,High w_con_nuc,Normal
-2,0.0,2,High w_con_nuc,Normal
-21,0.0,2,High w_con_nuc,Normal
-26,0.0,2,High w_con_nuc,Normal
-27,0.0,2,High w_con_nuc,Normal
-28,0.0,2,High w_con_nuc,Normal
-3,0.0,2,High w_con_nuc,Normal
-32,0.0,2,High w_con_nuc,Normal
-33,0.0,2,High w_con_nuc,Normal
-34,0.0,2,High w_con_nuc,Normal
-35,0.0,2,High w_con_nuc,Normal
-36,0.0,2,High w_con_nuc,Normal
-4,0.0,2,High w_con_nuc,Normal
-45,0.0,2,High w_con_nuc,Normal
-46,0.0,2,High w_con_nuc,Normal
-5,0.0,2,High w_con_nuc,Normal
-1,0.0,6,High w_con_nuc,Normal
-2,0.0,6,High w_con_nuc,Normal
-21,0.0,6,High w_con_nuc,Normal
-26,0.0,6,High w_con_nuc,Normal
-27,0.0,6,High w_con_nuc,Normal
-28,0.0,6,High w_con_nuc,Normal
-3,0.0,6,High w_con_nuc,Normal
-32,0.0,6,High w_con_nuc,Normal
-33,0.0,6,High w_con_nuc,Normal
-34,0.0,6,High w_con_nuc,Normal
-35,0.0,6,High w_con_nuc,Normal
-36,0.0,6,High w_con_nuc,Normal
-4,0.0,6,High w_con_nuc,Normal
-45,0.0,6,High w_con_nuc,Normal
-46,0.0,6,High w_con_nuc,Normal
-5,0.0,6,High w_con_nuc,Normal
-1,0.0,7,High w_con_nuc,Normal
-2,0.0,7,High w_con_nuc,Normal
-21,0.0,7,High w_con_nuc,Normal
-26,0.0,7,High w_con_nuc,Normal
-27,0.0,7,High w_con_nuc,Normal
-28,0.0,7,High w_con_nuc,Normal
-3,0.0,7,High w_con_nuc,Normal
-32,0.0,7,High w_con_nuc,Normal
-33,0.0,7,High w_con_nuc,Normal
-34,0.0,7,High w_con_nuc,Normal
-35,0.0,7,High w_con_nuc,Normal
-36,0.0,7,High w_con_nuc,Normal
-4,0.0,7,High w_con_nuc,Normal
-45,0.0,7,High w_con_nuc,Normal
-46,0.0,7,High w_con_nuc,Normal
-5,0.0,7,High w_con_nuc,Normal
-1,0.0,3,High w_con_nuc,Normal
-2,0.0,3,High w_con_nuc,Normal
-21,0.0,3,High w_con_nuc,Normal
-26,0.0,3,High w_con_nuc,Normal
-27,0.0,3,High w_con_nuc,Normal
-28,0.0,3,High w_con_nuc,Normal
-3,0.0,3,High w_con_nuc,Normal
-32,0.0,3,High w_con_nuc,Normal
-33,0.0,3,High w_con_nuc,Normal
-34,0.0,3,High w_con_nuc,Normal
-35,0.0,3,High w_con_nuc,Normal
-36,0.0,3,High w_con_nuc,Normal
-4,0.0,3,High w_con_nuc,Normal
-45,0.0,3,High w_con_nuc,Normal
-46,0.0,3,High w_con_nuc,Normal
-5,0.0,3,High w_con_nuc,Normal
-1,0.0,4,No weights,No Nuclear
-2,0.0,4,No weights,No Nuclear
-21,0.0,4,No weights,No Nuclear
-26,0.0,4,No weights,No Nuclear
-27,0.0,4,No weights,No Nuclear
-28,0.0,4,No weights,No Nuclear
-3,0.0,4,No weights,No Nuclear
-32,0.0,4,No weights,No Nuclear
-33,0.0,4,No weights,No Nuclear
-34,0.0,4,No weights,No Nuclear
-35,0.0,4,No weights,No Nuclear
-36,0.0,4,No weights,No Nuclear
-4,0.0,4,No weights,No Nuclear
-45,0.0,4,No weights,No Nuclear
-46,0.0,4,No weights,No Nuclear
-5,0.0,4,No weights,No Nuclear
-1,0.0,1,No weights,No Nuclear
-2,0.0,1,No weights,No Nuclear
-21,0.0,1,No weights,No Nuclear
-26,0.0,1,No weights,No Nuclear
-27,0.0,1,No weights,No Nuclear
-28,0.0,1,No weights,No Nuclear
-3,0.0,1,No weights,No Nuclear
-32,0.0,1,No weights,No Nuclear
-33,0.0,1,No weights,No Nuclear
-34,0.0,1,No weights,No Nuclear
-35,0.0,1,No weights,No Nuclear
-36,0.0,1,No weights,No Nuclear
-4,0.0,1,No weights,No Nuclear
-45,0.0,1,No weights,No Nuclear
-46,0.0,1,No weights,No Nuclear
-5,0.0,1,No weights,No Nuclear
-1,0.0,5,No weights,No Nuclear
-2,0.0,5,No weights,No Nuclear
-21,0.0,5,No weights,No Nuclear
-26,0.0,5,No weights,No Nuclear
-27,0.0,5,No weights,No Nuclear
-28,0.0,5,No weights,No Nuclear
-3,0.0,5,No weights,No Nuclear
-32,0.0,5,No weights,No Nuclear
-33,0.0,5,No weights,No Nuclear
-34,0.0,5,No weights,No Nuclear
-35,0.0,5,No weights,No Nuclear
-36,0.0,5,No weights,No Nuclear
-4,0.0,5,No weights,No Nuclear
-45,0.0,5,No weights,No Nuclear
-46,0.0,5,No weights,No Nuclear
-5,0.0,5,No weights,No Nuclear
-1,0.0,2,No weights,No Nuclear
-2,0.0,2,No weights,No Nuclear
-21,0.0,2,No weights,No Nuclear
-26,0.0,2,No weights,No Nuclear
-27,0.0,2,No weights,No Nuclear
-28,0.0,2,No weights,No Nuclear
-3,0.0,2,No weights,No Nuclear
-32,0.0,2,No weights,No Nuclear
-33,0.0,2,No weights,No Nuclear
-34,0.0,2,No weights,No Nuclear
-35,0.0,2,No weights,No Nuclear
-36,0.0,2,No weights,No Nuclear
-4,0.0,2,No weights,No Nuclear
-45,0.0,2,No weights,No Nuclear
-46,0.0,2,No weights,No Nuclear
-5,0.0,2,No weights,No Nuclear
-1,0.0,6,No weights,No Nuclear
-2,0.0,6,No weights,No Nuclear
-21,0.0,6,No weights,No Nuclear
-26,0.0,6,No weights,No Nuclear
-27,0.0,6,No weights,No Nuclear
-28,0.0,6,No weights,No Nuclear
-3,0.0,6,No weights,No Nuclear
-32,0.0,6,No weights,No Nuclear
-33,0.0,6,No weights,No Nuclear
-34,0.0,6,No weights,No Nuclear
-35,0.0,6,No weights,No Nuclear
-36,0.0,6,No weights,No Nuclear
-4,0.0,6,No weights,No Nuclear
-45,0.0,6,No weights,No Nuclear
-46,0.0,6,No weights,No Nuclear
-5,0.0,6,No weights,No Nuclear
-1,0.0,7,No weights,No Nuclear
-2,0.0,7,No weights,No Nuclear
-21,0.0,7,No weights,No Nuclear
-26,0.0,7,No weights,No Nuclear
-27,0.0,7,No weights,No Nuclear
-28,0.0,7,No weights,No Nuclear
-3,0.0,7,No weights,No Nuclear
-32,0.0,7,No weights,No Nuclear
-33,0.0,7,No weights,No Nuclear
-34,0.0,7,No weights,No Nuclear
-35,0.0,7,No weights,No Nuclear
-36,0.0,7,No weights,No Nuclear
-4,0.0,7,No weights,No Nuclear
-45,0.0,7,No weights,No Nuclear
-46,0.0,7,No weights,No Nuclear
-5,0.0,7,No weights,No Nuclear
-1,0.0,3,No weights,No Nuclear
-2,0.0,3,No weights,No Nuclear
-21,0.0,3,No weights,No Nuclear
-26,0.0,3,No weights,No Nuclear
-27,0.0,3,No weights,No Nuclear
-28,0.0,3,No weights,No Nuclear
-3,0.0,3,No weights,No Nuclear
-32,0.0,3,No weights,No Nuclear
-33,0.0,3,No weights,No Nuclear
-34,0.0,3,No weights,No Nuclear
-35,0.0,3,No weights,No Nuclear
-36,0.0,3,No weights,No Nuclear
-4,0.0,3,No weights,No Nuclear
-45,0.0,3,No weights,No Nuclear
-46,0.0,3,No weights,No Nuclear
-5,0.0,3,No weights,No Nuclear
-1,0.0,4,High w_with_coal,No Nuclear
-2,0.0,4,High w_with_coal,No Nuclear
-21,0.0,4,High w_with_coal,No Nuclear
-26,0.0,4,High w_with_coal,No Nuclear
-27,0.0,4,High w_with_coal,No Nuclear
-28,0.0,4,High w_with_coal,No Nuclear
-3,0.0,4,High w_with_coal,No Nuclear
-32,0.0,4,High w_with_coal,No Nuclear
-33,0.0,4,High w_with_coal,No Nuclear
-34,0.0,4,High w_with_coal,No Nuclear
-35,0.0,4,High w_with_coal,No Nuclear
-36,0.0,4,High w_with_coal,No Nuclear
-4,0.0,4,High w_with_coal,No Nuclear
-45,0.0,4,High w_with_coal,No Nuclear
-46,0.0,4,High w_with_coal,No Nuclear
-5,0.0,4,High w_with_coal,No Nuclear
-1,0.0,1,High w_with_coal,No Nuclear
-2,0.0,1,High w_with_coal,No Nuclear
-21,0.0,1,High w_with_coal,No Nuclear
-26,0.0,1,High w_with_coal,No Nuclear
-27,0.0,1,High w_with_coal,No Nuclear
-28,0.0,1,High w_with_coal,No Nuclear
-3,0.0,1,High w_with_coal,No Nuclear
-32,0.0,1,High w_with_coal,No Nuclear
-33,0.0,1,High w_with_coal,No Nuclear
-34,0.0,1,High w_with_coal,No Nuclear
-35,0.0,1,High w_with_coal,No Nuclear
-36,0.0,1,High w_with_coal,No Nuclear
-4,0.0,1,High w_with_coal,No Nuclear
-45,0.0,1,High w_with_coal,No Nuclear
-46,0.0,1,High w_with_coal,No Nuclear
-5,0.0,1,High w_with_coal,No Nuclear
-1,0.0,5,High w_with_coal,No Nuclear
-2,0.0,5,High w_with_coal,No Nuclear
-21,0.0,5,High w_with_coal,No Nuclear
-26,0.0,5,High w_with_coal,No Nuclear
-27,0.0,5,High w_with_coal,No Nuclear
-28,0.0,5,High w_with_coal,No Nuclear
-3,0.0,5,High w_with_coal,No Nuclear
-32,0.0,5,High w_with_coal,No Nuclear
-33,0.0,5,High w_with_coal,No Nuclear
-34,0.0,5,High w_with_coal,No Nuclear
-35,0.0,5,High w_with_coal,No Nuclear
-36,0.0,5,High w_with_coal,No Nuclear
-4,0.0,5,High w_with_coal,No Nuclear
-45,0.0,5,High w_with_coal,No Nuclear
-46,0.0,5,High w_with_coal,No Nuclear
-5,0.0,5,High w_with_coal,No Nuclear
-1,0.0,2,High w_with_coal,No Nuclear
-2,0.0,2,High w_with_coal,No Nuclear
-21,0.0,2,High w_with_coal,No Nuclear
-26,0.0,2,High w_with_coal,No Nuclear
-27,0.0,2,High w_with_coal,No Nuclear
-28,0.0,2,High w_with_coal,No Nuclear
-3,0.0,2,High w_with_coal,No Nuclear
-32,0.0,2,High w_with_coal,No Nuclear
-33,0.0,2,High w_with_coal,No Nuclear
-34,0.0,2,High w_with_coal,No Nuclear
-35,0.0,2,High w_with_coal,No Nuclear
-36,0.0,2,High w_with_coal,No Nuclear
-4,0.0,2,High w_with_coal,No Nuclear
-45,0.0,2,High w_with_coal,No Nuclear
-46,0.0,2,High w_with_coal,No Nuclear
-5,0.0,2,High w_with_coal,No Nuclear
-1,0.0,6,High w_with_coal,No Nuclear
-2,0.0,6,High w_with_coal,No Nuclear
-21,0.0,6,High w_with_coal,No Nuclear
-26,0.0,6,High w_with_coal,No Nuclear
-27,0.0,6,High w_with_coal,No Nuclear
-28,0.0,6,High w_with_coal,No Nuclear
-3,0.0,6,High w_with_coal,No Nuclear
-32,0.0,6,High w_with_coal,No Nuclear
-33,0.0,6,High w_with_coal,No Nuclear
-34,0.0,6,High w_with_coal,No Nuclear
-35,0.0,6,High w_with_coal,No Nuclear
-36,0.0,6,High w_with_coal,No Nuclear
-4,0.0,6,High w_with_coal,No Nuclear
-45,0.0,6,High w_with_coal,No Nuclear
-46,0.0,6,High w_with_coal,No Nuclear
-5,0.0,6,High w_with_coal,No Nuclear
-1,0.0,7,High w_with_coal,No Nuclear
-2,0.0,7,High w_with_coal,No Nuclear
-21,0.0,7,High w_with_coal,No Nuclear
-26,0.0,7,High w_with_coal,No Nuclear
-27,0.0,7,High w_with_coal,No Nuclear
-28,0.0,7,High w_with_coal,No Nuclear
-3,0.0,7,High w_with_coal,No Nuclear
-32,0.0,7,High w_with_coal,No Nuclear
-33,0.0,7,High w_with_coal,No Nuclear
-34,0.0,7,High w_with_coal,No Nuclear
-35,0.0,7,High w_with_coal,No Nuclear
-36,0.0,7,High w_with_coal,No Nuclear
-4,0.0,7,High w_with_coal,No Nuclear
-45,0.0,7,High w_with_coal,No Nuclear
-46,0.0,7,High w_with_coal,No Nuclear
-5,0.0,7,High w_with_coal,No Nuclear
-1,0.0,3,High w_with_coal,No Nuclear
-2,0.0,3,High w_with_coal,No Nuclear
-21,0.0,3,High w_with_coal,No Nuclear
-26,0.0,3,High w_with_coal,No Nuclear
-27,0.0,3,High w_with_coal,No Nuclear
-28,0.0,3,High w_with_coal,No Nuclear
-3,0.0,3,High w_with_coal,No Nuclear
-32,0.0,3,High w_with_coal,No Nuclear
-33,0.0,3,High w_with_coal,No Nuclear
-34,0.0,3,High w_with_coal,No Nuclear
-35,0.0,3,High w_with_coal,No Nuclear
-36,0.0,3,High w_with_coal,No Nuclear
-4,0.0,3,High w_with_coal,No Nuclear
-45,0.0,3,High w_with_coal,No Nuclear
-46,0.0,3,High w_with_coal,No Nuclear
-5,0.0,3,High w_with_coal,No Nuclear
-1,0.0,4,High w_con_coal,No Nuclear
-2,0.0,4,High w_con_coal,No Nuclear
-21,0.0,4,High w_con_coal,No Nuclear
-26,0.0,4,High w_con_coal,No Nuclear
-27,0.0,4,High w_con_coal,No Nuclear
-28,0.0,4,High w_con_coal,No Nuclear
-3,0.0,4,High w_con_coal,No Nuclear
-32,0.0,4,High w_con_coal,No Nuclear
-33,0.0,4,High w_con_coal,No Nuclear
-34,0.0,4,High w_con_coal,No Nuclear
-35,0.0,4,High w_con_coal,No Nuclear
-36,0.0,4,High w_con_coal,No Nuclear
-4,0.0,4,High w_con_coal,No Nuclear
-45,0.0,4,High w_con_coal,No Nuclear
-46,0.0,4,High w_con_coal,No Nuclear
-5,0.0,4,High w_con_coal,No Nuclear
-1,0.0,1,High w_con_coal,No Nuclear
-2,0.0,1,High w_con_coal,No Nuclear
-21,0.0,1,High w_con_coal,No Nuclear
-26,0.0,1,High w_con_coal,No Nuclear
-27,0.0,1,High w_con_coal,No Nuclear
-28,0.0,1,High w_con_coal,No Nuclear
-3,0.0,1,High w_con_coal,No Nuclear
-32,0.0,1,High w_con_coal,No Nuclear
-33,0.0,1,High w_con_coal,No Nuclear
-34,0.0,1,High w_con_coal,No Nuclear
-35,0.0,1,High w_con_coal,No Nuclear
-36,0.0,1,High w_con_coal,No Nuclear
-4,0.0,1,High w_con_coal,No Nuclear
-45,0.0,1,High w_con_coal,No Nuclear
-46,0.0,1,High w_con_coal,No Nuclear
-5,0.0,1,High w_con_coal,No Nuclear
-1,0.0,5,High w_con_coal,No Nuclear
-2,0.0,5,High w_con_coal,No Nuclear
-21,0.0,5,High w_con_coal,No Nuclear
-26,0.0,5,High w_con_coal,No Nuclear
-27,0.0,5,High w_con_coal,No Nuclear
-28,0.0,5,High w_con_coal,No Nuclear
-3,0.0,5,High w_con_coal,No Nuclear
-32,0.0,5,High w_con_coal,No Nuclear
-33,0.0,5,High w_con_coal,No Nuclear
-34,0.0,5,High w_con_coal,No Nuclear
-35,0.0,5,High w_con_coal,No Nuclear
-36,0.0,5,High w_con_coal,No Nuclear
-4,0.0,5,High w_con_coal,No Nuclear
-45,0.0,5,High w_con_coal,No Nuclear
-46,0.0,5,High w_con_coal,No Nuclear
-5,0.0,5,High w_con_coal,No Nuclear
-1,0.0,2,High w_con_coal,No Nuclear
-2,0.0,2,High w_con_coal,No Nuclear
-21,0.0,2,High w_con_coal,No Nuclear
-26,0.0,2,High w_con_coal,No Nuclear
-27,0.0,2,High w_con_coal,No Nuclear
-28,0.0,2,High w_con_coal,No Nuclear
-3,0.0,2,High w_con_coal,No Nuclear
-32,0.0,2,High w_con_coal,No Nuclear
-33,0.0,2,High w_con_coal,No Nuclear
-34,0.0,2,High w_con_coal,No Nuclear
-35,0.0,2,High w_con_coal,No Nuclear
-36,0.0,2,High w_con_coal,No Nuclear
-4,0.0,2,High w_con_coal,No Nuclear
-45,0.0,2,High w_con_coal,No Nuclear
-46,0.0,2,High w_con_coal,No Nuclear
-5,0.0,2,High w_con_coal,No Nuclear
-1,0.0,6,High w_con_coal,No Nuclear
-2,0.0,6,High w_con_coal,No Nuclear
-21,0.0,6,High w_con_coal,No Nuclear
-26,0.0,6,High w_con_coal,No Nuclear
-27,0.0,6,High w_con_coal,No Nuclear
-28,0.0,6,High w_con_coal,No Nuclear
-3,0.0,6,High w_con_coal,No Nuclear
-32,0.0,6,High w_con_coal,No Nuclear
-33,0.0,6,High w_con_coal,No Nuclear
-34,0.0,6,High w_con_coal,No Nuclear
-35,0.0,6,High w_con_coal,No Nuclear
-36,0.0,6,High w_con_coal,No Nuclear
-4,0.0,6,High w_con_coal,No Nuclear
-45,0.0,6,High w_con_coal,No Nuclear
-46,0.0,6,High w_con_coal,No Nuclear
-5,0.0,6,High w_con_coal,No Nuclear
-1,0.0,7,High w_con_coal,No Nuclear
-2,0.0,7,High w_con_coal,No Nuclear
-21,0.0,7,High w_con_coal,No Nuclear
-26,0.0,7,High w_con_coal,No Nuclear
-27,0.0,7,High w_con_coal,No Nuclear
-28,0.0,7,High w_con_coal,No Nuclear
-3,0.0,7,High w_con_coal,No Nuclear
-32,0.0,7,High w_con_coal,No Nuclear
-33,0.0,7,High w_con_coal,No Nuclear
-34,0.0,7,High w_con_coal,No Nuclear
-35,0.0,7,High w_con_coal,No Nuclear
-36,0.0,7,High w_con_coal,No Nuclear
-4,0.0,7,High w_con_coal,No Nuclear
-45,0.0,7,High w_con_coal,No Nuclear
-46,0.0,7,High w_con_coal,No Nuclear
-5,0.0,7,High w_con_coal,No Nuclear
-1,0.0,3,High w_con_coal,No Nuclear
-2,0.0,3,High w_con_coal,No Nuclear
-21,0.0,3,High w_con_coal,No Nuclear
-26,0.0,3,High w_con_coal,No Nuclear
-27,0.0,3,High w_con_coal,No Nuclear
-28,0.0,3,High w_con_coal,No Nuclear
-3,0.0,3,High w_con_coal,No Nuclear
-32,0.0,3,High w_con_coal,No Nuclear
-33,0.0,3,High w_con_coal,No Nuclear
-34,0.0,3,High w_con_coal,No Nuclear
-35,0.0,3,High w_con_coal,No Nuclear
-36,0.0,3,High w_con_coal,No Nuclear
-4,0.0,3,High w_con_coal,No Nuclear
-45,0.0,3,High w_con_coal,No Nuclear
-46,0.0,3,High w_con_coal,No Nuclear
-5,0.0,3,High w_con_coal,No Nuclear
-1,0.0,4,High w_with_ng,No Nuclear
-2,0.0,4,High w_with_ng,No Nuclear
-21,0.0,4,High w_with_ng,No Nuclear
-26,0.0,4,High w_with_ng,No Nuclear
-27,0.0,4,High w_with_ng,No Nuclear
-28,0.0,4,High w_with_ng,No Nuclear
-3,0.0,4,High w_with_ng,No Nuclear
-32,0.0,4,High w_with_ng,No Nuclear
-33,0.0,4,High w_with_ng,No Nuclear
-34,0.0,4,High w_with_ng,No Nuclear
-35,0.0,4,High w_with_ng,No Nuclear
-36,0.0,4,High w_with_ng,No Nuclear
-4,0.0,4,High w_with_ng,No Nuclear
-45,0.0,4,High w_with_ng,No Nuclear
-46,0.0,4,High w_with_ng,No Nuclear
-5,0.0,4,High w_with_ng,No Nuclear
-1,0.0,1,High w_with_ng,No Nuclear
-2,0.0,1,High w_with_ng,No Nuclear
-21,0.0,1,High w_with_ng,No Nuclear
-26,0.0,1,High w_with_ng,No Nuclear
-27,0.0,1,High w_with_ng,No Nuclear
-28,0.0,1,High w_with_ng,No Nuclear
-3,0.0,1,High w_with_ng,No Nuclear
-32,0.0,1,High w_with_ng,No Nuclear
-33,0.0,1,High w_with_ng,No Nuclear
-34,0.0,1,High w_with_ng,No Nuclear
-35,0.0,1,High w_with_ng,No Nuclear
-36,0.0,1,High w_with_ng,No Nuclear
-4,0.0,1,High w_with_ng,No Nuclear
-45,0.0,1,High w_with_ng,No Nuclear
-46,0.0,1,High w_with_ng,No Nuclear
-5,0.0,1,High w_with_ng,No Nuclear
-1,0.0,5,High w_with_ng,No Nuclear
-2,0.0,5,High w_with_ng,No Nuclear
-21,0.0,5,High w_with_ng,No Nuclear
-26,0.0,5,High w_with_ng,No Nuclear
-27,0.0,5,High w_with_ng,No Nuclear
-28,0.0,5,High w_with_ng,No Nuclear
-3,0.0,5,High w_with_ng,No Nuclear
-32,0.0,5,High w_with_ng,No Nuclear
-33,0.0,5,High w_with_ng,No Nuclear
-34,0.0,5,High w_with_ng,No Nuclear
-35,0.0,5,High w_with_ng,No Nuclear
-36,0.0,5,High w_with_ng,No Nuclear
-4,0.0,5,High w_with_ng,No Nuclear
-45,0.0,5,High w_with_ng,No Nuclear
-46,0.0,5,High w_with_ng,No Nuclear
-5,0.0,5,High w_with_ng,No Nuclear
-1,0.0,2,High w_with_ng,No Nuclear
-2,0.0,2,High w_with_ng,No Nuclear
-21,0.0,2,High w_with_ng,No Nuclear
-26,0.0,2,High w_with_ng,No Nuclear
-27,0.0,2,High w_with_ng,No Nuclear
-28,0.0,2,High w_with_ng,No Nuclear
-3,0.0,2,High w_with_ng,No Nuclear
-32,0.0,2,High w_with_ng,No Nuclear
-33,0.0,2,High w_with_ng,No Nuclear
-34,0.0,2,High w_with_ng,No Nuclear
-35,0.0,2,High w_with_ng,No Nuclear
-36,0.0,2,High w_with_ng,No Nuclear
-4,0.0,2,High w_with_ng,No Nuclear
-45,0.0,2,High w_with_ng,No Nuclear
-46,0.0,2,High w_with_ng,No Nuclear
-5,0.0,2,High w_with_ng,No Nuclear
-1,0.0,6,High w_with_ng,No Nuclear
-2,0.0,6,High w_with_ng,No Nuclear
-21,0.0,6,High w_with_ng,No Nuclear
-26,0.0,6,High w_with_ng,No Nuclear
-27,0.0,6,High w_with_ng,No Nuclear
-28,0.0,6,High w_with_ng,No Nuclear
-3,0.0,6,High w_with_ng,No Nuclear
-32,0.0,6,High w_with_ng,No Nuclear
-33,0.0,6,High w_with_ng,No Nuclear
-34,0.0,6,High w_with_ng,No Nuclear
-35,0.0,6,High w_with_ng,No Nuclear
-36,0.0,6,High w_with_ng,No Nuclear
-4,0.0,6,High w_with_ng,No Nuclear
-45,0.0,6,High w_with_ng,No Nuclear
-46,0.0,6,High w_with_ng,No Nuclear
-5,0.0,6,High w_with_ng,No Nuclear
-1,0.0,7,High w_with_ng,No Nuclear
-2,0.0,7,High w_with_ng,No Nuclear
-21,0.0,7,High w_with_ng,No Nuclear
-26,0.0,7,High w_with_ng,No Nuclear
-27,0.0,7,High w_with_ng,No Nuclear
-28,0.0,7,High w_with_ng,No Nuclear
-3,0.0,7,High w_with_ng,No Nuclear
-32,0.0,7,High w_with_ng,No Nuclear
-33,0.0,7,High w_with_ng,No Nuclear
-34,0.0,7,High w_with_ng,No Nuclear
-35,0.0,7,High w_with_ng,No Nuclear
-36,0.0,7,High w_with_ng,No Nuclear
-4,0.0,7,High w_with_ng,No Nuclear
-45,0.0,7,High w_with_ng,No Nuclear
-46,0.0,7,High w_with_ng,No Nuclear
-5,0.0,7,High w_with_ng,No Nuclear
-1,0.0,3,High w_with_ng,No Nuclear
-2,0.0,3,High w_with_ng,No Nuclear
-21,0.0,3,High w_with_ng,No Nuclear
-26,0.0,3,High w_with_ng,No Nuclear
-27,0.0,3,High w_with_ng,No Nuclear
-28,0.0,3,High w_with_ng,No Nuclear
-3,0.0,3,High w_with_ng,No Nuclear
-32,0.0,3,High w_with_ng,No Nuclear
-33,0.0,3,High w_with_ng,No Nuclear
-34,0.0,3,High w_with_ng,No Nuclear
-35,0.0,3,High w_with_ng,No Nuclear
-36,0.0,3,High w_with_ng,No Nuclear
-4,0.0,3,High w_with_ng,No Nuclear
-45,0.0,3,High w_with_ng,No Nuclear
-46,0.0,3,High w_with_ng,No Nuclear
-5,0.0,3,High w_with_ng,No Nuclear
-1,0.0,4,High w_con_ng,No Nuclear
-2,0.0,4,High w_con_ng,No Nuclear
-21,0.0,4,High w_con_ng,No Nuclear
-26,0.0,4,High w_con_ng,No Nuclear
-27,0.0,4,High w_con_ng,No Nuclear
-28,0.0,4,High w_con_ng,No Nuclear
-3,0.0,4,High w_con_ng,No Nuclear
-32,0.0,4,High w_con_ng,No Nuclear
-33,0.0,4,High w_con_ng,No Nuclear
-34,0.0,4,High w_con_ng,No Nuclear
-35,0.0,4,High w_con_ng,No Nuclear
-36,0.0,4,High w_con_ng,No Nuclear
-4,0.0,4,High w_con_ng,No Nuclear
-45,0.0,4,High w_con_ng,No Nuclear
-46,0.0,4,High w_con_ng,No Nuclear
-5,0.0,4,High w_con_ng,No Nuclear
-1,0.0,1,High w_con_ng,No Nuclear
-2,0.0,1,High w_con_ng,No Nuclear
-21,0.0,1,High w_con_ng,No Nuclear
-26,0.0,1,High w_con_ng,No Nuclear
-27,0.0,1,High w_con_ng,No Nuclear
-28,0.0,1,High w_con_ng,No Nuclear
-3,0.0,1,High w_con_ng,No Nuclear
-32,0.0,1,High w_con_ng,No Nuclear
-33,0.0,1,High w_con_ng,No Nuclear
-34,0.0,1,High w_con_ng,No Nuclear
-35,0.0,1,High w_con_ng,No Nuclear
-36,0.0,1,High w_con_ng,No Nuclear
-4,0.0,1,High w_con_ng,No Nuclear
-45,0.0,1,High w_con_ng,No Nuclear
-46,0.0,1,High w_con_ng,No Nuclear
-5,0.0,1,High w_con_ng,No Nuclear
-1,0.0,5,High w_con_ng,No Nuclear
-2,0.0,5,High w_con_ng,No Nuclear
-21,0.0,5,High w_con_ng,No Nuclear
-26,0.0,5,High w_con_ng,No Nuclear
-27,0.0,5,High w_con_ng,No Nuclear
-28,0.0,5,High w_con_ng,No Nuclear
-3,0.0,5,High w_con_ng,No Nuclear
-32,0.0,5,High w_con_ng,No Nuclear
-33,0.0,5,High w_con_ng,No Nuclear
-34,0.0,5,High w_con_ng,No Nuclear
-35,0.0,5,High w_con_ng,No Nuclear
-36,0.0,5,High w_con_ng,No Nuclear
-4,0.0,5,High w_con_ng,No Nuclear
-45,0.0,5,High w_con_ng,No Nuclear
-46,0.0,5,High w_con_ng,No Nuclear
-5,0.0,5,High w_con_ng,No Nuclear
-1,0.0,2,High w_con_ng,No Nuclear
-2,0.0,2,High w_con_ng,No Nuclear
-21,0.0,2,High w_con_ng,No Nuclear
-26,0.0,2,High w_con_ng,No Nuclear
-27,0.0,2,High w_con_ng,No Nuclear
-28,0.0,2,High w_con_ng,No Nuclear
-3,0.0,2,High w_con_ng,No Nuclear
-32,0.0,2,High w_con_ng,No Nuclear
-33,0.0,2,High w_con_ng,No Nuclear
-34,0.0,2,High w_con_ng,No Nuclear
-35,0.0,2,High w_con_ng,No Nuclear
-36,0.0,2,High w_con_ng,No Nuclear
-4,0.0,2,High w_con_ng,No Nuclear
-45,0.0,2,High w_con_ng,No Nuclear
-46,0.0,2,High w_con_ng,No Nuclear
-5,0.0,2,High w_con_ng,No Nuclear
-1,0.0,6,High w_con_ng,No Nuclear
-2,0.0,6,High w_con_ng,No Nuclear
-21,0.0,6,High w_con_ng,No Nuclear
-26,0.0,6,High w_con_ng,No Nuclear
-27,0.0,6,High w_con_ng,No Nuclear
-28,0.0,6,High w_con_ng,No Nuclear
-3,0.0,6,High w_con_ng,No Nuclear
-32,0.0,6,High w_con_ng,No Nuclear
-33,0.0,6,High w_con_ng,No Nuclear
-34,0.0,6,High w_con_ng,No Nuclear
-35,0.0,6,High w_con_ng,No Nuclear
-36,0.0,6,High w_con_ng,No Nuclear
-4,0.0,6,High w_con_ng,No Nuclear
-45,0.0,6,High w_con_ng,No Nuclear
-46,0.0,6,High w_con_ng,No Nuclear
-5,0.0,6,High w_con_ng,No Nuclear
-1,0.0,7,High w_con_ng,No Nuclear
-2,0.0,7,High w_con_ng,No Nuclear
-21,0.0,7,High w_con_ng,No Nuclear
-26,0.0,7,High w_con_ng,No Nuclear
-27,0.0,7,High w_con_ng,No Nuclear
-28,0.0,7,High w_con_ng,No Nuclear
-3,0.0,7,High w_con_ng,No Nuclear
-32,0.0,7,High w_con_ng,No Nuclear
-33,0.0,7,High w_con_ng,No Nuclear
-34,0.0,7,High w_con_ng,No Nuclear
-35,0.0,7,High w_con_ng,No Nuclear
-36,0.0,7,High w_con_ng,No Nuclear
-4,0.0,7,High w_con_ng,No Nuclear
-45,0.0,7,High w_con_ng,No Nuclear
-46,0.0,7,High w_con_ng,No Nuclear
-5,0.0,7,High w_con_ng,No Nuclear
-1,0.0,3,High w_con_ng,No Nuclear
-2,0.0,3,High w_con_ng,No Nuclear
-21,0.0,3,High w_con_ng,No Nuclear
-26,0.0,3,High w_con_ng,No Nuclear
-27,0.0,3,High w_con_ng,No Nuclear
-28,0.0,3,High w_con_ng,No Nuclear
-3,0.0,3,High w_con_ng,No Nuclear
-32,0.0,3,High w_con_ng,No Nuclear
-33,0.0,3,High w_con_ng,No Nuclear
-34,0.0,3,High w_con_ng,No Nuclear
-35,0.0,3,High w_con_ng,No Nuclear
-36,0.0,3,High w_con_ng,No Nuclear
-4,0.0,3,High w_con_ng,No Nuclear
-45,0.0,3,High w_con_ng,No Nuclear
-46,0.0,3,High w_con_ng,No Nuclear
-5,0.0,3,High w_con_ng,No Nuclear
+obj_name,discharge_violation,day,dec_label,gen_scenario
+1,0.0,4,D000001,Normal
+2,0.0,4,D000001,Normal
+21,0.0,4,D000001,Normal
+26,0.0,4,D000001,Normal
+27,0.0,4,D000001,Normal
+28,0.0,4,D000001,Normal
+3,0.0,4,D000001,Normal
+32,0.0,4,D000001,Normal
+33,0.0,4,D000001,Normal
+34,0.0,4,D000001,Normal
+35,0.0,4,D000001,Normal
+36,0.0,4,D000001,Normal
+4,0.0,4,D000001,Normal
+45,0.0,4,D000001,Normal
+46,0.0,4,D000001,Normal
+5,0.0,4,D000001,Normal
+1,0.0,1,D000001,Normal
+2,0.0,1,D000001,Normal
+21,0.0,1,D000001,Normal
+26,0.0,1,D000001,Normal
+27,0.0,1,D000001,Normal
+28,0.0,1,D000001,Normal
+3,0.0,1,D000001,Normal
+32,0.0,1,D000001,Normal
+33,0.0,1,D000001,Normal
+34,0.0,1,D000001,Normal
+35,0.0,1,D000001,Normal
+36,0.0,1,D000001,Normal
+4,0.0,1,D000001,Normal
+45,0.0,1,D000001,Normal
+46,0.0,1,D000001,Normal
+5,0.0,1,D000001,Normal
+1,0.0,5,D000001,Normal
+2,0.0,5,D000001,Normal
+21,0.0,5,D000001,Normal
+26,0.0,5,D000001,Normal
+27,0.0,5,D000001,Normal
+28,0.0,5,D000001,Normal
+3,0.0,5,D000001,Normal
+32,0.0,5,D000001,Normal
+33,0.0,5,D000001,Normal
+34,0.0,5,D000001,Normal
+35,0.0,5,D000001,Normal
+36,0.0,5,D000001,Normal
+4,0.0,5,D000001,Normal
+45,0.0,5,D000001,Normal
+46,0.0,5,D000001,Normal
+5,0.0,5,D000001,Normal
+1,0.0,2,D000001,Normal
+2,0.0,2,D000001,Normal
+21,0.0,2,D000001,Normal
+26,0.0,2,D000001,Normal
+27,0.0,2,D000001,Normal
+28,0.0,2,D000001,Normal
+3,0.0,2,D000001,Normal
+32,0.0,2,D000001,Normal
+33,0.0,2,D000001,Normal
+34,0.0,2,D000001,Normal
+35,0.0,2,D000001,Normal
+36,0.0,2,D000001,Normal
+4,0.0,2,D000001,Normal
+45,0.0,2,D000001,Normal
+46,0.0,2,D000001,Normal
+5,0.0,2,D000001,Normal
+1,0.0,6,D000001,Normal
+2,0.0,6,D000001,Normal
+21,0.0,6,D000001,Normal
+26,0.0,6,D000001,Normal
+27,0.0,6,D000001,Normal
+28,0.0,6,D000001,Normal
+3,0.0,6,D000001,Normal
+32,0.0,6,D000001,Normal
+33,0.0,6,D000001,Normal
+34,0.0,6,D000001,Normal
+35,0.0,6,D000001,Normal
+36,0.0,6,D000001,Normal
+4,0.0,6,D000001,Normal
+45,0.0,6,D000001,Normal
+46,0.0,6,D000001,Normal
+5,0.0,6,D000001,Normal
+1,0.0,7,D000001,Normal
+2,0.0,7,D000001,Normal
+21,0.0,7,D000001,Normal
+26,0.0,7,D000001,Normal
+27,0.0,7,D000001,Normal
+28,0.0,7,D000001,Normal
+3,0.0,7,D000001,Normal
+32,0.0,7,D000001,Normal
+33,0.0,7,D000001,Normal
+34,0.0,7,D000001,Normal
+35,0.0,7,D000001,Normal
+36,0.0,7,D000001,Normal
+4,0.0,7,D000001,Normal
+45,0.0,7,D000001,Normal
+46,0.0,7,D000001,Normal
+5,0.0,7,D000001,Normal
+1,0.0,3,D000001,Normal
+2,0.0,3,D000001,Normal
+21,0.0,3,D000001,Normal
+26,0.0,3,D000001,Normal
+27,0.0,3,D000001,Normal
+28,0.0,3,D000001,Normal
+3,0.0,3,D000001,Normal
+32,0.0,3,D000001,Normal
+33,0.0,3,D000001,Normal
+34,0.0,3,D000001,Normal
+35,0.0,3,D000001,Normal
+36,0.0,3,D000001,Normal
+4,0.0,3,D000001,Normal
+45,0.0,3,D000001,Normal
+46,0.0,3,D000001,Normal
+5,0.0,3,D000001,Normal
+1,0.0,4,D000002,Normal
+2,0.0,4,D000002,Normal
+21,0.0,4,D000002,Normal
+26,0.0,4,D000002,Normal
+27,0.0,4,D000002,Normal
+28,0.0,4,D000002,Normal
+3,0.0,4,D000002,Normal
+32,0.0,4,D000002,Normal
+33,0.0,4,D000002,Normal
+34,0.0,4,D000002,Normal
+35,0.0,4,D000002,Normal
+36,0.0,4,D000002,Normal
+4,0.0,4,D000002,Normal
+45,0.0,4,D000002,Normal
+46,0.0,4,D000002,Normal
+5,0.0,4,D000002,Normal
+1,0.0,1,D000002,Normal
+2,0.0,1,D000002,Normal
+21,0.0,1,D000002,Normal
+26,0.0,1,D000002,Normal
+27,0.0,1,D000002,Normal
+28,0.0,1,D000002,Normal
+3,0.0,1,D000002,Normal
+32,0.0,1,D000002,Normal
+33,0.0,1,D000002,Normal
+34,0.0,1,D000002,Normal
+35,0.0,1,D000002,Normal
+36,0.0,1,D000002,Normal
+4,0.0,1,D000002,Normal
+45,0.0,1,D000002,Normal
+46,0.0,1,D000002,Normal
+5,0.0,1,D000002,Normal
+1,0.0,5,D000002,Normal
+2,0.0,5,D000002,Normal
+21,0.0,5,D000002,Normal
+26,0.0,5,D000002,Normal
+27,0.0,5,D000002,Normal
+28,0.0,5,D000002,Normal
+3,0.0,5,D000002,Normal
+32,0.0,5,D000002,Normal
+33,0.0,5,D000002,Normal
+34,0.0,5,D000002,Normal
+35,0.0,5,D000002,Normal
+36,0.0,5,D000002,Normal
+4,0.0,5,D000002,Normal
+45,0.0,5,D000002,Normal
+46,0.0,5,D000002,Normal
+5,0.0,5,D000002,Normal
+1,0.0,2,D000002,Normal
+2,0.0,2,D000002,Normal
+21,0.0,2,D000002,Normal
+26,0.0,2,D000002,Normal
+27,0.0,2,D000002,Normal
+28,0.0,2,D000002,Normal
+3,0.0,2,D000002,Normal
+32,0.0,2,D000002,Normal
+33,0.0,2,D000002,Normal
+34,0.0,2,D000002,Normal
+35,0.0,2,D000002,Normal
+36,0.0,2,D000002,Normal
+4,0.0,2,D000002,Normal
+45,0.0,2,D000002,Normal
+46,0.0,2,D000002,Normal
+5,0.0,2,D000002,Normal
+1,0.0,6,D000002,Normal
+2,0.0,6,D000002,Normal
+21,0.0,6,D000002,Normal
+26,0.0,6,D000002,Normal
+27,0.0,6,D000002,Normal
+28,0.0,6,D000002,Normal
+3,0.0,6,D000002,Normal
+32,0.0,6,D000002,Normal
+33,0.0,6,D000002,Normal
+34,0.0,6,D000002,Normal
+35,0.0,6,D000002,Normal
+36,0.0,6,D000002,Normal
+4,0.0,6,D000002,Normal
+45,0.0,6,D000002,Normal
+46,0.0,6,D000002,Normal
+5,0.0,6,D000002,Normal
+1,0.0,7,D000002,Normal
+2,0.0,7,D000002,Normal
+21,0.0,7,D000002,Normal
+26,0.0,7,D000002,Normal
+27,0.0,7,D000002,Normal
+28,0.0,7,D000002,Normal
+3,0.0,7,D000002,Normal
+32,0.0,7,D000002,Normal
+33,0.0,7,D000002,Normal
+34,0.0,7,D000002,Normal
+35,0.0,7,D000002,Normal
+36,0.0,7,D000002,Normal
+4,0.0,7,D000002,Normal
+45,0.0,7,D000002,Normal
+46,0.0,7,D000002,Normal
+5,0.0,7,D000002,Normal
+1,0.0,3,D000002,Normal
+2,0.0,3,D000002,Normal
+21,0.0,3,D000002,Normal
+26,0.0,3,D000002,Normal
+27,0.0,3,D000002,Normal
+28,0.0,3,D000002,Normal
+3,0.0,3,D000002,Normal
+32,0.0,3,D000002,Normal
+33,0.0,3,D000002,Normal
+34,0.0,3,D000002,Normal
+35,0.0,3,D000002,Normal
+36,0.0,3,D000002,Normal
+4,0.0,3,D000002,Normal
+45,0.0,3,D000002,Normal
+46,0.0,3,D000002,Normal
+5,0.0,3,D000002,Normal
+1,0.0,4,D000003,Normal
+2,0.0,4,D000003,Normal
+21,0.0,4,D000003,Normal
+26,0.0,4,D000003,Normal
+27,0.0,4,D000003,Normal
+28,0.0,4,D000003,Normal
+3,0.0,4,D000003,Normal
+32,0.0,4,D000003,Normal
+33,0.0,4,D000003,Normal
+34,0.0,4,D000003,Normal
+35,0.0,4,D000003,Normal
+36,0.0,4,D000003,Normal
+4,0.0,4,D000003,Normal
+45,0.0,4,D000003,Normal
+46,0.0,4,D000003,Normal
+5,0.0,4,D000003,Normal
+1,0.0,1,D000003,Normal
+2,0.0,1,D000003,Normal
+21,0.0,1,D000003,Normal
+26,0.0,1,D000003,Normal
+27,0.0,1,D000003,Normal
+28,0.0,1,D000003,Normal
+3,0.0,1,D000003,Normal
+32,0.0,1,D000003,Normal
+33,0.0,1,D000003,Normal
+34,0.0,1,D000003,Normal
+35,0.0,1,D000003,Normal
+36,0.0,1,D000003,Normal
+4,0.0,1,D000003,Normal
+45,0.0,1,D000003,Normal
+46,0.0,1,D000003,Normal
+5,0.0,1,D000003,Normal
+1,0.0,5,D000003,Normal
+2,0.0,5,D000003,Normal
+21,0.0,5,D000003,Normal
+26,0.0,5,D000003,Normal
+27,0.0,5,D000003,Normal
+28,0.0,5,D000003,Normal
+3,0.0,5,D000003,Normal
+32,0.0,5,D000003,Normal
+33,0.0,5,D000003,Normal
+34,0.0,5,D000003,Normal
+35,0.0,5,D000003,Normal
+36,0.0,5,D000003,Normal
+4,0.0,5,D000003,Normal
+45,0.0,5,D000003,Normal
+46,0.0,5,D000003,Normal
+5,0.0,5,D000003,Normal
+1,0.0,2,D000003,Normal
+2,0.0,2,D000003,Normal
+21,0.0,2,D000003,Normal
+26,0.0,2,D000003,Normal
+27,0.0,2,D000003,Normal
+28,0.0,2,D000003,Normal
+3,0.0,2,D000003,Normal
+32,0.0,2,D000003,Normal
+33,0.0,2,D000003,Normal
+34,0.0,2,D000003,Normal
+35,0.0,2,D000003,Normal
+36,0.0,2,D000003,Normal
+4,0.0,2,D000003,Normal
+45,0.0,2,D000003,Normal
+46,0.0,2,D000003,Normal
+5,0.0,2,D000003,Normal
+1,0.0,6,D000003,Normal
+2,0.0,6,D000003,Normal
+21,0.0,6,D000003,Normal
+26,0.0,6,D000003,Normal
+27,0.0,6,D000003,Normal
+28,0.0,6,D000003,Normal
+3,0.0,6,D000003,Normal
+32,0.0,6,D000003,Normal
+33,0.0,6,D000003,Normal
+34,0.0,6,D000003,Normal
+35,0.0,6,D000003,Normal
+36,0.0,6,D000003,Normal
+4,0.0,6,D000003,Normal
+45,0.0,6,D000003,Normal
+46,0.0,6,D000003,Normal
+5,0.0,6,D000003,Normal
+1,0.0,7,D000003,Normal
+2,0.0,7,D000003,Normal
+21,0.0,7,D000003,Normal
+26,0.0,7,D000003,Normal
+27,0.0,7,D000003,Normal
+28,0.0,7,D000003,Normal
+3,0.0,7,D000003,Normal
+32,0.0,7,D000003,Normal
+33,0.0,7,D000003,Normal
+34,0.0,7,D000003,Normal
+35,0.0,7,D000003,Normal
+36,0.0,7,D000003,Normal
+4,0.0,7,D000003,Normal
+45,0.0,7,D000003,Normal
+46,0.0,7,D000003,Normal
+5,0.0,7,D000003,Normal
+1,0.0,3,D000003,Normal
+2,0.0,3,D000003,Normal
+21,0.0,3,D000003,Normal
+26,0.0,3,D000003,Normal
+27,0.0,3,D000003,Normal
+28,0.0,3,D000003,Normal
+3,0.0,3,D000003,Normal
+32,0.0,3,D000003,Normal
+33,0.0,3,D000003,Normal
+34,0.0,3,D000003,Normal
+35,0.0,3,D000003,Normal
+36,0.0,3,D000003,Normal
+4,0.0,3,D000003,Normal
+45,0.0,3,D000003,Normal
+46,0.0,3,D000003,Normal
+5,0.0,3,D000003,Normal
+1,0.0,4,D000004,Normal
+2,0.0,4,D000004,Normal
+21,0.0,4,D000004,Normal
+26,0.0,4,D000004,Normal
+27,0.0,4,D000004,Normal
+28,0.0,4,D000004,Normal
+3,0.0,4,D000004,Normal
+32,0.0,4,D000004,Normal
+33,0.0,4,D000004,Normal
+34,0.0,4,D000004,Normal
+35,0.0,4,D000004,Normal
+36,0.0,4,D000004,Normal
+4,0.0,4,D000004,Normal
+45,0.0,4,D000004,Normal
+46,0.0,4,D000004,Normal
+5,0.0,4,D000004,Normal
+1,0.0,1,D000004,Normal
+2,0.0,1,D000004,Normal
+21,0.0,1,D000004,Normal
+26,0.0,1,D000004,Normal
+27,0.0,1,D000004,Normal
+28,0.0,1,D000004,Normal
+3,0.0,1,D000004,Normal
+32,0.0,1,D000004,Normal
+33,0.0,1,D000004,Normal
+34,0.0,1,D000004,Normal
+35,0.0,1,D000004,Normal
+36,0.0,1,D000004,Normal
+4,0.0,1,D000004,Normal
+45,0.0,1,D000004,Normal
+46,0.0,1,D000004,Normal
+5,0.0,1,D000004,Normal
+1,0.0,5,D000004,Normal
+2,0.0,5,D000004,Normal
+21,0.0,5,D000004,Normal
+26,0.0,5,D000004,Normal
+27,0.0,5,D000004,Normal
+28,0.0,5,D000004,Normal
+3,0.0,5,D000004,Normal
+32,0.0,5,D000004,Normal
+33,0.0,5,D000004,Normal
+34,0.0,5,D000004,Normal
+35,0.0,5,D000004,Normal
+36,0.0,5,D000004,Normal
+4,0.0,5,D000004,Normal
+45,0.0,5,D000004,Normal
+46,0.0,5,D000004,Normal
+5,0.0,5,D000004,Normal
+1,0.0,2,D000004,Normal
+2,0.0,2,D000004,Normal
+21,0.0,2,D000004,Normal
+26,0.0,2,D000004,Normal
+27,0.0,2,D000004,Normal
+28,0.0,2,D000004,Normal
+3,0.0,2,D000004,Normal
+32,0.0,2,D000004,Normal
+33,0.0,2,D000004,Normal
+34,0.0,2,D000004,Normal
+35,0.0,2,D000004,Normal
+36,0.0,2,D000004,Normal
+4,0.0,2,D000004,Normal
+45,0.0,2,D000004,Normal
+46,0.0,2,D000004,Normal
+5,0.0,2,D000004,Normal
+1,0.0,6,D000004,Normal
+2,0.0,6,D000004,Normal
+21,0.0,6,D000004,Normal
+26,0.0,6,D000004,Normal
+27,0.0,6,D000004,Normal
+28,0.0,6,D000004,Normal
+3,0.0,6,D000004,Normal
+32,0.0,6,D000004,Normal
+33,0.0,6,D000004,Normal
+34,0.0,6,D000004,Normal
+35,0.0,6,D000004,Normal
+36,0.0,6,D000004,Normal
+4,0.0,6,D000004,Normal
+45,0.0,6,D000004,Normal
+46,0.0,6,D000004,Normal
+5,0.0,6,D000004,Normal
+1,0.0,7,D000004,Normal
+2,0.0,7,D000004,Normal
+21,0.0,7,D000004,Normal
+26,0.0,7,D000004,Normal
+27,0.0,7,D000004,Normal
+28,0.0,7,D000004,Normal
+3,0.0,7,D000004,Normal
+32,0.0,7,D000004,Normal
+33,0.0,7,D000004,Normal
+34,0.0,7,D000004,Normal
+35,0.0,7,D000004,Normal
+36,0.0,7,D000004,Normal
+4,0.0,7,D000004,Normal
+45,0.0,7,D000004,Normal
+46,0.0,7,D000004,Normal
+5,0.0,7,D000004,Normal
+1,0.0,3,D000004,Normal
+2,0.0,3,D000004,Normal
+21,0.0,3,D000004,Normal
+26,0.0,3,D000004,Normal
+27,0.0,3,D000004,Normal
+28,0.0,3,D000004,Normal
+3,0.0,3,D000004,Normal
+32,0.0,3,D000004,Normal
+33,0.0,3,D000004,Normal
+34,0.0,3,D000004,Normal
+35,0.0,3,D000004,Normal
+36,0.0,3,D000004,Normal
+4,0.0,3,D000004,Normal
+45,0.0,3,D000004,Normal
+46,0.0,3,D000004,Normal
+5,0.0,3,D000004,Normal
+1,0.0,4,D000005,Normal
+2,0.0,4,D000005,Normal
+21,0.0,4,D000005,Normal
+26,0.0,4,D000005,Normal
+27,0.0,4,D000005,Normal
+28,0.0,4,D000005,Normal
+3,0.0,4,D000005,Normal
+32,0.0,4,D000005,Normal
+33,0.0,4,D000005,Normal
+34,0.0,4,D000005,Normal
+35,0.0,4,D000005,Normal
+36,0.0,4,D000005,Normal
+4,0.0,4,D000005,Normal
+45,0.0,4,D000005,Normal
+46,0.0,4,D000005,Normal
+5,0.0,4,D000005,Normal
+1,0.0,1,D000005,Normal
+2,0.0,1,D000005,Normal
+21,0.0,1,D000005,Normal
+26,0.0,1,D000005,Normal
+27,0.0,1,D000005,Normal
+28,0.0,1,D000005,Normal
+3,0.0,1,D000005,Normal
+32,0.0,1,D000005,Normal
+33,0.0,1,D000005,Normal
+34,0.0,1,D000005,Normal
+35,0.0,1,D000005,Normal
+36,0.0,1,D000005,Normal
+4,0.0,1,D000005,Normal
+45,0.0,1,D000005,Normal
+46,0.0,1,D000005,Normal
+5,0.0,1,D000005,Normal
+1,0.0,5,D000005,Normal
+2,0.0,5,D000005,Normal
+21,0.0,5,D000005,Normal
+26,0.0,5,D000005,Normal
+27,0.0,5,D000005,Normal
+28,0.0,5,D000005,Normal
+3,0.0,5,D000005,Normal
+32,0.0,5,D000005,Normal
+33,0.0,5,D000005,Normal
+34,0.0,5,D000005,Normal
+35,0.0,5,D000005,Normal
+36,0.0,5,D000005,Normal
+4,0.0,5,D000005,Normal
+45,0.0,5,D000005,Normal
+46,0.0,5,D000005,Normal
+5,0.0,5,D000005,Normal
+1,0.0,2,D000005,Normal
+2,0.0,2,D000005,Normal
+21,0.0,2,D000005,Normal
+26,0.0,2,D000005,Normal
+27,0.0,2,D000005,Normal
+28,0.0,2,D000005,Normal
+3,0.0,2,D000005,Normal
+32,0.0,2,D000005,Normal
+33,0.0,2,D000005,Normal
+34,0.0,2,D000005,Normal
+35,0.0,2,D000005,Normal
+36,0.0,2,D000005,Normal
+4,0.0,2,D000005,Normal
+45,0.0,2,D000005,Normal
+46,0.0,2,D000005,Normal
+5,0.0,2,D000005,Normal
+1,0.0,6,D000005,Normal
+2,0.0,6,D000005,Normal
+21,0.0,6,D000005,Normal
+26,0.0,6,D000005,Normal
+27,0.0,6,D000005,Normal
+28,0.0,6,D000005,Normal
+3,0.0,6,D000005,Normal
+32,0.0,6,D000005,Normal
+33,0.0,6,D000005,Normal
+34,0.0,6,D000005,Normal
+35,0.0,6,D000005,Normal
+36,0.0,6,D000005,Normal
+4,0.0,6,D000005,Normal
+45,0.0,6,D000005,Normal
+46,0.0,6,D000005,Normal
+5,0.0,6,D000005,Normal
+1,0.0,7,D000005,Normal
+2,0.0,7,D000005,Normal
+21,0.0,7,D000005,Normal
+26,0.0,7,D000005,Normal
+27,0.0,7,D000005,Normal
+28,0.0,7,D000005,Normal
+3,0.0,7,D000005,Normal
+32,0.0,7,D000005,Normal
+33,0.0,7,D000005,Normal
+34,0.0,7,D000005,Normal
+35,0.0,7,D000005,Normal
+36,0.0,7,D000005,Normal
+4,0.0,7,D000005,Normal
+45,0.0,7,D000005,Normal
+46,0.0,7,D000005,Normal
+5,0.0,7,D000005,Normal
+1,0.0,3,D000005,Normal
+2,0.0,3,D000005,Normal
+21,0.0,3,D000005,Normal
+26,0.0,3,D000005,Normal
+27,0.0,3,D000005,Normal
+28,0.0,3,D000005,Normal
+3,0.0,3,D000005,Normal
+32,0.0,3,D000005,Normal
+33,0.0,3,D000005,Normal
+34,0.0,3,D000005,Normal
+35,0.0,3,D000005,Normal
+36,0.0,3,D000005,Normal
+4,0.0,3,D000005,Normal
+45,0.0,3,D000005,Normal
+46,0.0,3,D000005,Normal
+5,0.0,3,D000005,Normal
+1,0.0,4,D000006,Normal
+2,0.0,4,D000006,Normal
+21,0.0,4,D000006,Normal
+26,0.0,4,D000006,Normal
+27,0.0,4,D000006,Normal
+28,0.0,4,D000006,Normal
+3,0.0,4,D000006,Normal
+32,0.0,4,D000006,Normal
+33,0.0,4,D000006,Normal
+34,0.0,4,D000006,Normal
+35,0.0,4,D000006,Normal
+36,0.0,4,D000006,Normal
+4,0.0,4,D000006,Normal
+45,0.0,4,D000006,Normal
+46,0.0,4,D000006,Normal
+5,0.0,4,D000006,Normal
+1,0.0,1,D000006,Normal
+2,0.0,1,D000006,Normal
+21,0.0,1,D000006,Normal
+26,0.0,1,D000006,Normal
+27,0.0,1,D000006,Normal
+28,0.0,1,D000006,Normal
+3,0.0,1,D000006,Normal
+32,0.0,1,D000006,Normal
+33,0.0,1,D000006,Normal
+34,0.0,1,D000006,Normal
+35,0.0,1,D000006,Normal
+36,0.0,1,D000006,Normal
+4,0.0,1,D000006,Normal
+45,0.0,1,D000006,Normal
+46,0.0,1,D000006,Normal
+5,0.0,1,D000006,Normal
+1,0.0,5,D000006,Normal
+2,0.0,5,D000006,Normal
+21,0.0,5,D000006,Normal
+26,0.0,5,D000006,Normal
+27,0.0,5,D000006,Normal
+28,0.0,5,D000006,Normal
+3,0.0,5,D000006,Normal
+32,0.0,5,D000006,Normal
+33,0.0,5,D000006,Normal
+34,0.0,5,D000006,Normal
+35,0.0,5,D000006,Normal
+36,0.0,5,D000006,Normal
+4,0.0,5,D000006,Normal
+45,0.0,5,D000006,Normal
+46,0.0,5,D000006,Normal
+5,0.0,5,D000006,Normal
+1,0.0,2,D000006,Normal
+2,0.0,2,D000006,Normal
+21,0.0,2,D000006,Normal
+26,0.0,2,D000006,Normal
+27,0.0,2,D000006,Normal
+28,0.0,2,D000006,Normal
+3,0.0,2,D000006,Normal
+32,0.0,2,D000006,Normal
+33,0.0,2,D000006,Normal
+34,0.0,2,D000006,Normal
+35,0.0,2,D000006,Normal
+36,0.0,2,D000006,Normal
+4,0.0,2,D000006,Normal
+45,0.0,2,D000006,Normal
+46,0.0,2,D000006,Normal
+5,0.0,2,D000006,Normal
+1,0.0,6,D000006,Normal
+2,0.0,6,D000006,Normal
+21,0.0,6,D000006,Normal
+26,0.0,6,D000006,Normal
+27,0.0,6,D000006,Normal
+28,0.0,6,D000006,Normal
+3,0.0,6,D000006,Normal
+32,0.0,6,D000006,Normal
+33,0.0,6,D000006,Normal
+34,0.0,6,D000006,Normal
+35,0.0,6,D000006,Normal
+36,0.0,6,D000006,Normal
+4,0.0,6,D000006,Normal
+45,0.0,6,D000006,Normal
+46,0.0,6,D000006,Normal
+5,0.0,6,D000006,Normal
+1,0.0,7,D000006,Normal
+2,0.0,7,D000006,Normal
+21,0.0,7,D000006,Normal
+26,0.0,7,D000006,Normal
+27,0.0,7,D000006,Normal
+28,0.0,7,D000006,Normal
+3,0.0,7,D000006,Normal
+32,0.0,7,D000006,Normal
+33,0.0,7,D000006,Normal
+34,0.0,7,D000006,Normal
+35,0.0,7,D000006,Normal
+36,0.0,7,D000006,Normal
+4,0.0,7,D000006,Normal
+45,0.0,7,D000006,Normal
+46,0.0,7,D000006,Normal
+5,0.0,7,D000006,Normal
+1,0.0,3,D000006,Normal
+2,0.0,3,D000006,Normal
+21,0.0,3,D000006,Normal
+26,0.0,3,D000006,Normal
+27,0.0,3,D000006,Normal
+28,0.0,3,D000006,Normal
+3,0.0,3,D000006,Normal
+32,0.0,3,D000006,Normal
+33,0.0,3,D000006,Normal
+34,0.0,3,D000006,Normal
+35,0.0,3,D000006,Normal
+36,0.0,3,D000006,Normal
+4,0.0,3,D000006,Normal
+45,0.0,3,D000006,Normal
+46,0.0,3,D000006,Normal
+5,0.0,3,D000006,Normal
+1,0.0,4,D000007,Normal
+2,0.0,4,D000007,Normal
+21,0.0,4,D000007,Normal
+26,0.0,4,D000007,Normal
+27,0.0,4,D000007,Normal
+28,0.0,4,D000007,Normal
+3,0.0,4,D000007,Normal
+32,0.0,4,D000007,Normal
+33,0.0,4,D000007,Normal
+34,0.0,4,D000007,Normal
+35,0.0,4,D000007,Normal
+36,0.0,4,D000007,Normal
+4,0.0,4,D000007,Normal
+45,0.0,4,D000007,Normal
+46,0.0,4,D000007,Normal
+5,0.0,4,D000007,Normal
+1,0.0,1,D000007,Normal
+2,0.0,1,D000007,Normal
+21,0.0,1,D000007,Normal
+26,0.0,1,D000007,Normal
+27,0.0,1,D000007,Normal
+28,0.0,1,D000007,Normal
+3,0.0,1,D000007,Normal
+32,0.0,1,D000007,Normal
+33,0.0,1,D000007,Normal
+34,0.0,1,D000007,Normal
+35,0.0,1,D000007,Normal
+36,0.0,1,D000007,Normal
+4,0.0,1,D000007,Normal
+45,0.0,1,D000007,Normal
+46,0.0,1,D000007,Normal
+5,0.0,1,D000007,Normal
+1,0.0,5,D000007,Normal
+2,0.0,5,D000007,Normal
+21,0.0,5,D000007,Normal
+26,0.0,5,D000007,Normal
+27,0.0,5,D000007,Normal
+28,0.0,5,D000007,Normal
+3,0.0,5,D000007,Normal
+32,0.0,5,D000007,Normal
+33,0.0,5,D000007,Normal
+34,0.0,5,D000007,Normal
+35,0.0,5,D000007,Normal
+36,0.0,5,D000007,Normal
+4,0.0,5,D000007,Normal
+45,0.0,5,D000007,Normal
+46,0.0,5,D000007,Normal
+5,0.0,5,D000007,Normal
+1,0.0,2,D000007,Normal
+2,0.0,2,D000007,Normal
+21,0.0,2,D000007,Normal
+26,0.0,2,D000007,Normal
+27,0.0,2,D000007,Normal
+28,0.0,2,D000007,Normal
+3,0.0,2,D000007,Normal
+32,0.0,2,D000007,Normal
+33,0.0,2,D000007,Normal
+34,0.0,2,D000007,Normal
+35,0.0,2,D000007,Normal
+36,0.0,2,D000007,Normal
+4,0.0,2,D000007,Normal
+45,0.0,2,D000007,Normal
+46,0.0,2,D000007,Normal
+5,0.0,2,D000007,Normal
+1,0.0,6,D000007,Normal
+2,0.0,6,D000007,Normal
+21,0.0,6,D000007,Normal
+26,0.0,6,D000007,Normal
+27,0.0,6,D000007,Normal
+28,0.0,6,D000007,Normal
+3,0.0,6,D000007,Normal
+32,0.0,6,D000007,Normal
+33,0.0,6,D000007,Normal
+34,0.0,6,D000007,Normal
+35,0.0,6,D000007,Normal
+36,0.0,6,D000007,Normal
+4,0.0,6,D000007,Normal
+45,0.0,6,D000007,Normal
+46,0.0,6,D000007,Normal
+5,0.0,6,D000007,Normal
+1,0.0,7,D000007,Normal
+2,0.0,7,D000007,Normal
+21,0.0,7,D000007,Normal
+26,0.0,7,D000007,Normal
+27,0.0,7,D000007,Normal
+28,0.0,7,D000007,Normal
+3,0.0,7,D000007,Normal
+32,0.0,7,D000007,Normal
+33,0.0,7,D000007,Normal
+34,0.0,7,D000007,Normal
+35,0.0,7,D000007,Normal
+36,0.0,7,D000007,Normal
+4,0.0,7,D000007,Normal
+45,0.0,7,D000007,Normal
+46,0.0,7,D000007,Normal
+5,0.0,7,D000007,Normal
+1,0.0,3,D000007,Normal
+2,0.0,3,D000007,Normal
+21,0.0,3,D000007,Normal
+26,0.0,3,D000007,Normal
+27,0.0,3,D000007,Normal
+28,0.0,3,D000007,Normal
+3,0.0,3,D000007,Normal
+32,0.0,3,D000007,Normal
+33,0.0,3,D000007,Normal
+34,0.0,3,D000007,Normal
+35,0.0,3,D000007,Normal
+36,0.0,3,D000007,Normal
+4,0.0,3,D000007,Normal
+45,0.0,3,D000007,Normal
+46,0.0,3,D000007,Normal
+5,0.0,3,D000007,Normal
+1,0.0,4,D000001,No Nuclear
+2,0.0,4,D000001,No Nuclear
+21,0.0,4,D000001,No Nuclear
+26,0.0,4,D000001,No Nuclear
+27,0.0,4,D000001,No Nuclear
+28,0.0,4,D000001,No Nuclear
+3,0.0,4,D000001,No Nuclear
+32,0.0,4,D000001,No Nuclear
+33,0.0,4,D000001,No Nuclear
+34,0.0,4,D000001,No Nuclear
+35,0.0,4,D000001,No Nuclear
+36,0.0,4,D000001,No Nuclear
+4,0.0,4,D000001,No Nuclear
+45,0.0,4,D000001,No Nuclear
+46,0.0,4,D000001,No Nuclear
+5,0.0,4,D000001,No Nuclear
+1,0.0,1,D000001,No Nuclear
+2,0.0,1,D000001,No Nuclear
+21,0.0,1,D000001,No Nuclear
+26,0.0,1,D000001,No Nuclear
+27,0.0,1,D000001,No Nuclear
+28,0.0,1,D000001,No Nuclear
+3,0.0,1,D000001,No Nuclear
+32,0.0,1,D000001,No Nuclear
+33,0.0,1,D000001,No Nuclear
+34,0.0,1,D000001,No Nuclear
+35,0.0,1,D000001,No Nuclear
+36,0.0,1,D000001,No Nuclear
+4,0.0,1,D000001,No Nuclear
+45,0.0,1,D000001,No Nuclear
+46,0.0,1,D000001,No Nuclear
+5,0.0,1,D000001,No Nuclear
+1,0.0,5,D000001,No Nuclear
+2,0.0,5,D000001,No Nuclear
+21,0.0,5,D000001,No Nuclear
+26,0.0,5,D000001,No Nuclear
+27,0.0,5,D000001,No Nuclear
+28,0.0,5,D000001,No Nuclear
+3,0.0,5,D000001,No Nuclear
+32,0.0,5,D000001,No Nuclear
+33,0.0,5,D000001,No Nuclear
+34,0.0,5,D000001,No Nuclear
+35,0.0,5,D000001,No Nuclear
+36,0.0,5,D000001,No Nuclear
+4,0.0,5,D000001,No Nuclear
+45,0.0,5,D000001,No Nuclear
+46,0.0,5,D000001,No Nuclear
+5,0.0,5,D000001,No Nuclear
+1,0.0,2,D000001,No Nuclear
+2,0.0,2,D000001,No Nuclear
+21,0.0,2,D000001,No Nuclear
+26,0.0,2,D000001,No Nuclear
+27,0.0,2,D000001,No Nuclear
+28,0.0,2,D000001,No Nuclear
+3,0.0,2,D000001,No Nuclear
+32,0.0,2,D000001,No Nuclear
+33,0.0,2,D000001,No Nuclear
+34,0.0,2,D000001,No Nuclear
+35,0.0,2,D000001,No Nuclear
+36,0.0,2,D000001,No Nuclear
+4,0.0,2,D000001,No Nuclear
+45,0.0,2,D000001,No Nuclear
+46,0.0,2,D000001,No Nuclear
+5,0.0,2,D000001,No Nuclear
+1,0.0,6,D000001,No Nuclear
+2,0.0,6,D000001,No Nuclear
+21,0.0,6,D000001,No Nuclear
+26,0.0,6,D000001,No Nuclear
+27,0.0,6,D000001,No Nuclear
+28,0.0,6,D000001,No Nuclear
+3,0.0,6,D000001,No Nuclear
+32,0.0,6,D000001,No Nuclear
+33,0.0,6,D000001,No Nuclear
+34,0.0,6,D000001,No Nuclear
+35,0.0,6,D000001,No Nuclear
+36,0.0,6,D000001,No Nuclear
+4,0.0,6,D000001,No Nuclear
+45,0.0,6,D000001,No Nuclear
+46,0.0,6,D000001,No Nuclear
+5,0.0,6,D000001,No Nuclear
+1,0.0,7,D000001,No Nuclear
+2,0.0,7,D000001,No Nuclear
+21,0.0,7,D000001,No Nuclear
+26,0.0,7,D000001,No Nuclear
+27,0.0,7,D000001,No Nuclear
+28,0.0,7,D000001,No Nuclear
+3,0.0,7,D000001,No Nuclear
+32,0.0,7,D000001,No Nuclear
+33,0.0,7,D000001,No Nuclear
+34,0.0,7,D000001,No Nuclear
+35,0.0,7,D000001,No Nuclear
+36,0.0,7,D000001,No Nuclear
+4,0.0,7,D000001,No Nuclear
+45,0.0,7,D000001,No Nuclear
+46,0.0,7,D000001,No Nuclear
+5,0.0,7,D000001,No Nuclear
+1,0.0,3,D000001,No Nuclear
+2,0.0,3,D000001,No Nuclear
+21,0.0,3,D000001,No Nuclear
+26,0.0,3,D000001,No Nuclear
+27,0.0,3,D000001,No Nuclear
+28,0.0,3,D000001,No Nuclear
+3,0.0,3,D000001,No Nuclear
+32,0.0,3,D000001,No Nuclear
+33,0.0,3,D000001,No Nuclear
+34,0.0,3,D000001,No Nuclear
+35,0.0,3,D000001,No Nuclear
+36,0.0,3,D000001,No Nuclear
+4,0.0,3,D000001,No Nuclear
+45,0.0,3,D000001,No Nuclear
+46,0.0,3,D000001,No Nuclear
+5,0.0,3,D000001,No Nuclear
+1,0.0,4,D000002,No Nuclear
+2,0.0,4,D000002,No Nuclear
+21,0.0,4,D000002,No Nuclear
+26,0.0,4,D000002,No Nuclear
+27,0.0,4,D000002,No Nuclear
+28,0.0,4,D000002,No Nuclear
+3,0.0,4,D000002,No Nuclear
+32,0.0,4,D000002,No Nuclear
+33,0.0,4,D000002,No Nuclear
+34,0.0,4,D000002,No Nuclear
+35,0.0,4,D000002,No Nuclear
+36,0.0,4,D000002,No Nuclear
+4,0.0,4,D000002,No Nuclear
+45,0.0,4,D000002,No Nuclear
+46,0.0,4,D000002,No Nuclear
+5,0.0,4,D000002,No Nuclear
+1,0.0,1,D000002,No Nuclear
+2,0.0,1,D000002,No Nuclear
+21,0.0,1,D000002,No Nuclear
+26,0.0,1,D000002,No Nuclear
+27,0.0,1,D000002,No Nuclear
+28,0.0,1,D000002,No Nuclear
+3,0.0,1,D000002,No Nuclear
+32,0.0,1,D000002,No Nuclear
+33,0.0,1,D000002,No Nuclear
+34,0.0,1,D000002,No Nuclear
+35,0.0,1,D000002,No Nuclear
+36,0.0,1,D000002,No Nuclear
+4,0.0,1,D000002,No Nuclear
+45,0.0,1,D000002,No Nuclear
+46,0.0,1,D000002,No Nuclear
+5,0.0,1,D000002,No Nuclear
+1,0.0,5,D000002,No Nuclear
+2,0.0,5,D000002,No Nuclear
+21,0.0,5,D000002,No Nuclear
+26,0.0,5,D000002,No Nuclear
+27,0.0,5,D000002,No Nuclear
+28,0.0,5,D000002,No Nuclear
+3,0.0,5,D000002,No Nuclear
+32,0.0,5,D000002,No Nuclear
+33,0.0,5,D000002,No Nuclear
+34,0.0,5,D000002,No Nuclear
+35,0.0,5,D000002,No Nuclear
+36,0.0,5,D000002,No Nuclear
+4,0.0,5,D000002,No Nuclear
+45,0.0,5,D000002,No Nuclear
+46,0.0,5,D000002,No Nuclear
+5,0.0,5,D000002,No Nuclear
+1,0.0,2,D000002,No Nuclear
+2,0.0,2,D000002,No Nuclear
+21,0.0,2,D000002,No Nuclear
+26,0.0,2,D000002,No Nuclear
+27,0.0,2,D000002,No Nuclear
+28,0.0,2,D000002,No Nuclear
+3,0.0,2,D000002,No Nuclear
+32,0.0,2,D000002,No Nuclear
+33,0.0,2,D000002,No Nuclear
+34,0.0,2,D000002,No Nuclear
+35,0.0,2,D000002,No Nuclear
+36,0.0,2,D000002,No Nuclear
+4,0.0,2,D000002,No Nuclear
+45,0.0,2,D000002,No Nuclear
+46,0.0,2,D000002,No Nuclear
+5,0.0,2,D000002,No Nuclear
+1,0.0,6,D000002,No Nuclear
+2,0.0,6,D000002,No Nuclear
+21,0.0,6,D000002,No Nuclear
+26,0.0,6,D000002,No Nuclear
+27,0.0,6,D000002,No Nuclear
+28,0.0,6,D000002,No Nuclear
+3,0.0,6,D000002,No Nuclear
+32,0.0,6,D000002,No Nuclear
+33,0.0,6,D000002,No Nuclear
+34,0.0,6,D000002,No Nuclear
+35,0.0,6,D000002,No Nuclear
+36,0.0,6,D000002,No Nuclear
+4,0.0,6,D000002,No Nuclear
+45,0.0,6,D000002,No Nuclear
+46,0.0,6,D000002,No Nuclear
+5,0.0,6,D000002,No Nuclear
+1,0.0,7,D000002,No Nuclear
+2,0.0,7,D000002,No Nuclear
+21,0.0,7,D000002,No Nuclear
+26,0.0,7,D000002,No Nuclear
+27,0.0,7,D000002,No Nuclear
+28,0.0,7,D000002,No Nuclear
+3,0.0,7,D000002,No Nuclear
+32,0.0,7,D000002,No Nuclear
+33,0.0,7,D000002,No Nuclear
+34,0.0,7,D000002,No Nuclear
+35,0.0,7,D000002,No Nuclear
+36,0.0,7,D000002,No Nuclear
+4,0.0,7,D000002,No Nuclear
+45,0.0,7,D000002,No Nuclear
+46,0.0,7,D000002,No Nuclear
+5,0.0,7,D000002,No Nuclear
+1,0.0,3,D000002,No Nuclear
+2,0.0,3,D000002,No Nuclear
+21,0.0,3,D000002,No Nuclear
+26,0.0,3,D000002,No Nuclear
+27,0.0,3,D000002,No Nuclear
+28,0.0,3,D000002,No Nuclear
+3,0.0,3,D000002,No Nuclear
+32,0.0,3,D000002,No Nuclear
+33,0.0,3,D000002,No Nuclear
+34,0.0,3,D000002,No Nuclear
+35,0.0,3,D000002,No Nuclear
+36,0.0,3,D000002,No Nuclear
+4,0.0,3,D000002,No Nuclear
+45,0.0,3,D000002,No Nuclear
+46,0.0,3,D000002,No Nuclear
+5,0.0,3,D000002,No Nuclear
+1,0.0,4,D000003,No Nuclear
+2,0.0,4,D000003,No Nuclear
+21,0.0,4,D000003,No Nuclear
+26,0.0,4,D000003,No Nuclear
+27,0.0,4,D000003,No Nuclear
+28,0.0,4,D000003,No Nuclear
+3,0.0,4,D000003,No Nuclear
+32,0.0,4,D000003,No Nuclear
+33,0.0,4,D000003,No Nuclear
+34,0.0,4,D000003,No Nuclear
+35,0.0,4,D000003,No Nuclear
+36,0.0,4,D000003,No Nuclear
+4,0.0,4,D000003,No Nuclear
+45,0.0,4,D000003,No Nuclear
+46,0.0,4,D000003,No Nuclear
+5,0.0,4,D000003,No Nuclear
+1,0.0,1,D000003,No Nuclear
+2,0.0,1,D000003,No Nuclear
+21,0.0,1,D000003,No Nuclear
+26,0.0,1,D000003,No Nuclear
+27,0.0,1,D000003,No Nuclear
+28,0.0,1,D000003,No Nuclear
+3,0.0,1,D000003,No Nuclear
+32,0.0,1,D000003,No Nuclear
+33,0.0,1,D000003,No Nuclear
+34,0.0,1,D000003,No Nuclear
+35,0.0,1,D000003,No Nuclear
+36,0.0,1,D000003,No Nuclear
+4,0.0,1,D000003,No Nuclear
+45,0.0,1,D000003,No Nuclear
+46,0.0,1,D000003,No Nuclear
+5,0.0,1,D000003,No Nuclear
+1,0.0,5,D000003,No Nuclear
+2,0.0,5,D000003,No Nuclear
+21,0.0,5,D000003,No Nuclear
+26,0.0,5,D000003,No Nuclear
+27,0.0,5,D000003,No Nuclear
+28,0.0,5,D000003,No Nuclear
+3,0.0,5,D000003,No Nuclear
+32,0.0,5,D000003,No Nuclear
+33,0.0,5,D000003,No Nuclear
+34,0.0,5,D000003,No Nuclear
+35,0.0,5,D000003,No Nuclear
+36,0.0,5,D000003,No Nuclear
+4,0.0,5,D000003,No Nuclear
+45,0.0,5,D000003,No Nuclear
+46,0.0,5,D000003,No Nuclear
+5,0.0,5,D000003,No Nuclear
+1,0.0,2,D000003,No Nuclear
+2,0.0,2,D000003,No Nuclear
+21,0.0,2,D000003,No Nuclear
+26,0.0,2,D000003,No Nuclear
+27,0.0,2,D000003,No Nuclear
+28,0.0,2,D000003,No Nuclear
+3,0.0,2,D000003,No Nuclear
+32,0.0,2,D000003,No Nuclear
+33,0.0,2,D000003,No Nuclear
+34,0.0,2,D000003,No Nuclear
+35,0.0,2,D000003,No Nuclear
+36,0.0,2,D000003,No Nuclear
+4,0.0,2,D000003,No Nuclear
+45,0.0,2,D000003,No Nuclear
+46,0.0,2,D000003,No Nuclear
+5,0.0,2,D000003,No Nuclear
+1,0.0,6,D000003,No Nuclear
+2,0.0,6,D000003,No Nuclear
+21,0.0,6,D000003,No Nuclear
+26,0.0,6,D000003,No Nuclear
+27,0.0,6,D000003,No Nuclear
+28,0.0,6,D000003,No Nuclear
+3,0.0,6,D000003,No Nuclear
+32,0.0,6,D000003,No Nuclear
+33,0.0,6,D000003,No Nuclear
+34,0.0,6,D000003,No Nuclear
+35,0.0,6,D000003,No Nuclear
+36,0.0,6,D000003,No Nuclear
+4,0.0,6,D000003,No Nuclear
+45,0.0,6,D000003,No Nuclear
+46,0.0,6,D000003,No Nuclear
+5,0.0,6,D000003,No Nuclear
+1,0.0,7,D000003,No Nuclear
+2,0.0,7,D000003,No Nuclear
+21,0.0,7,D000003,No Nuclear
+26,0.0,7,D000003,No Nuclear
+27,0.0,7,D000003,No Nuclear
+28,0.0,7,D000003,No Nuclear
+3,0.0,7,D000003,No Nuclear
+32,0.0,7,D000003,No Nuclear
+33,0.0,7,D000003,No Nuclear
+34,0.0,7,D000003,No Nuclear
+35,0.0,7,D000003,No Nuclear
+36,0.0,7,D000003,No Nuclear
+4,0.0,7,D000003,No Nuclear
+45,0.0,7,D000003,No Nuclear
+46,0.0,7,D000003,No Nuclear
+5,0.0,7,D000003,No Nuclear
+1,0.0,3,D000003,No Nuclear
+2,0.0,3,D000003,No Nuclear
+21,0.0,3,D000003,No Nuclear
+26,0.0,3,D000003,No Nuclear
+27,0.0,3,D000003,No Nuclear
+28,0.0,3,D000003,No Nuclear
+3,0.0,3,D000003,No Nuclear
+32,0.0,3,D000003,No Nuclear
+33,0.0,3,D000003,No Nuclear
+34,0.0,3,D000003,No Nuclear
+35,0.0,3,D000003,No Nuclear
+36,0.0,3,D000003,No Nuclear
+4,0.0,3,D000003,No Nuclear
+45,0.0,3,D000003,No Nuclear
+46,0.0,3,D000003,No Nuclear
+5,0.0,3,D000003,No Nuclear
+1,0.0,4,D000004,No Nuclear
+2,0.0,4,D000004,No Nuclear
+21,0.0,4,D000004,No Nuclear
+26,0.0,4,D000004,No Nuclear
+27,0.0,4,D000004,No Nuclear
+28,0.0,4,D000004,No Nuclear
+3,0.0,4,D000004,No Nuclear
+32,0.0,4,D000004,No Nuclear
+33,0.0,4,D000004,No Nuclear
+34,0.0,4,D000004,No Nuclear
+35,0.0,4,D000004,No Nuclear
+36,0.0,4,D000004,No Nuclear
+4,0.0,4,D000004,No Nuclear
+45,0.0,4,D000004,No Nuclear
+46,0.0,4,D000004,No Nuclear
+5,0.0,4,D000004,No Nuclear
+1,0.0,1,D000004,No Nuclear
+2,0.0,1,D000004,No Nuclear
+21,0.0,1,D000004,No Nuclear
+26,0.0,1,D000004,No Nuclear
+27,0.0,1,D000004,No Nuclear
+28,0.0,1,D000004,No Nuclear
+3,0.0,1,D000004,No Nuclear
+32,0.0,1,D000004,No Nuclear
+33,0.0,1,D000004,No Nuclear
+34,0.0,1,D000004,No Nuclear
+35,0.0,1,D000004,No Nuclear
+36,0.0,1,D000004,No Nuclear
+4,0.0,1,D000004,No Nuclear
+45,0.0,1,D000004,No Nuclear
+46,0.0,1,D000004,No Nuclear
+5,0.0,1,D000004,No Nuclear
+1,0.0,5,D000004,No Nuclear
+2,0.0,5,D000004,No Nuclear
+21,0.0,5,D000004,No Nuclear
+26,0.0,5,D000004,No Nuclear
+27,0.0,5,D000004,No Nuclear
+28,0.0,5,D000004,No Nuclear
+3,0.0,5,D000004,No Nuclear
+32,0.0,5,D000004,No Nuclear
+33,0.0,5,D000004,No Nuclear
+34,0.0,5,D000004,No Nuclear
+35,0.0,5,D000004,No Nuclear
+36,0.0,5,D000004,No Nuclear
+4,0.0,5,D000004,No Nuclear
+45,0.0,5,D000004,No Nuclear
+46,0.0,5,D000004,No Nuclear
+5,0.0,5,D000004,No Nuclear
+1,0.0,2,D000004,No Nuclear
+2,0.0,2,D000004,No Nuclear
+21,0.0,2,D000004,No Nuclear
+26,0.0,2,D000004,No Nuclear
+27,0.0,2,D000004,No Nuclear
+28,0.0,2,D000004,No Nuclear
+3,0.0,2,D000004,No Nuclear
+32,0.0,2,D000004,No Nuclear
+33,0.0,2,D000004,No Nuclear
+34,0.0,2,D000004,No Nuclear
+35,0.0,2,D000004,No Nuclear
+36,0.0,2,D000004,No Nuclear
+4,0.0,2,D000004,No Nuclear
+45,0.0,2,D000004,No Nuclear
+46,0.0,2,D000004,No Nuclear
+5,0.0,2,D000004,No Nuclear
+1,0.0,6,D000004,No Nuclear
+2,0.0,6,D000004,No Nuclear
+21,0.0,6,D000004,No Nuclear
+26,0.0,6,D000004,No Nuclear
+27,0.0,6,D000004,No Nuclear
+28,0.0,6,D000004,No Nuclear
+3,0.0,6,D000004,No Nuclear
+32,0.0,6,D000004,No Nuclear
+33,0.0,6,D000004,No Nuclear
+34,0.0,6,D000004,No Nuclear
+35,0.0,6,D000004,No Nuclear
+36,0.0,6,D000004,No Nuclear
+4,0.0,6,D000004,No Nuclear
+45,0.0,6,D000004,No Nuclear
+46,0.0,6,D000004,No Nuclear
+5,0.0,6,D000004,No Nuclear
+1,0.0,7,D000004,No Nuclear
+2,0.0,7,D000004,No Nuclear
+21,0.0,7,D000004,No Nuclear
+26,0.0,7,D000004,No Nuclear
+27,0.0,7,D000004,No Nuclear
+28,0.0,7,D000004,No Nuclear
+3,0.0,7,D000004,No Nuclear
+32,0.0,7,D000004,No Nuclear
+33,0.0,7,D000004,No Nuclear
+34,0.0,7,D000004,No Nuclear
+35,0.0,7,D000004,No Nuclear
+36,0.0,7,D000004,No Nuclear
+4,0.0,7,D000004,No Nuclear
+45,0.0,7,D000004,No Nuclear
+46,0.0,7,D000004,No Nuclear
+5,0.0,7,D000004,No Nuclear
+1,0.0,3,D000004,No Nuclear
+2,0.0,3,D000004,No Nuclear
+21,0.0,3,D000004,No Nuclear
+26,0.0,3,D000004,No Nuclear
+27,0.0,3,D000004,No Nuclear
+28,0.0,3,D000004,No Nuclear
+3,0.0,3,D000004,No Nuclear
+32,0.0,3,D000004,No Nuclear
+33,0.0,3,D000004,No Nuclear
+34,0.0,3,D000004,No Nuclear
+35,0.0,3,D000004,No Nuclear
+36,0.0,3,D000004,No Nuclear
+4,0.0,3,D000004,No Nuclear
+45,0.0,3,D000004,No Nuclear
+46,0.0,3,D000004,No Nuclear
+5,0.0,3,D000004,No Nuclear
+1,0.0,4,D000005,No Nuclear
+2,0.0,4,D000005,No Nuclear
+21,0.0,4,D000005,No Nuclear
+26,0.0,4,D000005,No Nuclear
+27,0.0,4,D000005,No Nuclear
+28,0.0,4,D000005,No Nuclear
+3,0.0,4,D000005,No Nuclear
+32,0.0,4,D000005,No Nuclear
+33,0.0,4,D000005,No Nuclear
+34,0.0,4,D000005,No Nuclear
+35,0.0,4,D000005,No Nuclear
+36,0.0,4,D000005,No Nuclear
+4,0.0,4,D000005,No Nuclear
+45,0.0,4,D000005,No Nuclear
+46,0.0,4,D000005,No Nuclear
+5,0.0,4,D000005,No Nuclear
+1,0.0,1,D000005,No Nuclear
+2,0.0,1,D000005,No Nuclear
+21,0.0,1,D000005,No Nuclear
+26,0.0,1,D000005,No Nuclear
+27,0.0,1,D000005,No Nuclear
+28,0.0,1,D000005,No Nuclear
+3,0.0,1,D000005,No Nuclear
+32,0.0,1,D000005,No Nuclear
+33,0.0,1,D000005,No Nuclear
+34,0.0,1,D000005,No Nuclear
+35,0.0,1,D000005,No Nuclear
+36,0.0,1,D000005,No Nuclear
+4,0.0,1,D000005,No Nuclear
+45,0.0,1,D000005,No Nuclear
+46,0.0,1,D000005,No Nuclear
+5,0.0,1,D000005,No Nuclear
+1,0.0,5,D000005,No Nuclear
+2,0.0,5,D000005,No Nuclear
+21,0.0,5,D000005,No Nuclear
+26,0.0,5,D000005,No Nuclear
+27,0.0,5,D000005,No Nuclear
+28,0.0,5,D000005,No Nuclear
+3,0.0,5,D000005,No Nuclear
+32,0.0,5,D000005,No Nuclear
+33,0.0,5,D000005,No Nuclear
+34,0.0,5,D000005,No Nuclear
+35,0.0,5,D000005,No Nuclear
+36,0.0,5,D000005,No Nuclear
+4,0.0,5,D000005,No Nuclear
+45,0.0,5,D000005,No Nuclear
+46,0.0,5,D000005,No Nuclear
+5,0.0,5,D000005,No Nuclear
+1,0.0,2,D000005,No Nuclear
+2,0.0,2,D000005,No Nuclear
+21,0.0,2,D000005,No Nuclear
+26,0.0,2,D000005,No Nuclear
+27,0.0,2,D000005,No Nuclear
+28,0.0,2,D000005,No Nuclear
+3,0.0,2,D000005,No Nuclear
+32,0.0,2,D000005,No Nuclear
+33,0.0,2,D000005,No Nuclear
+34,0.0,2,D000005,No Nuclear
+35,0.0,2,D000005,No Nuclear
+36,0.0,2,D000005,No Nuclear
+4,0.0,2,D000005,No Nuclear
+45,0.0,2,D000005,No Nuclear
+46,0.0,2,D000005,No Nuclear
+5,0.0,2,D000005,No Nuclear
+1,0.0,6,D000005,No Nuclear
+2,0.0,6,D000005,No Nuclear
+21,0.0,6,D000005,No Nuclear
+26,0.0,6,D000005,No Nuclear
+27,0.0,6,D000005,No Nuclear
+28,0.0,6,D000005,No Nuclear
+3,0.0,6,D000005,No Nuclear
+32,0.0,6,D000005,No Nuclear
+33,0.0,6,D000005,No Nuclear
+34,0.0,6,D000005,No Nuclear
+35,0.0,6,D000005,No Nuclear
+36,0.0,6,D000005,No Nuclear
+4,0.0,6,D000005,No Nuclear
+45,0.0,6,D000005,No Nuclear
+46,0.0,6,D000005,No Nuclear
+5,0.0,6,D000005,No Nuclear
+1,0.0,7,D000005,No Nuclear
+2,0.0,7,D000005,No Nuclear
+21,0.0,7,D000005,No Nuclear
+26,0.0,7,D000005,No Nuclear
+27,0.0,7,D000005,No Nuclear
+28,0.0,7,D000005,No Nuclear
+3,0.0,7,D000005,No Nuclear
+32,0.0,7,D000005,No Nuclear
+33,0.0,7,D000005,No Nuclear
+34,0.0,7,D000005,No Nuclear
+35,0.0,7,D000005,No Nuclear
+36,0.0,7,D000005,No Nuclear
+4,0.0,7,D000005,No Nuclear
+45,0.0,7,D000005,No Nuclear
+46,0.0,7,D000005,No Nuclear
+5,0.0,7,D000005,No Nuclear
+1,0.0,3,D000005,No Nuclear
+2,0.0,3,D000005,No Nuclear
+21,0.0,3,D000005,No Nuclear
+26,0.0,3,D000005,No Nuclear
+27,0.0,3,D000005,No Nuclear
+28,0.0,3,D000005,No Nuclear
+3,0.0,3,D000005,No Nuclear
+32,0.0,3,D000005,No Nuclear
+33,0.0,3,D000005,No Nuclear
+34,0.0,3,D000005,No Nuclear
+35,0.0,3,D000005,No Nuclear
+36,0.0,3,D000005,No Nuclear
+4,0.0,3,D000005,No Nuclear
+45,0.0,3,D000005,No Nuclear
+46,0.0,3,D000005,No Nuclear
+5,0.0,3,D000005,No Nuclear
