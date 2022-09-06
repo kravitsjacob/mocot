@@ -1,4 +1,4 @@
-MATPOWER Index,MATPOWER Generator Name,MATPOWER Type,MATPOWER Fuel,MATPOWER Capacity (MW),EIA Plant Name,POWERWORLD Plant Name,923 Cooling Type,Ramp Rate (MW/hr),Plant Name,Emission Rate lbs per kWh,Emission Rate lbs per MWh, Withdrawal Limit [L/MWh], Consumption Limit [L/MWh]
+MATPOWER Index,MATPOWER Generator Name,MATPOWER Type,MATPOWER Fuel,MATPOWER Capacity (MW),EIA Plant Name,POWERWORLD Plant Name,923 Cooling Type,Ramp Rate (MW/hr),Plant Name,Emission Rate lbs per kWh,Emission Rate lbs per MWh,Withdrawal Limit [L/MWh],Consumption Limit [L/MWh]
 49,RANTOUL 2 1,ST,coal,4.53,Rantoul,RANTOUL 2,OC,163.07999999999998,Plant 1,2.23,0.0022299999999999,190000.0,1200.0
 50,RANTOUL 2 2,ST,coal,4.53,Rantoul,RANTOUL 2,OC,163.07999999999998,Plant 1,2.23,0.0022299999999999,190000.0,1200.0
 51,RANTOUL 2 3,ST,coal,4.53,Rantoul,RANTOUL 2,OC,163.07999999999998,Plant 1,2.23,0.0022299999999999,190000.0,1200.0
