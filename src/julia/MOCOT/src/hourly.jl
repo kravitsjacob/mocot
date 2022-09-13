@@ -54,29 +54,40 @@ function add_within_day_ramp_rates!(pm)
     h_total = length(network_data_multi)
 
     for (obj_name, obj_props) in network_data_multi["1"]["gen"]
-        # Extract ramp rates to pu
-        ramp = obj_props["cus_ramp_rate"]/100.0 
-        
-        obj_index = parse(Int, obj_name)
         try
-            # Ramping up
-            JuMP.@constraint(
-                pm.model,
-                [h in 2:h_total],
-                PowerModels.var(pm, h-1, :pg, obj_index) - PowerModels.var(pm, h, :pg, obj_index) <= ramp
-            )
-            # Ramping down
-            JuMP.@constraint(
-                pm.model,
-                [h in 2:h_total],
-                PowerModels.var(pm, h, :pg, obj_index) - PowerModels.var(pm, h-1, :pg, obj_index) <= ramp
-            )
+            # Extract ramp rates to pu
+            ramp = obj_props["cus_ramp_rate"]/100.0 
+            
+            obj_index = parse(Int, obj_name)
+            try
+                # Ramping up
+                JuMP.@constraint(
+                    pm.model,
+                    [h in 2:h_total],
+                    PowerModels.var(pm, h-1, :pg, obj_index) - PowerModels.var(pm, h, :pg, obj_index) <= ramp
+                )
+                # Ramping down
+                JuMP.@constraint(
+                    pm.model,
+                    [h in 2:h_total],
+                    PowerModels.var(pm, h, :pg, obj_index) - PowerModels.var(pm, h-1, :pg, obj_index) <= ramp
+                )
+            catch
+                println(
+                    """
+                    Ramping constraint for generator $obj_index was specified but the corresponding decision variable was not found.
+                    """
+                )
+            end
         catch
-            println(
-                """
-                Ramping constraint for generator $obj_index was specified but the corresponding decision variable was not found.
-                """
-            )
+            try 
+                # Check if reliabilty generator
+                if obj_name not in network_data["reliability_gen"]
+                    println("Ramping constraints not added for generator $obj_name")
+                end
+            catch
+                # Skip adding ramp constraints as it's a reliability generator
+            end
         end
     end
 
@@ -104,33 +115,45 @@ function add_day_to_day_ramp_rates!(
     network_data_multi = pm.data["nw"]
     
     for (obj_name, obj_props) in network_data_multi["1"]["gen"]
-        # Extract ramp rates to pu
-        ramp = obj_props["cus_ramp_rate"]/100.0 
-
         try
-            # Previous power output
-            pg_previous = results_previous_hour["gen"][obj_name]["pg"]
+            # Extract ramp rates to pu
+            ramp = obj_props["cus_ramp_rate"]/100.0 
 
-            # Ramping up
-            obj_index = parse(Int, obj_name)
-            JuMP.@constraint(
-                pm.model,
-                pg_previous - PowerModels.var(pm, h, :pg, obj_index) <= ramp
-            )
+            try
+                # Previous power output
+                pg_previous = results_previous_hour["gen"][obj_name]["pg"]
 
-            # Ramping down
-            JuMP.@constraint(
-                pm.model,
-                PowerModels.var(pm, h, :pg, obj_index) - pg_previous <= ramp
-            )
+                # Ramping up
+                obj_index = parse(Int, obj_name)
+                JuMP.@constraint(
+                    pm.model,
+                    pg_previous - PowerModels.var(pm, h, :pg, obj_index) <= ramp
+                )
+
+                # Ramping down
+                JuMP.@constraint(
+                    pm.model,
+                    PowerModels.var(pm, h, :pg, obj_index) - pg_previous <= ramp
+                )
+            catch
+                println(
+                    """
+                    Day-to-day ramping constraint for generator $obj_name was specified but the corresponding decision variable was not found.
+                    """
+                )
+            end
         catch
-            println(
-                """
-                Day-to-day ramping constraint for generator $obj_name was specified but the corresponding decision variable was not found.
-                """
-            )
+            try 
+                # Check if reliabilty generator
+                if obj_name not in network_data["reliability_gen"]
+                    println("Day-to-day ramping constraints not added for generator $obj_name")
+                end
+            catch
+                # Skip adding day-to-day ramping constraints as it's a reliability generator
+            end
         end
     end
+
     return pm
 end
 
@@ -159,4 +182,39 @@ function update_load!(network_data_multi::Dict, day_loads:: Dict)
     end
 
     return network_data_multi
+end
+
+
+function add_reliability_gens!(network_data:: Dict)
+    """
+    Add fake generators at every load to model relaibility. Generators with
+    more than 1000 name are reliability generators.
+
+    # Arguments
+    - `network_data:: Dict`: PowerModels network data
+    """
+    # Starting index for reliability generators
+    reliability_start = 1000
+    reliability_gen_ls = String[]
+
+    for (obj_name, obj_props) in network_data["load"]
+        # Generator name
+        reliability_gen_name = string(obj_props["index"] + reliability_start)
+        append!(reliability_gen_ls, [reliability_gen_name])
+
+        # Generator properties
+        network_data["gen"][reliability_gen_name] = Dict(
+            "gen_bus" => obj_props["load_bus"],
+            "cost" => [0.0, 1.0e10, 0.0],
+            "gen_status" => 1,
+            "pmin" => 0.0,
+            "pmax" => 1e10,
+            "model" => 2
+        )
+    end
+
+    # Add to reliability generator list
+    network_data["reliability_gen"] = reliability_gen_ls
+
+    return network_data
 end

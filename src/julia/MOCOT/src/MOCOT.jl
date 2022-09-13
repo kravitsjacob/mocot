@@ -51,23 +51,37 @@ function simulation(
     w_with = Dict{String, Float64}()
     w_con = Dict{String, Float64}()
     for (obj_name, obj_props) in network_data["gen"]
-        if obj_props["cus_fuel"] == "coal"
-            w_with[obj_name] = w_with_coal
-            w_con[obj_name] = w_con_coal
-        elseif obj_props["cus_fuel"] == "ng"
-            w_with[obj_name] = w_with_ng
-            w_con[obj_name] = w_con_ng
-        elseif obj_props["cus_fuel"] == "nuclear"
-            w_with[obj_name] = w_with_nuc
-            w_con[obj_name] = w_con_nuc
-        else
-            w_with[obj_name] = 0.0
-            w_con[obj_name] = 0.0
+        try
+            if obj_props["cus_fuel"] == "coal"
+                w_with[obj_name] = w_with_coal
+                w_con[obj_name] = w_con_coal
+            elseif obj_props["cus_fuel"] == "ng"
+                w_with[obj_name] = w_with_ng
+                w_con[obj_name] = w_con_ng
+            elseif obj_props["cus_fuel"] == "nuclear"
+                w_with[obj_name] = w_with_nuc
+                w_con[obj_name] = w_con_nuc
+            else
+                w_with[obj_name] = 0.0
+                w_con[obj_name] = 0.0
+            end
+        catch
+            try 
+                # Check if reliabilty generator
+                if obj_name not in network_data["reliability_gen"]
+                    println("Weight not added for generator $obj_name")
+                end
+            catch
+                # Skip adding weight as it's a reliability generator
+            end
         end
     end
 
     # Adjust generator capacity
-    network_data = update_all_gens!(network_data, "pmin", 0.0)
+    network_data = MOCOT.update_all_gens!(network_data, "pmin", 0.0)
+
+    # Add reliability generators
+    network_data = MOCOT.add_reliability_gens!(network_data)
 
     # Make multinetwork
     network_data_multi = PowerModels.replicate(network_data, h_total)
