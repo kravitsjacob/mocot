@@ -134,12 +134,12 @@ def main():
     # Grid sample decisions
     if not os.path.exists(paths['outputs']['dec_exog']):
         grid_specs = {
-            'w_with_coal': {'min': 0.0, 'max': 2.0, 'steps': 3},
-            'w_con_coal': {'min': 0.0, 'max': 2.0, 'steps': 3},
-            'w_with_ng': {'min': 0.0, 'max': 2.0, 'steps': 3},
-            'w_con_ng': {'min': 0.0, 'max': 2.0, 'steps': 3},
-            'w_with_nuc': {'min': 0.0, 'max': 2.0, 'steps': 3},
-            'w_con_nuc': {'min': 0.0, 'max': 2.0, 'steps': 3}
+            'w_with_coal': {'min': 0.0, 'max': 1.0, 'steps': 3},
+            'w_con_coal': {'min': 0.0, 'max': 10.0, 'steps': 3},
+            'w_with_ng': {'min': 0.0, 'max': 1.0, 'steps': 3},
+            'w_con_ng': {'min': 0.0, 'max': 1.0, 'steps': 3},
+            'w_with_nuc': {'min': 0.0, 'max': 1.0, 'steps': 3},
+            'w_con_nuc': {'min': 0.0, 'max': 1.0, 'steps': 3}
         }
         df_dec_exog = mocot.core.grid_sample(grid_specs)
         df_dec_exog['dec_label'] = 'D' + \
