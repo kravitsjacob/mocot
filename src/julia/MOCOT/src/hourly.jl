@@ -115,33 +115,45 @@ function add_day_to_day_ramp_rates!(
     network_data_multi = pm.data["nw"]
     
     for (obj_name, obj_props) in network_data_multi["1"]["gen"]
-        # Extract ramp rates to pu
-        ramp = obj_props["cus_ramp_rate"]/100.0 
-
         try
-            # Previous power output
-            pg_previous = results_previous_hour["gen"][obj_name]["pg"]
+            # Extract ramp rates to pu
+            ramp = obj_props["cus_ramp_rate"]/100.0 
 
-            # Ramping up
-            obj_index = parse(Int, obj_name)
-            JuMP.@constraint(
-                pm.model,
-                pg_previous - PowerModels.var(pm, h, :pg, obj_index) <= ramp
-            )
+            try
+                # Previous power output
+                pg_previous = results_previous_hour["gen"][obj_name]["pg"]
 
-            # Ramping down
-            JuMP.@constraint(
-                pm.model,
-                PowerModels.var(pm, h, :pg, obj_index) - pg_previous <= ramp
-            )
+                # Ramping up
+                obj_index = parse(Int, obj_name)
+                JuMP.@constraint(
+                    pm.model,
+                    pg_previous - PowerModels.var(pm, h, :pg, obj_index) <= ramp
+                )
+
+                # Ramping down
+                JuMP.@constraint(
+                    pm.model,
+                    PowerModels.var(pm, h, :pg, obj_index) - pg_previous <= ramp
+                )
+            catch
+                println(
+                    """
+                    Day-to-day ramping constraint for generator $obj_name was specified but the corresponding decision variable was not found.
+                    """
+                )
+            end
         catch
-            println(
-                """
-                Day-to-day ramping constraint for generator $obj_name was specified but the corresponding decision variable was not found.
-                """
-            )
+            try 
+                # Check if reliabilty generator
+                if obj_name not in network_data["reliability_gen"]
+                    println("Day-to-day ramping constraints not added for generator $obj_name")
+                end
+            catch
+                # Skip adding day-to-day ramping constraints as it's a reliability generator
+            end
         end
     end
+
     return pm
 end
 
