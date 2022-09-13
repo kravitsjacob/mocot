@@ -148,12 +148,13 @@ function main()
             paths["outputs"]["discharge_violation_states"],
             df_discharge_violation_states
         )
-    end
 
-    CSV.write(
-        paths["outputs"]["objectives"],
-        df_objs
-    )
+        CSV.write(
+            paths["outputs"]["objectives"],
+            df_objs
+        )
+
+    end
 
     # Generator information export
     CSV.write(paths["outputs"]["gen_info_main"], df_gen_info)
