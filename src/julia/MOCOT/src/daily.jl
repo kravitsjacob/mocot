@@ -315,41 +315,51 @@ function gen_water_use(
 
     # Water use for each generator
     for (obj_name, obj_props) in network_data["gen"]
-        cool = obj_props["cus_cool"]
-        fuel = obj_props["cus_fuel"]
-        eta_net = obj_props["cus_heat_rate"]
+        try
+            cool = obj_props["cus_cool"]
+            fuel = obj_props["cus_fuel"]
+            eta_net = obj_props["cus_heat_rate"]
 
-        beta_with, beta_con = MOCOT.water_use(
-            water_temperature,
-            air_temperature,
-            fuel,
-            cool,
-            eta_net
-        )
+            beta_with, beta_con = MOCOT.water_use(
+                water_temperature,
+                air_temperature,
+                fuel,
+                cool,
+                eta_net
+            )
 
-        if cool == "OC"
-            delta_t = 0.0
-            try
-                k_os = get_k_os(fuel)
-                beta_proc = get_beta_proc(fuel)
-                beta_with, beta_con, delta_t = themal_limits(
-                    beta_with,
-                    obj_props["cus_with_limit"],
-                    beta_con,
-                    obj_props["cus_con_limit"],
-                    k_os,
-                    beta_proc,
-                    eta_net
-                )
-            catch
-                println("Missing water use rate limits for generator $obj_name")
+            if cool == "OC"
+                delta_t = 0.0
+                try
+                    k_os = get_k_os(fuel)
+                    beta_proc = get_beta_proc(fuel)
+                    beta_with, beta_con, delta_t = themal_limits(
+                        beta_with,
+                        obj_props["cus_with_limit"],
+                        beta_con,
+                        obj_props["cus_con_limit"],
+                        k_os,
+                        beta_proc,
+                        eta_net
+                    )
+                catch
+                    println("Missing water use rate limits for generator $obj_name")
+                end
+                gen_discharge_violation[obj_name] = delta_t
             end
-            gen_discharge_violation[obj_name] = delta_t
+
+            gen_beta_with[obj_name] = beta_with
+            gen_beta_con[obj_name] = beta_con
+        catch
+            # Check if reliabilty generator
+            try
+                if obj_name not in network_data["reliability_gen"]
+                    println("Water use not computed for generator $obj_name")
+                end
+            catch
+                # Skip water use as it's a relaibility generator
+            end
         end
-
-
-        gen_beta_with[obj_name] = beta_with
-        gen_beta_con[obj_name] = beta_con
 
     end
 
