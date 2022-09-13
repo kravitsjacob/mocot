@@ -31,7 +31,7 @@ This process is only needed if projects aren't installed. Note, I had to delete 
 * Activate MOCOT: `julia> Pkg.activate("src/julia/MOCOT")`
 * Instantiate MOCOT `julia> Pkg.instantiate()`
 * Activate analysis: `julia> Pkg.activate("analysis")`
-* Add MOCOT as a dev package: `julia> Pkg.develop("/projects/jakr3868/mocot/src/julia/MOCOT/")`
+* Add MOCOT as a dev package: `julia> Pkg.develop(path="/projects/jakr3868/mocot/src/julia/MOCOT")`
 * Instantiate analysis `julia> Pkg.instantiate()`
 
 ## Running simulation
