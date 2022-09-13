@@ -17,7 +17,8 @@ setuptools.setup(
         'tables',
         'pandapower >= 2.10.1',
         'PyYAML',
-        'matpowercaseframes'
+        'matpowercaseframes',
+        'hiplot'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

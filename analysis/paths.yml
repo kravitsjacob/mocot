@@ -39,7 +39,4 @@ outputs:
     node_load: "analysis/io/outputs/figures/node_load.pdf"
     hour_node_load: "analysis/io/outputs/figures/hour_node_load.pdf"
     temperatures: "analysis/io/outputs/figures/temperatures.pdf"
-    normal_parallel: "analysis/io/outputs/figures/normal_parallel.pdf"
-    no_nuclear_parallel: "analysis/io/outputs/figures/no_nuclear_parallel.pdf"
-    normal_output: "analysis/io/outputs/figures/normal_output.pdf"
-    no_nuclear_output: "analysis/io/outputs/figures/no_nuclear_output.pdf"
+    interactive_parallel: "analysis/io/outputs/figures/interactive_parallel.html"

@@ -41,41 +41,12 @@ def main():
         fig = mocot.viz.node_load(df_node_load)
         fig.savefig(paths['outputs']['figures']['node_load'])
 
-    # Normal objective performances
-    if not os.path.exists(paths['outputs']['figures']['normal_parallel']):
-        df_objs = pd.read_csv(paths["outputs"]["objectives"])
-        fig = mocot.viz.normal_parallel(df_objs)
-        fig.savefig(paths['outputs']['figures']['normal_parallel'])
-
-    # No nuclear objective Performances
-    if not os.path.exists(paths['outputs']['figures']['no_nuclear_parallel']):
-        df_objs = pd.read_csv(paths["outputs"]["objectives"])
-        fig = mocot.viz.no_nuclear_parallel(df_objs)
-        fig.savefig(paths['outputs']['figures']['no_nuclear_parallel'])
-
-    # Normal generator output
-    if not os.path.exists(paths['outputs']['figures']['normal_output']):
-        df_states = pd.read_csv(paths["outputs"]["states"])
-        df_gen_info = pd.read_csv(paths['outputs']['gen_info_main'])
-        df_system_load = pd.read_csv(paths['outputs']['system_load'])
-        fig = mocot.viz.normal_gen_timeseries(
-            df_states,
-            df_gen_info,
-            df_system_load
-        )
-        fig.savefig(paths['outputs']['figures']['normal_output'])
-
-    # No nuclear generator output
-    if not os.path.exists(paths['outputs']['figures']['no_nuclear_output']):
-        df_states = pd.read_csv(paths["outputs"]["states"])
-        df_gen_info = pd.read_csv(paths['outputs']['gen_info_main'])
-        df_system_load = pd.read_csv(paths['outputs']['system_load'])
-        fig = mocot.viz.nonuclear_gen_timeseries(
-            df_states,
-            df_gen_info,
-            df_system_load
-        )
-        fig.savefig(paths['outputs']['figures']['no_nuclear_output'])
+    # Interactive parallel plot
+    if not os.path.exists(paths['outputs']['figures']['interactive_parallel']):
+        df_obj = pd.read_csv(paths['outputs']['objectives'])
+        df_dec_exog = pd.read_csv(paths['outputs']['dec_exog'])
+        exp = mocot.viz.interactive_parallel(df_obj, df_dec_exog)
+        exp.to_html(paths['outputs']['figures']['interactive_parallel'])
 
 
 if __name__ == '__main__':
