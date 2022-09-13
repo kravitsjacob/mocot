@@ -54,29 +54,40 @@ function add_within_day_ramp_rates!(pm)
     h_total = length(network_data_multi)
 
     for (obj_name, obj_props) in network_data_multi["1"]["gen"]
-        # Extract ramp rates to pu
-        ramp = obj_props["cus_ramp_rate"]/100.0 
-        
-        obj_index = parse(Int, obj_name)
         try
-            # Ramping up
-            JuMP.@constraint(
-                pm.model,
-                [h in 2:h_total],
-                PowerModels.var(pm, h-1, :pg, obj_index) - PowerModels.var(pm, h, :pg, obj_index) <= ramp
-            )
-            # Ramping down
-            JuMP.@constraint(
-                pm.model,
-                [h in 2:h_total],
-                PowerModels.var(pm, h, :pg, obj_index) - PowerModels.var(pm, h-1, :pg, obj_index) <= ramp
-            )
+            # Extract ramp rates to pu
+            ramp = obj_props["cus_ramp_rate"]/100.0 
+            
+            obj_index = parse(Int, obj_name)
+            try
+                # Ramping up
+                JuMP.@constraint(
+                    pm.model,
+                    [h in 2:h_total],
+                    PowerModels.var(pm, h-1, :pg, obj_index) - PowerModels.var(pm, h, :pg, obj_index) <= ramp
+                )
+                # Ramping down
+                JuMP.@constraint(
+                    pm.model,
+                    [h in 2:h_total],
+                    PowerModels.var(pm, h, :pg, obj_index) - PowerModels.var(pm, h-1, :pg, obj_index) <= ramp
+                )
+            catch
+                println(
+                    """
+                    Ramping constraint for generator $obj_index was specified but the corresponding decision variable was not found.
+                    """
+                )
+            end
         catch
-            println(
-                """
-                Ramping constraint for generator $obj_index was specified but the corresponding decision variable was not found.
-                """
-            )
+            try 
+                # Check if reliabilty generator
+                if obj_name not in network_data["reliability_gen"]
+                    println("Ramping constraints not added for generator $obj_name")
+                end
+            catch
+                # Skip adding ramp constraints as it's a reliability generator
+            end
         end
     end
 
