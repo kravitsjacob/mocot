@@ -5,6 +5,7 @@ using CSV
 using XLSX
 using PowerModels
 using JuMP
+using Ipopt
 
 using MOCOT
 
@@ -174,4 +175,37 @@ end
 
     @Test.test isequal(test_dict["1"], 50.0)
     @Test.test isequal(test_dict["2"], 120.0)
+end
+
+
+@Test.testset "add_reliability_gens!" begin
+    # Setup
+    network_data = PowerModels.parse_file("src/julia/MOCOT/testing/case_ACTIVSg200.m")
+    
+    # Add really big load
+    network_data["load"]["1"]["pd"] = 100000.0
+
+    # Adjust generator capacity
+    network_data = MOCOT.update_all_gens!(network_data, "pmin", 0.0)
+
+    # Add reliability
+    network_data = MOCOT.add_reliability_gens!(network_data)
+
+    # Solve OPF
+    pm = PowerModels.instantiate_model(
+        network_data,
+        PowerModels.DCPPowerModel,
+        PowerModels.build_mn_opf
+    )
+    results = PowerModels.optimize_model!(
+        pm,
+        optimizer=Ipopt.Optimizer
+    )
+
+    # Test the reliability of load 1 (relability generator 10001)
+    @Test.test isapprox(results["solution"]["gen"]["1001"]["pg"], 99998.99, atol=1)
+
+    # Test if generators were stored
+    @Test.test isequal(length(network_data["reliability_gen"]), 108)
+
 end
