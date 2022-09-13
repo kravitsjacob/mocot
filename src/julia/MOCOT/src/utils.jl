@@ -187,6 +187,8 @@ function get_objectives(
     # Static coefficients from network
     coef_tab = PowerModels.component_table(network_data, "gen", ["cost", "cus_emit"])
     df_coef = DataFrames.DataFrame(coef_tab, ["obj_name", "cost", "cus_emit"])
+    reliability_gen_rows = in.(df_coef.obj_name, Ref(network_data["reliability_gen"]))
+    df_coef = df_coef[.!reliability_gen_rows, :]
     df_coef[!, "obj_name"] = string.(df_coef[!, "obj_name"])
     df_coef[!, "cus_emit"] = float.(df_coef[!, "cus_emit"])
     df_coef[!, "c_per_mw2_pu"] = extract_from_array_column(df_coef[!, "cost"], 1)
@@ -196,7 +198,10 @@ function get_objectives(
     # States-dependent coefficients
     df_withdraw_states = MOCOT.custom_state_df(state, "withdraw_rate")
     df_consumption_states = MOCOT.custom_state_df(state, "consumption_rate")
-    df_power_states = MOCOT.pm_state_df(state, "power", "gen", ["pg"])
+    df_all_power_states = MOCOT.pm_state_df(state, "power", "gen", ["pg"])
+    reliability_gen_rows = in.(df_all_power_states.obj_name, Ref(network_data["reliability_gen"]))
+    df_reliability_states = df_all_power_states[reliability_gen_rows, :]
+    df_power_states = df_all_power_states[.!reliability_gen_rows, :]
     df_discharge_violation_states = MOCOT.custom_state_df(state, "discharge_violation")
 
     # Compute cost objectives
@@ -243,6 +248,9 @@ function get_objectives(
     )
     df_emit[!, "hourly_emit"] = df_emit[!, "pg"] .* 100.0 .* df_emit[!, "cus_emit"]  # Per unit conversion
     objectives["f_emit"] = DataFrames.sum(df_emit[!, "hourly_emit"])
+
+    # Compute reliability objectives
+    objectives["f_ENS"] = DataFrames.sum(df_reliability_states[!, "pg"])
 
     return objectives
 end
