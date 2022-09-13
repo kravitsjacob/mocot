@@ -96,8 +96,6 @@ function main()
 
     # Run simulation
     df_objs = DataFrames.DataFrame()
-    df_power_states = DataFrames.DataFrame()
-    df_discharge_violation_states = DataFrames.DataFrame()
     for row in DataFrames.eachrow(df_dec_exog)
 
         # Output
@@ -125,33 +123,38 @@ function main()
         df_temp_objs[!, "gen_scenario"] .= row.gen_scenario
 
         # Power states
-        df_temp_power_states = MOCOT.pm_state_df(state, "power", "gen", ["pg"])
-        df_temp_power_states[!, "dec_label"] .= row.dec_label
-        df_temp_power_states[!, "gen_scenario"] .= row.gen_scenario
+        df_power_states = MOCOT.pm_state_df(state, "power", "gen", ["pg"])
+        df_power_states[!, "dec_label"] .= row.dec_label
+        df_power_states[!, "gen_scenario"] .= row.gen_scenario
 
         # Discharge violation states
-        df_temp_discharge_violation_states = MOCOT.custom_state_df(state, "discharge_violation")
-        df_temp_discharge_violation_states[!, "dec_label"] .= row.dec_label
-        df_temp_discharge_violation_states[!, "gen_scenario"] .= row.gen_scenario
+        df_discharge_violation_states = MOCOT.custom_state_df(state, "discharge_violation")
+        df_discharge_violation_states[!, "dec_label"] .= row.dec_label
+        df_discharge_violation_states[!, "gen_scenario"] .= row.gen_scenario
 
         # Store in dataframe
         DataFrames.append!(df_objs, df_temp_objs)
-        DataFrames.append!(df_discharge_violation_states, df_temp_discharge_violation_states)
-        DataFrames.append!(df_power_states, df_temp_power_states)
 
         # Export as simulation progresses
         CSV.write(
-            paths["outputs"]["power_states"],
-            df_power_states
-        )
-        CSV.write(
-            paths["outputs"]["discharge_violation_states"],
-            df_discharge_violation_states
-        )
-
-        CSV.write(
             paths["outputs"]["objectives"],
             df_objs
+        )
+        path_to_power = joinpath(
+            paths["outputs"]["states"],
+            row.gen_scenario * "_" * row.dec_label * "_"  * "power_states.csv"
+        )
+        CSV.write(
+            path_to_power,
+            df_power_states
+        )
+        path_to_discharge = joinpath(
+            paths["outputs"]["states"],
+            row.gen_scenario * "_" * row.dec_label * "_"  * "discharge_violation_states.csv"
+        )
+        CSV.write(
+            path_to_discharge,
+            df_discharge_violation_states
         )
 
     end
