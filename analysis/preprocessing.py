@@ -133,18 +133,39 @@ def main():
 
     # Grid sample decisions
     if not os.path.exists(paths['outputs']['dec_exog']):
+        # Normal
         grid_specs = {
-            'w_with_coal': {'min': 0.0, 'max': 1.0, 'steps': 3},
-            'w_con_coal': {'min': 0.0, 'max': 10.0, 'steps': 3},
-            'w_with_ng': {'min': 0.0, 'max': 1.0, 'steps': 3},
-            'w_con_ng': {'min': 0.0, 'max': 1.0, 'steps': 3},
-            'w_with_nuc': {'min': 0.0, 'max': 1.0, 'steps': 3},
-            'w_con_nuc': {'min': 0.0, 'max': 1.0, 'steps': 3}
+            'w_with_coal': {'min': 0.0, 'max': 0.5, 'steps': 3},
+            'w_con_coal': {'min': 0.0, 'max': 5.0, 'steps': 3},
+            'w_with_ng': {'min': 0.0, 'max': 0.5, 'steps': 3},
+            'w_con_ng': {'min': 0.0, 'max': 0.5, 'steps': 3},
+            'w_with_nuc': {'min': 0.0, 'max': 0.5, 'steps': 3},
+            'w_con_nuc': {'min': 0.0, 'max': 0.5, 'steps': 3}
         }
-        df_dec_exog = mocot.core.grid_sample(grid_specs)
-        df_dec_exog['dec_label'] = 'D' + \
-            df_dec_exog.index.astype(str).str.zfill(6)
-        df_dec_exog['gen_scenario'] = 'Normal'
+        df_dec_exog_normal = mocot.core.grid_sample(grid_specs)
+        df_dec_exog_normal['dec_label'] = 'D' + \
+            df_dec_exog_normal.index.astype(str).str.zfill(6)
+        df_dec_exog_normal['gen_scenario'] = 'Normal'
+
+        # No nuclear
+        grid_specs = {
+            'w_with_coal': {'min': 0.0, 'max': 0.5, 'steps': 3},
+            'w_con_coal': {'min': 0.0, 'max': 5.0, 'steps': 3},
+            'w_with_ng': {'min': 0.0, 'max': 0.5, 'steps': 3},
+            'w_con_ng': {'min': 0.0, 'max': 0.5, 'steps': 3},
+            'w_with_nuc': {'min': 0.0, 'max': 1.0, 'steps': 1},
+            'w_con_nuc': {'min': 0.0, 'max': 1.0, 'steps': 1}
+        }
+        df_dec_exog_nonuclear = mocot.core.grid_sample(grid_specs)
+        df_dec_exog_nonuclear['dec_label'] = 'D' + \
+            df_dec_exog_nonuclear.index.astype(str).str.zfill(6)
+        df_dec_exog_nonuclear['gen_scenario'] = 'No Nuclear'
+
+        # Combine
+        df_dec_exog = pd.concat(
+            [df_dec_exog_normal, df_dec_exog_nonuclear],
+            axis=0
+        )
         df_dec_exog.to_csv(
             paths['outputs']['dec_exog'],
             index=False
