@@ -1,3 +1,4 @@
 analysis/io/inputs/ACTIVSg200* linguist-generated=true
 *.m linguist-generated=true
 *.aux linguist-generated=true
+*.html linguist-generated=true
