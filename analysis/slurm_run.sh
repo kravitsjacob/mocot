@@ -1,12 +1,13 @@
 #!/bin/bash
 
 #SBATCH --nodes=1
-#SBATCH --output=run.out
+#SBATCH --output=output.txt
+#SBATCH --error=error.txt
 #SBATCH --job-name=gosox
 #SBATCH --partition=amilan
 #SBATCH --time=0-00:600:00
-#SBATCH --mail-user=jacob.kravits@colorado.edu
-#SBATCH --mail-type=END
+#SBATCH --mail-user=jakr3868@colorado.edu
+#SBATCH --mail-type=ALL
 
 # Setup
 module purge
