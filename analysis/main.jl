@@ -11,20 +11,19 @@ function main()
     # Import
     paths = YAML.load_file("analysis/paths.yml")
     (
-        df_gen_info_water_ramp,
         df_eia_heat_rates,
         df_air_water,
         df_node_load,
         network_data,
         df_gen_info,
-        df_config
+        df_dec_exog
     ) = MOCOT.read_inputs(
-        paths["outputs"]["gen_info_water_ramp"], 
+        paths["outputs"]["gen_info_water_ramp_emit_waterlim"],
         paths["inputs"]["eia_heat_rates"],
         paths["outputs"]["air_water"],
         paths["outputs"]["node_load"],
         paths["inputs"]["case"],
-        paths["inputs"]["simulation_config"]
+        paths["outputs"]["dec_exog"]
     )
 
     # Add custom network properties
@@ -49,6 +48,27 @@ function main()
         df_gen_info[!, "obj_name"],
         convert.(String, df_gen_info[!, "923 Cooling Type"])
     )
+    network_data = MOCOT.add_prop!(
+        network_data,
+        "gen",
+        "cus_emit",
+        df_gen_info[!, "obj_name"],
+        convert.(Float64, df_gen_info[!, "Emission Rate lbs per MWh"])
+    )
+    network_data = MOCOT.add_prop!(
+        network_data,
+        "gen",
+        "cus_with_limit",
+        df_gen_info[!, "obj_name"],
+        df_gen_info[!, "Withdrawal Limit [L/MWh]"]
+    )
+    network_data = MOCOT.add_prop!(
+        network_data,
+        "gen",
+        "cus_con_limit",
+        df_gen_info[!, "obj_name"],
+        df_gen_info[!, "Consumption Limit [L/MWh]"]
+    )
 
     # Heat rates
     df_gen_info = transform!(
@@ -66,14 +86,21 @@ function main()
     # Exogenous parameters
     exogenous = MOCOT.get_exogenous(df_air_water, df_node_load)
 
+    # # Debugging
+    # exogenous["node_load"] = Dict(
+    #     "1" =>  exogenous["node_load"]["1"],
+    #     "2" =>  exogenous["node_load"]["2"],
+    #     "3" =>  exogenous["node_load"]["3"]
+    # )
+    # df_dec_exog = df_dec_exog[1:2, :]
+
     # Run simulation
     df_objs = DataFrames.DataFrame()
-    df_states = DataFrames.DataFrame()
-    for row in DataFrames.eachrow(df_config)
+    for row in DataFrames.eachrow(df_dec_exog)
 
         # Output
         println(string(row["gen_scenario"]))
-        println(string(row["dec_scenario"]))
+        println(string(row["dec_label"]))
 
         # Update generator status
         network_data = MOCOT.update_commit_status!(network_data, string(row["gen_scenario"]))
@@ -87,37 +114,54 @@ function main()
             w_with_ng=row["w_with_ng"],
             w_con_ng=row["w_con_ng"],
             w_with_nuc=row["w_with_nuc"],
-            w_con_nuc=row["w_con_nuc"],
+            w_con_nuc=row["w_con_nuc"]
         )
-        
+
         # Objectives
         df_temp_objs = DataFrames.DataFrame(objectives)
-        df_temp_objs[!, "dec_scenario"] .= row.dec_scenario
+        df_temp_objs[!, "dec_label"] .= row.dec_label
         df_temp_objs[!, "gen_scenario"] .= row.gen_scenario
 
-        # Generator states
-        df_gen_states = MOCOT.pm_state_df(state["power"], "gen", ["pg"])
-        df_gen_states[!, "dec_scenario"] .= row.dec_scenario
-        df_gen_states[!, "gen_scenario"] .= row.gen_scenario
+        # Power states
+        df_power_states = MOCOT.pm_state_df(state, "power", "gen", ["pg"])
+        df_power_states[!, "dec_label"] .= row.dec_label
+        df_power_states[!, "gen_scenario"] .= row.gen_scenario
+
+        # Discharge violation states
+        df_discharge_violation_states = MOCOT.custom_state_df(state, "discharge_violation")
+        df_discharge_violation_states[!, "dec_label"] .= row.dec_label
+        df_discharge_violation_states[!, "gen_scenario"] .= row.gen_scenario
 
         # Store in dataframe
-        DataFrames.append!(df_states, df_gen_states)
         DataFrames.append!(df_objs, df_temp_objs)
-    end
 
-    # Export
-    CSV.write(
-        paths["outputs"]["states"],
-        df_states
-    )
-    CSV.write(
-        paths["outputs"]["objectives"],
-        df_objs
-    )
+        # Export as simulation progresses
+        CSV.write(
+            paths["outputs"]["objectives"],
+            df_objs
+        )
+        path_to_power = joinpath(
+            paths["outputs"]["states"],
+            row.gen_scenario * "_" * row.dec_label * "_"  * "power_states.csv"
+        )
+        CSV.write(
+            path_to_power,
+            df_power_states
+        )
+        path_to_discharge = joinpath(
+            paths["outputs"]["states"],
+            row.gen_scenario * "_" * row.dec_label * "_"  * "discharge_violation_states.csv"
+        )
+        CSV.write(
+            path_to_discharge,
+            df_discharge_violation_states
+        )
+
+    end
 
     # Generator information export
     CSV.write(paths["outputs"]["gen_info_main"], df_gen_info)
- end
- 
+end
 
- main()
+
+main()

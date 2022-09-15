@@ -63,6 +63,45 @@ def main():
         )
         print('Success: Adding ramping information')
 
+    # Add emission coefficients
+    if not os.path.exists(paths['outputs']['gen_info_water_ramp_emit']):
+        df_gen_info_water_ramp = pd.read_csv(
+            paths['outputs']['gen_info_water_ramp'],
+        )
+        df_gen_info_emit = pd.read_csv(paths['inputs']['gen_info_emit'])
+        df_gen_info_water_ramp_emit = pd.merge(
+            df_gen_info_water_ramp,
+            df_gen_info_emit,
+        )
+        df_gen_info_water_ramp_emit['Emission Rate lbs per MWh'] = \
+            df_gen_info_water_ramp_emit['Emission Rate lbs per kWh']/1000.0
+        df_gen_info_water_ramp_emit.to_csv(
+            paths['outputs']['gen_info_water_ramp_emit'],
+            index=False
+        )
+        print('Success: Adding emission information')
+
+    # Add emission coefficients
+    if not os.path.exists(
+        paths['outputs']['gen_info_water_ramp_emit_waterlim']
+    ):
+        df_gen_info_water_ramp_emit = pd.read_csv(
+            paths['outputs']['gen_info_water_ramp_emit']
+        )
+        df_gen_info_waterlim = pd.read_csv(
+            paths['inputs']['gen_info_waterlim']
+        )
+        df_gen_info_water_ramp_emit_waterlim = pd.merge(
+            df_gen_info_water_ramp_emit,
+            df_gen_info_waterlim,
+            how='left'
+        )
+        df_gen_info_water_ramp_emit_waterlim.to_csv(
+            paths['outputs']['gen_info_water_ramp_emit_waterlim'],
+            index=False
+        )
+        print('Success: Adding water use limits')
+
     # Water and air temperature
     if not os.path.exists(paths['outputs']['air_water']):
         df_air_water = mocot.core.process_exogenous(paths)
@@ -91,6 +130,47 @@ def main():
         )
         df_hour_to_hour.to_csv(paths['outputs']['hour_to_hour'], index=False)
         df_node_load.to_csv(paths['outputs']['node_load'], index=False)
+
+    # Grid sample decisions
+    if not os.path.exists(paths['outputs']['dec_exog']):
+        # Normal
+        grid_specs = {
+            'w_with_coal': {'min': 0.0, 'max': 0.5, 'steps': 3},
+            'w_con_coal': {'min': 0.0, 'max': 5.0, 'steps': 3},
+            'w_with_ng': {'min': 0.0, 'max': 0.5, 'steps': 3},
+            'w_con_ng': {'min': 0.0, 'max': 0.5, 'steps': 3},
+            'w_with_nuc': {'min': 0.0, 'max': 0.5, 'steps': 3},
+            'w_con_nuc': {'min': 0.0, 'max': 0.5, 'steps': 3}
+        }
+        df_dec_exog_normal = mocot.core.grid_sample(grid_specs)
+        df_dec_exog_normal['dec_label'] = 'D' + \
+            df_dec_exog_normal.index.astype(str).str.zfill(6)
+        df_dec_exog_normal['gen_scenario'] = 'Normal'
+
+        # No nuclear
+        grid_specs = {
+            'w_with_coal': {'min': 0.0, 'max': 0.5, 'steps': 3},
+            'w_con_coal': {'min': 0.0, 'max': 5.0, 'steps': 3},
+            'w_with_ng': {'min': 0.0, 'max': 0.5, 'steps': 3},
+            'w_con_ng': {'min': 0.0, 'max': 0.5, 'steps': 3},
+            'w_with_nuc': {'min': 0.0, 'max': 1.0, 'steps': 1},
+            'w_con_nuc': {'min': 0.0, 'max': 1.0, 'steps': 1}
+        }
+        df_dec_exog_nonuclear = mocot.core.grid_sample(grid_specs)
+        df_dec_exog_nonuclear['dec_label'] = 'D' + \
+            df_dec_exog_nonuclear.index.astype(str).str.zfill(6)
+        df_dec_exog_nonuclear['gen_scenario'] = 'No Nuclear'
+
+        # Combine
+        df_dec_exog = pd.concat(
+            [df_dec_exog_normal, df_dec_exog_nonuclear],
+            axis=0
+        )
+        df_dec_exog.to_csv(
+            paths['outputs']['dec_exog'],
+            index=False
+        )
+        print('Success: Grid sampling')
 
 
 if __name__ == '__main__':
