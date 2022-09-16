@@ -165,33 +165,31 @@ function get_eta_net(fuel:: String, df_eia_heat_rates:: DataFrames.DataFrame)
 end
 
 
-function get_exogenous(
-    start_date:: Dates.DateTime,
-    end_date:: Dates.DateTime,
+function add_air_water!(
+    exogenous:: Dict{String, Any},
     df_air_water:: DataFrames.DataFrame,
-    df_node_load:: DataFrames.DataFrame
+    start_date:: Dates.DateTime,
+    end_date:: Dates.DateTime
 )
     """
-    Format exogenous parameters
+    Add air and water temperatures to exogenous parameters in the proper format
 
     # Arguments
-    - `df_air_water:: DataFrames.DataFrame`: Air and water temperature dataframe
-    - `df_node_load:: DataFrames.DataFrame`: Node-level load dataframe
+    - `exogenous:: Dict{String, Any}`: Exogenous parameter data [<parameter_name>][<timestep>]...[<timestep>]
+    - `df_air_water::DataFrames.DataFrame`: Node load dataframe
+    - `start_date:: Dates.DateTime`: Start time for simulation
+    - `end_date:: Dates.DateTime`: End time for simulation
     """
-    exogenous = Dict{String, Any}()
 
-
-    ## Air and water temperatures
-
-    ## Filter dataframe
+    # Filter dataframe
     date_filter = end_date .>= df_air_water.datetime .>= start_date
     df_air_water_filter = df_air_water[date_filter, :]
 
-    ## Get index values
+    # Get index values
     df_air_water_filter[!, "day_delta"] = Dates.Day.(df_air_water_filter.datetime) .- Dates.Day.(df_air_water_filter.datetime[1])
     df_air_water_filter[!, "day_index"] = Dates.value.(df_air_water_filter.day_delta) .+ 1
 
-    ## Exogenous formatting
+    # Exogenous formatting
     water_temperature = Dict{String, Float64}()
     air_temperature = Dict{String, Float64}()
     for row in eachrow(df_air_water_filter)
@@ -201,7 +199,25 @@ function get_exogenous(
     exogenous["water_temperature"] = water_temperature
     exogenous["air_temperature"] = air_temperature
 
-    # Node loads
+    return exogenous
+end
+
+
+function add_node_loads!(
+    exogenous:: Dict{String, Any},
+    df_node_load::DataFrames.DataFrame,
+    start_date:: Dates.DateTime,
+    end_date:: Dates.DateTime
+)
+    """
+    Add node loads to exogenous parameters in the proper format
+
+    # Arguments
+    - `exogenous:: Dict{String, Any}`: Exogenous parameter data [<parameter_name>][<timestep>]...[<timestep>]
+    - `df_node_load::DataFrames.DataFrame`: Node load dataframe
+    - `start_date:: Dates.DateTime`: Start time for simulation
+    - `end_date:: Dates.DateTime`: End time for simulation
+    """
 
     ## Filter dataframes
     date_filter = end_date .>= df_node_load.datetime .>= start_date
@@ -237,8 +253,32 @@ function get_exogenous(
         d_nodes[string(trunc(Int, d))] = h_nodes
     end
     exogenous["node_load"] = d_nodes
+end
 
-    @Infiltrator.infiltrate
+
+function get_exogenous(
+    start_date:: Dates.DateTime,
+    end_date:: Dates.DateTime,
+    df_air_water:: DataFrames.DataFrame,
+    df_node_load:: DataFrames.DataFrame
+)
+    """
+    Format exogenous parameters
+
+    # Arguments
+    - `start_date:: Dates.DateTime`: Start time for simulation
+    - `end_date:: Dates.DateTime`: End time for simulation
+    - `df_air_water:: DataFrames.DataFrame`: Air and water temperature dataframe
+    - `df_node_load:: DataFrames.DataFrame`: Node-level load dataframe
+    """
+    exogenous = Dict{String, Any}()
+
+    # Air and water temperatures
+    exogenous = add_air_water!(exogenous, df_air_water, start_date, end_date)
+
+    # Node loads
+    exogenous = add_node_loads!(exogenous, df_node_load, start_date, end_date)
+
     return exogenous
 
 end
