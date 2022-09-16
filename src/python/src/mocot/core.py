@@ -156,7 +156,7 @@ def process_air_water_exogenous(paths):
     return df_exogenous
 
 
-def clean_system_load(df_miso):
+def process_system_load(df_miso):
     """
     Clean system-level miso data includes interpolating missing values
 
@@ -174,13 +174,6 @@ def clean_system_load(df_miso):
     df_system_load = df_miso.copy()
     df_system_load['DATE'] = pd.to_datetime(df_system_load['DATE'])
 
-    # Selection
-    start = '2019-07-01'
-    end = '2019-07-08'
-    selection = \
-        (df_system_load['DATE'] >= start) & (df_system_load['DATE'] < end)
-    df_system_load = df_system_load[selection]
-
     # Linearly interpolate missing data
     df_system_load = df_system_load.set_index('DATE')
     df_ff = df_system_load.fillna(method='ffill')
@@ -194,12 +187,6 @@ def clean_system_load(df_miso):
     # Add load factors
     avg_load = df_miso['ActualLoad'].mean()
     df_system_load['load_factor'] = df_system_load['ActualLoad']/avg_load
-
-    # Index
-    df_system_load['hour_index'] = df_system_load['DATE'].dt.hour + 1.0
-    df_system_load['day_index'] = (
-        df_system_load['DATE'] - df_system_load['DATE'][0]
-    ).dt.days + 1
 
     return df_system_load
 
