@@ -181,15 +181,25 @@ function get_exogenous(
     exogenous = Dict{String, Any}()
 
 
-    # # Air and water temperatures
-    # water_temperature = Dict{String, Float64}()
-    # air_temperature = Dict{String, Float64}()
-    # for row in eachrow(df_air_water)
-    #     water_temperature[string(row["day_index"])] = row["water_temperature"]
-    #     air_temperature[string(row["day_index"])] = row["air_temperature"]
-    # end
-    # exogenous["water_temperature"] = water_temperature
-    # exogenous["air_temperature"] = air_temperature
+    ## Air and water temperatures
+
+    ## Filter dataframe
+    date_filter = end_date .>= df_air_water.datetime .>= start_date
+    df_air_water_filter = df_air_water[date_filter, :]
+
+    ## Get index values
+    df_air_water_filter[!, "day_delta"] = Dates.Day.(df_air_water_filter.datetime) .- Dates.Day.(df_air_water_filter.datetime[1])
+    df_air_water_filter[!, "day_index"] = Dates.value.(df_air_water_filter.day_delta) .+ 1
+
+    ## Exogenous formatting
+    water_temperature = Dict{String, Float64}()
+    air_temperature = Dict{String, Float64}()
+    for row in eachrow(df_air_water_filter)
+        water_temperature[string(row["day_index"])] = row["water_temperature"]
+        air_temperature[string(row["day_index"])] = row["air_temperature"]
+    end
+    exogenous["water_temperature"] = water_temperature
+    exogenous["air_temperature"] = air_temperature
 
     # Node loads
 
