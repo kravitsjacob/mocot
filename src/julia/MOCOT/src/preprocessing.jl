@@ -195,21 +195,21 @@ function get_exogenous(
 
     ## Filter dataframes
     date_filter = end_date .>= df_node_load.datetime .>= start_date
-    df_node_load = df_node_load[date_filter, :]
+    df_node_load_filter = df_node_load[date_filter, :]
 
     ## Get index values
-    df_node_load[!, "day_delta"] = Dates.Day.(df_node_load.datetime) .- Dates.Day.(df_node_load.datetime[1])
-    df_node_load[!, "day_index"] = Dates.value.(df_node_load.day_delta) .+ 1
-    df_node_load[!, "hour_index"] = Dates.value.(@.Dates.Hour(df_node_load.datetime)) .+ 1
+    df_node_load_filter[!, "day_delta"] = Dates.Day.(df_node_load_filter.datetime) .- Dates.Day.(df_node_load_filter.datetime[1])
+    df_node_load_filter[!, "day_index"] = Dates.value.(df_node_load_filter.day_delta) .+ 1
+    df_node_load_filter[!, "hour_index"] = Dates.value.(@.Dates.Hour(df_node_load_filter.datetime)) .+ 1
 
     ## Days
     d_nodes = Dict{String, Any}()
-    for d in DataFrames.unique(df_node_load[!, "day_index"])
-        df_d = df_node_load[in(d).(df_node_load.day_index), :]
+    for d in DataFrames.unique(df_node_load_filter[!, "day_index"])
+        df_d = df_node_load_filter[in(d).(df_node_load_filter.day_index), :]
 
         ## Hours
         h_nodes = Dict{String, Any}()
-        for h in DataFrames.unique(df_node_load[!, "hour_index"])
+        for h in DataFrames.unique(df_node_load_filter[!, "hour_index"])
             df_hour = df_d[in(h).(df_d.hour_index), :]
             ## Nodes
             nodes = Dict{String, Any}()
