@@ -253,6 +253,8 @@ function add_node_loads!(
         d_nodes[string(trunc(Int, d))] = h_nodes
     end
     exogenous["node_load"] = d_nodes
+
+    return exogenous
 end
 
 
