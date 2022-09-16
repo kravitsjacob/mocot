@@ -3,6 +3,7 @@
 import CSV
 import DataFrames
 import XLSX
+import Dates
 
 function read_inputs(
     gen_info_from_python_path:: String,
@@ -29,7 +30,9 @@ function read_inputs(
         XLSX.readtable(eia_heat_rates_path, "Annual Data")
     )
     df_air_water = DataFrames.DataFrame(CSV.File(air_water_path))
-    df_node_load = DataFrames.DataFrame(CSV.File(node_load_path))
+    df_node_load = DataFrames.DataFrame(
+        CSV.File(node_load_path, dateformat="yy-mm-dd HH:MM:SS")
+    )
     network_data = PowerModels.parse_file(case_path)
 
     # Generator information
@@ -162,7 +165,12 @@ function get_eta_net(fuel:: String, df_eia_heat_rates:: DataFrames.DataFrame)
 end
 
 
-function get_exogenous(df_air_water:: DataFrames.DataFrame, df_node_load:: DataFrames.DataFrame)
+function get_exogenous(
+    start_date:: Dates.DateTime,
+    end_date:: Dates.DateTime,
+    df_air_water:: DataFrames.DataFrame,
+    df_node_load:: DataFrames.DataFrame
+)
     """
     Format exogenous parameters
 
@@ -172,35 +180,44 @@ function get_exogenous(df_air_water:: DataFrames.DataFrame, df_node_load:: DataF
     """
     exogenous = Dict{String, Any}()
 
-    # Air and water temperatures
-    water_temperature = Dict{String, Float64}()
-    air_temperature = Dict{String, Float64}()
-    for row in eachrow(df_air_water)
-        water_temperature[string(row["day_index"])] = row["water_temperature"]
-        air_temperature[string(row["day_index"])] = row["air_temperature"]
-    end
-    exogenous["water_temperature"] = water_temperature
-    exogenous["air_temperature"] = air_temperature
+
+    # # Air and water temperatures
+    # water_temperature = Dict{String, Float64}()
+    # air_temperature = Dict{String, Float64}()
+    # for row in eachrow(df_air_water)
+    #     water_temperature[string(row["day_index"])] = row["water_temperature"]
+    #     air_temperature[string(row["day_index"])] = row["air_temperature"]
+    # end
+    # exogenous["water_temperature"] = water_temperature
+    # exogenous["air_temperature"] = air_temperature
 
     # Node loads
 
-    # Days
+    ## Filter dataframes
+    date_filter = end_date .>= df_node_load.datetime .>= start_date
+    df_node_load = df_node_load[date_filter, :]
+
+    ## Get index values
+    df_node_load[!, "day_delta"] = Dates.Day.(df_node_load.datetime) .- Dates.Day.(df_node_load.datetime[1])
+    df_node_load[!, "day_index"] = Dates.value.(df_node_load.day_delta) .+ 1
+    df_node_load[!, "hour_index"] = Dates.value.(@.Dates.Hour(df_node_load.datetime)) .+ 1
+
+    ## Days
     d_nodes = Dict{String, Any}()
     for d in DataFrames.unique(df_node_load[!, "day_index"])
         df_d = df_node_load[in(d).(df_node_load.day_index), :]
 
-        # Hours
+        ## Hours
         h_nodes = Dict{String, Any}()
         for h in DataFrames.unique(df_node_load[!, "hour_index"])
             df_hour = df_d[in(h).(df_d.hour_index), :]
-
-            # Nodes
+            ## Nodes
             nodes = Dict{String, Any}()
             for row in eachrow(df_hour)
-                # Pandapower indexing
+                ## Pandapower indexing
                 pandapower_bus = row["bus"]
 
-                # PowerModels indexing
+                ## PowerModels indexing
                 powermodels_bus = row["bus"] + 1
 
                 nodes[string(powermodels_bus)] = row["load_mw"]
@@ -211,6 +228,7 @@ function get_exogenous(df_air_water:: DataFrames.DataFrame, df_node_load:: DataF
     end
     exogenous["node_load"] = d_nodes
 
+    @Infiltrator.infiltrate
     return exogenous
 
 end

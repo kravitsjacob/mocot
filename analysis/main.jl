@@ -3,6 +3,7 @@ using Revise
 using YAML
 using CSV
 using DataFrames
+using Dates
 
 using MOCOT
 
@@ -27,9 +28,13 @@ function main()
     # Preparing network
     network_data = MOCOT.add_custom_properties!(network_data, df_gen_info, df_eia_heat_rates)
 
-    @Infiltrator.infiltrate
     # Exogenous parameters
-    exogenous = MOCOT.get_exogenous(df_air_water, df_node_load)
+    exogenous = MOCOT.get_exogenous(
+        Dates.DateTime(2019, 7, 1, 0),
+        Dates.DateTime(2019, 7, 7, 23),
+        df_air_water,
+        df_node_load
+    )
 
     # # Debugging
     # exogenous["node_load"] = Dict(
