@@ -24,64 +24,10 @@ function main()
         paths["inputs"]["case"]
     )
 
+    # Preparing network
+    network_data = MOCOT.add_custom_properties!(network_data, df_gen_info, df_eia_heat_rates)
+
     @Infiltrator.infiltrate
-    # Add custom network properties
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_ramp_rate",
-        df_gen_info[!, "obj_name"],
-        convert.(Float64, df_gen_info[!, "Ramp Rate (MW/hr)"])
-    )
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_fuel",
-        df_gen_info[!, "obj_name"],
-        convert.(String, df_gen_info[!, "MATPOWER Fuel"])
-    )
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_cool",
-        df_gen_info[!, "obj_name"],
-        convert.(String, df_gen_info[!, "923 Cooling Type"])
-    )
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_emit",
-        df_gen_info[!, "obj_name"],
-        convert.(Float64, df_gen_info[!, "Emission Rate lbs per MWh"])
-    )
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_with_limit",
-        df_gen_info[!, "obj_name"],
-        df_gen_info[!, "Withdrawal Limit [L/MWh]"]
-    )
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_con_limit",
-        df_gen_info[!, "obj_name"],
-        df_gen_info[!, "Consumption Limit [L/MWh]"]
-    )
-
-    # Heat rates
-    df_gen_info = transform!(
-        df_gen_info,
-        Symbol("MATPOWER Fuel") => ByRow(fuel -> MOCOT.get_eta_net(string(fuel), df_eia_heat_rates)) => "Heat Rate"
-    )
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_heat_rate",
-        df_gen_info[!, "obj_name"],
-        convert.(Float64, df_gen_info[!, "Heat Rate"])
-    )
-
     # Exogenous parameters
     exogenous = MOCOT.get_exogenous(df_air_water, df_node_load)
 
