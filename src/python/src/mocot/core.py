@@ -170,9 +170,24 @@ def process_system_load(df_miso):
     pandas.DataFrame
         Parsed data
     """
-    # Parse types
-    df_system_load = df_miso.copy()
-    df_system_load['DATE'] = pd.to_datetime(df_system_load['DATE'])
+    # Get first entry for dates
+    df_miso['DATE'] = pd.to_datetime(df_miso['DATE'])
+    df_miso = df_miso.groupby('DATE').first().reset_index()
+
+    # Fill in all hours
+    df_system_load = pd.DataFrame()
+    df_system_load['DATE'] = pd.date_range(
+        df_miso.iloc[0]['DATE'],
+        df_miso.iloc[-2]['DATE'],
+        freq='H'
+    )
+
+    # Join dataframes to get every hour
+    df_system_load = pd.merge(
+        df_system_load,
+        df_miso[['DATE', 'ActualLoad']],
+        how='left'
+    )
 
     # Linearly interpolate missing data
     df_system_load = df_system_load.set_index('DATE')
@@ -191,7 +206,7 @@ def process_system_load(df_miso):
     return df_system_load
 
 
-def create_node_load(df_system_load, df_synthetic_node_loads, df_miso, net):
+def process_node_load(df_system_load, df_synthetic_node_loads, net):
     """
     Create node-level loads
 
@@ -201,8 +216,6 @@ def create_node_load(df_system_load, df_synthetic_node_loads, df_miso, net):
         System-level loads
     df_synthetic_node_loads : pandas.DataFrame
         Synthetic node loads
-    df_miso : pandas.DataFrame
-        Miso loads (for datetime)
     net : pandapower.network
         Network
 
@@ -214,24 +227,37 @@ def create_node_load(df_system_load, df_synthetic_node_loads, df_miso, net):
     # Initialization
     df_load_ls = []
     df_def_load = net.load[['bus', 'p_mw']]
+    n_loads = len(df_def_load)
     df_system_load['DATE'] = pd.to_datetime(df_system_load['DATE'])
-    df_miso['DATE'] = pd.to_datetime(df_miso['DATE'])
+    df_system_load['Month'] = df_system_load['DATE'].dt.month
+    df_system_load['Day'] = df_system_load['DATE'].dt.day
+    df_system_load['Hour'] = df_system_load['DATE'].dt.hour
+
+    # Leap year correction
+    df_synthetic_node_loads['DATE'] = pd.to_datetime(
+        df_synthetic_node_loads['Date'] + ' ' + df_synthetic_node_loads['Time']
+    )
+    df_synthetic_node_loads['Month'] = df_synthetic_node_loads['DATE'].dt.month
+    df_synthetic_node_loads['Day'] = df_synthetic_node_loads['DATE'].dt.day
+    df_synthetic_node_loads['Hour'] = df_synthetic_node_loads['DATE'].dt.hour
+    df_synthetic_node_loads = pd.merge(
+        df_system_load[['Month', 'Day', 'Hour']],
+        df_synthetic_node_loads
+    )
 
     # Relative hour-to-hour variation
-    df_temp = df_synthetic_node_loads.iloc[0:-1, 5:-1]
-    df_temp_shift = df_synthetic_node_loads.iloc[1:, 5:-1]
+    bus_start_idx = 8
+    bus_end_idx = bus_start_idx + n_loads
+    df_temp = df_synthetic_node_loads.iloc[
+        :-1, bus_start_idx: bus_end_idx
+    ]
+    df_temp_shift = df_synthetic_node_loads.iloc[
+        1:, bus_start_idx: bus_end_idx
+    ]
     df_temp.index = range(1, len(df_temp) + 1)
     df_hour_to_hour = df_temp/df_temp_shift
 
-    # Filter by dates
-    df_hour_to_hour.insert(0, 'DATE', df_miso['DATE'])
-    start = '2019-07-01'
-    end = '2019-07-08'
-    selection = \
-        (df_hour_to_hour['DATE'] >= start) & (df_hour_to_hour['DATE'] < end)
-    df_hour_to_hour = df_hour_to_hour[selection]
-
-    # Drop generators
+    # Drop generator information
     df_hour_to_hour = df_hour_to_hour.iloc[
         :, :len(df_def_load) + 1  # Skip date
     ]
@@ -244,8 +270,6 @@ def create_node_load(df_system_load, df_synthetic_node_loads, df_miso, net):
 
         # Indexing information
         df_temp['datetime'] = row['DATE']
-        df_temp['day_index'] = row['day_index']
-        df_temp['hour_index'] = row['hour_index']
 
         # Average magnitude of loads
         df_temp['load_mw'] = df_def_load['p_mw']
@@ -254,7 +278,7 @@ def create_node_load(df_system_load, df_synthetic_node_loads, df_miso, net):
         df_temp['load_mw'] = df_temp['load_mw'] * row['load_factor']
 
         # Applying hour-to-hour
-        hour_to_hour_factors = df_hour_to_hour.iloc[i, 1:].values  # Skip date
+        hour_to_hour_factors = df_hour_to_hour.iloc[i-1, :].values
         df_temp['load_mw'] = df_def_load['p_mw'] * hour_to_hour_factors
 
         # Store in df list
@@ -262,6 +286,9 @@ def create_node_load(df_system_load, df_synthetic_node_loads, df_miso, net):
 
     # Concat
     df_node_load = pd.concat(df_load_ls, axis=0, ignore_index=True)
+
+    # Add back in date to hour-to-hour for plotting
+    df_hour_to_hour['datetime'] = df_node_load['datetime']
 
     return df_node_load, df_hour_to_hour
 
