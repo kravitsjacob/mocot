@@ -171,26 +171,27 @@ def process_system_load(df_miso):
         Parsed data
     """
     # Get first entry for dates
-    df_miso['DATE'] = pd.to_datetime(df_miso['DATE'])
-    df_miso = df_miso.groupby('DATE').first().reset_index()
+    df_miso['datetime'] = pd.to_datetime(df_miso['DATE'])
+    df_miso = df_miso.drop('DATE', axis=1)
+    df_miso = df_miso.groupby('datetime').first().reset_index()
 
     # Fill in all hours
     df_system_load = pd.DataFrame()
-    df_system_load['DATE'] = pd.date_range(
-        df_miso.iloc[0]['DATE'],
-        df_miso.iloc[-2]['DATE'],
+    df_system_load['datetime'] = pd.date_range(
+        df_miso.iloc[0]['datetime'],
+        df_miso.iloc[-2]['datetime'],
         freq='H'
     )
 
     # Join dataframes to get every hour
     df_system_load = pd.merge(
         df_system_load,
-        df_miso[['DATE', 'ActualLoad']],
+        df_miso[['datetime', 'ActualLoad']],
         how='left'
     )
 
     # Linearly interpolate missing data
-    df_system_load = df_system_load.set_index('DATE')
+    df_system_load = df_system_load.set_index('datetime')
     df_ff = df_system_load.fillna(method='ffill')
     df_bf = df_system_load.fillna(method='bfill')
     df_system_load = df_system_load.where(
@@ -228,18 +229,20 @@ def process_node_load(df_system_load, df_synthetic_node_loads, net):
     df_load_ls = []
     df_def_load = net.load[['bus', 'p_mw']]
     n_loads = len(df_def_load)
-    df_system_load['DATE'] = pd.to_datetime(df_system_load['DATE'])
-    df_system_load['Month'] = df_system_load['DATE'].dt.month
-    df_system_load['Day'] = df_system_load['DATE'].dt.day
-    df_system_load['Hour'] = df_system_load['DATE'].dt.hour
+    df_system_load['datetime'] = pd.to_datetime(df_system_load['datetime'])
+    df_system_load['Month'] = df_system_load['datetime'].dt.month
+    df_system_load['Day'] = df_system_load['datetime'].dt.day
+    df_system_load['Hour'] = df_system_load['datetime'].dt.hour
 
     # Leap year correction
-    df_synthetic_node_loads['DATE'] = pd.to_datetime(
+    df_synthetic_node_loads['datetime'] = pd.to_datetime(
         df_synthetic_node_loads['Date'] + ' ' + df_synthetic_node_loads['Time']
     )
-    df_synthetic_node_loads['Month'] = df_synthetic_node_loads['DATE'].dt.month
-    df_synthetic_node_loads['Day'] = df_synthetic_node_loads['DATE'].dt.day
-    df_synthetic_node_loads['Hour'] = df_synthetic_node_loads['DATE'].dt.hour
+    df_synthetic_node_loads['Month'] = \
+        df_synthetic_node_loads['datetime'].dt.month
+    df_synthetic_node_loads['Day'] = df_synthetic_node_loads['datetime'].dt.day
+    df_synthetic_node_loads['Hour'] = \
+        df_synthetic_node_loads['datetime'].dt.hour
     df_synthetic_node_loads = pd.merge(
         df_system_load[['Month', 'Day', 'Hour']],
         df_synthetic_node_loads
@@ -269,7 +272,7 @@ def process_node_load(df_system_load, df_synthetic_node_loads, net):
         df_temp = pd.DataFrame(df_def_load['bus'])
 
         # Indexing information
-        df_temp['datetime'] = row['DATE']
+        df_temp['datetime'] = row['datetime']
 
         # Average magnitude of loads
         df_temp['load_mw'] = df_def_load['p_mw']
