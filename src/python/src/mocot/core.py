@@ -98,8 +98,8 @@ def get_cooling_system(df_eia, df_gen_info):
     return df_gen_info
 
 
-def process_exogenous(paths):
-    """Import and process exogenous sources
+def process_air_water_exogenous(paths):
+    """Import and process air and water exogenous sources
 
     Parameters
     ----------
@@ -149,21 +149,9 @@ def process_exogenous(paths):
         on='datetime'
     )
 
-    # Subset data
-    start = '2019-07-01'
-    end = '2019-07-08'
-    selection = \
-        (df_exogenous['datetime'] > start) & (df_exogenous['datetime'] < end)
-    df_exogenous = df_exogenous[selection]
-
     # Daily average
     df_exogenous = df_exogenous.resample('d', on='datetime').mean()
     df_exogenous = df_exogenous.reset_index()
-
-    # Index
-    df_exogenous['day_index'] = (
-        df_exogenous['datetime'] - df_exogenous['datetime'][0]
-    ).dt.days + 1
 
     return df_exogenous
 

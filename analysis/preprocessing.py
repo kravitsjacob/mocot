@@ -104,7 +104,7 @@ def main():
 
     # Water and air temperature
     if not os.path.exists(paths['outputs']['air_water']):
-        df_air_water = mocot.core.process_exogenous(paths)
+        df_air_water = mocot.core.process_air_water_exogenous(paths)
         df_air_water.to_csv(paths['outputs']['air_water'], index=False)
 
     # System-level loads
