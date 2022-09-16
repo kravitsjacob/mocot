@@ -1,4 +1,4 @@
-# Functions for reading inputs
+# Functions for preprocessing
 
 import CSV
 import DataFrames
@@ -10,7 +10,6 @@ function read_inputs(
     air_water_path:: String,
     node_load_path:: String,
     case_path:: String,
-    simulation_inputs_path:: String
 )
     """
     Wrapper function for reading inputs
@@ -21,7 +20,6 @@ function read_inputs(
     - `air_water_path:: String`: Path to air and water exogenous
     - `node_load_path:: String`: Path to node load exogenous
     - `case_path:: String`: Path to MATPOWER case
-    - `simulation_inputs_path:: String`:: Path to simulation inputs (decisions and exogenous)
     """
     # Reading inputs
     df_gen_info_python = DataFrames.DataFrame(
@@ -32,7 +30,6 @@ function read_inputs(
     )
     df_air_water = DataFrames.DataFrame(CSV.File(air_water_path))
     df_node_load = DataFrames.DataFrame(CSV.File(node_load_path))
-    df_dec_exog = DataFrames.DataFrame(CSV.File(simulation_inputs_path))
     network_data = PowerModels.parse_file(case_path)
 
     # Generator information
@@ -43,8 +40,7 @@ function read_inputs(
         df_air_water,
         df_node_load,
         network_data,
-        df_gen_info,
-        df_dec_exog
+        df_gen_info
     )
     return inputs
 end
