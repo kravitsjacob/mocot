@@ -29,7 +29,7 @@ function simulation(
     Simulation of water and energy system
 
     # Arguments
-    - `network_data:: Dict`: PowerModels Network data
+    - `network_data:: Dict`: PowerModels network data
     - `exogenous:: Dict`: Exogenous parameter data [<parameter_name>][<timestep>]...[<timestep>]
     - `w_with_coal:: Float64`: Coal withdrawal weight
     - `w_con_coal:: Float64`: Coal consumption weight
@@ -99,7 +99,7 @@ function simulation(
 
     # Simulation
     for d in 1:d_total
-        println("Simulation Day:" * string(d))
+        println("Simulation Day: " * string(d))
 
         # Update loads
         network_data_multi = update_load!(
