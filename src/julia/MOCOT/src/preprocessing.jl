@@ -4,6 +4,7 @@ import CSV
 import DataFrames
 import XLSX
 import Dates
+import DelimitedFiles
 
 function read_inputs(
     gen_info_from_python_path:: String,
@@ -11,6 +12,8 @@ function read_inputs(
     air_water_path:: String,
     node_load_path:: String,
     case_path:: String,
+    decisions_path:: String,
+    objectives_path:: String
 )
     """
     Wrapper function for reading inputs
@@ -21,6 +24,8 @@ function read_inputs(
     - `air_water_path:: String`: Path to air and water exogenous
     - `node_load_path:: String`: Path to node load exogenous
     - `case_path:: String`: Path to MATPOWER case
+    - `decisions_path:: String`: Path to decision names
+    - `objectives_path:: String`: Path to objective names
     """
     # Reading inputs
     df_gen_info_python = DataFrames.DataFrame(
@@ -35,6 +40,10 @@ function read_inputs(
     )
     network_data = PowerModels.parse_file(case_path)
 
+    # Parameter names
+    decision_names = vec(DelimitedFiles.readdlm(decisions_path, ',', String))
+    objective_names = vec(DelimitedFiles.readdlm(objectives_path, ',', String))
+
     # Generator information
     df_gen_info = MOCOT.get_gen_info(network_data, df_gen_info_python)
 
@@ -43,7 +52,9 @@ function read_inputs(
         df_air_water,
         df_node_load,
         network_data,
-        df_gen_info
+        df_gen_info,
+        decision_names,
+        objective_names
     )
     return inputs
 end

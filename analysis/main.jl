@@ -16,15 +16,19 @@ function main()
         df_air_water,
         df_node_load,
         network_data,
-        df_gen_info
+        df_gen_info,
+        decision_names,
+        objective_names
     ) = MOCOT.read_inputs(
         paths["outputs"]["gen_info_water_ramp_emit_waterlim"],
         paths["inputs"]["eia_heat_rates"],
         paths["outputs"]["air_water"],
         paths["outputs"]["node_load"],
-        paths["inputs"]["case"]
+        paths["inputs"]["case"],
+        paths["inputs"]["decisions"],
+        paths["inputs"]["objectives"]
     )
-
+    @Infiltrator.infiltrate
     # Preparing network
     network_data = MOCOT.add_custom_properties!(network_data, df_gen_info, df_eia_heat_rates)
 
