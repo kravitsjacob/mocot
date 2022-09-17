@@ -28,7 +28,7 @@ function main()
         paths["inputs"]["decisions"],
         paths["inputs"]["objectives"]
     )
-    @Infiltrator.infiltrate
+
     # Preparing network
     network_data = MOCOT.add_custom_properties!(network_data, df_gen_info, df_eia_heat_rates)
 
@@ -48,6 +48,7 @@ function main()
     (objectives, state) = MOCOT.simulation(
         network_data,
         exogenous,
+        objective_names,
         w_with_coal=1.0,
         w_con_coal=1.0,
         w_with_ng=1.0,

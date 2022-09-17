@@ -17,6 +17,7 @@ include("hourly.jl")
 function simulation(
     network_data:: Dict,
     exogenous:: Dict,
+    objective_names:: Vector,
     ;
     w_with_coal:: Float64=0.0,
     w_con_coal:: Float64=0.0,
@@ -149,7 +150,7 @@ function simulation(
     end
 
     # Compute objectives
-    objectives = get_objectives(state, network_data)
+    objectives = get_objectives(state, network_data, w_with, w_con)
 
     return (objectives, state)
 end
