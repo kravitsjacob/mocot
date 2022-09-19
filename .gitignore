@@ -207,3 +207,6 @@ dkms.conf
 
 # IDE Settings
 .vscode
+
+# Julia
+Manifest.toml
