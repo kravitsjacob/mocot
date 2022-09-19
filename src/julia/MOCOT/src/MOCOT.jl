@@ -6,6 +6,7 @@ import DataFrames
 import Statistics
 import Ipopt
 import CSV
+import YAML
 import Infiltrator  # For debugging using @Infiltrator.infiltrate
 
 include("preprocessing.jl")
@@ -33,6 +34,9 @@ function borg_simulation_wrapper(
     - `w_with_nuc:: Float64`: Nuclear withdrawal weight
     - `w_con_nuc:: Float64`: Nuclear consumption weight
     """
+    # Setup
+    objective_array = Float64[]
+
     # Import
     paths = YAML.load_file("analysis/paths.yml")
     (
@@ -72,7 +76,6 @@ function borg_simulation_wrapper(
     (objectives, state) = MOCOT.simulation(
         network_data,
         exogenous,
-        objective_names,
         w_with_coal=1.0,
         w_con_coal=1.0,
         w_with_ng=1.0,
@@ -81,13 +84,18 @@ function borg_simulation_wrapper(
         w_con_nuc=1.0
     )
 
+
+    for obj_name in objective_names
+        append!(objective_array, objectives[obj_name])
+    end
+    
+    return objective_array
 end
 
 
 function simulation(
     network_data:: Dict,
     exogenous:: Dict,
-    objective_names:: Vector,
     ;
     w_with_coal:: Float64=0.0,
     w_con_coal:: Float64=0.0,
