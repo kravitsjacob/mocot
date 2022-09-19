@@ -7,4 +7,4 @@ Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
 
 [compat]
-julia = "1.6, 1.7"
+julia = "1.6, 1.7, 1.8"
