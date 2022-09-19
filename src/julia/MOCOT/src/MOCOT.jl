@@ -81,29 +81,6 @@ function borg_simulation_wrapper(
         w_con_nuc=1.0
     )
 
-    # Power states
-    df_power_states = MOCOT.pm_state_df(state, "power", "gen", ["pg"])
-
-    # Discharge violation states
-    df_discharge_violation_states = MOCOT.custom_state_df(state, "discharge_violation")
-
-    # Export as simulation states
-    path_to_power = joinpath(
-        paths["outputs"]["states"],
-        "power_states.csv"
-    )
-    CSV.write(
-        path_to_power,
-        df_power_states
-    )
-    path_to_discharge = joinpath(
-        paths["outputs"]["states"],
-        "discharge_violation_states.csv"
-    )
-    CSV.write(
-        path_to_discharge,
-        df_discharge_violation_states
-    )
 end
 
 
