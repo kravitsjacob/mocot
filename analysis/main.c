@@ -55,64 +55,50 @@ int main(int argc, char* argv[])
    jl_init();
    jl_eval_string("using MOCOT");
 
-   double decs[ndecs];
-   double objs[nobjs];
-   double consts[1];
+	// Simulation setup
+   BORG_Algorithm_ms_max_evaluations(1);
+   BORG_Algorithm_output_frequency(1);
+	BORG_Algorithm_ms_startup(&argc, &argv);
+	BORG_Algorithm_ms_max_time(0.1);
 
-   decs[0] = 1.0;
-   decs[1] = 1.0;
-   decs[2] = 1.0;
-   decs[3] = 1.0;
-   decs[4] = 1.0;
-   decs[5] = 1.0;
-   simulation_wrapper(decs, objs, consts);
-   
-   printf("Obj 1 %f", objs[0]);
+	// Setting up problem
+	BORG_Problem problem = BORG_Problem_create(ndecs, nobjs, 0, simulation_wrapper);
 
-	// // Simulation setup
-   // BORG_Algorithm_ms_max_evaluations(1);
-   // BORG_Algorithm_output_frequency(1);
-	// BORG_Algorithm_ms_startup(&argc, &argv);
-	// BORG_Algorithm_ms_max_time(0.1);
+   // Decisions
+	for (j=0; j<ndecs; j++) {
+		BORG_Problem_set_bounds(problem, j, 0.0, 1.0);
+	}
 
-	// // Setting up problem
-	// BORG_Problem problem = BORG_Problem_create(ndecs, nobjs, 0, simulation_wrapper);
+   // Objectives
+	for (j=0; j<nobjs; j++) {
+		BORG_Problem_set_epsilon(problem, j, 0.1);
+	}
 
-   // // Decisions
-	// for (j=0; j<ndecs; j++) {
-	// 	BORG_Problem_set_bounds(problem, j, 0.0, 1.0);
-	// }
+	// Get the rank of this process.  The rank is used to ensure each
+	// parallel process uses a different random seed.
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-   // // Objectives
-	// for (j=0; j<nobjs; j++) {
-	// 	BORG_Problem_set_epsilon(problem, j, 0.1);
-	// }
+   // Runtime file
+   sprintf(runtime, "analysis/io/outputs/states/runtime.txt");
+   BORG_Algorithm_output_runtime(runtime);
 
-	// // Get the rank of this process.  The rank is used to ensure each
-	// // parallel process uses a different random seed.
-	// MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+   // Seed the random number generator.
+   BORG_Random_seed(1008);
 
-   // // Runtime file
-   // sprintf(runtime, "io/states/runtime.txt");
-   // BORG_Algorithm_output_runtime(runtime);
+   // Run the parent-child Borg MOEA on the problem.
+   BORG_Archive result = BORG_Algorithm_ms_run(problem);
 
-   // // Seed the random number generator.
-   // BORG_Random_seed(1008);
+   // Print the Pareto optimal solutions to the screen.
+   if (result != NULL)
+   {
+      fp = fopen("analysis/io/outputs/front/front.txt", "w+");
+      BORG_Archive_print(result, fp);
+      BORG_Archive_destroy(result);
+      fclose(fp);
+   }
 
-   // // Run the parent-child Borg MOEA on the problem.
-   // BORG_Archive result = BORG_Algorithm_ms_run(problem);
-
-   // // Print the Pareto optimal solutions to the screen.
-   // if (result != NULL)
-   // {
-   //    fp = fopen("io/front/front.txt", "w+");
-   //    BORG_Archive_print(result, fp);
-   //    BORG_Archive_destroy(result);
-   //    fclose(fp);
-   // }
-
-	// // Shutdown the parallel processes and exit.
-	// BORG_Algorithm_ms_shutdown();
-	// BORG_Problem_destroy(problem);
+	// Shutdown the parallel processes and exit.
+	BORG_Algorithm_ms_shutdown();
+	BORG_Problem_destroy(problem);
 	return EXIT_SUCCESS;
 }
