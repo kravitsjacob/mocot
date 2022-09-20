@@ -230,6 +230,15 @@ function simulation(
     # Compute objectives
     objectives = get_objectives(state, network_data, w_with, w_con)
 
+    # Console feedback
+    println(Dict(
+        "w_with_coal" => w_with_coal,
+        "w_con_coal" => w_con_coal,
+        "w_with_ng" => w_with_ng,
+        "w_con_ng" => w_con_ng,
+        "w_with_nuc" => w_with_nuc,
+        "w_con_nuc" => w_con_nuc
+    ))
     println(objectives)
 
     return (objectives, state)
