@@ -205,3 +205,83 @@ def interactive_parallel(df_front):
     exp.display_data(hip.Displays.TABLE).update({'hide': ['uid', 'from_uid']})
 
     return exp
+
+
+def operator_plotter(df):
+    """Plot of operators over optimization
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Processed runtime dataframe
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        Plot of operators over optimization
+    """
+    # Prepare Data
+    plot_df = pd.melt(
+        df,
+        id_vars='NFE',
+        value_vars=['SBX', 'DE', 'PCX', 'SPX', 'UNDX', 'UM'],
+        value_name='Proportion',
+        var_name='Operator'
+    )
+    # Make Plot
+    fig = plt.figure()
+    ax = sns.lineplot(data=plot_df, x='NFE', y='Proportion', hue='Operator')
+    return fig
+
+
+def progress_plotter(df):
+    """Epsilon progress plot
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Processed runtime dataframe
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        Plot of Epsilon progress over optimization
+    """
+    ax = sns.lineplot(data=df, x='NFE', y='Progress')
+    return ax
+
+
+def progress_archive_size_pop_ratio_plotter(df):
+    """Plot of progress and and ratio of archive size to population size
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Processed runtime dataframe
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        Plot of progress and and ratio of archive size to population size
+        over optimization
+    """
+    fig = plt.figure()
+    df = df.rename(columns={'Improvements': 'Progress'})
+
+    # Progress
+    ax = progress_plotter(df)
+    ax.set_ylabel('Progress')
+
+    # Population to archive ratio
+    ax2 = plt.twinx()
+    sns.lineplot(
+        data=df,
+        x='NFE',
+        y='PopulationToArchiveRatio',
+        color='green',
+        label='Population-to-Archive Ratio',
+        ax=ax2
+    )
+    ax2.set_ylabel('Population-to-Archive Ratio')
+
+    return fig

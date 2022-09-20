@@ -34,6 +34,7 @@ outputs:
   discharge_states: "analysis/discharge_states.csv"
   power_states: "analysis/power_states.csv"
   front: "analysis/io/outputs/front/front.txt"
+  runtime: "analysis/io/outputs/states/runtime.txt"
 
   figures:
     system_load: "analysis/io/outputs/figures/system_load.pdf"
@@ -42,3 +43,5 @@ outputs:
     hour_node_load: "analysis/io/outputs/figures/hour_node_load.pdf"
     temperatures: "analysis/io/outputs/figures/temperatures.pdf"
     interactive_parallel: "analysis/io/outputs/figures/interactive_parallel.html"
+    operator: "analysis/io/outputs/figures/runtime_operator.pdf"
+    progressarchiveratio: "analysis/io/outputs/figures/runtime_progressarchiveratio.pdf"

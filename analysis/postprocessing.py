@@ -57,6 +57,28 @@ def main():
         exp = mocot.viz.interactive_parallel(df_front)
         exp.to_html(paths['outputs']['figures']['interactive_parallel'])
 
+    # Runtime stats plots
+    if not os.path.exists(paths['outputs']['figures']['progressarchiveratio']):
+        objective_names = pd.read_csv(
+            paths['inputs']['objectives']
+        ).columns.tolist()
+        decision_names = pd.read_csv(
+            paths['inputs']['decisions']
+        ).columns.tolist()
+        df = mocot.core.runtime_to_df(
+            paths['outputs']['runtime'], decision_names, objective_names
+        )
+
+        # Operators
+        fig = mocot.viz.operator_plotter(df)
+        fig.savefig(paths['outputs']['figures']['operator'])
+
+        # Archive size and archive/population ratio
+        fig = mocot.viz.progress_archive_size_pop_ratio_plotter(df)
+        fig.savefig(
+            paths['outputs']['figures']['progressarchiveratio']
+        )
+
 
 if __name__ == '__main__':
     main()
