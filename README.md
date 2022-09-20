@@ -31,14 +31,14 @@ This process is only needed if projects aren't installed. Note, I had to delete 
 * Go to compile node: `$ acompile`
 * Change julia download location: `$ export JULIA_DEPOT_PATH="/projects/jakr3868/.julia:$JULIA_DEPOT_PATH"`
 * Load julia: `$ ml julia/1.6.6`
+* Load intel for compile: `$ ml intel/2022.1.2`
+* Load mpi for compile: `$ ml impi/2021.5.0`
 * Change directory to mocot: `$ cd /projects/jakr3868/mocot`
 * Run julia: `$ julia`
 * Importing Pkg: `julia> using Pkg`
-* Activate MOCOT: `julia> Pkg.activate("src/julia/MOCOT")`
-* Instantiate MOCOT `julia> Pkg.instantiate()`
-* Activate analysis: `julia> Pkg.activate("analysis")`
-* Add MOCOT as a dev package: `julia> Pkg.develop(path="/projects/jakr3868/mocot/src/julia/MOCOT")`
+* Add MOCOT as a dev package: `julia> Pkg.develop(path="src/julia/MOCOT")`
 * Instantiate analysis `julia> Pkg.instantiate()`
+* Compile using `$ make alpine -C ./analysis`
 
 ## Running simulation
 * Activate Alpine: `$ ml slurm/alpine`
