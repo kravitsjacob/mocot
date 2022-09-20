@@ -63,15 +63,39 @@ int main(int argc, char* argv[])
 	// Setting up problem
 	BORG_Problem problem = BORG_Problem_create(ndecs, nobjs, 0, simulation_wrapper);
 
-   // Decisions
-	for (j=0; j<ndecs; j++) {
-		BORG_Problem_set_bounds(problem, j, 0.0, 0.5);
-	}
+   // Decision bounds
+   // w_with_coal
+   BORG_Problem_set_bounds(problem, 0, 0.0, 0.5);
+   // w_con_coal
+   BORG_Problem_set_bounds(problem, 1, 0.0, 5.0);
+   // w_with_ng
+   BORG_Problem_set_bounds(problem, 2, 0.0, 0.5);
+   // w_con_ng
+   BORG_Problem_set_bounds(problem, 3, 0.0, 0.5);
+   // w_with_nuc
+   BORG_Problem_set_bounds(problem, 4, 0.0, 0.5);
+   // w_con_nuc
+   BORG_Problem_set_bounds(problem, 5, 0.0, 0.5);
 
-   // Objectives
-	for (j=0; j<nobjs; j++) {
-		BORG_Problem_set_epsilon(problem, j, 0.1);
-	}
+   // Objectives epsilons
+   // f_gen
+   BORG_Problem_set_epsilon(problem, 0, 10000.0);
+   // f_cos_tot
+   BORG_Problem_set_epsilon(problem, 1, 1000000.0);
+   // f_with_peak
+   BORG_Problem_set_epsilon(problem, 2, 1000000.0);
+   // f_con_peak
+   BORG_Problem_set_epsilon(problem, 3, 1000000.0);
+   // f_with_tot
+   BORG_Problem_set_epsilon(problem, 4, 100000000.0);
+   // f_con_tot
+   BORG_Problem_set_epsilon(problem, 5, 100000000.0);
+   // f_disvi_tot
+   BORG_Problem_set_epsilon(problem, 6, 1.0);
+   // f_emit
+   BORG_Problem_set_epsilon(problem, 7, 10.0);
+   // f_ENS
+   BORG_Problem_set_epsilon(problem, 8, 1.0);
 
 	// Get the rank of this process.  The rank is used to ensure each
 	// parallel process uses a different random seed.
