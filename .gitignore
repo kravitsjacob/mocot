@@ -210,3 +210,7 @@ dkms.conf
 
 # Julia
 Manifest.toml
+
+# Slurm
+error.txt
+output.txt
