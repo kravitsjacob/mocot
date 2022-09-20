@@ -10,9 +10,12 @@ Multi-Objective Coordination of Thermoelectric Water Use
 
 # Debugging Julia
 1) In terminal activate julia env `$ julia --project=analysis`
-2) Run `using Infiltrator` to add debugging functionality.
-3) Set breakpoint where appropriate using `@Infiltrator.infiltrate` be sure to `import Infiltrator` at the top of development packages. Note, it will throw a warning as it thinks you are adding a not-included dependency.
-4) Evaluate using `include("analysis/main.jl")`
+2) Importing Pkg: `julia> using Pkg`
+4) Add MOCOT as a dev package: `julia> Pkg.develop(path="src/julia/MOCOT")`
+5) Instantiate environment `julia> Pkg.instantiate()`
+3) Run `using Infiltrator` to add debugging functionality.
+4) Set breakpoint where appropriate using `@Infiltrator.infiltrate` be sure to `import Infiltrator` at the top of development packages. Note, it will throw a warning as it thinks you are adding a not-included dependency.
+5) Evaluate using `include("analysis/single_simulation.jl")`
 
 # Julia Simulation on Windows Subsystem for Linux (WSL)
 1) Download julia to WSL and make sure the path is reflected in `analysis/makefile`
