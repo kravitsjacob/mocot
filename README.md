@@ -21,24 +21,16 @@ Multi-Objective Coordination of Thermoelectric Water Use
 4) Add MOCOT as a dev package: `julia> Pkg.develop(path="src/julia/MOCOT")`
 5) Instantiate environment `julia> Pkg.instantiate()`
 6) Compile using `$ make -C ./analysis`
-7) Run using `$ mpiexec -N 2 ./analysis/main.exe`
+7) Run using `$ mpiexec -n 2 ./analysis/main.exe`
 
 # Julia Simulation on Alpine
 
 ## Building MOCOT and Analysis projects
-This process is only needed if projects aren't installed. Note, I had to delete the manifest.toml files for MOCOT and analysis projects for this to work.
-* Activate Alpine: `$ ml slurm/alpine`
-* Go to compile node: `$ acompile`
-* Change julia download location: `$ export JULIA_DEPOT_PATH="/projects/jakr3868/.julia:$JULIA_DEPOT_PATH"`
-* Load julia: `$ ml julia/1.6.6`
-* Load intel for compile: `$ ml intel/2022.1.2`
-* Load mpi for compile: `$ ml impi/2021.5.0`
-* Change directory to mocot: `$ cd /projects/jakr3868/mocot`
-* Run julia: `$ julia`
-* Importing Pkg: `julia> using Pkg`
-* Add MOCOT as a dev package: `julia> Pkg.develop(path="src/julia/MOCOT")`
-* Instantiate analysis `julia> Pkg.instantiate()`
-* Compile using `$ make alpine -C ./analysis`
+1) Activate Alpine: `$ ml slurm/alpine`
+2) Go to compile node: `$ acompile`
+3) Change directory to mocot: `$ cd /projects/jakr3868/mocot`
+4) Configure slurm: `. analysis/slurm_config.sh` 
+5) Compile using `$ make alpine -C ./analysis`
 
 ## Running simulation
 * Activate Alpine: `$ ml slurm/alpine`
