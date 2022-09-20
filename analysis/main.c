@@ -7,7 +7,7 @@
 #include <julia.h>
 #include "borg_src/borgms.h"
 
-JULIA_DEFINE_FAST_TLS
+//JULIA_DEFINE_FAST_TLS
 
 #define PI 3.14159265358979323846
 
@@ -56,17 +56,16 @@ int main(int argc, char* argv[])
    jl_eval_string("using MOCOT");
 
 	// Simulation setup
-   BORG_Algorithm_ms_max_evaluations(1);
-   BORG_Algorithm_output_frequency(1);
+   BORG_Algorithm_ms_max_evaluations(1000);
+   BORG_Algorithm_output_frequency(10);
 	BORG_Algorithm_ms_startup(&argc, &argv);
-	BORG_Algorithm_ms_max_time(0.1);
 
 	// Setting up problem
 	BORG_Problem problem = BORG_Problem_create(ndecs, nobjs, 0, simulation_wrapper);
 
    // Decisions
 	for (j=0; j<ndecs; j++) {
-		BORG_Problem_set_bounds(problem, j, 0.0, 1.0);
+		BORG_Problem_set_bounds(problem, j, 0.0, 0.5);
 	}
 
    // Objectives
