@@ -50,13 +50,12 @@ function main()
     (objectives, state) = MOCOT.simulation(
         network_data,
         exogenous,
-        objective_names,
-        w_with_coal=1.0,
-        w_con_coal=1.0,
-        w_with_ng=1.0,
-        w_con_ng=1.0,
-        w_with_nuc=1.0,
-        w_con_nuc=1.0
+        w_with_coal=0.1,
+        w_con_coal=0.2,
+        w_with_ng=0.3,
+        w_con_ng=0.4,
+        w_with_nuc=0.5,
+        w_con_nuc=0.6
     )
 
     # Objectives
@@ -73,20 +72,12 @@ function main()
         paths["outputs"]["objectives"],
         df_objs
     )
-    path_to_power = joinpath(
-        paths["outputs"]["states"],
-        "power_states.csv"
-    )
     CSV.write(
-        path_to_power,
+        paths["outputs"]["power_states"],
         df_power_states
     )
-    path_to_discharge = joinpath(
-        paths["outputs"]["states"],
-        "discharge_violation_states.csv"
-    )
     CSV.write(
-        path_to_discharge,
+        paths["outputs"]["discharge_states"],
         df_discharge_violation_states
     )
 

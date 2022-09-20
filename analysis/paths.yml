@@ -30,8 +30,9 @@ outputs:
   node_load: "analysis/io/outputs/exogenous/node_load.csv"
   hour_to_hour: "analysis/io/outputs/exogenous/hour_to_hour.csv"
   gen_info_pm: "analysis/io/outputs/synthetic_grid/gen_info_pm.csv"
-  states: "analysis/io/outputs/states/"
-  power_states: "analysis/io/outputs/states/power_states.csv"
+  objectives: "analysis/objectives.csv"
+  discharge_states: "analysis/discharge_states.csv"
+  power_states: "analysis/power_states.csv"
   front: "analysis/io/outputs/front/front.txt"
 
   figures:
