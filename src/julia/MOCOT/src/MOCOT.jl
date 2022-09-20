@@ -76,12 +76,12 @@ function borg_simulation_wrapper(
     (objectives, state) = MOCOT.simulation(
         network_data,
         exogenous,
-        w_with_coal=1.0,
-        w_con_coal=1.0,
-        w_with_ng=1.0,
-        w_con_ng=1.0,
-        w_with_nuc=1.0,
-        w_con_nuc=1.0
+        w_with_coal=w_with_coal,
+        w_con_coal=w_con_coal,
+        w_with_ng= w_with_ng,
+        w_con_ng=w_con_ng,
+        w_with_nuc=w_with_nuc,
+        w_con_nuc= w_con_nuc
     )
 
 
@@ -213,7 +213,7 @@ function simulation(
         # Solve power system model
         state["power"][string(d)] = PowerModels.optimize_model!(
             pm,
-            optimizer=Ipopt.Optimizer
+            optimizer=JuMP.optimizer_with_attributes(Ipopt.Optimizer, "print_level"=>0)
         )
 
         # Water use
@@ -229,6 +229,8 @@ function simulation(
 
     # Compute objectives
     objectives = get_objectives(state, network_data, w_with, w_con)
+
+    println(objectives)
 
     return (objectives, state)
 end
