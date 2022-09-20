@@ -43,9 +43,18 @@ def main():
 
     # Interactive parallel plot
     if not os.path.exists(paths['outputs']['figures']['interactive_parallel']):
-        df_obj = pd.read_csv(paths['outputs']['objectives'])
-        df_dec_exog = pd.read_csv(paths['outputs']['dec_exog'])
-        exp = mocot.viz.interactive_parallel(df_obj, df_dec_exog)
+        objective_names = pd.read_csv(
+            paths['inputs']['objectives']
+        ).columns.tolist()
+        decision_names = pd.read_csv(
+            paths['inputs']['decisions']
+        ).columns.tolist()
+        df_front = pd.read_table(
+            paths['outputs']['front'],
+            sep=' ',
+            names=decision_names+objective_names
+        )
+        exp = mocot.viz.interactive_parallel(df_front)
         exp.to_html(paths['outputs']['figures']['interactive_parallel'])
 
 

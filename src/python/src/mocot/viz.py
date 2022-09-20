@@ -185,26 +185,22 @@ def node_load(df_node_load):
     return fig
 
 
-def interactive_parallel(df_obj, df_dec_exog):
+def interactive_parallel(df_front):
     """Create interactive parallel plot
 
     Parameters
     ----------
-    df_obj : pandas.DataFrame
-        Objectives
-    df_dec_exog : pandas.DataFrame
-        Decisions and exogenous
+    df_front : pandas.DataFrame
+        Nondominated front
 
     Returns
     -------
     hiplot.experiment.Experiment
         Hiplot experiment
     """
-    # Merge data
-    df = pd.merge(df_obj, df_dec_exog, how='left')
     # Create Plot
     color_col = 'f_gen'
-    exp = hip.Experiment.from_dataframe(df)
+    exp = hip.Experiment.from_dataframe(df_front)
     exp.parameters_definition[color_col].colormap = 'interpolateViridis'
     exp.display_data(hip.Displays.TABLE).update({'hide': ['uid', 'from_uid']})
 
