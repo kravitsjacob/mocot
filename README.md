@@ -19,7 +19,7 @@ Multi-Objective Coordination of Thermoelectric Water Use
 
 # Julia Simulation on Windows Subsystem for Linux (WSL)
 1) Download julia to WSL and make sure the path is reflected in `analysis/makefile`
-2) Run julia: `$ ./$(JULIAPATH)/bin/julia`
+2) Run julia, making sure the path is correct: `$ /bin/julia/julia-1.8.1/bin/julia`
 3) Importing Pkg: `julia> using Pkg`
 4) Add MOCOT as a dev package: `julia> Pkg.develop(path="src/julia/MOCOT")`
 5) Instantiate environment `julia> Pkg.instantiate()`
