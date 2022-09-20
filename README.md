@@ -33,7 +33,7 @@ Multi-Objective Coordination of Thermoelectric Water Use
 2) Go to compile node: `$ acompile`
 3) Change directory to mocot: `$ cd /projects/jakr3868/mocot`
 4) Configure slurm: `. analysis/slurm_config.sh` 
-5) Compile using `$ make alpine -C ./analysis`
+5) Compile using `$ make slurm -C ./analysis`
 
 ## Running simulation
 * Activate Alpine: `$ ml slurm/alpine`
