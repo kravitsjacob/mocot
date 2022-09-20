@@ -19,7 +19,7 @@ Multi-Objective Coordination of Thermoelectric Water Use
 
 # Julia Simulation on Windows Subsystem for Linux (WSL)
 1) Download julia to WSL and make sure the path is reflected in `analysis/makefile`
-2) Run julia: `$ ./$(JULIAPATH)/bin/julia`
+2) Run julia, making sure the path is correct: `$ /bin/julia/julia-1.8.1/bin/julia`
 3) Importing Pkg: `julia> using Pkg`
 4) Add MOCOT as a dev package: `julia> Pkg.develop(path="src/julia/MOCOT")`
 5) Instantiate environment `julia> Pkg.instantiate()`
@@ -33,7 +33,7 @@ Multi-Objective Coordination of Thermoelectric Water Use
 2) Go to compile node: `$ acompile`
 3) Change directory to mocot: `$ cd /projects/jakr3868/mocot`
 4) Configure slurm: `. analysis/slurm_config.sh` 
-5) Compile using `$ make alpine -C ./analysis`
+5) Compile using `$ make slurm -C ./analysis`
 
 ## Running simulation
 * Activate Alpine: `$ ml slurm/alpine`
