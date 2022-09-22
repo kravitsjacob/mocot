@@ -8,5 +8,5 @@ ml julia/1.6.6
 ml intel/2022.1.2
 ml impi/2021.5.0
 
-# Create julia package
+# Instantiate julia packages
 julia ./analysis/julia_config.jl
