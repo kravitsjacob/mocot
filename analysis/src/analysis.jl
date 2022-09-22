@@ -1,6 +1,13 @@
 module analysis
 
+import Dates
+import CSV
+import YAML
+
 import MOCOT
+
+# Dev packages
+import Infiltrator  # @Infiltrator.infiltrate
 
 
 function borg_simulation_wrapper(
@@ -10,6 +17,7 @@ function borg_simulation_wrapper(
     w_con_ng:: Float64=0.0,
     w_with_nuc:: Float64=0.0,
     w_con_nuc:: Float64=0.0,
+    output_type="borg"
 )
     """
     Simulation wrapper for borg multi-objective MOEA
@@ -21,6 +29,7 @@ function borg_simulation_wrapper(
     - `w_con_ng:: Float64`: Natural gas consumption weight
     - `w_with_nuc:: Float64`: Nuclear withdrawal weight
     - `w_con_nuc:: Float64`: Nuclear consumption weight
+    - `output_type:: String`: Return type. "borg" for standard Borg output. "all" for returning states and objectives
     """
     # Setup
     objective_array = Float64[]
@@ -60,7 +69,6 @@ function borg_simulation_wrapper(
     network_data = MOCOT.update_commit_status!(network_data, "Normal")
 
     # Simulation
-    df_objs = DataFrames.DataFrame()
     (objectives, state) = MOCOT.simulation(
         network_data,
         exogenous,
@@ -72,12 +80,21 @@ function borg_simulation_wrapper(
         w_con_nuc= w_con_nuc
     )
 
+    if output_type == "borg"
+        for obj_name in objective_names
+            append!(objective_array, objectives[obj_name])
+        end
+        
+        return objective_array
 
-    for obj_name in objective_names
-        append!(objective_array, objectives[obj_name])
+    elseif  output_type == "all"
+
+        # Generator information export
+        CSV.write(paths["outputs"]["gen_info_main"], df_gen_info)
+
+        return (objectives, state)
+
     end
-    
-    return objective_array
 end
 
 end # module
