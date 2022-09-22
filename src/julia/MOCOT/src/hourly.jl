@@ -185,13 +185,14 @@ function update_load!(network_data_multi::Dict, day_loads:: Dict)
 end
 
 
-function add_reliability_gens!(network_data:: Dict)
+function add_reliability_gens!(network_data:: Dict, voll:: Float64)
     """
     Add fake generators at every load to model relaibility. Generators with
     more than 1000 name are reliability generators.
 
     # Arguments
     - `network_data:: Dict`: PowerModels network data
+    - `voll:: Float64`: Value of loss of load in pu
     """
     # Starting index for reliability generators
     reliability_start = 1000
@@ -205,7 +206,7 @@ function add_reliability_gens!(network_data:: Dict)
         # Generator properties
         network_data["gen"][reliability_gen_name] = Dict(
             "gen_bus" => obj_props["load_bus"],
-            "cost" => [0.0, 1.0e10, 0.0],
+            "cost" => [0.0, voll, 0.0],
             "gen_status" => 1,
             "pmin" => 0.0,
             "pmax" => 1e10,

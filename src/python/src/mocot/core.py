@@ -2,10 +2,9 @@
 
 
 import os
-from typing import Dict
 import pandas as pd
 import numpy as np
-import itertools
+from more_itertools import consecutive_groups
 
 
 def import_eia(path_to_eia):
@@ -98,8 +97,8 @@ def get_cooling_system(df_eia, df_gen_info):
     return df_gen_info
 
 
-def process_exogenous(paths):
-    """Import and process exogenous sources
+def process_air_water_exogenous(paths):
+    """Import and process air and water exogenous sources
 
     Parameters
     ----------
@@ -149,26 +148,14 @@ def process_exogenous(paths):
         on='datetime'
     )
 
-    # Subset data
-    start = '2019-07-01'
-    end = '2019-07-08'
-    selection = \
-        (df_exogenous['datetime'] > start) & (df_exogenous['datetime'] < end)
-    df_exogenous = df_exogenous[selection]
-
     # Daily average
     df_exogenous = df_exogenous.resample('d', on='datetime').mean()
     df_exogenous = df_exogenous.reset_index()
 
-    # Index
-    df_exogenous['day_index'] = (
-        df_exogenous['datetime'] - df_exogenous['datetime'][0]
-    ).dt.days + 1
-
     return df_exogenous
 
 
-def clean_system_load(df_miso):
+def process_system_load(df_miso):
     """
     Clean system-level miso data includes interpolating missing values
 
@@ -182,19 +169,28 @@ def clean_system_load(df_miso):
     pandas.DataFrame
         Parsed data
     """
-    # Parse types
-    df_system_load = df_miso.copy()
-    df_system_load['DATE'] = pd.to_datetime(df_system_load['DATE'])
+    # Get first entry for dates
+    df_miso['datetime'] = pd.to_datetime(df_miso['DATE'])
+    df_miso = df_miso.drop('DATE', axis=1)
+    df_miso = df_miso.groupby('datetime').first().reset_index()
 
-    # Selection
-    start = '2019-07-01'
-    end = '2019-07-08'
-    selection = \
-        (df_system_load['DATE'] >= start) & (df_system_load['DATE'] < end)
-    df_system_load = df_system_load[selection]
+    # Fill in all hours
+    df_system_load = pd.DataFrame()
+    df_system_load['datetime'] = pd.date_range(
+        df_miso.iloc[0]['datetime'],
+        df_miso.iloc[-2]['datetime'],
+        freq='H'
+    )
+
+    # Join dataframes to get every hour
+    df_system_load = pd.merge(
+        df_system_load,
+        df_miso[['datetime', 'ActualLoad']],
+        how='left'
+    )
 
     # Linearly interpolate missing data
-    df_system_load = df_system_load.set_index('DATE')
+    df_system_load = df_system_load.set_index('datetime')
     df_ff = df_system_load.fillna(method='ffill')
     df_bf = df_system_load.fillna(method='bfill')
     df_system_load = df_system_load.where(
@@ -207,16 +203,10 @@ def clean_system_load(df_miso):
     avg_load = df_miso['ActualLoad'].mean()
     df_system_load['load_factor'] = df_system_load['ActualLoad']/avg_load
 
-    # Index
-    df_system_load['hour_index'] = df_system_load['DATE'].dt.hour + 1.0
-    df_system_load['day_index'] = (
-        df_system_load['DATE'] - df_system_load['DATE'][0]
-    ).dt.days + 1
-
     return df_system_load
 
 
-def create_node_load(df_system_load, df_synthetic_node_loads, df_miso, net):
+def process_node_load(df_system_load, df_synthetic_node_loads, net):
     """
     Create node-level loads
 
@@ -226,8 +216,6 @@ def create_node_load(df_system_load, df_synthetic_node_loads, df_miso, net):
         System-level loads
     df_synthetic_node_loads : pandas.DataFrame
         Synthetic node loads
-    df_miso : pandas.DataFrame
-        Miso loads (for datetime)
     net : pandapower.network
         Network
 
@@ -239,24 +227,39 @@ def create_node_load(df_system_load, df_synthetic_node_loads, df_miso, net):
     # Initialization
     df_load_ls = []
     df_def_load = net.load[['bus', 'p_mw']]
-    df_system_load['DATE'] = pd.to_datetime(df_system_load['DATE'])
-    df_miso['DATE'] = pd.to_datetime(df_miso['DATE'])
+    n_loads = len(df_def_load)
+    df_system_load['datetime'] = pd.to_datetime(df_system_load['datetime'])
+    df_system_load['Month'] = df_system_load['datetime'].dt.month
+    df_system_load['Day'] = df_system_load['datetime'].dt.day
+    df_system_load['Hour'] = df_system_load['datetime'].dt.hour
+
+    # Leap year correction
+    df_synthetic_node_loads['datetime'] = pd.to_datetime(
+        df_synthetic_node_loads['Date'] + ' ' + df_synthetic_node_loads['Time']
+    )
+    df_synthetic_node_loads['Month'] = \
+        df_synthetic_node_loads['datetime'].dt.month
+    df_synthetic_node_loads['Day'] = df_synthetic_node_loads['datetime'].dt.day
+    df_synthetic_node_loads['Hour'] = \
+        df_synthetic_node_loads['datetime'].dt.hour
+    df_synthetic_node_loads = pd.merge(
+        df_system_load[['Month', 'Day', 'Hour']],
+        df_synthetic_node_loads
+    )
 
     # Relative hour-to-hour variation
-    df_temp = df_synthetic_node_loads.iloc[0:-1, 5:-1]
-    df_temp_shift = df_synthetic_node_loads.iloc[1:, 5:-1]
+    bus_start_idx = 8
+    bus_end_idx = bus_start_idx + n_loads
+    df_temp = df_synthetic_node_loads.iloc[
+        :-1, bus_start_idx: bus_end_idx
+    ]
+    df_temp_shift = df_synthetic_node_loads.iloc[
+        1:, bus_start_idx: bus_end_idx
+    ]
     df_temp.index = range(1, len(df_temp) + 1)
     df_hour_to_hour = df_temp/df_temp_shift
 
-    # Filter by dates
-    df_hour_to_hour.insert(0, 'DATE', df_miso['DATE'])
-    start = '2019-07-01'
-    end = '2019-07-08'
-    selection = \
-        (df_hour_to_hour['DATE'] >= start) & (df_hour_to_hour['DATE'] < end)
-    df_hour_to_hour = df_hour_to_hour[selection]
-
-    # Drop generators
+    # Drop generator information
     df_hour_to_hour = df_hour_to_hour.iloc[
         :, :len(df_def_load) + 1  # Skip date
     ]
@@ -268,9 +271,7 @@ def create_node_load(df_system_load, df_synthetic_node_loads, df_miso, net):
         df_temp = pd.DataFrame(df_def_load['bus'])
 
         # Indexing information
-        df_temp['datetime'] = row['DATE']
-        df_temp['day_index'] = row['day_index']
-        df_temp['hour_index'] = row['hour_index']
+        df_temp['datetime'] = row['datetime']
 
         # Average magnitude of loads
         df_temp['load_mw'] = df_def_load['p_mw']
@@ -279,7 +280,7 @@ def create_node_load(df_system_load, df_synthetic_node_loads, df_miso, net):
         df_temp['load_mw'] = df_temp['load_mw'] * row['load_factor']
 
         # Applying hour-to-hour
-        hour_to_hour_factors = df_hour_to_hour.iloc[i, 1:].values  # Skip date
+        hour_to_hour_factors = df_hour_to_hour.iloc[i-1, :].values
         df_temp['load_mw'] = df_def_load['p_mw'] * hour_to_hour_factors
 
         # Store in df list
@@ -288,46 +289,129 @@ def create_node_load(df_system_load, df_synthetic_node_loads, df_miso, net):
     # Concat
     df_node_load = pd.concat(df_load_ls, axis=0, ignore_index=True)
 
+    # Add back in date to hour-to-hour for plotting
+    df_hour_to_hour['datetime'] = df_node_load['datetime']
+
     return df_node_load, df_hour_to_hour
 
 
-def grid_sample(grid_specs: Dict):
-    """
-    Pandas-based grid sampling function
+def archive_to_df(df, decision_names, objective_names):
+    """Convert archive data to dataframes
+
     Parameters
     ----------
-    gridspecs: Dict
-        Grid specifications, must have the form of
-        {
-            'var_1': {'min': float, 'max': float, 'steps': int},
-            'var_2': {'min': float, 'max': float, 'steps': int},
-        }
-        These reflect the variable names, minimum value of grid sampling,
-        maximum value of grid sampling, and number of steps respectively.
+    df : pandas.DataFrame
+        Raw runtime pandas dataframe
+    decision_names : list
+        Decision names
+    objective_names : list
+        Objective names
 
     Returns
     -------
-    df_grid: DataFrame
-        Dataframe of grid sampling. Will have columns of names specified in
-        'var' list
+    pandas.DataFrame
+        Processed archive
     """
-    # Get linear spaces
-    linspace_list = []
-    var_names = []
-    for var_name, var_specs in grid_specs.items():
-        linspace_list.append(
-            np.linspace(
-                var_specs['min'],
-                var_specs['max'],
-                int(var_specs['steps'])
-            )
-        )
-        var_names.append(var_name)
+    # Extract Archive Prints
+    df_temp = df[np.isnan(df['value'])]
+    df_temp = df_temp[df_temp['var'] != '#']
 
-    # Create dataframe
-    df_grid = pd.DataFrame(
-        list(itertools.product(*linspace_list)),
-        columns=var_names
+    # Separate Based on Deliminators
+    df_temp = df_temp['var'].str.split(' ', expand=True).astype(float)
+    df_temp.columns = decision_names + objective_names
+
+    # Convert Negative Objectives to Positive Ones (Important for Hypervolume) TODO: makes this more generic in future versions  # noqa
+    df_temp[df_temp.columns[df_temp.dtypes != np.object]] = \
+        df_temp[df_temp.columns[df_temp.dtypes != np.object]].abs()
+
+    # Create Lists of Lists
+    df_temp['Archive'] = df_temp.values.tolist()
+    df_temp['Parameters'] = df_temp[decision_names].values.tolist()
+    df_temp['Objectives'] = df_temp[objective_names].values.tolist()
+
+    # Archive
+    df_arc = df_temp['Archive']
+    archive_ls = [
+        df_arc.loc[i].tolist()
+        for i in consecutive_groups(df_arc.index)
+    ]
+    df_arc = pd.DataFrame({'Archive': archive_ls})
+
+    # Objectives
+    df_obj = df_temp['Objectives']
+    objectives_ls = [
+        df_obj.loc[i].tolist()
+        for i in consecutive_groups(df_obj.index)
+    ]
+    df_obj = pd.DataFrame({'Objectives': objectives_ls})
+
+    # Parameters
+    df_param = df_temp['Parameters']
+    parameters_ls = [
+        df_param.loc[i].tolist()
+        for i in consecutive_groups(df_param.index)
+    ]
+    df_param = pd.DataFrame({'Parameters': parameters_ls})
+
+    return df_arc, df_obj, df_param
+
+
+def runtime_to_df(path, decision_names, objective_names):
+    """
+    Convert Borg MOEA runtime file to pandas DataFrame
+
+    Parameters
+    ----------
+    path : str
+        Path to Borg MOEA runtime file
+    decision_names : list
+        Decision names
+    objective_names : list
+        Objective names
+
+    Returns
+    -------
+    pandas.DataFrame
+        Parsed runtime file
+    """
+    # Convert to Dataframe
+    df_raw = pd.read_table(path, names=['var', 'value'], sep="=")
+
+    # Format Archive Prints to List of Lists
+    df_arc, df_obj, df_param = archive_to_df(
+        df_raw,
+        decision_names,
+        objective_names
     )
 
-    return df_grid
+    # Omit Population Prints
+    df_res = df_raw[-np.isnan(df_raw['value'])]
+
+    # Replace //
+    df_res = pd.DataFrame(
+        [df_res['var'].str.replace('//', ''), df_res['value']]
+    ).T
+
+    # Add index
+    df_res['NFE_index'] = \
+        [i for i in np.arange(0, len(df_res) // 13) for j in range(13)]
+
+    # Parse Data Into Columns
+    df_res = pd.pivot(
+        df_res,
+        columns='var',
+        values='value',
+        index='NFE_index'
+    ).reset_index(drop=True)
+
+    # Convert to Float
+    df_res = df_res.astype(float)
+
+    # Merge DataFrames
+    df_res = pd.concat([df_res, df_arc, df_obj, df_param], axis=1)
+
+    # Population to archive ratio
+    df_res['PopulationToArchiveRatio'] = \
+        df_res['PopulationSize'] / df_res['ArchiveSize']
+
+    return df_res

@@ -173,7 +173,9 @@ end
 
 function get_objectives(
     state:: Dict{String, Dict},
-    network_data:: Dict{String, Any}
+    network_data:: Dict{String, Any},
+    w_with:: Dict{String, Float64},
+    w_con:: Dict{String, Float64},
 )
     """
     Computing simulation objectives
@@ -236,6 +238,25 @@ function get_objectives(
     objectives["f_con_peak"] = DataFrames.maximum(df_daily.hourly_consumption_sum)
     objectives["f_with_tot"] = DataFrames.sum(df_water[!, "hourly_withdrawal"])
     objectives["f_con_tot"] = DataFrames.sum(df_water[!, "hourly_consumption"])
+    
+    # Total costs
+    df_with = DataFrames.stack(DataFrames.DataFrame(w_with))
+    DataFrames.rename!(df_with, :variable => :obj_name, :value => :w_with)
+    df_con = DataFrames.stack(DataFrames.DataFrame(w_con))
+    DataFrames.rename!(df_con, :variable => :obj_name, :value => :w_con)
+    df_water = DataFrames.leftjoin(
+        df_water,
+        df_with,
+        on=[:obj_name]
+    )
+    df_water = DataFrames.leftjoin(
+        df_water,
+        df_con,
+        on=[:obj_name]
+    )
+    withdrawal_cost = DataFrames.sum(df_water.hourly_withdrawal .* df_water.w_with)
+    consumtion_cost = DataFrames.sum(df_water.hourly_consumption .* df_water.w_con)
+    objectives["f_cos_tot"] =  objectives["f_gen"] + withdrawal_cost + consumtion_cost
 
     # Compute discharge violation objectives
     objectives["f_disvi_tot"] = DataFrames.sum(df_discharge_violation_states[!, "discharge_violation"])
@@ -315,90 +336,4 @@ function add_prop!(network_data:: Dict, obj_type:: String, prop_name:: String, o
     end
 
     return network_data
-end
-
-
-function get_eta_net(fuel:: String, df_eia_heat_rates:: DataFrames.DataFrame)
-    """
-    Get net efficiency of plant
-    
-    # Arguments
-    `fuel:: String`: Fuel code
-    `df_eia_heat_rates:: DataFrames.DataFrame`: DataFrame of eia heat rates
-    """
-    if fuel == "coal"
-        col_name = "Electricity Net Generation, Coal Plants Heat Rate"
-    elseif fuel == "ng"
-        col_name = "Electricity Net Generation, Natural Gas Plants Heat Rate"
-    elseif fuel == "nuclear"
-        col_name = "Electricity Net Generation, Nuclear Plants Heat Rate"
-    elseif fuel == "wind"
-        col_name = "Wind"
-    end
-
-    if col_name != "Wind"
-        # Median heat rate
-        eta_net = Statistics.median(skipmissing(df_eia_heat_rates[!, col_name]))
-
-        # Convert to ratio
-        eta_net = 3412.0/eta_net
-    else
-        eta_net = 0
-    end
-
-    return eta_net
-end
-
-
-function get_exogenous(df_air_water:: DataFrames.DataFrame, df_node_load:: DataFrames.DataFrame)
-    """
-    Format exogenous parameters
-
-    # Arguments
-    - `df_air_water:: DataFrames.DataFrame`: Air and water temperature dataframe
-    - `df_node_load:: DataFrames.DataFrame`: Node-level load dataframe
-    """
-    exogenous = Dict{String, Any}()
-
-    # Air and water temperatures
-    water_temperature = Dict{String, Float64}()
-    air_temperature = Dict{String, Float64}()
-    for row in eachrow(df_air_water)
-        water_temperature[string(row["day_index"])] = row["water_temperature"]
-        air_temperature[string(row["day_index"])] = row["air_temperature"]
-    end
-    exogenous["water_temperature"] = water_temperature
-    exogenous["air_temperature"] = air_temperature
-
-    # Node loads
-
-    # Days
-    d_nodes = Dict{String, Any}()
-    for d in DataFrames.unique(df_node_load[!, "day_index"])
-        df_d = df_node_load[in(d).(df_node_load.day_index), :]
-
-        # Hours
-        h_nodes = Dict{String, Any}()
-        for h in DataFrames.unique(df_node_load[!, "hour_index"])
-            df_hour = df_d[in(h).(df_d.hour_index), :]
-
-            # Nodes
-            nodes = Dict{String, Any}()
-            for row in eachrow(df_hour)
-                # Pandapower indexing
-                pandapower_bus = row["bus"]
-
-                # PowerModels indexing
-                powermodels_bus = row["bus"] + 1
-
-                nodes[string(powermodels_bus)] = row["load_mw"]
-            end
-            h_nodes[string(trunc(Int, h))] = nodes
-        end
-        d_nodes[string(trunc(Int, d))] = h_nodes
-    end
-    exogenous["node_load"] = d_nodes
-
-    return exogenous
-
 end

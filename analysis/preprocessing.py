@@ -104,13 +104,13 @@ def main():
 
     # Water and air temperature
     if not os.path.exists(paths['outputs']['air_water']):
-        df_air_water = mocot.core.process_exogenous(paths)
+        df_air_water = mocot.core.process_air_water_exogenous(paths)
         df_air_water.to_csv(paths['outputs']['air_water'], index=False)
 
     # System-level loads
     if not os.path.exists(paths['outputs']['system_load']):
         df_miso = pd.read_csv(paths['inputs']['miso_load'])
-        df_system_load = mocot.core.clean_system_load(
+        df_system_load = mocot.core.process_system_load(
             df_miso
         )
         df_system_load.to_csv(paths['outputs']['system_load'], index=False)
@@ -118,59 +118,17 @@ def main():
     # Node-level loads
     if not os.path.exists(paths['outputs']['node_load']):
         net = pandapower.converter.from_mpc(paths['inputs']['case'])
-        df_miso = pd.read_csv(paths['inputs']['miso_load'])
         df_system_load = pd.read_csv(paths['outputs']['system_load'])
         df_synthetic_node_loads = pd.read_csv(
             paths['inputs']['synthetic_node_loads'],
             header=1,
             low_memory=False
         )
-        df_node_load, df_hour_to_hour = mocot.core.create_node_load(
-            df_system_load, df_synthetic_node_loads, df_miso, net
+        df_node_load, df_hour_to_hour = mocot.core.process_node_load(
+            df_system_load, df_synthetic_node_loads, net
         )
         df_hour_to_hour.to_csv(paths['outputs']['hour_to_hour'], index=False)
         df_node_load.to_csv(paths['outputs']['node_load'], index=False)
-
-    # Grid sample decisions
-    if not os.path.exists(paths['outputs']['dec_exog']):
-        # Normal
-        grid_specs = {
-            'w_with_coal': {'min': 0.0, 'max': 0.5, 'steps': 3},
-            'w_con_coal': {'min': 0.0, 'max': 5.0, 'steps': 3},
-            'w_with_ng': {'min': 0.0, 'max': 0.5, 'steps': 3},
-            'w_con_ng': {'min': 0.0, 'max': 0.5, 'steps': 3},
-            'w_with_nuc': {'min': 0.0, 'max': 0.5, 'steps': 3},
-            'w_con_nuc': {'min': 0.0, 'max': 0.5, 'steps': 3}
-        }
-        df_dec_exog_normal = mocot.core.grid_sample(grid_specs)
-        df_dec_exog_normal['dec_label'] = 'D' + \
-            df_dec_exog_normal.index.astype(str).str.zfill(6)
-        df_dec_exog_normal['gen_scenario'] = 'Normal'
-
-        # No nuclear
-        grid_specs = {
-            'w_with_coal': {'min': 0.0, 'max': 0.5, 'steps': 3},
-            'w_con_coal': {'min': 0.0, 'max': 5.0, 'steps': 3},
-            'w_with_ng': {'min': 0.0, 'max': 0.5, 'steps': 3},
-            'w_con_ng': {'min': 0.0, 'max': 0.5, 'steps': 3},
-            'w_with_nuc': {'min': 0.0, 'max': 1.0, 'steps': 1},
-            'w_con_nuc': {'min': 0.0, 'max': 1.0, 'steps': 1}
-        }
-        df_dec_exog_nonuclear = mocot.core.grid_sample(grid_specs)
-        df_dec_exog_nonuclear['dec_label'] = 'D' + \
-            df_dec_exog_nonuclear.index.astype(str).str.zfill(6)
-        df_dec_exog_nonuclear['gen_scenario'] = 'No Nuclear'
-
-        # Combine
-        df_dec_exog = pd.concat(
-            [df_dec_exog_normal, df_dec_exog_nonuclear],
-            axis=0
-        )
-        df_dec_exog.to_csv(
-            paths['outputs']['dec_exog'],
-            index=False
-        )
-        print('Success: Grid sampling')
 
 
 if __name__ == '__main__':

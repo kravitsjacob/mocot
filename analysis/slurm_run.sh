@@ -1,19 +1,20 @@
 #!/bin/bash
 
-#SBATCH --nodes=1
+#SBATCH --nodes=8
+#SBATCH --ntasks-per-node=12
+#SBATCH --cpus-per-task=1
 #SBATCH --output=output.txt
 #SBATCH --error=error.txt
 #SBATCH --job-name=gosox
 #SBATCH --partition=amilan
-#SBATCH --time=0-00:600:00
+#SBATCH --time=0-00:200:00
 #SBATCH --mail-user=jakr3868@colorado.edu
 #SBATCH --mail-type=ALL
 
 # Setup
 module purge
-export JULIA_DEPOT_PATH="/projects/jakr3868/.julia:$JULIA_DEPOT_PATH"
-ml julia/1.6.6
+cd ..
+. analysis/slurm_config.sh
 
 # Run analysis
-cd ..
-julia --project=analysis analysis/main.jl
+mpiexec -n 96 ./analysis/main.exe

@@ -12,6 +12,8 @@ inputs:
   usgs_temperature_data: "analysis/io/inputs/usgs_water_temperature/05558300.txt"
   miso_load: "analysis/io/inputs/miso_load_data/20190101-20200101 MISO Forecasted Cleared & Actual Load.csv"
   synthetic_node_loads: "analysis/io/inputs/ACTIVSg_Time_Series/ACTIVISg2000_load_time_series_MW.csv"
+  decisions: "analysis/io/inputs/parameters/decisions.txt"
+  objectives: "analysis/io/inputs/parameters/objectives.txt"
   
   testing:
     no_load: "analysis/io/inputs/testing/no_load.csv"
@@ -27,12 +29,12 @@ outputs:
   system_load: "analysis/io/outputs/exogenous/system_load.csv"
   node_load: "analysis/io/outputs/exogenous/node_load.csv"
   hour_to_hour: "analysis/io/outputs/exogenous/hour_to_hour.csv"
-  dec_exog: "analysis/io/outputs/decisions_exogenous/dec_exog.csv"
   gen_info_pm: "analysis/io/outputs/synthetic_grid/gen_info_pm.csv"
-  states: "analysis/io/outputs/states/"
-  power_states: "analysis/io/outputs/states/power_states.csv"
-  discharge_violation_states: "analysis/io/outputs/states/discharge_violation_states.csv"
-  objectives: "analysis/io/outputs/objectives/objectives.csv"
+  objectives: "analysis/objectives.csv"
+  discharge_states: "analysis/discharge_states.csv"
+  power_states: "analysis/power_states.csv"
+  front: "analysis/io/outputs/front/front.txt"
+  runtime: "analysis/io/outputs/states/runtime.txt"
 
   figures:
     system_load: "analysis/io/outputs/figures/system_load.pdf"
@@ -41,3 +43,5 @@ outputs:
     hour_node_load: "analysis/io/outputs/figures/hour_node_load.pdf"
     temperatures: "analysis/io/outputs/figures/temperatures.pdf"
     interactive_parallel: "analysis/io/outputs/figures/interactive_parallel.html"
+    operator: "analysis/io/outputs/figures/runtime_operator.pdf"
+    progressarchiveratio: "analysis/io/outputs/figures/runtime_progressarchiveratio.pdf"

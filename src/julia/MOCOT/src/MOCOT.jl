@@ -6,12 +6,91 @@ import DataFrames
 import Statistics
 import Ipopt
 import CSV
+import YAML
 import Infiltrator  # For debugging using @Infiltrator.infiltrate
 
-include("read.jl")
+include("preprocessing.jl")
 include("utils.jl")
 include("daily.jl")
 include("hourly.jl")
+
+
+function borg_simulation_wrapper(
+    w_with_coal:: Float64=0.0,
+    w_con_coal:: Float64=0.0,
+    w_with_ng:: Float64=0.0,
+    w_con_ng:: Float64=0.0,
+    w_with_nuc:: Float64=0.0,
+    w_con_nuc:: Float64=0.0,
+)
+    """
+    Simulation wrapper for borg multi-objective MOEA
+    
+    # Arguments
+    - `w_with_coal:: Float64`: Coal withdrawal weight
+    - `w_con_coal:: Float64`: Coal consumption weight
+    - `w_with_ng:: Float64`: Natural gas withdrawal weight
+    - `w_con_ng:: Float64`: Natural gas consumption weight
+    - `w_with_nuc:: Float64`: Nuclear withdrawal weight
+    - `w_con_nuc:: Float64`: Nuclear consumption weight
+    """
+    # Setup
+    objective_array = Float64[]
+
+    # Import
+    paths = YAML.load_file("analysis/paths.yml")
+    (
+        df_eia_heat_rates,
+        df_air_water,
+        df_node_load,
+        network_data,
+        df_gen_info,
+        decision_names,
+        objective_names
+    ) = MOCOT.read_inputs(
+        paths["outputs"]["gen_info_water_ramp_emit_waterlim"],
+        paths["inputs"]["eia_heat_rates"],
+        paths["outputs"]["air_water"],
+        paths["outputs"]["node_load"],
+        paths["inputs"]["case"],
+        paths["inputs"]["decisions"],
+        paths["inputs"]["objectives"]
+    )
+
+    # Preparing network
+    network_data = MOCOT.add_custom_properties!(network_data, df_gen_info, df_eia_heat_rates)
+
+    # Exogenous parameters
+    exogenous = MOCOT.get_exogenous(
+        Dates.DateTime(2019, 7, 1, 0),
+        Dates.DateTime(2019, 7, 6, 23),
+        df_air_water,
+        df_node_load
+    )
+
+    # Update generator status
+    network_data = MOCOT.update_commit_status!(network_data, "Normal")
+
+    # Simulation
+    df_objs = DataFrames.DataFrame()
+    (objectives, state) = MOCOT.simulation(
+        network_data,
+        exogenous,
+        w_with_coal=w_with_coal,
+        w_con_coal=w_con_coal,
+        w_with_ng= w_with_ng,
+        w_con_ng=w_con_ng,
+        w_with_nuc=w_with_nuc,
+        w_con_nuc= w_con_nuc
+    )
+
+
+    for obj_name in objective_names
+        append!(objective_array, objectives[obj_name])
+    end
+    
+    return objective_array
+end
 
 
 function simulation(
@@ -29,7 +108,7 @@ function simulation(
     Simulation of water and energy system
 
     # Arguments
-    - `network_data:: Dict`: PowerModels Network data
+    - `network_data:: Dict`: PowerModels network data
     - `exogenous:: Dict`: Exogenous parameter data [<parameter_name>][<timestep>]...[<timestep>]
     - `w_with_coal:: Float64`: Coal withdrawal weight
     - `w_con_coal:: Float64`: Coal consumption weight
@@ -81,8 +160,9 @@ function simulation(
     network_data = MOCOT.update_all_gens!(network_data, "pmin", 0.0)
 
     # Add reliability generators
-    network_data = MOCOT.add_reliability_gens!(network_data)
-
+    voll = 330000.0  # $/pu for MISO
+    network_data = MOCOT.add_reliability_gens!(network_data, voll)
+    @Infiltrator.infiltrate
     # Make multinetwork
     network_data_multi = PowerModels.replicate(network_data, h_total)
 
@@ -99,7 +179,7 @@ function simulation(
 
     # Simulation
     for d in 1:d_total
-        println("Simulation Day:" * string(d))
+        println("Simulation Day: " * string(d))
 
         # Update loads
         network_data_multi = update_load!(
@@ -134,7 +214,7 @@ function simulation(
         # Solve power system model
         state["power"][string(d)] = PowerModels.optimize_model!(
             pm,
-            optimizer=Ipopt.Optimizer
+            optimizer=JuMP.optimizer_with_attributes(Ipopt.Optimizer, "print_level"=>0)
         )
 
         # Water use
@@ -149,7 +229,18 @@ function simulation(
     end
 
     # Compute objectives
-    objectives = get_objectives(state, network_data)
+    objectives = get_objectives(state, network_data, w_with, w_con)
+
+    # Console feedback
+    println(Dict(
+        "w_with_coal" => w_with_coal,
+        "w_con_coal" => w_con_coal,
+        "w_with_ng" => w_with_ng,
+        "w_con_ng" => w_con_ng,
+        "w_with_nuc" => w_with_nuc,
+        "w_con_nuc" => w_con_nuc
+    ))
+    println(objectives)
 
     return (objectives, state)
 end

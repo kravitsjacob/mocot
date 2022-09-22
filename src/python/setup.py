@@ -12,13 +12,13 @@ setuptools.setup(
         "Bug Tracker": "https://github.com/kravitsjacob/water-coordinate/issues",  # noqa
     },
     install_requires=[
-        'sympy',
         'pandas',
         'tables',
         'pandapower >= 2.10.1',
         'PyYAML',
         'matpowercaseframes',
-        'hiplot'
+        'hiplot',
+        'more_itertools'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
