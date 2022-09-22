@@ -160,8 +160,9 @@ function simulation(
     network_data = MOCOT.update_all_gens!(network_data, "pmin", 0.0)
 
     # Add reliability generators
-    network_data = MOCOT.add_reliability_gens!(network_data)
-
+    voll = 330000.0  # $/pu for MISO
+    network_data = MOCOT.add_reliability_gens!(network_data, voll)
+    @Infiltrator.infiltrate
     # Make multinetwork
     network_data_multi = PowerModels.replicate(network_data, h_total)
 
