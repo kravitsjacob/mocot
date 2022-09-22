@@ -1,12 +1,15 @@
 module MOCOT
 
+
 import PowerModels
 import JuMP
 import DataFrames
 import Statistics
 import Ipopt
 import CSV
-import Infiltrator  # For debugging using @Infiltrator.infiltrate
+
+# Dev packages
+import Infiltrator  # @Infiltrator.infiltrate
 
 include("preprocessing.jl")
 include("utils.jl")
@@ -83,7 +86,7 @@ function simulation(
     # Add reliability generators
     voll = 330000.0  # $/pu for MISO
     network_data = MOCOT.add_reliability_gens!(network_data, voll)
-    @Infiltrator.infiltrate
+
     # Make multinetwork
     network_data_multi = PowerModels.replicate(network_data, h_total)
 
