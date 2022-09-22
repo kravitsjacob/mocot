@@ -2,7 +2,7 @@
 
 # Dev packages
 using Revise
-import Infiltrator  # @Infiltrator.infiltrate
+using Infiltrator  # @Infiltrator.infiltrate
 
 using YAML
 using CSV

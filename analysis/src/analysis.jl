@@ -9,6 +9,8 @@ import MOCOT
 # Dev packages
 import Infiltrator  # @Infiltrator.infiltrate
 
+include("preprocessing.jl")
+
 
 function borg_simulation_wrapper(
     w_with_coal:: Float64=0.0,
@@ -44,7 +46,7 @@ function borg_simulation_wrapper(
         df_gen_info,
         decision_names,
         objective_names
-    ) = MOCOT.read_inputs(
+    ) = analysis.read_inputs(
         paths["outputs"]["gen_info_water_ramp_emit_waterlim"],
         paths["inputs"]["eia_heat_rates"],
         paths["outputs"]["air_water"],
@@ -55,10 +57,10 @@ function borg_simulation_wrapper(
     )
 
     # Preparing network
-    network_data = MOCOT.add_custom_properties!(network_data, df_gen_info, df_eia_heat_rates)
+    network_data = analysis.add_custom_properties!(network_data, df_gen_info, df_eia_heat_rates)
 
     # Exogenous parameters
-    exogenous = MOCOT.get_exogenous(
+    exogenous = analysis.get_exogenous(
         Dates.DateTime(2019, 7, 1, 0),
         Dates.DateTime(2019, 7, 6, 23),
         df_air_water,
