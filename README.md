@@ -8,23 +8,24 @@ Multi-Objective Coordination of Thermoelectric Water Use
 # Julia Tests
 1) Use julia environment (with package installed) and run test `$ julia --project=src/julia/MOCOT src/julia/MOCOT/testing/test.jl`
 
-# Debugging Julia
-* In terminal activate julia env `$ julia --project=analysis`
-* Instantiate julia packages `julia> include("analysis/julia_config.jl)`
+# Single Simulation Run (Debugging/Development)
+* Activate julia `$ julia`
+* Instantiate julia packages (analysis and MOCOT) `julia> include("analysis/julia_config.jl")`
+* Activate analysis `julia> using Pkg; Pkg.activate("analysis")`
 
 for every bug:
   * Run `using Infiltrator` to add debugging functionality.
   * Set breakpoint where appropriate using `@Infiltrator.infiltrate` be sure to `import Infiltrator` at the top of development packages. Note, it will throw a warning as it thinks you are adding a not-included dependency.
   * Evaluate using `include("analysis/single_simulation.jl")`
 
-# Julia Simulation on Windows Subsystem for Linux (WSL)
+# Parallel Optimization on Windows Subsystem for Linux (WSL)
 * Download julia to WSL and make sure the path is reflected in `analysis/makefile`
 * Run julia, making sure the path is correct: `$ /bin/julia/julia-1.8.1/bin/julia`
-* Instantiate julia packages `julia> include("analysis/julia_config.jl)`
+* Instantiate julia packages `julia> include("analysis/julia_config.jl")`
 * Compile using `$ make -C ./analysis`
 * Run using `$ mpiexec -n 2 ./analysis/main.exe`
 
-# Julia Simulation on Alpine
+# Parallel Optimization on Alpine
 
 ## Building MOCOT and Analysis projects
 * Activate Alpine: `$ ml slurm/alpine`
