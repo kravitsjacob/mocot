@@ -3,9 +3,9 @@
 #include <math.h>
 #include <time.h>
 #include <math.h>
-#include <mpi.h>
+// #include <mpi.h>
 #include <julia.h>
-#include "borg_src/borgms.h"
+// #include "borg_src/borgms.h"
 
 //JULIA_DEFINE_FAST_TLS
 
@@ -13,6 +13,7 @@
 
 int ndecs = 6;
 int nobjs = 9;
+int nconsts = 0;
 
 void simulation_wrapper(double* decs, double* objs, double* consts)
 {
@@ -21,7 +22,7 @@ void simulation_wrapper(double* decs, double* objs, double* consts)
    jl_value_t* args[ndecs];
 
    // Initialize function
-   jl_module_t *module = (jl_module_t*)jl_eval_string("MOCOT");
+   jl_module_t *module = (jl_module_t*)jl_eval_string("analysis");
 
    // Initialize simulation function
    jl_function_t *func = jl_get_function(module, "borg_simulation_wrapper");
@@ -53,75 +54,87 @@ int main(int argc, char* argv[])
 
    // Setup julia
    jl_init();
-   jl_eval_string("using MOCOT");
+   jl_eval_string("using analysis");
 
-	// Simulation setup
-   BORG_Algorithm_ms_max_evaluations(20000);
-   BORG_Algorithm_output_frequency(100);
-	BORG_Algorithm_ms_startup(&argc, &argv);
+   // Debugging
+   double decs[ndecs];
+   double objs[nobjs];
+   double consts[nconsts];
+   decs[0] = 0.0;
+   decs[1] = 0.0;
+   decs[2] = 0.0;
+   decs[3] = 0.0;
+   decs[4] = 0.0;
+   decs[5] = 0.0;
+   simulation_wrapper(decs, objs, consts);
 
-	// Setting up problem
-	BORG_Problem problem = BORG_Problem_create(ndecs, nobjs, 0, simulation_wrapper);
+	// // Simulation setup
+   // BORG_Algorithm_ms_max_evaluations(20000);
+   // BORG_Algorithm_output_frequency(100);
+	// BORG_Algorithm_ms_startup(&argc, &argv);
 
-   // Decision bounds
-   // w_with_coal
-   BORG_Problem_set_bounds(problem, 0, 0.0, 0.5);
-   // w_con_coal
-   BORG_Problem_set_bounds(problem, 1, 0.0, 5.0);
-   // w_with_ng
-   BORG_Problem_set_bounds(problem, 2, 0.0, 0.5);
-   // w_con_ng
-   BORG_Problem_set_bounds(problem, 3, 0.0, 0.5);
-   // w_with_nuc
-   BORG_Problem_set_bounds(problem, 4, 0.0, 0.5);
-   // w_con_nuc
-   BORG_Problem_set_bounds(problem, 5, 0.0, 0.5);
+	// // Setting up problem
+	// BORG_Problem problem = BORG_Problem_create(ndecs, nobjs, 0, simulation_wrapper);
 
-   // Objectives epsilons
-   // f_gen
-   BORG_Problem_set_epsilon(problem, 0, 10000.0);
-   // f_cos_tot
-   BORG_Problem_set_epsilon(problem, 1, 1000000.0);
-   // f_with_peak
-   BORG_Problem_set_epsilon(problem, 2, 1000000.0);
-   // f_con_peak
-   BORG_Problem_set_epsilon(problem, 3, 1000000.0);
-   // f_with_tot
-   BORG_Problem_set_epsilon(problem, 4, 100000000.0);
-   // f_con_tot
-   BORG_Problem_set_epsilon(problem, 5, 100000000.0);
-   // f_disvi_tot
-   BORG_Problem_set_epsilon(problem, 6, 1.0);
-   // f_emit
-   BORG_Problem_set_epsilon(problem, 7, 10.0);
-   // f_ENS
-   BORG_Problem_set_epsilon(problem, 8, 1.0);
+   // // Decision bounds
+   // // w_with_coal
+   // BORG_Problem_set_bounds(problem, 0, 0.0, 0.5);
+   // // w_con_coal
+   // BORG_Problem_set_bounds(problem, 1, 0.0, 5.0);
+   // // w_with_ng
+   // BORG_Problem_set_bounds(problem, 2, 0.0, 0.5);
+   // // w_con_ng
+   // BORG_Problem_set_bounds(problem, 3, 0.0, 0.5);
+   // // w_with_nuc
+   // BORG_Problem_set_bounds(problem, 4, 0.0, 0.5);
+   // // w_con_nuc
+   // BORG_Problem_set_bounds(problem, 5, 0.0, 0.5);
 
-	// Get the rank of this process.  The rank is used to ensure each
-	// parallel process uses a different random seed.
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+   // // Objectives epsilons
+   // // f_gen
+   // BORG_Problem_set_epsilon(problem, 0, 10000.0);
+   // // f_cos_tot
+   // BORG_Problem_set_epsilon(problem, 1, 1000000.0);
+   // // f_with_peak
+   // BORG_Problem_set_epsilon(problem, 2, 1000000.0);
+   // // f_con_peak
+   // BORG_Problem_set_epsilon(problem, 3, 1000000.0);
+   // // f_with_tot
+   // BORG_Problem_set_epsilon(problem, 4, 100000000.0);
+   // // f_con_tot
+   // BORG_Problem_set_epsilon(problem, 5, 100000000.0);
+   // // f_disvi_tot
+   // BORG_Problem_set_epsilon(problem, 6, 1.0);
+   // // f_emit
+   // BORG_Problem_set_epsilon(problem, 7, 10.0);
+   // // f_ENS
+   // BORG_Problem_set_epsilon(problem, 8, 1.0);
 
-   // Runtime file
-   sprintf(runtime, "analysis/io/outputs/states/runtime.txt");
-   BORG_Algorithm_output_runtime(runtime);
+	// // Get the rank of this process.  The rank is used to ensure each
+	// // parallel process uses a different random seed.
+	// MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-   // Seed the random number generator.
-   BORG_Random_seed(1008);
+   // // Runtime file
+   // sprintf(runtime, "analysis/io/outputs/states/runtime.txt");
+   // BORG_Algorithm_output_runtime(runtime);
 
-   // Run the parent-child Borg MOEA on the problem.
-   BORG_Archive result = BORG_Algorithm_ms_run(problem);
+   // // Seed the random number generator.
+   // BORG_Random_seed(1008);
 
-   // Print the Pareto optimal solutions to the screen.
-   if (result != NULL)
-   {
-      fp = fopen("analysis/io/outputs/front/front.txt", "w+");
-      BORG_Archive_print(result, fp);
-      BORG_Archive_destroy(result);
-      fclose(fp);
-   }
+   // // Run the parent-child Borg MOEA on the problem.
+   // BORG_Archive result = BORG_Algorithm_ms_run(problem);
 
-	// Shutdown the parallel processes and exit.
-	BORG_Algorithm_ms_shutdown();
-	BORG_Problem_destroy(problem);
+   // // Print the Pareto optimal solutions to the screen.
+   // if (result != NULL)
+   // {
+   //    fp = fopen("analysis/io/outputs/front/front.txt", "w+");
+   //    BORG_Archive_print(result, fp);
+   //    BORG_Archive_destroy(result);
+   //    fclose(fp);
+   // }
+
+	// // Shutdown the parallel processes and exit.
+	// BORG_Algorithm_ms_shutdown();
+	// BORG_Problem_destroy(problem);
 	return EXIT_SUCCESS;
 }
