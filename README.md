@@ -18,8 +18,15 @@ for every bug:
   * Set breakpoint where appropriate using `@Infiltrator.infiltrate` be sure to `import Infiltrator` at the top of development packages. Note, it will throw a warning as it thinks you are adding a not-included dependency.
   * Evaluate using `include("analysis/single_simulation.jl")`
 
-# Parallel Optimization on Windows Subsystem for Linux (WSL)
-* Download julia to WSL and make sure the path is reflected in `analysis/makefile`
+# Single Simulation Run in C (Debugging/Development)
+* Download julia and make sure the path is reflected in `analysis/makefile`
+* Activate julia `$ julia`
+* Instantiate julia packages `julia> include("analysis/julia_config.jl")`
+* Compile using `$ make single -C ./analysis`
+* Run using `$ ./analysis/single_simulation.exe`
+
+# Parallel Optimization on Unix-like
+* Download julia and make sure the path is reflected in `analysis/makefile`
 * Activate julia `$ julia`
 * Instantiate julia packages `julia> include("analysis/julia_config.jl")`
 * Compile using `$ make -C ./analysis`
