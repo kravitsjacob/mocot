@@ -64,7 +64,7 @@ function borg_simulation_wrapper(
     # Exogenous parameters
     exogenous = analysis.get_exogenous(
         Dates.DateTime(2019, 7, 1, 0),
-        Dates.DateTime(2019, 7, 6, 23),
+        Dates.DateTime(2019, 7, 7, 23),
         df_air_water,
         df_node_load
     )
