@@ -14,6 +14,7 @@ int n_objs = 9;
 int n_consts = 0;
 int scenario_code;
 
+// Simulation wrapper to call julia code from C
 void simulation_wrapper(double* decs, double* objs, double* consts)
 {
     // Setup
@@ -53,6 +54,39 @@ void simulation_wrapper(double* decs, double* objs, double* consts)
 
 }
 
+// Set decision bounds based on scenario
+void set_dec_bounds(BORG_Problem problem, int scenario_code)
+{
+    if (scenario_code == 1){
+        // w_with_coal
+        BORG_Problem_set_bounds(problem, 0, 0.0, 0.5);
+        // w_con_coal
+        BORG_Problem_set_bounds(problem, 1, 0.0, 5.0);
+        // w_with_ng
+        BORG_Problem_set_bounds(problem, 2, 0.0, 1.0);
+        // w_con_ng
+        BORG_Problem_set_bounds(problem, 3, 0.0, 1.0);
+        // w_with_nuc
+        BORG_Problem_set_bounds(problem, 4, 0.0, 1.0);
+        // w_con_nuc
+        BORG_Problem_set_bounds(problem, 5, 0.0, 1.0);
+    }
+    else if (scenario_code == 2){
+        // w_with_coal
+        BORG_Problem_set_bounds(problem, 0, 0.0, 0.5);
+        // w_con_coal
+        BORG_Problem_set_bounds(problem, 1, 0.0, 5.0);
+        // w_with_ng
+        BORG_Problem_set_bounds(problem, 2, 0.0, 1.0);
+        // w_con_ng
+        BORG_Problem_set_bounds(problem, 3, 0.0, 1.0);
+        // w_with_nuc
+        BORG_Problem_set_bounds(problem, 4, 0.0, 0.00001);
+        // w_con_nuc
+        BORG_Problem_set_bounds(problem, 5, 0.0, 0.00001);
+    }
+}
+
 
 int main(int argc, char* argv[])
 {
@@ -90,19 +124,8 @@ int main(int argc, char* argv[])
     // Setting up problem
 	BORG_Problem problem = BORG_Problem_create(n_decs, n_objs, n_consts, simulation_wrapper);
 
-    // Decision bounds
-    // w_with_coal
-    BORG_Problem_set_bounds(problem, 0, 0.0, 0.5);
-    // w_con_coal
-    BORG_Problem_set_bounds(problem, 1, 0.0, 5.0);
-    // w_with_ng
-    BORG_Problem_set_bounds(problem, 2, 0.0, 0.5);
-    // w_con_ng
-    BORG_Problem_set_bounds(problem, 3, 0.0, 0.5);
-    // w_with_nuc
-    BORG_Problem_set_bounds(problem, 4, 0.0, 0.5);
-    // w_con_nuc
-    BORG_Problem_set_bounds(problem, 5, 0.0, 0.5);
+    // Set decision bounds
+    set_dec_bounds(problem, scenario_code);
 
     // Objectives epsilons
     // f_gen
