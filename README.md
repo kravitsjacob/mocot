@@ -23,16 +23,16 @@ for every bug:
 * Activate julia `$ julia`
 * Instantiate julia packages `julia> include("analysis/julia_config.jl")`
 * Compile using `$ make single -C ./analysis`
-* Run using `$ ./analysis/single_simulation.exe`
+* Run simulation using "all generators" scenario (code 1) `$ ./analysis/single_simulation.exe 1`
 
-# Parallel Optimization on Unix-like
+# Optimization on Unix-like
 * Download julia and make sure the path is reflected in `analysis/makefile`
 * Activate julia `$ julia`
 * Instantiate julia packages `julia> include("analysis/julia_config.jl")`
-* Compile using `$ make -C ./analysis`
-* Run using `$ mpiexec -n 2 ./analysis/main.exe`
+* Compile using `$ make optimization -C ./analysis`
+* Run optimization using "all generators" scenario (code 1) `$ mpiexec -n 2 ./analysis/optimization.exe 1`
 
-# Parallel Optimization on Alpine
+# Optimization on Alpine
 
 ## Building MOCOT and Analysis projects
 * Activate Alpine: `$ ml slurm/alpine`
