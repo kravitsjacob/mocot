@@ -26,10 +26,12 @@ void simulation_wrapper(double* decs, double* objs, double* consts)
             args[i] = dec;
     }
 
-    // Assign other arguments
-    // args[ndecs+1] = jl_box_int64(1);
-    // args[ndecs+2] = jl_box_int64(1);
-    // nargs = ndecs + 2;
+    // Assign output type to borg
+    args[ndecs] = jl_box_int64(1);
+
+    // Assign scenario type
+    args[ndecs+1] = jl_box_int64(2);
+    nargs = ndecs + 2;
 
     // Call julia function
     jl_array_t *ret = (jl_array_t*)jl_call(func, args, nargs);
