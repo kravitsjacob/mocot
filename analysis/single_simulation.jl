@@ -17,7 +17,7 @@ function main()
     paths = YAML.load_file("analysis/paths.yml")
 
     # Simulation
-    (objectives, state) = analysis.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, "all")
+    (objectives, state) = analysis.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 1)
 
     # Objectives
     df_objs = DataFrames.DataFrame(objectives)

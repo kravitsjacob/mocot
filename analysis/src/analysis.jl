@@ -19,7 +19,8 @@ function borg_simulation_wrapper(
     w_con_ng:: Float64=0.0,
     w_with_nuc:: Float64=0.0,
     w_con_nuc:: Float64=0.0,
-    output_type="borg"
+    output_type=1,
+    scenario=1
 )
     """
     Simulation wrapper for borg multi-objective MOEA
@@ -31,7 +32,8 @@ function borg_simulation_wrapper(
     - `w_con_ng:: Float64`: Natural gas consumption weight
     - `w_with_nuc:: Float64`: Nuclear withdrawal weight
     - `w_con_nuc:: Float64`: Nuclear consumption weight
-    - `output_type:: String`: Return type. "borg" for standard Borg output. "all" for returning states and objectives
+    - `output_type:: Int64`: Return code. 1 is for standard Borg output. 2 is for returning states and objectives
+    - `scenario:: Int64`: Scenario code. See update_scenario! for codes
     """
     # Setup
     objective_array = Float64[]
@@ -68,7 +70,7 @@ function borg_simulation_wrapper(
     )
 
     # Update generator status
-    network_data = MOCOT.update_commit_status!(network_data, "Normal")
+    network_data = MOCOT.update_scenario!(network_data, scenario)
 
     # Simulation
     (objectives, state) = MOCOT.simulation(
@@ -82,14 +84,14 @@ function borg_simulation_wrapper(
         w_con_nuc= w_con_nuc
     )
 
-    if output_type == "borg"
+    if output_type == 1  # "borg"
         for obj_name in objective_names
             append!(objective_array, objectives[obj_name])
         end
         
         return objective_array
 
-    elseif  output_type == "all"
+    elseif  output_type == 2  # "all"
 
         # Generator information export
         CSV.write(paths["outputs"]["gen_info_main"], df_gen_info)
