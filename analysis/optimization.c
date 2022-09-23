@@ -59,16 +59,24 @@ int main(int argc, char* argv[])
     // Setup C
     int i, j;
     int rank;
+    char scenario_code_char[2];
     char runtime[256];
     FILE *fp;
+    char path_to_front[50] = "analysis/io/outputs/front/scenario_0_front.txt";  // 0 replaced with scenario code
+    char path_to_runtime[50] = "analysis/io/outputs/states/scenario_0_runtime.txt";  // 0 replaced with scenario code
 
-    // Scenario code
+    // Scenario code parsing
     if (argc == 1){  // All generators scenario by default
-        scenario_code = 1;
+        strcpy(scenario_code_char, "1");
     }
     else if (argc == 2){
-        sscanf(argv[1], "%i", &scenario_code);
+        strcpy(scenario_code_char, argv[1]);
     }
+    sscanf(scenario_code_char, "%i", &scenario_code);
+
+    // Setting output paths
+    path_to_runtime[36] = scenario_code_char[0];
+    path_to_front[35] = scenario_code_char[0];
 
     // Setup julia
     jl_init();
@@ -121,7 +129,7 @@ int main(int argc, char* argv[])
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
     // Runtime file
-    sprintf(runtime, "analysis/io/outputs/states/runtime.txt");
+    sprintf(runtime, path_to_runtime);
     BORG_Algorithm_output_runtime(runtime);
 
     // Seed the random number generator.
@@ -133,7 +141,7 @@ int main(int argc, char* argv[])
     // Print the Pareto optimal solutions to the screen.
     if (result != NULL)
     {
-        fp = fopen("analysis/io/outputs/front/front.txt", "w+");
+        fp = fopen(path_to_front, "w+");
         BORG_Archive_print(result, fp);
         BORG_Archive_destroy(result);
         fclose(fp);
