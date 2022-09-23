@@ -9,9 +9,9 @@ Multi-Objective Coordination of Thermoelectric Water Use
 1) Use julia environment (with package installed) and run test `$ julia --project=src/julia/MOCOT src/julia/MOCOT/testing/test.jl`
 
 # Single Simulation Run (Debugging/Development)
-* Activate julia `$ julia`
-* Instantiate julia packages (analysis and MOCOT) `julia> include("analysis/julia_config.jl")`
-* Activate analysis `julia> using Pkg; Pkg.activate("analysis")`
+1) Activate julia `$ julia`
+2) Instantiate julia packages (analysis and MOCOT) `julia> include("analysis/julia_config.jl")`
+3) Activate analysis `julia> using Pkg; Pkg.activate("analysis")`
 
 for every bug:
   * Run `using Infiltrator` to add debugging functionality.
@@ -19,32 +19,32 @@ for every bug:
   * Evaluate using `include("analysis/single_simulation.jl")`
 
 # Single Simulation Run in C (Debugging/Development)
-* Download julia and make sure the path is reflected in `analysis/makefile`
-* Activate julia `$ julia`
-* Instantiate julia packages `julia> include("analysis/julia_config.jl")`
-* Compile using `$ make single -C ./analysis`
-* Run simulation using "all generators" scenario (code 1) `$ ./analysis/single_simulation.exe 1`
+1) Download julia and make sure the path is reflected in `analysis/makefile`
+2) Activate julia `$ julia`
+3) Instantiate julia packages `julia> include("analysis/julia_config.jl")`
+4) Compile using `$ make single -C ./analysis`
+5) Run simulation using "all generators" scenario (code 1) `$ ./analysis/single_simulation.exe 1`
 
 # Optimization on Unix-like
-* Download julia and make sure the path is reflected in `analysis/makefile`
-* Activate julia `$ julia`
-* Instantiate julia packages `julia> include("analysis/julia_config.jl")`
-* Compile using `$ make optimization -C ./analysis`
-* Run optimization using "all generators" scenario (code 1) `$ mpiexec -n 2 ./analysis/optimization.exe 1`
+1) Download julia and make sure the path is reflected in `analysis/makefile`
+2) Activate julia `$ julia`
+3) Instantiate julia packages `julia> include("analysis/julia_config.jl")`
+4) Compile using `$ make optimization -C ./analysis`
+5) Run optimization using "all generators" scenario (code 1) `$ mpiexec -n 2 ./analysis/optimization.exe 1`
 
 # Optimization on Alpine
 
 ## Building MOCOT and Analysis projects
-* Activate Alpine: `$ ml slurm/alpine`
-* Go to compile node: `$ acompile`
-* Change directory to mocot: `$ cd /projects/jakr3868/mocot`
-* Configure slurm: `. analysis/slurm_config.sh` 
-* Compile using `$ make slurm -C ./analysis`
+1) Activate Alpine: `$ ml slurm/alpine`
+2) Go to compile node: `$ acompile`
+3) Change directory to mocot: `$ cd /projects/jakr3868/mocot`
+4) Configure slurm: `. analysis/slurm_config.sh` 
+5) Compile using `$ make slurm -C ./analysis`
 
 ## Running simulation
-* Activate Alpine: `$ ml slurm/alpine`
-* Change directory to analysis: `$ cd /projects/jakr3868/mocot/analysis`
-* Submit the job: `$ sbatch slurm_run.sh`
+1) Activate Alpine: `$ ml slurm/alpine`
+2) Change directory to analysis: `$ cd /projects/jakr3868/mocot/analysis`
+3) Submit the job: `$ sbatch slurm_run.sh`
 
 # Notes on old commits/releases
 Releases of week-01 to week-09 were regenerated due to migration away from git lfs. Thus, their release data all occur on the same day. 
