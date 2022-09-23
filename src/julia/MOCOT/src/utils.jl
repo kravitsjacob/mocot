@@ -1,22 +1,5 @@
 # Utilities
 
-function update_scenario!(network_data, scenario:: Int64)
-    """
-    Update network based on scenario
-
-    # Arguments
-    - `network_data::Dict`: Network data (e.g., network_data_multi["nw"])
-    - `scenario:: Int64`: Scenario code. 1 for all generators. 2 for no nuclear.
-    """
-    if scenario == 1  # "normal"
-        network_data = update_all_gens!(network_data, "gen_status", 1)
-    elseif scenario == 2  # "no_nuclear"
-        network_data = update_all_gens!(network_data, "gen_status", 1)
-        network_data["gen"]["47"]["gen_status"]=0
-    end
-    return network_data
-end
-
 
 function update_all_gens!(nw_data, prop:: String, val)
     """

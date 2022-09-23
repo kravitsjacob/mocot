@@ -70,7 +70,7 @@ function borg_simulation_wrapper(
     )
 
     # Update generator status
-    network_data = MOCOT.update_scenario!(network_data, scenario)
+    network_data = analysis.update_scenario!(network_data, scenario)
 
     # Simulation
     (objectives, state) = MOCOT.simulation(
