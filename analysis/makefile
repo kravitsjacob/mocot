@@ -11,7 +11,7 @@ compile:
 	$(MPICC) $(CFLAGS) -o main.exe main.c borg_src/borgms.c borg_src/mt19937ar.c $(LIBS) $(JULIAFLAGS)
 
 single:
-	$(GCC) $(CFLAGS) -o single_simulation.exe single_simulation.c $(LIBS) $(JULIAFLAGS)
+	$(GCC) -o single_simulation.exe single_simulation.c $(JULIAFLAGS)
 
 slurm: 
 	$(MPICC) $(CFLAGS) -o main.exe main.c borg_src/borgms.c borg_src/mt19937ar.c $(LIBS) $(JULIAFLAGS_SLURM)
