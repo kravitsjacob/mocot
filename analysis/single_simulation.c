@@ -30,7 +30,7 @@ void simulation_wrapper(double* decs, double* objs, double* consts)
     args[ndecs] = jl_box_int64(1);
 
     // Assign scenario type
-    args[ndecs+1] = jl_box_int64(2);
+    args[ndecs+1] = jl_box_int64(1);
     nargs = ndecs + 2;
 
     // Call julia function
@@ -40,32 +40,35 @@ void simulation_wrapper(double* decs, double* objs, double* consts)
     double *objData = (double*)jl_array_data(ret);
     for(i = 0; i < nobjs; i++)
     {
-            objs[i] = objData[i];
+        objs[i] = objData[i];
     }
+
 }
 
 
 int main(int argc, char* argv[])
 {
     // Setup C
-    double decs[ndecs];
-    double objs[nobjs];
-    double consts[nconsts];
-    decs[0] = 0.0;
-    decs[1] = 0.0;
-    decs[2] = 0.0;
-    decs[3] = 0.0;
-    decs[4] = 0.0;
-    decs[5] = 0.0;
+    double test_decs[ndecs];
+    double test_objs[nobjs];
+    double test_consts[nconsts];
+    test_decs[0] = 0.1;
+    test_decs[1] = 0.2;
+    test_decs[2] = 0.3;
+    test_decs[3] = 0.4;
+    test_decs[4] = 0.5;
+    test_decs[5] = 0.6;
 
     // Setup julia
     jl_init();
     jl_eval_string("using analysis");
 
-    simulation_wrapper(decs, objs, consts);
+    simulation_wrapper(test_decs, test_objs, test_consts);
 
-    printf("Objective 1 is %f", objs[0]);
-    printf("Objective 2 is %f", objs[1]);
+    printf("Objective 1 is %f \n", test_objs[0]);
+    printf("Objective 2 is %f \n ", test_objs[1]);
+    printf("Objective 3 is %f \n", test_objs[2]);
+    printf("Objective 4 is %f \n", test_objs[3]);
 
-	return EXIT_SUCCESS;
+	return 0;
 }
