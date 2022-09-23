@@ -7,14 +7,14 @@ JULIAFLAGS = -I$(JULIAPATH)/include/julia -L$(JULIAPATH)/lib -Wl,-rpath,$(JULIAP
 JULIAPATH_SLURM = /curc/sw/julia/1.6.6
 JULIAFLAGS_SLURM = -I$(JULIAPATH_SLURM)/include/julia -L$(JULIAPATH_SLURM)/lib -Wl,-rpath,$(JULIAPATH_SLURM)/lib -ljulia
 
-compile:
-	$(MPICC) $(CFLAGS) -o main.exe main.c borg_src/borgms.c borg_src/mt19937ar.c $(LIBS) $(JULIAFLAGS)
-
 single:
 	$(GCC) -o single_simulation.exe single_simulation.c $(JULIAFLAGS)
 
-slurm: 
-	$(MPICC) $(CFLAGS) -o main.exe main.c borg_src/borgms.c borg_src/mt19937ar.c $(LIBS) $(JULIAFLAGS_SLURM)
+optimization:
+	$(MPICC) $(CFLAGS) -o optimization.exe optimization.c borg_src/borgms.c borg_src/mt19937ar.c $(LIBS) $(JULIAFLAGS)
+
+slurm:
+	$(MPICC) $(CFLAGS) -o optimization.exe optimization.c borg_src/borgms.c borg_src/mt19937ar.c $(LIBS) $(JULIAFLAGS_SLURM)
  
 clean:
-	rm main.exe
+	rm optimization.exe single_simulation.exe
