@@ -129,8 +129,7 @@ int main(int argc, char* argv[])
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
     // Runtime file
-    sprintf(runtime, path_to_runtime);
-    BORG_Algorithm_output_runtime(runtime);
+    BORG_Algorithm_output_runtime(path_to_runtime);
 
     // Seed the random number generator.
     BORG_Random_seed(1008);
