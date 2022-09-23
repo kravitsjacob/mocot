@@ -20,7 +20,7 @@ for every bug:
 
 # Parallel Optimization on Windows Subsystem for Linux (WSL)
 * Download julia to WSL and make sure the path is reflected in `analysis/makefile`
-* Run julia, making sure the path is correct: `$ /bin/julia/julia-1.8.1/bin/julia`
+* Activate julia `$ julia`
 * Instantiate julia packages `julia> include("analysis/julia_config.jl")`
 * Compile using `$ make -C ./analysis`
 * Run using `$ mpiexec -n 2 ./analysis/main.exe`
