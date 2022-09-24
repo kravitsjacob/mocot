@@ -41,7 +41,7 @@ for every bug:
 4) Configure slurm: `. analysis/slurm_config.sh` 
 5) Compile using `$ make slurm -C ./analysis`
 
-## Running simulation
+## Running optimization
 1) Activate Alpine: `$ ml slurm/alpine`
 2) Change directory to analysis: `$ cd /projects/jakr3868/mocot/analysis`
 3) Submit the job using "all generators" scenario (code 1): `$ sbatch --export=scenario_code=1 slurm_run.sh`
