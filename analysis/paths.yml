@@ -43,5 +43,4 @@ outputs:
     hour_node_load: "analysis/io/outputs/figures/hour_node_load.pdf"
     temperatures: "analysis/io/outputs/figures/temperatures.pdf"
     interactive_parallel: "analysis/io/outputs/figures/interactive_parallel.html"
-    operator: "analysis/io/outputs/figures/runtime_operator.pdf"
-    progressarchiveratio: "analysis/io/outputs/figures/runtime_progressarchiveratio.pdf"
+    improvements: "analysis/io/outputs/figures/runtime_improvements.pdf"

@@ -3,6 +3,8 @@
 import pandas as pd
 import numpy as np
 from more_itertools import consecutive_groups
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 class BorgRuntimeDiagnostic:
@@ -62,6 +64,26 @@ class BorgRuntimeDiagnostic:
         self.objective_names = objective_names
         self.archive_decisions = dict(zip(self.NFE, parameters_ls))
         self.archive_objectives = dict(zip(self.NFE, objectives_ls))
+
+    def plot_improvements(self):
+        """
+        Plot improvments over the search
+
+        Returns
+        -------
+        matplotlib.figure.Figure
+            Plot of improvments
+        """
+        # Get data
+        df = pd.Series(self.improvements).to_frame().reset_index()
+
+        # Plot
+        fig = plt.figure()
+        sns.lineplot(data=df, x='index', y=0)
+        plt.set_ylabel('Improvments')
+        plt.set_xlabel('Function Evaluations')
+
+        return fig
 
 
 def parse_archive(df, decision_names, objective_names):

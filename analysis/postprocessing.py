@@ -58,7 +58,7 @@ def main():
         exp.to_html(paths['outputs']['figures']['interactive_parallel'])
 
     # Runtime stats plots
-    if not os.path.exists(paths['outputs']['figures']['progressarchiveratio']):
+    if not os.path.exists(paths['outputs']['figures']['improvements']):
         objective_names = pd.read_csv(
             paths['inputs']['objectives']
         ).columns.tolist()
@@ -70,16 +70,14 @@ def main():
             decision_names,
             objective_names
         )
-        a = 1
-        # # Operators
-        # fig = mocot.viz.operator_plotter(df)
-        # fig.savefig(paths['outputs']['figures']['operator'])
 
-        # # Archive size and archive/population ratio
-        # fig = mocot.viz.progress_archive_size_pop_ratio_plotter(df)
+        # Improvements
+        fig = runtime.plot_improvements()
         # fig.savefig(
-        #     paths['outputs']['figures']['progressarchiveratio']
+        #     paths['outputs']['figures']['improvements']
         # )
+
+        # Hypervolume
 
 
 if __name__ == '__main__':
