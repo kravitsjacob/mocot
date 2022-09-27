@@ -65,19 +65,21 @@ def main():
         decision_names = pd.read_csv(
             paths['inputs']['decisions']
         ).columns.tolist()
-        df = mocot.core.runtime_to_df(
-            paths['outputs']['runtime'], decision_names, objective_names
+        runtime = mocot.runtime.BorgRuntimeDiagnostic(
+            paths['outputs']['runtime'],
+            decision_names,
+            objective_names
         )
+        a = 1
+        # # Operators
+        # fig = mocot.viz.operator_plotter(df)
+        # fig.savefig(paths['outputs']['figures']['operator'])
 
-        # Operators
-        fig = mocot.viz.operator_plotter(df)
-        fig.savefig(paths['outputs']['figures']['operator'])
-
-        # Archive size and archive/population ratio
-        fig = mocot.viz.progress_archive_size_pop_ratio_plotter(df)
-        fig.savefig(
-            paths['outputs']['figures']['progressarchiveratio']
-        )
+        # # Archive size and archive/population ratio
+        # fig = mocot.viz.progress_archive_size_pop_ratio_plotter(df)
+        # fig.savefig(
+        #     paths['outputs']['figures']['progressarchiveratio']
+        # )
 
 
 if __name__ == '__main__':
