@@ -15,6 +15,6 @@ optimization:
 
 slurm:
 	$(MPICC) $(CFLAGS) -o optimization.exe optimization.c borg_src/borgms.c borg_src/mt19937ar.c $(LIBS) $(JULIAFLAGS_SLURM)
- 
+
 clean:
 	rm optimization.exe single_simulation.exe
