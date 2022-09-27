@@ -21,17 +21,15 @@ for every bug:
 
 # Single Simulation Run in C (Debugging/Development)
 1) Download julia and make sure the path is reflected in `analysis/makefile`
-2) Activate julia `$ julia`
-3) Instantiate julia packages `julia> include("analysis/julia_config.jl")`
-4) Compile using `$ make single -C ./analysis`
-5) Run simulation using "all generators" scenario (code 1) `$ ./analysis/single_simulation.exe 1`
+2) Activate julia `$ julia analysis/julia_config.jl`
+3) Compile using `$ make single -C ./analysis`
+4) Run simulation using "all generators" scenario (code 1) `$ ./analysis/single_simulation.exe 1`
 
 # Optimization on Unix-like
 1) Download julia and make sure the path is reflected in `analysis/makefile`
-2) Activate julia `$ julia`
-3) Instantiate julia packages `julia> include("analysis/julia_config.jl")`
-4) Compile using `$ make optimization -C ./analysis`
-5) Run optimization using "all generators" scenario (code 1) `$ mpiexec -n 2 ./analysis/optimization.exe 1`
+2) Activate julia `$ julia analysis/julia_config.jl`
+3) Compile using `$ make optimization -C ./analysis`
+4) Run optimization using "all generators" scenario (code 1) `$ mpiexec -n 2 ./analysis/optimization.exe 1`
 
 # Optimization on Alpine
 
