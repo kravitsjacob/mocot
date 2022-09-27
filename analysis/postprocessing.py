@@ -58,7 +58,7 @@ def main():
         exp.to_html(paths['outputs']['figures']['interactive_parallel'])
 
     # Runtime stats plots
-    if not os.path.exists(paths['outputs']['figures']['improvements']):
+    if os.path.exists(paths['outputs']['figures']['improvements']):
         objective_names = pd.read_csv(
             paths['inputs']['objectives']
         ).columns.tolist()
@@ -87,6 +87,14 @@ def main():
             fig.savefig(
                 paths['outputs']['figures']['hypervolume']
             )
+
+        # Front animation
+        if not os.path.exists(paths['outputs']['figures']['front_animation']):
+            runtime.plot_fronts(
+                paths['outputs']['figures']['front_animation_dir']
+            )
+            # Requires imagemagick http://www.imagemagick.org/script/download.php  # noqa
+            os.system("magick convert -delay 10 -loop 0 analysis/io/outputs/figures/front_animation/*.png analysis/io/outputs/figures/front_animation/animated.mp4")  # noqa
 
 
 if __name__ == '__main__':

@@ -45,3 +45,5 @@ outputs:
     interactive_parallel: "analysis/io/outputs/figures/interactive_parallel.html"
     improvements: "analysis/io/outputs/figures/runtime_improvements.pdf"
     hypervolume: "analysis/io/outputs/figures/runtime_hypervolume.pdf"
+    front_animation_dir: "analysis/io/outputs/figures/front_animation"
+    front_animation: "analysis/io/outputs/figures/front_animation/animated.mp4"

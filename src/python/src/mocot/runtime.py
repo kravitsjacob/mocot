@@ -6,6 +6,8 @@ from more_itertools import consecutive_groups
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pygmo
+import paxplot
+import os
 
 
 class BorgRuntimeDiagnostic:
@@ -119,6 +121,74 @@ class BorgRuntimeDiagnostic:
         plt.xlabel('Function Evaluations')
 
         return fig
+
+    def plot_fronts(self, path_to_save_figs_dir):
+        """Create front images as save to directory for animation later.
+
+        #TODO, this is hardcoded for a specific example
+
+        Parameters
+        ----------
+        path_to_save_figs_dir : str
+            Directory to save generated front figs
+        """
+        # Setup
+        sns.reset_orig()
+
+        for nfe, objs in self.archive_objectives.items():
+            # Plotting
+            paxfig = paxplot.pax_parallel(n_axes=len(objs[0]))
+            paxfig.plot(objs)
+
+            # Adding a colorbar
+            color_col = 0
+            paxfig.add_colorbar(
+                ax_idx=color_col,
+                cmap='viridis',
+                colorbar_kwargs={'label': self.objective_names[color_col]}
+            )
+
+            # Limits
+            paxfig.set_even_ticks(
+                ax_idx=0, n_ticks=5, minimum=0.0, maximum=1e7
+            )
+            paxfig.set_even_ticks(
+                ax_idx=1, n_ticks=5, minimum=0.0, maximum=1e9
+            )
+            paxfig.set_even_ticks(
+                ax_idx=2, n_ticks=5, minimum=0.0, maximum=1e9
+            )
+            paxfig.set_even_ticks(
+                ax_idx=3, n_ticks=5, minimum=0.0, maximum=1e8
+            )
+            paxfig.set_even_ticks(
+                ax_idx=4, n_ticks=5, minimum=0.0, maximum=1e10
+            )
+            paxfig.set_even_ticks(
+                ax_idx=5, n_ticks=5, minimum=0.0, maximum=1e9
+            )
+            paxfig.set_even_ticks(
+                ax_idx=7, n_ticks=5, minimum=0.0, maximum=3e2
+            )
+            paxfig.set_even_ticks(
+                ax_idx=8, n_ticks=5, minimum=0.0, maximum=1e0
+            )
+
+            # Add labels
+            paxfig.set_labels(self.objective_names)
+            paxfig.axes[0].set_title('NFE: {}'.format(nfe))
+
+            # Dimensions
+            paxfig.set_size_inches(13, 3)
+
+            # Save
+            file_name = 'NFE_{}.png'.format(str(nfe).zfill(8))
+            paxfig.savefig(
+                os.path.join(path_to_save_figs_dir, file_name)
+            )
+
+            # Close figures
+            plt.close()
 
 
 def parse_archive(df, decision_names, objective_names):
