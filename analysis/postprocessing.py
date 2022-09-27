@@ -58,26 +58,43 @@ def main():
         exp.to_html(paths['outputs']['figures']['interactive_parallel'])
 
     # Runtime stats plots
-    if not os.path.exists(paths['outputs']['figures']['progressarchiveratio']):
+    if os.path.exists(paths['outputs']['figures']['improvements']):
         objective_names = pd.read_csv(
             paths['inputs']['objectives']
         ).columns.tolist()
         decision_names = pd.read_csv(
             paths['inputs']['decisions']
         ).columns.tolist()
-        df = mocot.core.runtime_to_df(
-            paths['outputs']['runtime'], decision_names, objective_names
+        runtime = mocot.runtime.BorgRuntimeDiagnostic(
+            paths['outputs']['runtime'],
+            decision_names,
+            objective_names
         )
 
-        # Operators
-        fig = mocot.viz.operator_plotter(df)
-        fig.savefig(paths['outputs']['figures']['operator'])
+        # Improvements
+        if not os.path.exists(paths['outputs']['figures']['improvements']):
+            fig = runtime.plot_improvements()
+            fig.savefig(
+                paths['outputs']['figures']['improvements']
+            )
 
-        # Archive size and archive/population ratio
-        fig = mocot.viz.progress_archive_size_pop_ratio_plotter(df)
-        fig.savefig(
-            paths['outputs']['figures']['progressarchiveratio']
-        )
+        # Hypervolume
+        if not os.path.exists(paths['outputs']['figures']['hypervolume']):
+            runtime.compute_hypervolume(
+                reference_point=[1e12] * 9
+            )
+            fig = runtime.plot_hypervolume()
+            fig.savefig(
+                paths['outputs']['figures']['hypervolume']
+            )
+
+        # Front animation
+        if not os.path.exists(paths['outputs']['figures']['front_animation']):
+            runtime.plot_fronts(
+                paths['outputs']['figures']['front_animation_dir']
+            )
+            # Requires imagemagick http://www.imagemagick.org/script/download.php  # noqa
+            os.system("magick convert -delay 10 -loop 0 analysis/io/outputs/figures/front_animation/*.png analysis/io/outputs/figures/front_animation/animated.mp4")  # noqa
 
 
 if __name__ == '__main__':
