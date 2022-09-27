@@ -2,8 +2,9 @@
 Multi-Objective Coordination of Thermoelectric Water Use
 
 # Python Preprocessing
-1) Install the python package`$ pip install --editable src/python`
-2) Run the analysis`$ python analysis/preprocessing.py`
+1) Install the python package `$ pip install --editable src/python`
+2) Install the conda packages `$ conda install -c conda-forge pygmo` 
+3) Run the analysis`$ python analysis/preprocessing.py`
 
 # Julia Tests
 1) Use julia environment (with package installed) and run test `$ julia --project=src/julia/MOCOT src/julia/MOCOT/testing/test.jl`
