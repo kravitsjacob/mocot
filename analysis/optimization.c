@@ -7,6 +7,8 @@
 #include <julia.h>
 #include "borg_src/borgms.h"
 
+JULIA_DEFINE_FAST_TLS
+
 #define PI 3.14159265358979323846
 
 int n_decs = 6;
@@ -117,8 +119,8 @@ int main(int argc, char* argv[])
     jl_eval_string("using analysis");
 
 	// Simulation setup
-    BORG_Algorithm_ms_max_evaluations(1);
-    BORG_Algorithm_output_frequency(1);
+    BORG_Algorithm_ms_max_evaluations(10000);
+    BORG_Algorithm_output_frequency(10);
 	BORG_Algorithm_ms_startup(&argc, &argv);
 
     // Setting up problem
