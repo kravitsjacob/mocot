@@ -4,7 +4,7 @@ CFLAGS = -O3
 LIBS = -lm
 JULIAPATH = /bin/julia/julia-1.8.1
 JULIAFLAGS = -I$(JULIAPATH)/include/julia -L$(JULIAPATH)/lib -Wl,-rpath,$(JULIAPATH)/lib -ljulia
-JULIAPATH_SLURM = /curc/sw/julia/1.6.6
+JULIAPATH_SLURM = /curc/sw/julia/1.8.1
 JULIAFLAGS_SLURM = -I$(JULIAPATH_SLURM)/include/julia -L$(JULIAPATH_SLURM)/lib -Wl,-rpath,$(JULIAPATH_SLURM)/lib -ljulia
 
 single:
