@@ -72,12 +72,21 @@ def main():
         )
 
         # Improvements
-        fig = runtime.plot_improvements()
-        # fig.savefig(
-        #     paths['outputs']['figures']['improvements']
-        # )
+        if not os.path.exists(paths['outputs']['figures']['improvements']):
+            fig = runtime.plot_improvements()
+            fig.savefig(
+                paths['outputs']['figures']['improvements']
+            )
 
         # Hypervolume
+        if not os.path.exists(paths['outputs']['figures']['hypervolume']):
+            runtime.compute_hypervolume(
+                reference_point=[1e12] * 9
+            )
+            fig = runtime.plot_hypervolume()
+            fig.savefig(
+                paths['outputs']['figures']['hypervolume']
+            )
 
 
 if __name__ == '__main__':

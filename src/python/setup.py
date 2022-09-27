@@ -18,7 +18,10 @@ setuptools.setup(
         'PyYAML',
         'matpowercaseframes',
         'hiplot',
-        'more_itertools'
+        'more_itertools',
+        'seaborn',
+        'matplotlib',
+        # 'pygmo' TODO port project, conda install -c conda-forge pygmo
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

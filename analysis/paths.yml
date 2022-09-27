@@ -44,3 +44,4 @@ outputs:
     temperatures: "analysis/io/outputs/figures/temperatures.pdf"
     interactive_parallel: "analysis/io/outputs/figures/interactive_parallel.html"
     improvements: "analysis/io/outputs/figures/runtime_improvements.pdf"
+    hypervolume: "analysis/io/outputs/figures/runtime_hypervolume.pdf"

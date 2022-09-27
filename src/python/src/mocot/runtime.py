@@ -5,6 +5,7 @@ import numpy as np
 from more_itertools import consecutive_groups
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pygmo
 
 
 class BorgRuntimeDiagnostic:
@@ -65,6 +66,28 @@ class BorgRuntimeDiagnostic:
         self.archive_decisions = dict(zip(self.NFE, parameters_ls))
         self.archive_objectives = dict(zip(self.NFE, objectives_ls))
 
+    def compute_hypervolume(self, reference_point):
+        """Compute hypervolumes
+
+        Parameters
+        ----------
+        reference_point : list
+            Reference point for hypervolume calculation. Length must be same
+             as objectives
+        """
+        # Setup
+        hypervolume_dict = {}
+
+        for nfe, objs in self.archive_objectives.items():
+            # Compute hypervolume
+            hv = pygmo.hypervolume(objs)
+            hv_val = hv.compute(ref_point=reference_point)
+
+            # Store value
+            hypervolume_dict[nfe] = hv_val
+
+        self.hypervolume = hypervolume_dict
+
     def plot_improvements(self):
         """
         Plot improvments over the search
@@ -80,8 +103,20 @@ class BorgRuntimeDiagnostic:
         # Plot
         fig = plt.figure()
         sns.lineplot(data=df, x='index', y=0)
-        plt.set_ylabel('Improvments')
-        plt.set_xlabel('Function Evaluations')
+        plt.ylabel('Improvments')
+        plt.xlabel('Function Evaluations')
+
+        return fig
+
+    def plot_hypervolume(self):
+        # Get data
+        df = pd.Series(self.hypervolume).to_frame().reset_index()
+
+        # Plot
+        fig = plt.figure()
+        sns.lineplot(data=df, x='index', y=0)
+        plt.ylabel('Hypervolume')
+        plt.xlabel('Function Evaluations')
 
         return fig
 
