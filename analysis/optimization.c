@@ -131,17 +131,17 @@ int main(int argc, char* argv[])
 
     // Objectives epsilons
     // f_gen
-    BORG_Problem_set_epsilon(problem, 0, 10000.0);
+    BORG_Problem_set_epsilon(problem, 0, 100000.0);
     // f_cos_tot
-   BORG_Problem_set_epsilon(problem, 1, 1000000.0);
+    BORG_Problem_set_epsilon(problem, 1, 10000000.0);
     // f_with_peak
-    BORG_Problem_set_epsilon(problem, 2, 1000000.0);
+    BORG_Problem_set_epsilon(problem, 2, 10000000.0);
     // f_con_peak
     BORG_Problem_set_epsilon(problem, 3, 1000000.0);
     // f_with_tot
-    BORG_Problem_set_epsilon(problem, 4, 100000000.0);
+    BORG_Problem_set_epsilon(problem, 4, 1000000000.0);
     // f_con_tot
-    BORG_Problem_set_epsilon(problem, 5, 100000000.0);
+    BORG_Problem_set_epsilon(problem, 5, 10000000.0);
     // f_disvi_tot
     BORG_Problem_set_epsilon(problem, 6, 1.0);
     // f_emit
