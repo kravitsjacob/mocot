@@ -42,8 +42,8 @@ for every bug:
 
 ## Running optimization
 1) Activate Alpine: `$ ml slurm/alpine`
-2) Change directory to analysis: `$ cd /projects/jakr3868/mocot/analysis`
-3) Submit the job using "all generators" scenario (code 1): `$ sbatch --export=scenario_code=1 slurm_run.sh`
+2) Change directory to mocot: `$ cd /projects/jakr3868/mocot`
+3) Submit the job using "all generators" scenario (code 1): `$ sbatch --export=scenario_code=1 analysis/slurm_run.sh`
 
 # Notes on old commits/releases
 Releases of week-01 to week-09 were regenerated due to migration away from git lfs. Thus, their release data all occur on the same day. 
