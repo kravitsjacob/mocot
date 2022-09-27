@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <julia.h>
 
+JULIA_DEFINE_FAST_TLS
 
 int n_decs = 6;
 int n_objs = 9;
@@ -50,6 +51,7 @@ void simulation_wrapper(double* decs, double* objs, double* consts)
 int main(int argc, char* argv[])
 {
     // Setup C
+    char scenario_code_char[2];
     double test_decs[n_decs];
     double test_objs[n_objs];
     double test_consts[n_consts];
@@ -60,13 +62,14 @@ int main(int argc, char* argv[])
     test_decs[4] = 0.5;
     test_decs[5] = 0.6;
 
-    // Scenario code
+    // Scenario code parsing
     if (argc == 1){  // All generators scenario by default
-        scenario_code = 1;
+        strcpy(scenario_code_char, "1");
     }
     else if (argc == 2){
-        sscanf(argv[1], "%i", &scenario_code);
+        strcpy(scenario_code_char, argv[1]);
     }
+    sscanf(scenario_code_char, "%i", &scenario_code);
 
     // Setup julia
     jl_init();
