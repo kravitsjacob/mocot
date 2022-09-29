@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import hiplot as hip
+import datetime
 sns.set()
 
 
@@ -20,6 +21,14 @@ def temperatures(df_exogenous):
     matplotlib.figure.Figure
         Plot of temperature over time
     """
+    # Parse dates
+    df_exogenous['datetime'] = pd.to_datetime(df_exogenous['datetime'])
+
+    # Filter
+    cond1 = (df_exogenous['datetime'] >= datetime.datetime(2019, 7, 1))
+    cond2 = (df_exogenous['datetime'] <= datetime.datetime(2019, 7, 7))
+    df_exogenous = df_exogenous[cond1 & cond2]
+
     fig, ax = plt.subplots()
     ax.plot(
         df_exogenous['datetime'],
@@ -56,12 +65,17 @@ def system_load(df_system_load):
         Plot of system loading
     """
     # Parse dates
-    df_system_load['DATE'] = pd.to_datetime(df_system_load['DATE'])
+    df_system_load['datetime'] = pd.to_datetime(df_system_load['datetime'])
+
+    # Filter
+    cond1 = (df_system_load['datetime'] >= datetime.datetime(2019, 7, 1))
+    cond2 = (df_system_load['datetime'] <= datetime.datetime(2019, 7, 7))
+    df_system_load = df_system_load[cond1 & cond2]
 
     # Plot
     fig, ax = plt.subplots()
     ax.plot(
-        df_system_load['DATE'],
+        df_system_load['datetime'],
         df_system_load['ActualLoad']
     )
     plt.xticks(rotation=90)
@@ -85,12 +99,17 @@ def system_load_factor(df_system_load):
         Plot of system loading
     """
     # Parse dates
-    df_system_load['DATE'] = pd.to_datetime(df_system_load['DATE'])
+    df_system_load['datetime'] = pd.to_datetime(df_system_load['datetime'])
+
+    # Filter
+    cond1 = (df_system_load['datetime'] >= datetime.datetime(2019, 7, 1))
+    cond2 = (df_system_load['datetime'] <= datetime.datetime(2019, 7, 7))
+    df_system_load = df_system_load[cond1 & cond2]
 
     # Plot
     fig, ax = plt.subplots(figsize=(4, 5))
     ax.plot(
-        df_system_load['DATE'],
+        df_system_load['datetime'],
         df_system_load['load_factor']
     )
     plt.xticks(rotation=90)
@@ -114,10 +133,17 @@ def hour_node_load(df_hour_to_hour):
     matplotlib.figure.Figure
         Plot of node-level loading
     """
-    df_hour_to_hour['DATE'] = pd.to_datetime(df_hour_to_hour['DATE'])
+    # Parse
+    df_hour_to_hour['datetime'] = pd.to_datetime(df_hour_to_hour['datetime'])
+
+    # Filter
+    cond1 = (df_hour_to_hour['datetime'] >= datetime.datetime(2019, 7, 1))
+    cond2 = (df_hour_to_hour['datetime'] <= datetime.datetime(2019, 7, 7))
+    df_hour_to_hour = df_hour_to_hour[cond1 & cond2]
+
     df_hour_to_hour = pd.melt(
         df_hour_to_hour,
-        id_vars='DATE',
+        id_vars='datetime',
         var_name='bus',
         value_name='load_factor'
     )
@@ -129,7 +155,7 @@ def hour_node_load(df_hour_to_hour):
     )
     sns.lineplot(
         data=df_hour_to_hour,
-        x='DATE',
+        x='datetime',
         y='load_factor',
         hue='bus',
         palette=palette,
@@ -162,6 +188,11 @@ def node_load(df_node_load):
     """
     # Parse dates
     df_node_load['datetime'] = pd.to_datetime(df_node_load['datetime'])
+
+    # Filter
+    cond1 = (df_node_load['datetime'] >= datetime.datetime(2019, 7, 1))
+    cond2 = (df_node_load['datetime'] <= datetime.datetime(2019, 7, 7))
+    df_node_load = df_node_load[cond1 & cond2]
 
     fig, ax = plt.subplots(figsize=(4, 5))
     palette = sns.color_palette(['black'], len(df_node_load['bus'].unique()))

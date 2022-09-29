@@ -17,29 +17,29 @@ def main():
         fig = postmocot.viz.temperatures(df_air_water)
         fig.savefig(paths['outputs']['figures']['temperatures'])
 
-    # # System hourly load data
-    # if not os.path.exists(paths['outputs']['figures']['system_load']):
-    #     df_system_load = pd.read_csv(paths['outputs']['system_load'])
-    #     fig = postmocot.viz.system_load(df_system_load)
-    #     fig.savefig(paths['outputs']['figures']['system_load'])
+    # System hourly load data
+    if not os.path.exists(paths['outputs']['figures']['system_load']):
+        df_system_load = pd.read_csv(paths['outputs']['system_load'])
+        fig = postmocot.viz.system_load(df_system_load)
+        fig.savefig(paths['outputs']['figures']['system_load'])
 
-    # # System hourly load factors data
-    # if not os.path.exists(paths['outputs']['figures']['system_load_factor']):
-    #     df_system_load = pd.read_csv(paths['outputs']['system_load'])
-    #     fig = postmocot.viz.system_load_factor(df_system_load)
-    #     fig.savefig(paths['outputs']['figures']['system_load_factor'])
+    # System hourly load factors data
+    if not os.path.exists(paths['outputs']['figures']['system_load_factor']):
+        df_system_load = pd.read_csv(paths['outputs']['system_load'])
+        fig = postmocot.viz.system_load_factor(df_system_load)
+        fig.savefig(paths['outputs']['figures']['system_load_factor'])
 
-    # # Node hour-to-hour load factors data
-    # if not os.path.exists(paths['outputs']['figures']['hour_node_load']):
-    #     df_hour_to_hour = pd.read_csv(paths['outputs']['hour_to_hour'])
-    #     fig = postmocot.viz.hour_node_load(df_hour_to_hour)
-    #     fig.savefig(paths['outputs']['figures']['hour_node_load'])
+    # Node hour-to-hour load factors data
+    if not os.path.exists(paths['outputs']['figures']['hour_node_load']):
+        df_hour_to_hour = pd.read_csv(paths['outputs']['hour_to_hour'])
+        fig = postmocot.viz.hour_node_load(df_hour_to_hour)
+        fig.savefig(paths['outputs']['figures']['hour_node_load'])
 
-    # # Node hourly load data
-    # if not os.path.exists(paths['outputs']['figures']['node_load']):
-    #     df_node_load = pd.read_csv(paths['outputs']['node_load'])
-    #     fig = postmocot.viz.node_load(df_node_load)
-    #     fig.savefig(paths['outputs']['figures']['node_load'])
+    # Node hourly load data
+    if not os.path.exists(paths['outputs']['figures']['node_load']):
+        df_node_load = pd.read_csv(paths['outputs']['node_load'])
+        fig = postmocot.viz.node_load(df_node_load)
+        fig.savefig(paths['outputs']['figures']['node_load'])
 
     # Interactive parallel plot 1
     if not os.path.exists(
