@@ -1,0 +1,50 @@
+MATPOWER Index,MATPOWER Generator Name,MATPOWER Type,MATPOWER Fuel,MATPOWER Capacity (MW),EIA Plant Name,Match Type,POWERWORLD Plant Name,923 Cooling Type
+49,RANTOUL 2 1,ST,coal,4.53,Rantoul,"Location, Capacity",RANTOUL 2,OC
+50,RANTOUL 2 2,ST,coal,4.53,Rantoul,"Location, Capacity",RANTOUL 2,OC
+51,RANTOUL 2 3,ST,coal,4.53,Rantoul,"Location, Capacity",RANTOUL 2,OC
+52,RANTOUL 2 4,ST,coal,4.53,Rantoul,"Location, Capacity",RANTOUL 2,OC
+53,RANTOUL 2 5,ST,coal,9.07,Rantoul,"Location, Capacity",RANTOUL 2,OC
+65,PAXTON 1 1,W2,wind,86.5,"Pioneer Trail Wind Farm, LLC","Location, Capacity, Fuel Type",PAXTON 1,No Cooling System
+67,MOUNT ZION 1,ST,coal,4.7,Archer Daniels Midland Decatur,"Location, Capacity, Fuel Type",MOUNT ZION,RI
+68,MOUNT ZION 2,ST,coal,27.92,Archer Daniels Midland Decatur,"Location, Capacity, Fuel Type",MOUNT ZION,RI
+69,MOUNT ZION 3,ST,coal,27.92,Archer Daniels Midland Decatur,"Location, Capacity, Fuel Type",MOUNT ZION,RI
+70,MOUNT ZION 4,ST,coal,27.92,Archer Daniels Midland Decatur,"Location, Capacity, Fuel Type",MOUNT ZION,RI
+71,MOUNT ZION 5,ST,coal,27.92,Archer Daniels Midland Decatur,"Location, Capacity, Fuel Type",MOUNT ZION,RI
+72,MOUNT ZION 6,ST,coal,27.92,Archer Daniels Midland Decatur,"Location, Capacity, Fuel Type",MOUNT ZION,RI
+73,MOUNT ZION 7,ST,coal,27.92,Archer Daniels Midland Decatur,"Location, Capacity, Fuel Type",MOUNT ZION,RI
+76,BRIMFIELD 1,GT,ng,4.0,Archer Daniels Midland Decatur,"Location, Capacity",BRIMFIELD,No Cooling System
+77,BRIMFIELD 2,GT,ng,2.4,Archer Daniels Midland Decatur,"Location, Capacity",BRIMFIELD,No Cooling System
+78,BRIMFIELD 3,GT,ng,18.0,Archer Daniels Midland Decatur,"Location, Capacity",BRIMFIELD,No Cooling System
+79,BRIMFIELD 4,GT,ng,18.0,Archer Daniels Midland Decatur,"Location, Capacity",BRIMFIELD,No Cooling System
+90,CLINTON 3 1,GT,ng,3.2,Clinton LFGTE,"Location, Capacity",CLINTON 3,No Cooling System
+91,CLINTON 3 2,GT,ng,5.0,Clinton LFGTE,"Location, Capacity",CLINTON 3,No Cooling System
+92,CLINTON 3 3,GT,ng,6.3,Clinton LFGTE,"Location, Capacity",CLINTON 3,No Cooling System
+94,TUSCOLA 2 1,ST,coal,18.0,Tuscola Station,"Location, Capacity, Fuel Type",TUSCOLA 2,OC
+104,ELLSWORTH 1 2,W2,wind,67.6,High Trail Wind Farm LLC,"Location, Capacity, Fuel Type",ELLSWORTH 1,No Cooling System
+105,ELLSWORTH 1 3,W2,wind,154.8,High Trail Wind Farm LLC,"Location, Capacity, Fuel Type",ELLSWORTH 1,No Cooling System
+114,NORMAL 2 2,W2,wind,1.4,White Oak Energy LLC,"Location, Capacity, Fuel Type",NORMAL 2,No Cooling System
+115,NORMAL 2 3,W2,wind,133.5,White Oak Energy LLC,"Location, Capacity, Fuel Type",NORMAL 2,No Cooling System
+125,BARTONVILLE 2,ST,coal,130.05,E D Edwards,"Location, Capacity, Fuel Type",BARTONVILLE,OC
+126,BARTONVILLE 3,ST,coal,130.05,E D Edwards,"Location, Capacity, Fuel Type",BARTONVILLE,OC
+127,BARTONVILLE 4,ST,coal,130.05,E D Edwards,"Location, Capacity, Fuel Type",BARTONVILLE,OC
+135,PEKIN 1 2,ST,coal,446.4,Powerton,"Location, Capacity, Fuel Type",PEKIN 1,RC
+136,PEKIN 1 3,ST,coal,446.4,Powerton,"Location, Capacity, Fuel Type",PEKIN 1,RC
+147,HOPEDALE 2 1,W2,wind,92.4,Rail Splitter Wind Farm,"Location, Capacity, Fuel Type",HOPEDALE 2,No Cooling System
+151,SPRINGFIELD 5 2,ST,coal,5.4,Dallman,"Location, Capacity, Fuel Type",SPRINGFIELD 5,OC
+152,SPRINGFIELD 5 3,ST,coal,77.22,Dallman,"Location, Capacity, Fuel Type",SPRINGFIELD 5,OC
+153,SPRINGFIELD 5 4,ST,coal,77.22,Dallman,"Location, Capacity, Fuel Type",SPRINGFIELD 5,OC
+154,SPRINGFIELD 5 5,ST,coal,77.22,Dallman,"Location, Capacity, Fuel Type",SPRINGFIELD 5,OC
+155,SPRINGFIELD 5 6,ST,coal,77.22,Dallman,"Location, Capacity, Fuel Type",SPRINGFIELD 5,OC
+161,SPRINGFIELD 4 1,GT,ng,138.6,Interstate,"Location, Capacity, Fuel Type",SPRINGFIELD 4,RI
+164,CHAMPAIGN 1 1,GT,ng,12.0,University of Illinois Abbott Power Plt,"Location, Capacity, Fuel Type",CHAMPAIGN 1,No Cooling System
+165,CHAMPAIGN 1 2,GT,ng,26.0,University of Illinois Abbott Power Plt,"Location, Capacity, Fuel Type",CHAMPAIGN 1,No Cooling System
+166,CHAMPAIGN 1 3,GT,ng,9.4,University of Illinois Abbott Power Plt,"Location, Capacity, Fuel Type",CHAMPAIGN 1,No Cooling System
+167,CHAMPAIGN 1 4,GT,ng,9.4,University of Illinois Abbott Power Plt,"Location, Capacity, Fuel Type",CHAMPAIGN 1,No Cooling System
+168,CHAMPAIGN 1 5,GT,ng,9.4,University of Illinois Abbott Power Plt,"Location, Capacity, Fuel Type",CHAMPAIGN 1,No Cooling System
+169,CHAMPAIGN 1 6,GT,ng,9.4,University of Illinois Abbott Power Plt,"Location, Capacity, Fuel Type",CHAMPAIGN 1,No Cooling System
+170,CHAMPAIGN 1 7,GT,ng,9.4,University of Illinois Abbott Power Plt,"Location, Capacity, Fuel Type",CHAMPAIGN 1,No Cooling System
+182,SPRINGFIELD 2 1,ST,coal,17.5,Dallman,"Location, Capacity, Fuel Type",SPRINGFIELD 2,OC
+183,SPRINGFIELD 2 2,ST,coal,26.6,Dallman,"Location, Capacity, Fuel Type",SPRINGFIELD 2,OC
+189,CLINTON 1 2,NB,nuclear,569.15,Clinton Power Station,"Location, Capacity",CLINTON 1,RC
+196,GIBSON CITY 1 1,GT,ng,67.5,Gibson City Energy Center LLC,"Location, Capacity, Fuel Type",GIBSON CITY 1,RI
+197,GIBSON CITY 1 2,GT,ng,67.5,Gibson City Energy Center LLC,"Location, Capacity, Fuel Type",GIBSON CITY 1,RI
