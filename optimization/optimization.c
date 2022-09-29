@@ -5,7 +5,7 @@
 #include <math.h>
 #include <mpi.h>
 #include <julia.h>
-#include "borg_src/borgms.h"
+#include "src/borg/borgms.h"
 
 JULIA_DEFINE_FAST_TLS
 

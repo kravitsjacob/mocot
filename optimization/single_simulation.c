@@ -16,7 +16,7 @@ void simulation_wrapper(double* decs, double* objs, double* consts)
     jl_value_t* args[n_decs];
 
     // Initialize function
-    jl_module_t *module = (jl_module_t*)jl_eval_string("analysis");
+    jl_module_t *module = (jl_module_t*)jl_eval_string("MOCOT");
 
     // Initialize simulation function
     jl_function_t *func = jl_get_function(module, "borg_simulation_wrapper");
@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
 
     // Setup julia
     jl_init();
-    jl_eval_string("using analysis");
+    jl_eval_string("using MOCOT");
 
     simulation_wrapper(test_decs, test_objs, test_consts);
 

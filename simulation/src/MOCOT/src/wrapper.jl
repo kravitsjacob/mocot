@@ -46,7 +46,7 @@ function borg_simulation_wrapper(
         df_gen_info,
         decision_names,
         objective_names
-    ) = analysis.read_inputs(
+    ) = MOCOT.read_inputs(
         paths["outputs"]["gen_info_water_ramp_emit_waterlim"],
         paths["inputs"]["eia_heat_rates"],
         paths["outputs"]["air_water"],
@@ -57,10 +57,10 @@ function borg_simulation_wrapper(
     )
 
     # Preparing network
-    network_data = analysis.add_custom_properties!(network_data, df_gen_info, df_eia_heat_rates)
+    network_data = MOCOT.add_custom_properties!(network_data, df_gen_info, df_eia_heat_rates)
 
     # Exogenous parameters
-    exogenous = analysis.get_exogenous(
+    exogenous = MOCOT.get_exogenous(
         Dates.DateTime(2019, 7, 1, 0),
         Dates.DateTime(2019, 7, 7, 23),
         df_air_water,
@@ -68,7 +68,7 @@ function borg_simulation_wrapper(
     )
 
     # Update generator status
-    network_data = analysis.update_scenario!(network_data, scenario_code)
+    network_data = MOCOT.update_scenario!(network_data, scenario_code)
 
     # Simulation
     (objectives, state) = MOCOT.simulation(

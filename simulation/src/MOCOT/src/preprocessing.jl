@@ -48,7 +48,7 @@ function read_inputs(
     objective_names = vec(DelimitedFiles.readdlm(objectives_path, ',', String))
 
     # Generator information
-    df_gen_info = analysis.get_gen_info(network_data, df_gen_info_python)
+    df_gen_info = get_gen_info(network_data, df_gen_info_python)
 
     inputs = (
         df_eia_heat_rates,
