@@ -2,31 +2,36 @@
 Multi-Objective Coordination of Thermoelectric Water Use
 
 # Python Preprocessing
-1) Install the python package`$ pip install --editable src/python`
-2) Run the analysis`$ python analysis/preprocessing.py`
+1) Install the python package `$ pip install --editable src/python`
+2) Install the conda packages `$ conda install -c conda-forge pygmo` 
+3) Run the analysis`$ python analysis/preprocessing.py`
 
 # Julia Tests
 1) Use julia environment (with package installed) and run test `$ julia --project=src/julia/MOCOT src/julia/MOCOT/testing/test.jl`
 
-# Debugging Julia
-1) In terminal activate julia env `$ julia --project=analysis`
-2) Importing Pkg: `julia> using Pkg`
-4) Add MOCOT as a dev package: `julia> Pkg.develop(path="src/julia/MOCOT")`
-5) Instantiate environment `julia> Pkg.instantiate()`
-3) Run `using Infiltrator` to add debugging functionality.
-4) Set breakpoint where appropriate using `@Infiltrator.infiltrate` be sure to `import Infiltrator` at the top of development packages. Note, it will throw a warning as it thinks you are adding a not-included dependency.
-5) Evaluate using `include("analysis/single_simulation.jl")`
+# Single Simulation Run (Debugging/Development)
+1) Activate julia `$ julia`
+2) Instantiate julia packages (analysis and MOCOT) `julia> include("analysis/julia_config.jl")`
+3) Activate analysis `julia> using Pkg; Pkg.activate("analysis")`
 
-# Julia Simulation on Windows Subsystem for Linux (WSL)
-1) Download julia to WSL and make sure the path is reflected in `analysis/makefile`
-2) Run julia, making sure the path is correct: `$ /bin/julia/julia-1.8.1/bin/julia`
-3) Importing Pkg: `julia> using Pkg`
-4) Add MOCOT as a dev package: `julia> Pkg.develop(path="src/julia/MOCOT")`
-5) Instantiate environment `julia> Pkg.instantiate()`
-6) Compile using `$ make -C ./analysis`
-7) Run using `$ mpiexec -n 2 ./analysis/main.exe`
+for every bug:
+  * Run `using Infiltrator` to add debugging functionality.
+  * Set breakpoint where appropriate using `@Infiltrator.infiltrate` be sure to `import Infiltrator` at the top of development packages. Note, it will throw a warning as it thinks you are adding a not-included dependency.
+  * Evaluate using `include("analysis/single_simulation.jl")`
 
-# Julia Simulation on Alpine
+# Single Simulation Run in C (Debugging/Development)
+1) Download julia and make sure the path is reflected in `analysis/makefile`
+2) Activate julia `$ julia analysis/julia_config.jl`
+3) Compile using `$ make single -C ./analysis`
+4) Run simulation using "all generators" scenario (code 1) `$ ./analysis/single_simulation.exe 1`
+
+# Optimization on Unix-like
+1) Download julia and make sure the path is reflected in `analysis/makefile`
+2) Activate julia `$ julia analysis/julia_config.jl`
+3) Compile using `$ make optimization -C ./analysis`
+4) Run optimization using "all generators" scenario (code 1) `$ mpiexec -n 2 ./analysis/optimization.exe 1`
+
+# Optimization on Alpine
 
 ## Building MOCOT and Analysis projects
 1) Activate Alpine: `$ ml slurm/alpine`
@@ -35,10 +40,10 @@ Multi-Objective Coordination of Thermoelectric Water Use
 4) Configure slurm: `. analysis/slurm_config.sh` 
 5) Compile using `$ make slurm -C ./analysis`
 
-## Running simulation
-* Activate Alpine: `$ ml slurm/alpine`
-* Change directory to analysis: `$ cd /projects/jakr3868/mocot/analysis`
-* Submit the job: `$ sbatch slurm_run.sh`
+## Running optimization
+1) Activate Alpine: `$ ml slurm/alpine`
+2) Change directory to mocot: `$ cd /projects/jakr3868/mocot`
+3) Submit the job using "all generators" scenario (code 1): `$ sbatch --export=scenario_code=1 analysis/slurm_run.sh`
 
 # Notes on old commits/releases
 Releases of week-01 to week-09 were regenerated due to migration away from git lfs. Thus, their release data all occur on the same day. 

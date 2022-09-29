@@ -41,8 +41,8 @@ def main():
         fig = mocot.viz.node_load(df_node_load)
         fig.savefig(paths['outputs']['figures']['node_load'])
 
-    # Interactive parallel plot
-    if not os.path.exists(paths['outputs']['figures']['interactive_parallel']):
+    # Interactive parallel plot 1
+    if not os.path.exists(paths['outputs']['figures']['interactive_parallel_1']):
         objective_names = pd.read_csv(
             paths['inputs']['objectives']
         ).columns.tolist()
@@ -50,34 +50,106 @@ def main():
             paths['inputs']['decisions']
         ).columns.tolist()
         df_front = pd.read_table(
-            paths['outputs']['front'],
+            paths['outputs']['front_1'],
             sep=' ',
             names=decision_names+objective_names
         )
         exp = mocot.viz.interactive_parallel(df_front)
-        exp.to_html(paths['outputs']['figures']['interactive_parallel'])
+        exp.to_html(paths['outputs']['figures']['interactive_parallel_1'])
 
-    # Runtime stats plots
-    if not os.path.exists(paths['outputs']['figures']['progressarchiveratio']):
+    # Interactive parallel plot 2
+    if not os.path.exists(paths['outputs']['figures']['interactive_parallel_2']):
         objective_names = pd.read_csv(
             paths['inputs']['objectives']
         ).columns.tolist()
         decision_names = pd.read_csv(
             paths['inputs']['decisions']
         ).columns.tolist()
-        df = mocot.core.runtime_to_df(
-            paths['outputs']['runtime'], decision_names, objective_names
+        df_front = pd.read_table(
+            paths['outputs']['front_2'],
+            sep=' ',
+            names=decision_names+objective_names
+        )
+        exp = mocot.viz.interactive_parallel(df_front)
+        exp.to_html(paths['outputs']['figures']['interactive_parallel_2'])
+
+    # Runtime stats plots 1
+    if not os.path.exists(paths['outputs']['figures']['improvements_1']):
+        objective_names = pd.read_csv(
+            paths['inputs']['objectives']
+        ).columns.tolist()
+        decision_names = pd.read_csv(
+            paths['inputs']['decisions']
+        ).columns.tolist()
+        runtime = mocot.runtime.BorgRuntimeDiagnostic(
+            paths['outputs']['runtime_1'],
+            decision_names,
+            objective_names
         )
 
-        # Operators
-        fig = mocot.viz.operator_plotter(df)
-        fig.savefig(paths['outputs']['figures']['operator'])
+        # Improvements
+        if not os.path.exists(paths['outputs']['figures']['improvements_1']):
+            fig = runtime.plot_improvements()
+            fig.savefig(
+                paths['outputs']['figures']['improvements_1']
+            )
 
-        # Archive size and archive/population ratio
-        fig = mocot.viz.progress_archive_size_pop_ratio_plotter(df)
-        fig.savefig(
-            paths['outputs']['figures']['progressarchiveratio']
+        # Hypervolume
+        if not os.path.exists(paths['outputs']['figures']['hypervolume_1']):
+            runtime.compute_hypervolume(
+                reference_point=[1e12] * 9
+            )
+            fig = runtime.plot_hypervolume()
+            fig.savefig(
+                paths['outputs']['figures']['hypervolume_1']
+            )
+
+        # Front animation
+        if not os.path.exists(paths['outputs']['figures']['front_animation_1']):
+            runtime.plot_fronts(
+                paths['outputs']['figures']['front_animation_dir']
+            )
+            # Requires imagemagick http://www.imagemagick.org/script/download.php  # noqa
+            os.system("magick convert -delay 10 -loop 0 analysis/io/outputs/figures/front_animation/*.png {}".format(paths['outputs']['figures']['front_animation_1']))  # noqa
+
+    # Runtime stats plots 2
+    if not os.path.exists(paths['outputs']['figures']['improvements_2']):
+        objective_names = pd.read_csv(
+            paths['inputs']['objectives']
+        ).columns.tolist()
+        decision_names = pd.read_csv(
+            paths['inputs']['decisions']
+        ).columns.tolist()
+        runtime = mocot.runtime.BorgRuntimeDiagnostic(
+            paths['outputs']['runtime_2'],
+            decision_names,
+            objective_names
         )
+
+        # Improvements
+        if not os.path.exists(paths['outputs']['figures']['improvements_2']):
+            fig = runtime.plot_improvements()
+            fig.savefig(
+                paths['outputs']['figures']['improvements_2']
+            )
+
+        # Hypervolume
+        if not os.path.exists(paths['outputs']['figures']['hypervolume_2']):
+            runtime.compute_hypervolume(
+                reference_point=[1e12] * 9
+            )
+            fig = runtime.plot_hypervolume()
+            fig.savefig(
+                paths['outputs']['figures']['hypervolume_2']
+            )
+
+        # Front animation
+        if not os.path.exists(paths['outputs']['figures']['front_animation_2']):
+            runtime.plot_fronts(
+                paths['outputs']['figures']['front_animation_dir']
+            )
+            # Requires imagemagick http://www.imagemagick.org/script/download.php  # noqa
+            os.system("magick convert -delay 10 -loop 0 analysis/io/outputs/figures/front_animation/*.png {}".format(paths['outputs']['figures']['front_animation_2']))  # noqa
 
 
 if __name__ == '__main__':

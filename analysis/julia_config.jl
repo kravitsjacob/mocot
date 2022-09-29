@@ -2,4 +2,5 @@
 
 using Pkg
 Pkg.develop(path="src/julia/MOCOT")
+Pkg.develop(path="analysis")
 Pkg.instantiate()
