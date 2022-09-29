@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
 
 	// Simulation setup
     BORG_Algorithm_ms_max_evaluations(10000);
-    BORG_Algorithm_output_frequency(10);
+    BORG_Algorithm_output_frequency(100);
 	BORG_Algorithm_ms_startup(&argc, &argv);
 
     // Setting up problem
