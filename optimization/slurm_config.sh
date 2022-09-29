@@ -12,4 +12,4 @@ ml gcc/11.2.0
 ml openmpi
 
 # Instantiate julia packages
-julia ./analysis/julia_config.jl
+julia ./simulation/julia_config.jl

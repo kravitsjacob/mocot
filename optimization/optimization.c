@@ -59,8 +59,8 @@ int main(int argc, char* argv[])
     char scenario_code_char[2];
     char runtime[256];
     FILE *fp;
-    char path_to_front[50] = "analysis/io/outputs/front/scenario_0_front.txt";  // 0 replaced with scenario code
-    char path_to_runtime[50] = "analysis/io/outputs/states/scenario_0_runtime.txt";  // 0 replaced with scenario code
+    char path_to_runtime[50] = "io/outputs/states/scenario_0_runtime.txt";  // 0 replaced with scenario code
+    char path_to_front[50] = "io/outputs/front/scenario_0_front.txt";  // 0 replaced with scenario code
 
     // Scenario code parsing
     if (argc == 1){  // All generators scenario by default
@@ -72,8 +72,8 @@ int main(int argc, char* argv[])
     sscanf(scenario_code_char, "%i", &scenario_code);
 
     // Setting output paths
-    path_to_runtime[36] = scenario_code_char[0];
-    path_to_front[35] = scenario_code_char[0];
+    path_to_runtime[27] = scenario_code_char[0];
+    path_to_front[26] = scenario_code_char[0];
 
     // Setup julia
     jl_init();
