@@ -17,16 +17,16 @@ for every bug:
   * Evaluate using `include("simulation/single_simulation.jl")`
 
 # Single Simulation Run in C (Debugging/Development)
-1) Download julia and make sure the path is reflected in `analysis/makefile`
-2) Activate julia `$ julia analysis/julia_config.jl`
-3) Compile using `$ make single -C ./analysis`
-4) Run simulation using "all generators" scenario (code 1) `$ ./analysis/single_simulation.exe 1`
+1) Download julia and make sure the path is reflected in `optimization/makefile`
+2) Activate julia `$ julia simulation/julia_config.jl`
+3) Compile using `$ make single -C ./optimization`
+4) Run simulation using "all generators" scenario (code 1) `$ ./optimization/single_simulation.exe 1`
 
 # Optimization on Unix-like
-1) Download julia and make sure the path is reflected in `analysis/makefile`
-2) Activate julia `$ julia analysis/julia_config.jl`
-3) Compile using `$ make optimization -C ./analysis`
-4) Run optimization using "all generators" scenario (code 1) `$ mpiexec -n 2 ./analysis/optimization.exe 1`
+1) Download julia and make sure the path is reflected in `optimization/makefile`
+2) Activate julia `$ julia simulation/julia_config.jl`
+3) Compile using `$ make optimization -C ./optimization`
+4) Run optimization using "all generators" scenario (code 1) `$ mpiexec -n 2 ./optimization/optimization.exe 1`
 
 # Optimization on Alpine
 
@@ -34,13 +34,13 @@ for every bug:
 1) Activate Alpine: `$ ml slurm/alpine`
 2) Go to compile node: `$ acompile`
 3) Change directory to mocot: `$ cd /projects/jakr3868/mocot`
-4) Configure slurm: `. analysis/slurm_config.sh` 
-5) Compile using `$ make slurm -C ./analysis`
+4) Configure slurm: `. optimization/slurm_config.sh` 
+5) Compile using `$ make slurm -C ./optimization`
 
 ## Running optimization
 1) Activate Alpine: `$ ml slurm/alpine`
 2) Change directory to mocot: `$ cd /projects/jakr3868/mocot`
-3) Submit the job using "all generators" scenario (code 1): `$ sbatch --export=scenario_code=1 analysis/slurm_run.sh`
+3) Submit the job using "all generators" scenario (code 1): `$ sbatch --export=scenario_code=1 optimization/slurm_run.sh`
 
 # Notes on old commits/releases
 Releases of week-01 to week-09 were regenerated due to migration away from git lfs. Thus, their release data all occur on the same day. 
