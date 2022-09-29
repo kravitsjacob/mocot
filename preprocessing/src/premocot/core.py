@@ -289,6 +289,6 @@ def process_node_load(df_system_load, df_synthetic_node_loads, net):
     df_node_load = pd.concat(df_load_ls, axis=0, ignore_index=True)
 
     # Add back in date to hour-to-hour for plotting
-    df_hour_to_hour['datetime'] = df_node_load['datetime']
+    df_hour_to_hour['datetime'] = df_synthetic_node_loads['datetime']
 
     return df_node_load, df_hour_to_hour
