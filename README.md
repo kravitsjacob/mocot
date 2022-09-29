@@ -2,22 +2,19 @@
 Multi-Objective Coordination of Thermoelectric Water Use
 
 # Python Preprocessing
-1) Install the python package `$ pip install --editable src/python`
+1) Install the python package `$ pip install --editable premocot`
 2) Install the conda packages `$ conda install -c conda-forge pygmo` 
-3) Run the analysis`$ python analysis/preprocessing.py`
-
-# Julia Tests
-1) Use julia environment (with package installed) and run test `$ julia --project=src/julia/MOCOT src/julia/MOCOT/testing/test.jl`
+3) Run the analysis`$ python preprocessing/preprocessing.py`
 
 # Single Simulation Run (Debugging/Development)
 1) Activate julia `$ julia`
-2) Instantiate julia packages (analysis and MOCOT) `julia> include("analysis/julia_config.jl")`
-3) Activate analysis `julia> using Pkg; Pkg.activate("analysis")`
+2) Activate analysis `julia> using Pkg; Pkg.activate("simulation")`
+3) Instantiate julia packages (analysis and MOCOT) `julia> include("simulation/julia_config.jl")`
 
 for every bug:
   * Run `using Infiltrator` to add debugging functionality.
   * Set breakpoint where appropriate using `@Infiltrator.infiltrate` be sure to `import Infiltrator` at the top of development packages. Note, it will throw a warning as it thinks you are adding a not-included dependency.
-  * Evaluate using `include("analysis/single_simulation.jl")`
+  * Evaluate using `include("simulation/single_simulation.jl")`
 
 # Single Simulation Run in C (Debugging/Development)
 1) Download julia and make sure the path is reflected in `analysis/makefile`
