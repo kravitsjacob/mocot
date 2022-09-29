@@ -11,10 +11,10 @@ single:
 	$(GCC) -o single_simulation.exe single_simulation.c src/wrappers.c $(JULIAFLAGS)
 
 optimization:
-	$(MPICC) $(CFLAGS) -o optimization.exe optimization.c borg_src/borgms.c borg_src/mt19937ar.c $(LIBS) $(JULIAFLAGS)
+	$(MPICC) $(CFLAGS) -o optimization.exe optimization.c src/wrappers.c src/borg/borgms.c src/borg/mt19937ar.c $(LIBS) $(JULIAFLAGS)
 
 slurm:
-	$(MPICC) $(CFLAGS) -o optimization.exe optimization.c borg_src/borgms.c borg_src/mt19937ar.c $(LIBS) $(JULIAFLAGS_SLURM)
+	$(MPICC) $(CFLAGS) -o optimization.exe optimization.c src/wrappers.c src/borg/borgms.c src/borg/mt19937ar.c $(LIBS) $(JULIAFLAGS_SLURM)
 
 clean:
 	rm optimization.exe single_simulation.exe

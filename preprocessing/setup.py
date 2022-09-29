@@ -18,7 +18,6 @@ setuptools.setup(
         'pandapower >= 2.10.1',
         'PyYAML',
         'matpowercaseframes'
-        # 'pygmo' TODO port project, conda install -c conda-forge pygmo
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
