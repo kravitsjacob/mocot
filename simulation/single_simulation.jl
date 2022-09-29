@@ -8,16 +8,15 @@ using YAML
 using CSV
 using DataFrames
 
-using analysis
 using MOCOT
 
 
 function main()
     # Setup
-    paths = YAML.load_file("analysis/paths.yml")
+    paths = YAML.load_file("paths.yml")
 
     # Simulation
-    (objectives, state) = analysis.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 1)
+    (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 1)
 
     # Objectives
     df_objs = DataFrames.DataFrame(objectives)

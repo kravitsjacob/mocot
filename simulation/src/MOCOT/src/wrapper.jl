@@ -1,5 +1,3 @@
-module analysis
-
 import Dates
 import CSV
 import YAML
@@ -39,7 +37,7 @@ function borg_simulation_wrapper(
     objective_array = Float64[]
 
     # Import
-    paths = YAML.load_file("analysis/paths.yml")
+    paths = YAML.load_file("paths.yml")
     (
         df_eia_heat_rates,
         df_air_water,
@@ -112,5 +110,3 @@ function borg_simulation_wrapper(
 
     end
 end
-
-end # module
