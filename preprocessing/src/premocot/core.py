@@ -332,6 +332,48 @@ def process_hour_to_hour(df_synthetic_node_loads, net):
     return df_hour_to_hour
 
 
+def scenario_dates(df_water, df_air, df_system_load):
+    """
+    Get dates of scenarios based on statistics
+
+    Parameters
+    ----------
+    df_water : pandas.DataFrame
+        Water exogenous dataframe
+    df_air : pandas.DataFrame
+        Air exogenous dataframe
+    df_system_load : pandas.DataFrame
+        System load exogenous dataframe
+
+    Returns
+    -------
+    int
+        Success status
+    """
+
+    df_water.index = df_water['datetime']
+    df_air.index = df_air['datetime']
+    df_system_load.index = df_system_load['datetime']
+
+    # High 7-day load
+    df_rolling = df_system_load['load'].rolling(7).mean()
+    print('high load: {}'.format(df_rolling.idxmax()))
+
+    # High 7-day standard deviation
+    df_rolling = df_system_load['load'].rolling(7).std()
+    print('high standard devaiation of load: {}'.format(df_rolling.idxmax()))
+
+    # High water temperature
+    df_rolling = df_water['water_temperature'].rolling(7).mean()
+    print('high water temperature: {}'.format(df_rolling.idxmax()))
+
+    # High air temperature
+    df_rolling = df_air['air_temperature'].rolling(7).mean()
+    print('high air temperature: {}'.format(df_rolling.idxmax()))
+
+    return 0
+
+
 def process_node_load(df_system_load, df_synthetic_node_loads, net):
     """
     Create node-level loads

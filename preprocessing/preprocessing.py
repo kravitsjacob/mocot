@@ -135,6 +135,17 @@ def main():
         )
         df_hour_to_hour.to_csv(paths['outputs']['hour_to_hour'], index=False)
 
+    # Exogenous scenario
+    print_dates = 1
+    if print_dates:
+        df_water = pd.read_csv(paths['outputs']['water_temperature'])
+        df_air = pd.read_csv(paths['outputs']['air_temperature'])
+        df_system_load = pd.read_csv(paths['outputs']['system_load'])
+        premocot.core.scenario_dates(df_water, df_air, df_system_load)
+
+    # Generate exogenous inputs for each scenario
+    
+
     # # Node-level loads
     # if not os.path.exists(paths['outputs']['node_load']):
     #     net = pandapower.converter.from_mpc(paths['inputs']['case'])
