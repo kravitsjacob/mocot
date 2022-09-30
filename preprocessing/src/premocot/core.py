@@ -286,7 +286,21 @@ def fill_datetime(df, freq):
 
 
 def process_hour_to_hour(df_synthetic_node_loads, net):
+    """
+    Processing hour-to-hour node load factors
 
+    Parameters
+    ----------
+    df_synthetic_node_loads : pandas.DataFrame
+        Synthetic node loads
+    net : pandapower.network
+        Network
+
+    Returns
+    -------
+    pandas.DataFrame
+        Hour-to-hour variations
+    """
     n_loads = len(net.load)
 
     # Type parsing
