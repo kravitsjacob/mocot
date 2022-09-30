@@ -39,6 +39,7 @@ function borg_simulation_wrapper(
     # Import
     paths = YAML.load_file("paths.yml")
     (
+        df_scenario_specs,
         df_eia_heat_rates,
         df_air_water,
         df_node_load,
@@ -47,22 +48,27 @@ function borg_simulation_wrapper(
         decision_names,
         objective_names
     ) = MOCOT.read_inputs(
+        scenario_code,
+        paths["inputs"]["scenario_specs"],
+        paths["outputs"]["air_water_template"],
+        paths["outputs"]["node_load_template"],       
         paths["outputs"]["gen_info_water_ramp_emit_waterlim"],
         paths["inputs"]["eia_heat_rates"],
-        paths["outputs"]["air_water"],
-        paths["outputs"]["node_load"],
         paths["inputs"]["case"],
         paths["inputs"]["decisions"],
-        paths["inputs"]["objectives"]
+        paths["inputs"]["objectives"],
     )
 
     # Preparing network
     network_data = MOCOT.add_custom_properties!(network_data, df_gen_info, df_eia_heat_rates)
 
     # Exogenous parameters
+    specs = df_scenario_specs[df_scenario_specs.scenario_code .== scenario_code, :]
+    start_date = specs.datetime_start[1]
+    end_date = specs.datetime_end[1]
     exogenous = MOCOT.get_exogenous(
-        Dates.DateTime(2019, 7, 1, 0),
-        Dates.DateTime(2019, 7, 7, 23),
+        start_date,
+        end_date,
         df_air_water,
         df_node_load
     )

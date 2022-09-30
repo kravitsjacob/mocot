@@ -10,38 +10,49 @@ import Statistics
 
 
 function read_inputs(
+    scenario_code:: Int64,
+    scenario_specs_path:: String,
+    air_water_template:: String,
+    node_load_template:: String,
     gen_info_from_python_path:: String,
     eia_heat_rates_path:: String,
-    air_water_path:: String,
-    node_load_path:: String,
     case_path:: String,
     decisions_path:: String,
-    objectives_path:: String
+    objectives_path:: String,
 )
     """
     Wrapper function for reading inputs
     
     # Arguments
+    - `scenario_code:: Int64`: Scenario code
+    - `scenario_specs_path:: String`: Path to scenario specification
+    - `air_water_template:: String`: Template to air water temperature exogenous data
+    - `node_load_template:: String`: Template to node exogenous data
     - `gen_info_from_python_path:: String`: Path to generation info generated from preprocessing
     - `eia_heat_rates_path:: String`: Path to eia heat rate information
-    - `air_water_path:: String`: Path to air and water exogenous
-    - `node_load_path:: String`: Path to node load exogenous
     - `case_path:: String`: Path to MATPOWER case
     - `decisions_path:: String`: Path to decision names
     - `objectives_path:: String`: Path to objective names
     """
     # Reading inputs
+    df_scenario_specs = DataFrames.DataFrame(
+        CSV.File(scenario_specs_path, dateformat="yyyy-mm-dd HH:MM:SS")
+    )
     df_gen_info_python = DataFrames.DataFrame(
         CSV.File(gen_info_from_python_path)
     )
     df_eia_heat_rates = DataFrames.DataFrame(
         XLSX.readtable(eia_heat_rates_path, "Annual Data")
     )
+    network_data = PowerModels.parse_file(case_path)
+
+    # Exogenous parameters
+    air_water_path = replace(air_water_template, "0" => scenario_code)
     df_air_water = DataFrames.DataFrame(CSV.File(air_water_path))
+    node_load_path = replace(node_load_template, "0" => scenario_code)
     df_node_load = DataFrames.DataFrame(
         CSV.File(node_load_path, dateformat="yy-mm-dd HH:MM:SS")
     )
-    network_data = PowerModels.parse_file(case_path)
 
     # Parameter names
     decision_names = vec(DelimitedFiles.readdlm(decisions_path, ',', String))
@@ -51,6 +62,7 @@ function read_inputs(
     df_gen_info = get_gen_info(network_data, df_gen_info_python)
 
     inputs = (
+        df_scenario_specs,
         df_eia_heat_rates,
         df_air_water,
         df_node_load,
@@ -200,7 +212,7 @@ function add_air_water!(
     df_air_water_filter = df_air_water[date_filter, :]
 
     # Get index values
-    df_air_water_filter[!, "day_delta"] = Dates.Day.(df_air_water_filter.datetime) .- Dates.Day.(df_air_water_filter.datetime[1])
+    df_air_water_filter[!, "day_delta"] = df_air_water_filter.datetime .- df_air_water_filter.datetime[1]
     df_air_water_filter[!, "day_index"] = Dates.value.(df_air_water_filter.day_delta) .+ 1
 
     # Exogenous formatting
@@ -238,8 +250,8 @@ function add_node_loads!(
     df_node_load_filter = df_node_load[date_filter, :]
 
     ## Get index values
-    df_node_load_filter[!, "day_delta"] = Dates.Day.(df_node_load_filter.datetime) .- Dates.Day.(df_node_load_filter.datetime[1])
-    df_node_load_filter[!, "day_index"] = Dates.value.(df_node_load_filter.day_delta) .+ 1
+    df_node_load_filter[!, "hour_delta"] = Dates.Hour.(df_node_load_filter.datetime .- df_node_load_filter.datetime[1])
+    df_node_load_filter[!, "day_index"] = floor.(Int64, Dates.value.(df_node_load_filter.hour_delta)/24 .+ 1.0)
     df_node_load_filter[!, "hour_index"] = Dates.value.(@.Dates.Hour(df_node_load_filter.datetime)) .+ 1
 
     ## Days
@@ -313,6 +325,8 @@ function update_scenario!(network_data, scenario_code:: Int64)
     elseif scenario_code == 2  # "No nuclear"
         network_data = MOCOT.update_all_gens!(network_data, "gen_status", 1)
         network_data["gen"]["47"]["gen_status"]=0
+    else
+        network_data = MOCOT.update_all_gens!(network_data, "gen_status", 1)
     end
 
     return network_data
