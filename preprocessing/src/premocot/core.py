@@ -187,14 +187,9 @@ def process_air_exogenous(path_to_dir):
     return df_air
 
 
-def process_system_load(df_miso):
+def process_system_load():
     """
     Clean system-level miso data includes interpolating missing values
-
-    Parameters
-    ----------
-    df_miso : pandas.DataFrame
-        MISO loads
 
     Returns
     -------
@@ -206,13 +201,13 @@ def process_system_load(df_miso):
     years = [
         '2016',
         '2017',
-        # '2018',
-        # '2019',
-        # '2020',
-        # '2021'
+        '2018',
+        '2019',
+        '2020',
+        '2021'
     ]
-    template_1 = 'https://www.eia.gov/electricity/gridmonitor/sixMonthFiles/EIA930_BALANCE_0000_Jan_Jun.csv'
-    template_2 = 'https://www.eia.gov/electricity/gridmonitor/sixMonthFiles/EIA930_BALANCE_0000_Jul_Dec.csv'
+    template_1 = 'https://www.eia.gov/electricity/gridmonitor/sixMonthFiles/EIA930_BALANCE_0000_Jan_Jun.csv'  # noqa
+    template_2 = 'https://www.eia.gov/electricity/gridmonitor/sixMonthFiles/EIA930_BALANCE_0000_Jul_Dec.csv'  # noqa
 
     # Import
     cols = [
