@@ -5,6 +5,7 @@ import os
 import pandas as pd
 import numpy as np
 import dataretrieval.nwis as nwis
+import requests
 
 
 def import_eia(path_to_eia):
@@ -128,6 +129,9 @@ def process_water_exogenous():
     df_water['datetime'] = df_raw.index.to_list()
     df_water['water_temperature'] = df_raw['00010_Mean'].to_list()
 
+    # Missing values
+    df_water = fill_datetime(df_water, 'D')
+
     return df_water
 
 
@@ -177,6 +181,9 @@ def process_air_exogenous(path_to_dir):
     df_air['datetime'] = df_raw.index.to_list()
     df_air['air_temperature'] = df_raw['Temperature'].to_list()
 
+    # Missing values
+    df_air = fill_datetime(df_air, 'D')
+
     return df_air
 
 
@@ -194,41 +201,93 @@ def process_system_load(df_miso):
     pandas.DataFrame
         Parsed data
     """
-    # Get first entry for dates
-    df_miso['datetime'] = pd.to_datetime(df_miso['DATE'])
-    df_miso = df_miso.drop('DATE', axis=1)
-    df_miso = df_miso.groupby('datetime').first().reset_index()
-
-    # Fill in all hours
     df_system_load = pd.DataFrame()
-    df_system_load['datetime'] = pd.date_range(
-        df_miso.iloc[0]['datetime'],
-        df_miso.iloc[-2]['datetime'],
-        freq='H'
-    )
+    df_ls = []
+    years = [
+        '2016',
+        '2017',
+        # '2018',
+        # '2019',
+        # '2020',
+        # '2021'
+    ]
+    template_1 = 'https://www.eia.gov/electricity/gridmonitor/sixMonthFiles/EIA930_BALANCE_0000_Jan_Jun.csv'
+    template_2 = 'https://www.eia.gov/electricity/gridmonitor/sixMonthFiles/EIA930_BALANCE_0000_Jul_Dec.csv'
 
-    # Join dataframes to get every hour
-    df_system_load = pd.merge(
-        df_system_load,
-        df_miso[['datetime', 'ActualLoad']],
+    # Import
+    cols = [
+        'Balancing Authority',
+        'Data Date',
+        'Hour Number',
+        'Demand (MW)'
+    ]
+    for year in years:
+        # January to June
+        url_1 = template_1.replace('0000', year)
+        df_temp = pd.read_csv(url_1, usecols=cols, thousands=',')
+        df_temp = df_temp[df_temp['Balancing Authority'] == 'MISO']
+        df_ls.append(df_temp)
+
+        # July to December
+        url_2 = template_2.replace('0000', year)
+        df_temp = pd.read_csv(url_2, usecols=cols, thousands=',')
+        df_temp = df_temp[df_temp['Balancing Authority'] == 'MISO']
+        df_ls.append(df_temp)
+
+        print('success: Imported load for year {}'.format(year))
+
+    df_raw = pd.concat(df_ls)
+    df_raw['datetime'] = \
+        pd.to_datetime(df_raw['Data Date']) +\
+        pd.to_timedelta(df_raw['Hour Number'], unit='hour')
+
+    # Cleanup
+    df_system_load['datetime'] = df_raw['datetime'].to_list()
+    df_system_load['load'] = df_raw['Demand (MW)'].to_list()
+
+    # Add load factors
+    avg_load = df_system_load['load'].mean()
+    df_system_load['load_factor'] = df_system_load['load']/avg_load
+
+    # Nan missing values
+    df_system_load = fill_datetime(df_system_load, 'H')
+
+    return df_system_load
+
+
+def fill_datetime(df, freq):
+    """
+    Fill missing datetime values
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        DataFrame to fill
+    freq : str
+        Frequency to fill
+
+    Returns
+    -------
+    pandas.DataFrame
+        Filled DataFrame
+    """
+    # Fill in all hours
+    df_datetime_fill = pd.DataFrame({
+        'datetime': pd.date_range(
+            df.iloc[0]['datetime'],
+            df.iloc[-1]['datetime'],
+            freq=freq
+        )
+    })
+
+    # Join dataframes to fill
+    df = pd.merge(
+        df_datetime_fill,
+        df,
         how='left'
     )
 
-    # Linearly interpolate missing data
-    df_system_load = df_system_load.set_index('datetime')
-    df_ff = df_system_load.fillna(method='ffill')
-    df_bf = df_system_load.fillna(method='bfill')
-    df_system_load = df_system_load.where(
-        df_system_load.notnull(),
-        other=(df_ff + df_bf)/2
-    )
-    df_system_load = df_system_load.reset_index()
-
-    # Add load factors
-    avg_load = df_miso['ActualLoad'].mean()
-    df_system_load['load_factor'] = df_system_load['ActualLoad']/avg_load
-
-    return df_system_load
+    return df
 
 
 def process_node_load(df_system_load, df_synthetic_node_loads, net):
