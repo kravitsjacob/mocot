@@ -1,5 +1,8 @@
 inputs:
+  # Case
   case: "io/inputs/ACTIVSg200/case_ACTIVSg200.m"
+
+  # Generator information
   gen_info_matpower: "io/inputs/from_previous_study/gen_info_matpower.csv"
   gen_info_matches: "io/inputs/from_previous_study/gen_info_matches.csv"
   gen_info_ramp: "io/inputs/ramp_rates/gen_info_ramp.xlsx"
@@ -7,6 +10,10 @@ inputs:
   gen_info_waterlim: "io/inputs/water_use_limits/water_use_limits.csv"
   eia_raw: "io/inputs/eia_thermoelectric_water_use"
   eia_heat_rates: "io/inputs/eia_heat_rates/Table_A6_Approximate_Heat_Rates_for_Electricity_-_and_Heat_Content_of_Electricity.xlsx"
+  
+  # Exogenous paramters
+  air_temperature_dir: "io/inputs/air_temperature"
+
   noaa_temperature_data: "io/inputs/noaa_air_temperature/CRNH0203-2019-IL_Champaign_9_SW.txt"
   noaa_temperature_headers: "io/inputs/noaa_air_temperature/headers.txt"
   usgs_temperature_data: "io/inputs/usgs_water_temperature/05558300.txt"
@@ -29,6 +36,7 @@ outputs:
 
   # Parent exogenous parameters
   water_temperature: "io/outputs/exogenous/water_temperature.csv"
+  air_temperature: "io/outputs/exogenous/air_temperature.csv"
 
   system_load: "io/outputs/exogenous/system_load.csv"
   node_load: "io/outputs/exogenous/node_load.csv"

@@ -109,6 +109,14 @@ def main():
         df_water = premocot.core.process_water_exogenous()
         df_water.to_csv(paths['outputs']['water_temperature'], index=False)
 
+    # Air temperature
+    if not os.path.exists(paths['outputs']['air_temperature']):
+        df_air = premocot.core.process_air_exogenous(
+            paths['inputs']['air_temperature_dir']
+        )
+        df_air.to_csv(paths['outputs']['air_temperature'], index=False)
+
+
     # System-level loads
     if not os.path.exists(paths['outputs']['system_load']):
         df_miso = pd.read_csv(paths['inputs']['miso_load'])

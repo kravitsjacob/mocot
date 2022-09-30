@@ -98,7 +98,8 @@ def get_cooling_system(df_eia, df_gen_info):
 
 
 def process_water_exogenous():
-    """Import and water exogenous sources
+    """
+    Import and water air temperature
 
     # Potential sources
     USGS 05558300 ILLINOIS RIVER AT HENRY, IL
@@ -111,6 +112,8 @@ def process_water_exogenous():
     pandas.DataFrame
         Cleaned exogenous data
     """
+    df_water = pd.DataFrame()
+
     # Water temperature
     site = '05578100'
     df_raw = nwis.get_record(
@@ -122,42 +125,59 @@ def process_water_exogenous():
     )
 
     # Cleanup
-    df_water = pd.DataFrame()
     df_water['datetime'] = df_raw.index.to_list()
     df_water['water_temperature'] = df_raw['00010_Mean'].to_list()
 
     return df_water
 
-    # headers = [
-    #     line.split() for i,
-    #     line in enumerate(open(paths['inputs']['noaa_temperature_headers']))
-    #     if i == 1
-    # ]
-    # df_air_temperature = pd.read_table(
-    #     paths['inputs']['noaa_temperature_data'],
-    #     delim_whitespace=True,
-    #     names=headers[0],
-    #     parse_dates={'datetime': [1, 2]}
-    # )
-    # condition = \
-    #     (df_air_temperature['datetime'] > '2019') & \
-    #     (df_air_temperature['datetime'] < '2020')
-    # df_air_temperature = df_air_temperature[condition]
-    # df_air_temperature['air_temperature'] = df_air_temperature['T_HR_AVG']
 
-    # # Joining
-    # df_exogenous = pd.merge(
-    #     df_air_temperature[['datetime', 'air_temperature']],
-    #     df_water_temperature[['datetime', 'water_temperature']],
-    #     how='left',
-    #     on='datetime'
-    # )
+def process_air_exogenous(path_to_dir):
+    """
+    Import and process air temperature
 
-    # # Daily average
-    # df_exogenous = df_exogenous.resample('d', on='datetime').mean()
-    # df_exogenous = df_exogenous.reset_index()
 
-    # return df_exogenous
+    Returns
+    -------
+    pandas.DataFrame
+        Cleaned exogenous data
+    """
+    df_air = pd.DataFrame()
+    df_raw = pd.DataFrame()
+    df_ls = []
+    file_template = '857101_39.81_-89.66_0000.csv'
+    years = [
+        '2015',
+        '2016',
+        '2017',
+        '2018',
+        '2019',
+        '2020'
+    ]
+
+    # Import raw data
+    for year in years:
+        file_name = file_template.replace('0000', year)
+        path_to_file = os.path.join(path_to_dir, file_name)
+        df_temp = pd.read_csv(
+            path_to_file,
+            header=2
+        )
+        df_ls.append(df_temp)
+    df_raw = pd.concat(df_ls)
+
+    # Datetime combine
+    df_raw['datetime'] = pd.to_datetime(
+        df_raw[['Year', 'Month', 'Day', 'Hour', 'Minute']]
+    )
+
+    # Daily average
+    df_raw = df_raw.resample('d', on='datetime').mean()
+
+    # Cleanup
+    df_air['datetime'] = df_raw.index.to_list()
+    df_air['air_temperature'] = df_raw['Temperature'].to_list()
+
+    return df_air
 
 
 def process_system_load(df_miso):
