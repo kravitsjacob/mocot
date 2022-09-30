@@ -2,9 +2,8 @@
 Multi-Objective Coordination of Thermoelectric Water Use
 
 # Python Preprocessing
-1) Install the python package `$ pip install --editable premocot`
-2) Install the conda packages `$ conda install -c conda-forge pygmo` 
-3) Run the analysis`$ python preprocessing/preprocessing.py`
+1) Install the python package `$ pip install --editable ./preprocessing/.`
+2) Run the analysis`$ python preprocessing/preprocessing.py`
 
 # Single Simulation Run (Debugging/Development)
 1) Activate julia `$ julia`
@@ -41,6 +40,11 @@ for every bug:
 1) Activate Alpine: `$ ml slurm/alpine`
 2) Change directory to mocot: `$ cd /projects/jakr3868/mocot`
 3) Submit the job using "all generators" scenario (code 1): `$ sbatch --export=scenario_code=1 optimization/slurm_run.sh`
+
+# Python Postprocessing
+1) Install the python package `$ pip install --editable ./postprocessing/.`
+2) Install the conda packages `$ conda install -c conda-forge pygmo` 
+3) Run the analysis`$ python postprocessing/postprocessing.py`
 
 # Notes on old commits/releases
 Releases of week-01 to week-09 were regenerated due to migration away from git lfs. Thus, their release data all occur on the same day. 
