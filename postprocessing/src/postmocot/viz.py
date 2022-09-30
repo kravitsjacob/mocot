@@ -5,6 +5,7 @@ import seaborn as sns
 import pandas as pd
 import hiplot as hip
 import datetime
+import matplotlib.dates as mdates
 sns.set()
 
 
@@ -137,8 +138,8 @@ def hour_node_load(df_hour_to_hour):
     df_hour_to_hour['datetime'] = pd.to_datetime(df_hour_to_hour['datetime'])
 
     # Filter
-    cond1 = (df_hour_to_hour['datetime'] >= datetime.datetime(2019, 7, 1))
-    cond2 = (df_hour_to_hour['datetime'] <= datetime.datetime(2019, 7, 7))
+    cond1 = (df_hour_to_hour['datetime'] >= datetime.datetime(2016, 7, 1))
+    cond2 = (df_hour_to_hour['datetime'] <= datetime.datetime(2016, 7, 7))
     df_hour_to_hour = df_hour_to_hour[cond1 & cond2]
 
     df_hour_to_hour = pd.melt(
@@ -167,6 +168,8 @@ def hour_node_load(df_hour_to_hour):
     plt.xlabel('')
     plt.ylabel('$f_{var}$')
     plt.xticks(rotation=90)
+    myFmt = mdates.DateFormatter('%m-%d')
+    ax.xaxis.set_major_formatter(myFmt)
     plt.tight_layout()
 
     return fig
