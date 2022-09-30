@@ -20,12 +20,16 @@ inputs:
     spikes: "io/inputs/testing/spikes.csv"
 
 outputs:
+  # Generator information
   gen_info_main: "io/outputs/synthetic_grid/gen_info_main.csv"
   gen_info_water: "io/outputs/synthetic_grid/gen_info_water.csv"
   gen_info_water_ramp: "io/outputs/synthetic_grid/gen_info_water_ramp.csv"
   gen_info_water_ramp_emit: "io/outputs/synthetic_grid/gen_info_water_ramp_emit.csv"
   gen_info_water_ramp_emit_waterlim: "io/outputs/synthetic_grid/gen_info_water_ramp_emit_waterlim.csv"
-  air_water: "io/outputs/exogenous/air_water.csv"
+
+  # Parent exogenous parameters
+  water_temperature: "io/outputs/exogenous/water_temperature.csv"
+
   system_load: "io/outputs/exogenous/system_load.csv"
   node_load: "io/outputs/exogenous/node_load.csv"
   hour_to_hour: "io/outputs/exogenous/hour_to_hour.csv"

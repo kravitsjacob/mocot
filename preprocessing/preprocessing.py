@@ -104,10 +104,10 @@ def main():
         )
         print('Success: Adding water use limits')
 
-    # Water and air temperature
-    if not os.path.exists(paths['outputs']['air_water']):
-        df_air_water = premocot.core.process_air_water_exogenous(paths)
-        df_air_water.to_csv(paths['outputs']['air_water'], index=False)
+    # Water temperature
+    if not os.path.exists(paths['outputs']['water_temperature']):
+        df_water = premocot.core.process_water_exogenous()
+        df_water.to_csv(paths['outputs']['water_temperature'], index=False)
 
     # System-level loads
     if not os.path.exists(paths['outputs']['system_load']):

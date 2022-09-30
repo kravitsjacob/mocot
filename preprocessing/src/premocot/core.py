@@ -4,6 +4,7 @@
 import os
 import pandas as pd
 import numpy as np
+import dataretrieval.nwis as nwis
 
 
 def import_eia(path_to_eia):
@@ -96,13 +97,14 @@ def get_cooling_system(df_eia, df_gen_info):
     return df_gen_info
 
 
-def process_air_water_exogenous(paths):
-    """Import and process air and water exogenous sources
+def process_water_exogenous():
+    """Import and water exogenous sources
 
-    Parameters
-    ----------
-    paths : configparser.ConfigParser
-        IO paths
+    # Potential sources
+    USGS 05558300 ILLINOIS RIVER AT HENRY, IL
+    USGS 05578300 CLINTON LAKE NEAR LANE, IL
+    USGS 05578100 SALT CREEK NEAR FARMER CITY, IL
+    USGS 05578250 NORTH FORK SALT CREEK NEAR DE WITT, IL
 
     Returns
     -------
@@ -110,48 +112,52 @@ def process_air_water_exogenous(paths):
         Cleaned exogenous data
     """
     # Water temperature
-    df_water_temperature = pd.read_table(
-        paths['inputs']['usgs_temperature_data'],
-        skiprows=[i for i in range(0, 29)] + [30],
-        low_memory=False,
-        parse_dates=[2]
-    )
-    condition = \
-        (df_water_temperature['datetime'] > '2019') & \
-        (df_water_temperature['datetime'] < '2020')
-    df_water_temperature = df_water_temperature[condition]
-    df_water_temperature['water_temperature'] = df_water_temperature.iloc[:, 4]
-
-    headers = [
-        line.split() for i,
-        line in enumerate(open(paths['inputs']['noaa_temperature_headers']))
-        if i == 1
-    ]
-    df_air_temperature = pd.read_table(
-        paths['inputs']['noaa_temperature_data'],
-        delim_whitespace=True,
-        names=headers[0],
-        parse_dates={'datetime': [1, 2]}
-    )
-    condition = \
-        (df_air_temperature['datetime'] > '2019') & \
-        (df_air_temperature['datetime'] < '2020')
-    df_air_temperature = df_air_temperature[condition]
-    df_air_temperature['air_temperature'] = df_air_temperature['T_HR_AVG']
-
-    # Joining
-    df_exogenous = pd.merge(
-        df_air_temperature[['datetime', 'air_temperature']],
-        df_water_temperature[['datetime', 'water_temperature']],
-        how='left',
-        on='datetime'
+    site = '05578100'
+    df_raw = nwis.get_record(
+        sites=site,
+        service='dv',
+        start='2016-01-01',
+        end='2022-01-01',
+        parameterCd='00010'
     )
 
-    # Daily average
-    df_exogenous = df_exogenous.resample('d', on='datetime').mean()
-    df_exogenous = df_exogenous.reset_index()
+    # Cleanup
+    df_water = pd.DataFrame()
+    df_water['datetime'] = df_raw.index.to_list()
+    df_water['water_temperature'] = df_raw['00010_Mean'].to_list()
 
-    return df_exogenous
+    return df_water
+
+    # headers = [
+    #     line.split() for i,
+    #     line in enumerate(open(paths['inputs']['noaa_temperature_headers']))
+    #     if i == 1
+    # ]
+    # df_air_temperature = pd.read_table(
+    #     paths['inputs']['noaa_temperature_data'],
+    #     delim_whitespace=True,
+    #     names=headers[0],
+    #     parse_dates={'datetime': [1, 2]}
+    # )
+    # condition = \
+    #     (df_air_temperature['datetime'] > '2019') & \
+    #     (df_air_temperature['datetime'] < '2020')
+    # df_air_temperature = df_air_temperature[condition]
+    # df_air_temperature['air_temperature'] = df_air_temperature['T_HR_AVG']
+
+    # # Joining
+    # df_exogenous = pd.merge(
+    #     df_air_temperature[['datetime', 'air_temperature']],
+    #     df_water_temperature[['datetime', 'water_temperature']],
+    #     how='left',
+    #     on='datetime'
+    # )
+
+    # # Daily average
+    # df_exogenous = df_exogenous.resample('d', on='datetime').mean()
+    # df_exogenous = df_exogenous.reset_index()
+
+    # return df_exogenous
 
 
 def process_system_load(df_miso):
