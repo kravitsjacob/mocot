@@ -329,6 +329,7 @@ def process_hour_to_hour(df_synthetic_node_loads, net):
     # Add month and day
     df_hour_to_hour['month'] = df_synthetic_node_loads['month']
     df_hour_to_hour['day'] = df_synthetic_node_loads['day']
+    df_hour_to_hour['hour'] = df_synthetic_node_loads['hour']
 
     return df_hour_to_hour
 
@@ -382,11 +383,41 @@ def create_scenario_exogenous(
     df_water,
     df_air,
     df_system_load,
-    df_hour_to_hour
+    df_hour_to_hour,
+    net
 ):
+    """
+    Create exogenous parameters for a given scenario
 
+    Parameters
+    ----------
+    scenario_code : int
+        Scenario code
+    datetime_start : datetime.datetime
+        Start of scenario
+    datetime_end : datetime.datetime
+        End of scenario
+    df_water : pandas.DataFrame
+        Water temperature
+    df_air : pandas.DataFrame
+        Air temperature
+    df_system_load : pandas.DataFrame
+        System load variablity
+    df_hour_to_hour : pandas.DataFrame
+        Hour-to-hour node variability
+    net : pandapower.network
+        Network
+
+    Returns
+    -------
+    tuple
+        Tuple of air/water temperature dataframe and node load dataframe
+    """
     df_air_water = pd.DataFrame()
     df_node_load = pd.DataFrame()
+    df_load_ls = []
+    df_def_load = net.load[['bus', 'p_mw']]
+    df_system_load['datetime'] = pd.to_datetime(df_system_load['datetime'])
 
     # Filter air water
     df_air_water = pd.merge(
@@ -399,82 +430,20 @@ def create_scenario_exogenous(
         (df_air_water['datetime'] <= datetime_end)
     df_air_water = df_air_water[condition]
 
-    # Feedback
-    print('Lenth of air/water dataframe {}'.format(len(df_air_water)))
-    if df_air_water.isna().any().any():
-        warnings.warn(
-            'Null value encountered in scebnario {}'.format(scenario_code)
-        )
-
-    return df_air_water, df_node_load
-
-
-def process_node_load(df_system_load, df_synthetic_node_loads, net):
-    """
-    Create node-level loads
-
-    Parameters
-    ----------
-    df_system_load : pandas.DataFrame
-        System-level loads
-    df_synthetic_node_loads : pandas.DataFrame
-        Synthetic node loads
-    net : pandapower.network
-        Network
-
-    Returns
-    -------
-    pandas.DataFrame
-        Node loads
-    """
-    # Initialization
-    df_load_ls = []
-    df_def_load = net.load[['bus', 'p_mw']]
-    n_loads = len(df_def_load)
-    df_system_load['datetime'] = pd.to_datetime(df_system_load['datetime'])
-    df_system_load['Month'] = df_system_load['datetime'].dt.month
-    df_system_load['Day'] = df_system_load['datetime'].dt.day
-    df_system_load['Hour'] = df_system_load['datetime'].dt.hour
-
-    # Leap year correction
-    df_synthetic_node_loads['datetime'] = pd.to_datetime(
-        df_synthetic_node_loads['Date'] + ' ' + df_synthetic_node_loads['Time']
-    )
-    df_synthetic_node_loads['Month'] = \
-        df_synthetic_node_loads['datetime'].dt.month
-    df_synthetic_node_loads['Day'] = df_synthetic_node_loads['datetime'].dt.day
-    df_synthetic_node_loads['Hour'] = \
-        df_synthetic_node_loads['datetime'].dt.hour
-    df_synthetic_node_loads = pd.merge(
-        df_system_load[['Month', 'Day', 'Hour']],
-        df_synthetic_node_loads
-    )
-
-    # Relative hour-to-hour variation
-    bus_start_idx = 8
-    bus_end_idx = bus_start_idx + n_loads
-    df_temp = df_synthetic_node_loads.iloc[
-        :-1, bus_start_idx: bus_end_idx
-    ]
-    df_temp_shift = df_synthetic_node_loads.iloc[
-        1:, bus_start_idx: bus_end_idx
-    ]
-    df_temp.index = range(1, len(df_temp) + 1)
-    df_hour_to_hour = df_temp/df_temp_shift
-
-    # Drop generator information
-    df_hour_to_hour = df_hour_to_hour.iloc[
-        :, :len(df_def_load) + 1  # Skip date
-    ]
-
-    # Apply node-load model
+    # Node load
+    condition = \
+        (df_system_load['datetime'] >= datetime_start) & \
+        (df_system_load['datetime'] <= datetime_end)
+    df_system_load = df_system_load[condition]
     for i, row in df_system_load.iterrows():
-
         # Create temporary dataframe
         df_temp = pd.DataFrame(df_def_load['bus'])
 
         # Indexing information
         df_temp['datetime'] = row['datetime']
+        month = row['datetime'].month
+        day = row['datetime'].day
+        hour = row['datetime'].hour
 
         # Average magnitude of loads
         df_temp['load_mw'] = df_def_load['p_mw']
@@ -483,7 +452,12 @@ def process_node_load(df_system_load, df_synthetic_node_loads, net):
         df_temp['load_mw'] = df_temp['load_mw'] * row['load_factor']
 
         # Applying hour-to-hour
-        hour_to_hour_factors = df_hour_to_hour.iloc[i-1, :].values
+        condition = (df_hour_to_hour['month'] == month) & \
+            (df_hour_to_hour['day'] == day) & \
+            (df_hour_to_hour['hour'] == hour)
+        date_col_idx = -3
+        hour_to_hour_factors = \
+            df_hour_to_hour[condition].values[0][:date_col_idx]
         df_temp['load_mw'] = df_def_load['p_mw'] * hour_to_hour_factors
 
         # Store in df list
@@ -492,7 +466,20 @@ def process_node_load(df_system_load, df_synthetic_node_loads, net):
     # Concat
     df_node_load = pd.concat(df_load_ls, axis=0, ignore_index=True)
 
-    # Add back in date to hour-to-hour for plotting
-    df_hour_to_hour['datetime'] = df_synthetic_node_loads['datetime']
+    # Feedback
+    print('Lenth of air/water dataframe {}'.format(len(df_air_water)))
+    if df_air_water.isna().any().any():
+        warnings.warn(
+            'Null value encountered in air/water scenario {}'.format(
+                scenario_code
+            )
+        )
+    print('Lenth of node load dataframe {}'.format(len(df_node_load)))
+    if df_node_load.isna().any().any():
+        warnings.warn(
+            'Null value encountered in node load scenario {}'.format(
+                scenario_code
+            )
+        )
 
-    return df_node_load, df_hour_to_hour
+    return df_air_water, df_node_load

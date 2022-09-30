@@ -149,6 +149,7 @@ def main():
     df_system_load = pd.read_csv(paths['outputs']['system_load'])
     df_hour_to_hour = pd.read_csv(paths['outputs']['hour_to_hour'])
     df_scenario_specs = pd.read_csv(paths['inputs']['scenario_specs'])
+    net = pandapower.converter.from_mpc(paths['inputs']['case'])
 
     for (i, row) in df_scenario_specs.iterrows():
         # Process
@@ -159,30 +160,19 @@ def main():
             df_water,
             df_air,
             df_system_load,
-            df_hour_to_hour
+            df_hour_to_hour,
+            net
         )
 
-        # Save
+        # Write
         path_to_air_water = paths['outputs']['air_water_template'].replace(
             '0', str(row['scenario_code'])
         )
         df_air_water.to_csv(path_to_air_water, index=False)
-
-
-    # # Node-level loads
-    # if not os.path.exists(paths['outputs']['node_load']):
-    #     net = pandapower.converter.from_mpc(paths['inputs']['case'])
-    #     df_system_load = pd.read_csv(paths['outputs']['system_load'])
-    #     df_synthetic_node_loads = pd.read_csv(
-    #         paths['inputs']['synthetic_node_loads'],
-    #         header=1,
-    #         low_memory=False
-    #     )
-    #     df_node_load, df_hour_to_hour = premocot.core.process_node_load(
-    #         df_system_load, df_synthetic_node_loads, net
-    #     )
-    #     df_hour_to_hour.to_csv(paths['outputs']['hour_to_hour'], index=False)
-    #     df_node_load.to_csv(paths['outputs']['node_load'], index=False)
+        path_to_node_load = paths['outputs']['node_load_template'].replace(
+            '0', str(row['scenario_code'])
+        )
+        df_node_load.to_csv(path_to_node_load, index=False)
 
 
 if __name__ == '__main__':
