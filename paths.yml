@@ -11,13 +11,16 @@ inputs:
   eia_raw: "io/inputs/eia_thermoelectric_water_use"
   eia_heat_rates: "io/inputs/eia_heat_rates/Table_A6_Approximate_Heat_Rates_for_Electricity_-_and_Heat_Content_of_Electricity.xlsx"
   
-  # Exogenous paramters
+  # Exogenous parameters
   air_temperature_dir: "io/inputs/air_temperature"
   synthetic_node_loads: "io/inputs/ACTIVSg_Time_Series/ACTIVISg2000_load_time_series_MW.csv"
 
   # Parameter names
   decisions: "io/inputs/parameters/decisions.txt"
   objectives: "io/inputs/parameters/objectives.txt"
+
+  # Scenario specifications
+  scenario_specs: "io/inputs/scenario_specs/scenario_specs.csv"
   
   testing:
     no_load: "io/inputs/testing/no_load.csv"

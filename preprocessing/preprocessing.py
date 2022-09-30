@@ -136,7 +136,7 @@ def main():
         df_hour_to_hour.to_csv(paths['outputs']['hour_to_hour'], index=False)
 
     # Exogenous scenario
-    print_dates = 1
+    print_dates = 0
     if print_dates:
         df_water = pd.read_csv(paths['outputs']['water_temperature'])
         df_air = pd.read_csv(paths['outputs']['air_temperature'])
@@ -144,7 +144,30 @@ def main():
         premocot.core.scenario_dates(df_water, df_air, df_system_load)
 
     # Generate exogenous inputs for each scenario
-    
+    df_water = pd.read_csv(paths['outputs']['water_temperature'])
+    df_air = pd.read_csv(paths['outputs']['air_temperature'])
+    df_system_load = pd.read_csv(paths['outputs']['system_load'])
+    df_hour_to_hour = pd.read_csv(paths['outputs']['hour_to_hour'])
+    df_scenario_specs = pd.read_csv(paths['inputs']['scenario_specs'])
+
+    for (i, row) in df_scenario_specs.iterrows():
+        # Process
+        df_air_water, df_node_load = premocot.core.create_scenario_exogenous(
+            row['scenario_code'],
+            pd.to_datetime(row['datetime_start']),
+            pd.to_datetime(row['datetime_end']),
+            df_water,
+            df_air,
+            df_system_load,
+            df_hour_to_hour
+        )
+
+        # Save
+        path_to_air_water = paths['outputs']['air_water_template'].replace(
+            '0', str(row['scenario_code'])
+        )
+        df_air_water.to_csv(path_to_air_water, index=False)
+
 
     # # Node-level loads
     # if not os.path.exists(paths['outputs']['node_load']):

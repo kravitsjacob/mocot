@@ -5,7 +5,7 @@ import os
 import pandas as pd
 import numpy as np
 import dataretrieval.nwis as nwis
-import requests
+import warnings
 
 
 def import_eia(path_to_eia):
@@ -126,7 +126,8 @@ def process_water_exogenous():
     )
 
     # Cleanup
-    df_water['datetime'] = df_raw.index.to_list()
+    timestamps = pd.to_datetime(df_raw.index).tz_localize(None).to_list()
+    df_water['datetime'] = timestamps
     df_water['water_temperature'] = df_raw['00010_Mean'].to_list()
 
     # Missing values
@@ -372,6 +373,40 @@ def scenario_dates(df_water, df_air, df_system_load):
     print('high air temperature: {}'.format(df_rolling.idxmax()))
 
     return 0
+
+
+def create_scenario_exogenous(
+    scenario_code,
+    datetime_start,
+    datetime_end,
+    df_water,
+    df_air,
+    df_system_load,
+    df_hour_to_hour
+):
+
+    df_air_water = pd.DataFrame()
+    df_node_load = pd.DataFrame()
+
+    # Filter air water
+    df_air_water = pd.merge(
+        df_air,
+        df_water
+    )
+    df_air_water['datetime'] = pd.to_datetime(df_air_water['datetime'])
+    condition = \
+        (df_air_water['datetime'] >= datetime_start) & \
+        (df_air_water['datetime'] <= datetime_end)
+    df_air_water = df_air_water[condition]
+
+    # Feedback
+    print('Lenth of air/water dataframe {}'.format(len(df_air_water)))
+    if df_air_water.isna().any().any():
+        warnings.warn(
+            'Null value encountered in scebnario {}'.format(scenario_code)
+        )
+
+    return df_air_water, df_node_load
 
 
 def process_node_load(df_system_load, df_synthetic_node_loads, net):
