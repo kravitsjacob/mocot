@@ -285,6 +285,39 @@ def fill_datetime(df, freq):
     return df
 
 
+def process_hour_to_hour(df_synthetic_node_loads, net):
+
+    n_loads = len(net.load)
+
+    # Type parsing
+    df_synthetic_node_loads['datetime'] = pd.to_datetime(
+        df_synthetic_node_loads['Date'] + ' ' + df_synthetic_node_loads['Time']
+    )
+    df_synthetic_node_loads['month'] = \
+        df_synthetic_node_loads['datetime'].dt.month
+    df_synthetic_node_loads['day'] = df_synthetic_node_loads['datetime'].dt.day
+    df_synthetic_node_loads['hour'] = \
+        df_synthetic_node_loads['datetime'].dt.hour
+
+    # Relative hour-to-hour variation
+    bus_start_idx = 5
+    bus_end_idx = bus_start_idx + n_loads
+    df_temp = df_synthetic_node_loads.iloc[
+        :-1, bus_start_idx: bus_end_idx
+    ]
+    df_temp_shift = df_synthetic_node_loads.iloc[
+        1:, bus_start_idx: bus_end_idx
+    ]
+    df_temp.index = range(1, len(df_temp) + 1)
+    df_hour_to_hour = df_temp/df_temp_shift
+
+    # Add month and day
+    df_hour_to_hour['month'] = df_synthetic_node_loads['month']
+    df_hour_to_hour['day'] = df_synthetic_node_loads['day']
+
+    return df_hour_to_hour
+
+
 def process_node_load(df_system_load, df_synthetic_node_loads, net):
     """
     Create node-level loads

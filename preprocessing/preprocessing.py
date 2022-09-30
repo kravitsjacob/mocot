@@ -121,6 +121,20 @@ def main():
         df_system_load = premocot.core.process_system_load()
         df_system_load.to_csv(paths['outputs']['system_load'], index=False)
 
+    # Hour-to-hour loads
+    if not os.path.exists(paths['outputs']['hour_to_hour']):
+        net = pandapower.converter.from_mpc(paths['inputs']['case'])
+        df_synthetic_node_loads = pd.read_csv(
+            paths['inputs']['synthetic_node_loads'],
+            header=1,
+            low_memory=False
+        )
+        df_hour_to_hour = premocot.core.process_hour_to_hour(
+            df_synthetic_node_loads,
+            net
+        )
+        df_hour_to_hour.to_csv(paths['outputs']['hour_to_hour'], index=False)
+
     # # Node-level loads
     # if not os.path.exists(paths['outputs']['node_load']):
     #     net = pandapower.converter.from_mpc(paths['inputs']['case'])

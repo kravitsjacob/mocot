@@ -14,8 +14,7 @@ inputs:
   # Exogenous paramters
   air_temperature_dir: "io/inputs/air_temperature"
   synthetic_node_loads: "io/inputs/ACTIVSg_Time_Series/ACTIVISg2000_load_time_series_MW.csv"
-  
-  miso_load: "io/inputs/miso_load_data/20190101-20200101 MISO Forecasted Cleared & Actual Load.csv"
+
   # Parameter names
   decisions: "io/inputs/parameters/decisions.txt"
   objectives: "io/inputs/parameters/objectives.txt"
@@ -31,18 +30,24 @@ outputs:
   gen_info_water_ramp: "io/outputs/synthetic_grid/gen_info_water_ramp.csv"
   gen_info_water_ramp_emit: "io/outputs/synthetic_grid/gen_info_water_ramp_emit.csv"
   gen_info_water_ramp_emit_waterlim: "io/outputs/synthetic_grid/gen_info_water_ramp_emit_waterlim.csv"
+  gen_info_pm: "io/outputs/synthetic_grid/gen_info_pm.csv"
 
   # Parent exogenous parameters
   water_temperature: "io/outputs/exogenous/water_temperature.csv"
   air_temperature: "io/outputs/exogenous/air_temperature.csv"
-
   system_load: "io/outputs/exogenous/system_load.csv"
-  node_load: "io/outputs/exogenous/node_load.csv"
   hour_to_hour: "io/outputs/exogenous/hour_to_hour.csv"
-  gen_info_pm: "io/outputs/synthetic_grid/gen_info_pm.csv"
+
+  # Scenario exogenous parameters
+  air_water_template: "io/outputs/exogenous/scenario_0_air_water.csv"
+  node_load_template: "io/outputs/exogenous/scenario_0_node_load.csv"
+
+  # Debugging
   objectives: "objectives.csv"
   discharge_states: "discharge_states.csv"
   power_states: "power_states.csv"
+
+  # Results
   front_1: "io/outputs/front/scenario_1_front.txt"
   runtime_1: "io/outputs/states/scenario_1_runtime.txt"
   front_2: "io/outputs/front/scenario_2_front.txt"
