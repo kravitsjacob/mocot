@@ -146,11 +146,13 @@ class BorgRuntimeDiagnostic:
         df_front = pd.concat([df_decs, df_objs], axis=1)
 
         # Create Plot
+        cols = self.decision_names+self.objective_names
+        cols.reverse()
         color_col = self.objective_names[0]
         exp = hip.Experiment.from_dataframe(df_front)
         exp.parameters_definition[color_col].colormap = 'interpolateViridis'
         exp.display_data(hip.Displays.PARALLEL_PLOT).update(
-            {'order': self.decision_names+self.objective_names}
+            {'order': cols}
         )
         exp.display_data(hip.Displays.TABLE).update(
             {'hide': ['uid', 'from_uid']}
