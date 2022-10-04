@@ -16,4 +16,4 @@ module purge
 . optimization/slurm_config.sh
 
 # Run analysis
-mpiexec -n 16 --mca opal_common_ucx_opal_mem_hooks 1 ./optimization/optimization.exe $scenario_code
+mpiexec -n 144 --mca opal_common_ucx_opal_mem_hooks 1 ./optimization/optimization.exe $scenario_code
