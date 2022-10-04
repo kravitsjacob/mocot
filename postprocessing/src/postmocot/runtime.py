@@ -256,10 +256,6 @@ def parse_archive(df, decision_names, objective_names):
     df_temp = df_temp['var'].str.split(' ', expand=True).astype(float)
     df_temp.columns = decision_names + objective_names
 
-    # Convert Negative Objectives to Positive Ones (Important for Hypervolume) TODO: makes this more generic in future versions  # noqa
-    df_temp[df_temp.columns[df_temp.dtypes != np.object]] = \
-        df_temp[df_temp.columns[df_temp.dtypes != np.object]].abs()
-
     # Create Lists of Lists
     df_temp['decisions'] = df_temp[decision_names].values.tolist()
     df_temp['objectives'] = df_temp[objective_names].values.tolist()
