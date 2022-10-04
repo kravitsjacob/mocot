@@ -77,7 +77,7 @@ def system_load(df_system_load):
     fig, ax = plt.subplots()
     ax.plot(
         df_system_load['datetime'],
-        df_system_load['ActualLoad']
+        df_system_load['load']
     )
     plt.xticks(rotation=90)
     plt.ylabel(r'Load [MW]')
@@ -134,12 +134,17 @@ def hour_node_load(df_hour_to_hour):
     matplotlib.figure.Figure
         Plot of node-level loading
     """
-    # Parse
-    df_hour_to_hour['datetime'] = pd.to_datetime(df_hour_to_hour['datetime'])
+    # Setup
+    date_cols = ['year', 'month', 'day', 'hour']
+    df_hour_to_hour['year'] = 2020  # Fake year to make datetime
+    df_hour_to_hour['datetime'] = pd.to_datetime(
+        df_hour_to_hour[date_cols]
+    )
+    df_hour_to_hour = df_hour_to_hour.drop(columns=date_cols)
 
     # Filter
-    cond1 = (df_hour_to_hour['datetime'] >= datetime.datetime(2016, 7, 1))
-    cond2 = (df_hour_to_hour['datetime'] <= datetime.datetime(2016, 7, 7))
+    cond1 = (df_hour_to_hour['datetime'] >= datetime.datetime(2020, 7, 1))
+    cond2 = (df_hour_to_hour['datetime'] <= datetime.datetime(2020, 7, 7))
     df_hour_to_hour = df_hour_to_hour[cond1 & cond2]
 
     df_hour_to_hour = pd.melt(

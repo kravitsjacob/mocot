@@ -50,6 +50,8 @@ outputs:
   discharge_states: "discharge_states.csv"
   power_states: "power_states.csv"
 
+
+
   # Results
   front_1: "io/outputs/front/scenario_1_front.txt"
   runtime_1: "io/outputs/states/scenario_1_runtime.txt"

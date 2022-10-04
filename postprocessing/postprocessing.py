@@ -13,7 +13,11 @@ def main():
 
     # Daily average air/water temperature
     if not os.path.exists(paths['outputs']['figures']['temperatures']):
-        df_air_water = pd.read_csv(paths['outputs']['air_water'])
+        scenario_code = '1'
+        path = paths['outputs']['air_water_template'].replace(
+            '0', scenario_code
+        )
+        df_air_water = pd.read_csv(path)
         fig = postmocot.viz.temperatures(df_air_water)
         fig.savefig(paths['outputs']['figures']['temperatures'])
 
@@ -37,7 +41,11 @@ def main():
 
     # Node hourly load data
     if not os.path.exists(paths['outputs']['figures']['node_load']):
-        df_node_load = pd.read_csv(paths['outputs']['node_load'])
+        scenario_code = '1'
+        path = paths['outputs']['node_load_template'].replace(
+            '0', scenario_code
+        )
+        df_node_load = pd.read_csv(path)
         fig = postmocot.viz.node_load(df_node_load)
         fig.savefig(paths['outputs']['figures']['node_load'])
 
