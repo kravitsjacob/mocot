@@ -20,21 +20,7 @@ int scenario_code;
 // Set decision bounds based on scenario
 void set_dec_bounds(BORG_Problem problem, int scenario_code)
 {
-    if (scenario_code == 1){
-        // w_with_coal
-        BORG_Problem_set_bounds(problem, 0, 0.0, 0.5);
-        // w_con_coal
-        BORG_Problem_set_bounds(problem, 1, 0.0, 5.0);
-        // w_with_ng
-        BORG_Problem_set_bounds(problem, 2, 0.0, 1.0);
-        // w_con_ng
-        BORG_Problem_set_bounds(problem, 3, 0.0, 1.0);
-        // w_with_nuc
-        BORG_Problem_set_bounds(problem, 4, 0.0, 1.0);
-        // w_con_nuc
-        BORG_Problem_set_bounds(problem, 5, 0.0, 1.0);
-    }
-    else if (scenario_code == 2){
+    if (scenario_code == 2){
         // w_with_coal
         BORG_Problem_set_bounds(problem, 0, 0.0, 0.5);
         // w_con_coal
@@ -47,6 +33,20 @@ void set_dec_bounds(BORG_Problem problem, int scenario_code)
         BORG_Problem_set_bounds(problem, 4, 0.0, 0.00001);
         // w_con_nuc
         BORG_Problem_set_bounds(problem, 5, 0.0, 0.00001);
+    }
+    else {
+        // w_with_coal
+        BORG_Problem_set_bounds(problem, 0, 0.0, 0.5);
+        // w_con_coal
+        BORG_Problem_set_bounds(problem, 1, 0.0, 5.0);
+        // w_with_ng
+        BORG_Problem_set_bounds(problem, 2, 0.0, 1.0);
+        // w_con_ng
+        BORG_Problem_set_bounds(problem, 3, 0.0, 1.0);
+        // w_with_nuc
+        BORG_Problem_set_bounds(problem, 4, 0.0, 1.0);
+        // w_con_nuc
+        BORG_Problem_set_bounds(problem, 5, 0.0, 1.0);
     }
 }
 
