@@ -220,4 +220,3 @@ def node_load(df_node_load):
     plt.tight_layout()
 
     return fig
-
