@@ -11,7 +11,102 @@ import hiplot as hip
 import os
 
 
-class BorgRuntimeDiagnostic:
+class BorgRuntimeUtils:
+    """
+    Borg multi-objective algorithm runtime parsing utilities
+    """
+    def _parse_stats(self, df_raw):
+        """
+        Convert Borg MOEA runtime file to pandas DataFrame
+
+        Parameters
+        ----------
+        path : str
+            Path to Borg MOEA runtime file
+        decision_names : list
+            Decision names
+        objective_names : list
+            Objective names
+
+        Returns
+        -------
+        pandas.DataFrame
+            Parsed runtime file
+        """
+        # Omit Population Prints
+        df_res = df_raw[-np.isnan(df_raw['value'])]
+
+        # Replace //
+        df_res = pd.DataFrame(
+            [df_res['var'].str.replace('//', ''), df_res['value']]
+        ).T
+
+        # Add index
+        df_res['nfe_index'] = \
+            [i for i in np.arange(0, len(df_res) // 13) for j in range(13)]
+
+        # Parse Data Into Columns
+        df_res = pd.pivot(
+            df_res,
+            columns='var',
+            values='value',
+            index='nfe_index'
+        ).reset_index(drop=True)
+
+        # Convert to Float
+        df_res = df_res.astype(float)
+
+        df_res.index = df_res['NFE'].astype(int)
+
+        return df_res
+
+    def _parse_archive(self, df, decision_names, objective_names):
+        """Convert archive data to dataframes
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            Raw runtime pandas dataframe
+        decision_names : list
+            Decision names
+        objective_names : list
+            Objective names
+
+        Returns
+        -------
+        pandas.DataFrame
+            Processed archive
+        """
+        # Extract Archive Prints
+        df_temp = df[np.isnan(df['value'])]
+        df_temp = df_temp[df_temp['var'] != '#']
+
+        # Separate Based on Deliminators
+        df_temp = df_temp['var'].str.split(' ', expand=True).astype(float)
+        df_temp.columns = decision_names + objective_names
+
+        # Create Lists of Lists
+        df_temp['decisions'] = df_temp[decision_names].values.tolist()
+        df_temp['objectives'] = df_temp[objective_names].values.tolist()
+
+        # Decisions
+        df_param = df_temp['decisions']
+        parameters_ls = [
+            df_param.loc[i].tolist()
+            for i in consecutive_groups(df_param.index)
+        ]
+
+        # Objectives
+        df_obj = df_temp['objectives']
+        objectives_ls = [
+            df_obj.loc[i].tolist()
+            for i in consecutive_groups(df_obj.index)
+        ]
+
+        return parameters_ls, objectives_ls
+
+
+class BorgRuntimeDiagnostic(BorgRuntimeUtils):
     """
     Borg multi-objective algorithm runtime diagnostics
     """
@@ -33,6 +128,8 @@ class BorgRuntimeDiagnostic:
         objective_names : list
             List of objective names
         """
+        super().__init__()
+
         # Read input file
         df_raw = pd.read_table(
             path_to_runtime,
@@ -40,8 +137,12 @@ class BorgRuntimeDiagnostic:
             sep="="
         )
 
+        # General attributes
+        self.decision_names = decision_names
+        self.objective_names = objective_names
+
         # Runtime statistics
-        df_res = parse_stats(
+        df_res = self._parse_stats(
             df_raw
         )
         self.nfe = df_res.index.to_list()
@@ -59,13 +160,11 @@ class BorgRuntimeDiagnostic:
         self.undx = df_res['UNDX'].to_dict()
 
         # Parsing archives
-        parameters_ls, objectives_ls = parse_archive(
+        parameters_ls, objectives_ls = self._parse_archive(
             df_raw,
             decision_names,
             objective_names
         )
-        self.decision_names = decision_names
-        self.objective_names = objective_names
         self.archive_decisions = dict(zip(self.nfe, parameters_ls))
         self.archive_objectives = dict(zip(self.nfe, objectives_ls))
 
@@ -229,95 +328,3 @@ class BorgRuntimeDiagnostic:
 
             # Close figures
             plt.close()
-
-
-def parse_archive(df, decision_names, objective_names):
-    """Convert archive data to dataframes
-
-    Parameters
-    ----------
-    df : pandas.DataFrame
-        Raw runtime pandas dataframe
-    decision_names : list
-        Decision names
-    objective_names : list
-        Objective names
-
-    Returns
-    -------
-    pandas.DataFrame
-        Processed archive
-    """
-    # Extract Archive Prints
-    df_temp = df[np.isnan(df['value'])]
-    df_temp = df_temp[df_temp['var'] != '#']
-
-    # Separate Based on Deliminators
-    df_temp = df_temp['var'].str.split(' ', expand=True).astype(float)
-    df_temp.columns = decision_names + objective_names
-
-    # Create Lists of Lists
-    df_temp['decisions'] = df_temp[decision_names].values.tolist()
-    df_temp['objectives'] = df_temp[objective_names].values.tolist()
-
-    # Decisions
-    df_param = df_temp['decisions']
-    parameters_ls = [
-        df_param.loc[i].tolist()
-        for i in consecutive_groups(df_param.index)
-    ]
-
-    # Objectives
-    df_obj = df_temp['objectives']
-    objectives_ls = [
-        df_obj.loc[i].tolist()
-        for i in consecutive_groups(df_obj.index)
-    ]
-
-    return parameters_ls, objectives_ls
-
-
-def parse_stats(df_raw):
-    """
-    Convert Borg MOEA runtime file to pandas DataFrame
-
-    Parameters
-    ----------
-    path : str
-        Path to Borg MOEA runtime file
-    decision_names : list
-        Decision names
-    objective_names : list
-        Objective names
-
-    Returns
-    -------
-    pandas.DataFrame
-        Parsed runtime file
-    """
-    # Omit Population Prints
-    df_res = df_raw[-np.isnan(df_raw['value'])]
-
-    # Replace //
-    df_res = pd.DataFrame(
-        [df_res['var'].str.replace('//', ''), df_res['value']]
-    ).T
-
-    # Add index
-    df_res['nfe_index'] = \
-        [i for i in np.arange(0, len(df_res) // 13) for j in range(13)]
-
-    # Parse Data Into Columns
-    df_res = pd.pivot(
-        df_res,
-        columns='var',
-        values='value',
-        index='nfe_index'
-    ).reset_index(drop=True)
-
-    # Convert to Float
-    df_res = df_res.astype(float)
-
-    df_res.index = df_res['NFE'].astype(int)
-
-    return df_res

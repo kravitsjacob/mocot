@@ -54,13 +54,13 @@ outputs:
   runtime_template: "io/outputs/states/scenario_0_runtime.txt"
 
   figures:
+    # Exogenous figures
     system_load: "io/outputs/figures/system_load.pdf"
     system_load_factor: "io/outputs/figures/system_load_factor.pdf"
     node_load: "io/outputs/figures/node_load.pdf"
     hour_node_load: "io/outputs/figures/hour_node_load.pdf"
     temperatures: "io/outputs/figures/temperatures.pdf"
 
-    interactive_parallel: "io/outputs/figures/interactive_parallel.html"
-    improvements: "io/outputs/figures/runtime_improvements.pdf"
+    # Runtime figures
+    interactive_parallel: "io/outputs/figures/runtime_interactive_parallel.html"
     hypervolume: "io/outputs/figures/runtime_hypervolume.pdf"
-    front_animation: "io/outputs/figures/animated_front.mp4"
