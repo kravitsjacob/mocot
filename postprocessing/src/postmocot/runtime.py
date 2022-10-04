@@ -211,6 +211,14 @@ class BorgRuntimeDiagnostic(BorgRuntimeUtils):
         return fig
 
     def plot_hypervolume(self):
+        """
+        Plot hypervolume over the search
+
+        Returns
+        -------
+        matplotlib.figure.Figure
+            Plot of improvments
+        """
         # Get data
         df = pd.Series(self.hypervolume).to_frame().reset_index()
 
@@ -225,7 +233,6 @@ class BorgRuntimeDiagnostic(BorgRuntimeUtils):
     def plot_interactive_front(self):
         """
         Create interactive parallel plot
-
 
         Returns
         -------
@@ -328,3 +335,54 @@ class BorgRuntimeDiagnostic(BorgRuntimeUtils):
 
             # Close figures
             plt.close()
+
+
+class BorgRuntimeAggregator():
+    """
+    Agregate multiple runs of borg multi-objective algorithm runtime objects
+    """
+    def __init__(
+        self,
+        runtime_objs,
+    ):
+        """Initilization
+
+        Parameters
+        ----------
+        runtime_objs : dict
+            Dictionary with keys of run name and values being runtime
+             objects
+        """
+        self.runs = runtime_objs
+
+    def plot_hypervolume(self):
+        """
+        Plot hypervolume over the search
+
+        Returns
+        -------
+        matplotlib.figure.Figure
+            Plot of improvments
+        """
+        # Setup
+        df_ls = []
+
+        # Computing hypervolume
+        for run_name, run_obj in self.runs.items():
+            df_run = pd.DataFrame()
+            reference_point = [1e12] * 9
+            run_obj.compute_hypervolume(reference_point)
+            df_run['hypervolume'] = pd.Series(run_obj.hypervolume)
+            df_run['run_name'] = run_name
+            df_run['nfe'] = df_run.index
+            df_ls.append(df_run)
+        df = pd.concat(df_ls)
+
+        # Plotting
+        fig, ax = plt.subplots()
+        sns.lineplot(data=df, x='nfe', y='hypervolume', hue='run_name', ax=ax)
+        plt.ylabel('Hypervolume')
+        plt.xlabel('Function Evaluations')
+        ax.legend(title='Run')
+
+        return fig
