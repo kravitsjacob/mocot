@@ -386,3 +386,52 @@ class BorgRuntimeAggregator():
         ax.legend(title='Run')
 
         return fig
+
+    def plot_interactive_front(self):
+        """
+        Plot interactive front at final search
+
+        Returns
+        -------
+        matplotlib.figure.Figure
+            Plot of improvments
+        """
+        # Setup
+        df_ls = []
+
+        for run_name, run_obj in self.runs.items():
+            # Extract total function evaluations
+            nfe = run_obj.nfe[-1]
+
+            # Get front
+            df_decs = pd.DataFrame(
+                run_obj.archive_decisions[nfe],
+                columns=run_obj.decision_names
+            )
+            df_objs = pd.DataFrame(
+                run_obj.archive_objectives[nfe],
+                columns=run_obj.objective_names
+            )
+            df_front = pd.concat([df_decs, df_objs], axis=1)
+            df_front['run_name'] = run_name
+
+            # Store
+            df_ls.append(df_front)
+
+        # Making parent dataframe
+        df = pd.concat(df_ls)
+
+        # Create Plot
+        cols = run_obj.decision_names + run_obj.objective_names + ['run_name']
+        cols.reverse()
+        color_col = 'run_name'
+        exp = hip.Experiment.from_dataframe(df)
+        exp.parameters_definition[color_col].colormap = 'schemeDark2'
+        exp.display_data(hip.Displays.PARALLEL_PLOT).update(
+            {'order': cols}
+        )
+        exp.display_data(hip.Displays.TABLE).update(
+            {'hide': ['uid', 'from_uid']}
+        )
+
+        return exp

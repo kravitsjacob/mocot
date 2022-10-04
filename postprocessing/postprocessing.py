@@ -79,10 +79,10 @@ def main():
         fig = runtime_multi.plot_hypervolume()
         fig.savefig(paths['outputs']['figures']['hypervolume'])
 
-    # # Interactive parallel
-    # if not os.path.exists(paths['outputs']['figures']['interactive_parallel']):
-    #     exp = runtime.plot_interactive_front()
-    #     exp.to_html(paths['outputs']['figures']['interactive_parallel'])
+    # Interactive parallel
+    if not os.path.exists(paths['outputs']['figures']['interactive_parallel']):
+        exp = runtime_multi.plot_interactive_front()
+        exp.to_html(paths['outputs']['figures']['interactive_parallel'])
 
 
 if __name__ == '__main__':
