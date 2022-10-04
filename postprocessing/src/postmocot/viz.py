@@ -3,7 +3,6 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
-import hiplot as hip
 import datetime
 import matplotlib.dates as mdates
 sns.set()
@@ -222,24 +221,3 @@ def node_load(df_node_load):
 
     return fig
 
-
-def interactive_parallel(df_front):
-    """Create interactive parallel plot
-
-    Parameters
-    ----------
-    df_front : pandas.DataFrame
-        Nondominated front
-
-    Returns
-    -------
-    hiplot.experiment.Experiment
-        Hiplot experiment
-    """
-    # Create Plot
-    color_col = 'f_gen'
-    exp = hip.Experiment.from_dataframe(df_front)
-    exp.parameters_definition[color_col].colormap = 'interpolateViridis'
-    exp.display_data(hip.Displays.TABLE).update({'hide': ['uid', 'from_uid']})
-
-    return exp

@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pygmo
 import paxplot
+import hiplot as hip
 import os
 
 
@@ -43,19 +44,19 @@ class BorgRuntimeDiagnostic:
         df_res = parse_stats(
             df_raw
         )
-        self.NFE = df_res['NFE'].tolist()
+        self.nfe = df_res.index.to_list()
         self.archive_size = df_res['ArchiveSize'].to_dict()
         self.elapsed_time = df_res['ElapsedTime'].to_dict()
         self.improvements = df_res['Improvements'].to_dict()
         self.mutation_index = df_res['MutationIndex'].to_dict()
         self.population_size = df_res['PopulationSize'].to_dict()
         self.restarts = df_res['Restarts'].to_dict()
-        self.PCX = df_res['PCX'].to_dict()
-        self.DE = df_res['DE'].to_dict()
-        self.SBX = df_res['SBX'].to_dict()
-        self.SPX = df_res['SPX'].to_dict()
-        self.UM = df_res['UM'].to_dict()
-        self.UNDX = df_res['UNDX'].to_dict()
+        self.pcx = df_res['PCX'].to_dict()
+        self.de = df_res['DE'].to_dict()
+        self.sbx = df_res['SBX'].to_dict()
+        self.spx = df_res['SPX'].to_dict()
+        self.um = df_res['UM'].to_dict()
+        self.undx = df_res['UNDX'].to_dict()
 
         # Parsing archives
         parameters_ls, objectives_ls = parse_archive(
@@ -65,8 +66,8 @@ class BorgRuntimeDiagnostic:
         )
         self.decision_names = decision_names
         self.objective_names = objective_names
-        self.archive_decisions = dict(zip(self.NFE, parameters_ls))
-        self.archive_objectives = dict(zip(self.NFE, objectives_ls))
+        self.archive_decisions = dict(zip(self.nfe, parameters_ls))
+        self.archive_objectives = dict(zip(self.nfe, objectives_ls))
 
     def compute_hypervolume(self, reference_point):
         """Compute hypervolumes
@@ -122,7 +123,42 @@ class BorgRuntimeDiagnostic:
 
         return fig
 
-    def plot_fronts(self, path_to_save_figs_dir):
+    def plot_interactive_front(self):
+        """
+        Create interactive parallel plot
+
+
+        Returns
+        -------
+        hiplot.experiment.Experiment
+            Hiplot experiment
+        """
+        # Get final front
+        nfe = self.nfe[-1]
+        df_decs = pd.DataFrame(
+            self.archive_decisions[nfe],
+            columns=self.decision_names
+        )
+        df_objs = pd.DataFrame(
+            self.archive_objectives[nfe],
+            columns=self.objective_names
+        )
+        df_front = pd.concat([df_decs, df_objs], axis=1)
+
+        # Create Plot
+        color_col = self.objective_names[0]
+        exp = hip.Experiment.from_dataframe(df_front)
+        exp.parameters_definition[color_col].colormap = 'interpolateViridis'
+        exp.display_data(hip.Displays.PARALLEL_PLOT).update(
+            {'order': self.decision_names+self.objective_names}
+        )
+        exp.display_data(hip.Displays.TABLE).update(
+            {'hide': ['uid', 'from_uid']}
+        )
+
+        return exp
+
+    def plot_fronts(self, path_to_save_figs_dir='temp_animation'):
         """Create front images as save to directory for animation later.
 
         #TODO, this is hardcoded for a specific example
@@ -133,6 +169,8 @@ class BorgRuntimeDiagnostic:
             Directory to save generated front figs
         """
         # Setup
+        if not os.path.exists(path_to_save_figs_dir):
+            os.makedirs(path_to_save_figs_dir)
         sns.reset_orig()
 
         for nfe, objs in self.archive_objectives.items():
@@ -176,13 +214,13 @@ class BorgRuntimeDiagnostic:
 
             # Add labels
             paxfig.set_labels(self.objective_names)
-            paxfig.axes[0].set_title('NFE: {}'.format(nfe))
+            paxfig.axes[0].set_title('nfe: {}'.format(nfe))
 
             # Dimensions
             paxfig.set_size_inches(13, 3)
 
             # Save
-            file_name = 'NFE_{}.png'.format(str(nfe).zfill(8))
+            file_name = 'nfe_{}.png'.format(str(nfe).zfill(8))
             paxfig.savefig(
                 os.path.join(path_to_save_figs_dir, file_name)
             )
@@ -268,7 +306,7 @@ def parse_stats(df_raw):
     ).T
 
     # Add index
-    df_res['NFE_index'] = \
+    df_res['nfe_index'] = \
         [i for i in np.arange(0, len(df_res) // 13) for j in range(13)]
 
     # Parse Data Into Columns
@@ -276,12 +314,12 @@ def parse_stats(df_raw):
         df_res,
         columns='var',
         values='value',
-        index='NFE_index'
+        index='nfe_index'
     ).reset_index(drop=True)
 
     # Convert to Float
     df_res = df_res.astype(float)
 
-    df_res.index = df_res['NFE']
+    df_res.index = df_res['NFE'].astype(int)
 
     return df_res

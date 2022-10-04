@@ -50,13 +50,8 @@ outputs:
   discharge_states: "discharge_states.csv"
   power_states: "power_states.csv"
 
-
-
   # Results
-  front_1: "io/outputs/front/scenario_1_front.txt"
-  runtime_1: "io/outputs/states/scenario_1_runtime.txt"
-  front_2: "io/outputs/front/scenario_2_front.txt"
-  runtime_2: "io/outputs/states/scenario_2_runtime.txt"
+  runtime_template: "io/outputs/states/scenario_0_runtime.txt"
 
   figures:
     system_load: "io/outputs/figures/system_load.pdf"
@@ -64,12 +59,8 @@ outputs:
     node_load: "io/outputs/figures/node_load.pdf"
     hour_node_load: "io/outputs/figures/hour_node_load.pdf"
     temperatures: "io/outputs/figures/temperatures.pdf"
-    interactive_parallel_1: "io/outputs/figures/interactive_parallel_1.html"
-    interactive_parallel_2: "io/outputs/figures/interactive_parallel_2.html"
-    improvements_1: "io/outputs/figures/runtime_improvements_1.pdf"
-    hypervolume_1: "io/outputs/figures/runtime_hypervolume_1.pdf"
-    front_animation_dir: "io/outputs/figures/front_animation"
-    front_animation_1: "io/outputs/figures/front_animation/animated_1.mp4"
-    improvements_2: "io/outputs/figures/runtime_improvements_2.pdf"
-    hypervolume_2: "io/outputs/figures/runtime_hypervolume_2.pdf"
-    front_animation_2: "io/outputs/figures/front_animation/animated_2.mp4"
+
+    interactive_parallel: "io/outputs/figures/interactive_parallel.html"
+    improvements: "io/outputs/figures/runtime_improvements.pdf"
+    hypervolume: "io/outputs/figures/runtime_hypervolume.pdf"
+    front_animation: "io/outputs/figures/animated_front.mp4"
