@@ -1,0 +1,7 @@
+[deps]
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Infiltrator = "5903a43b-9cc3-4c30-8d17-598619ec4e9b"
+MOCOT = "5c3fdc54-6994-4d60-92ef-82aee31cdcaf"
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"

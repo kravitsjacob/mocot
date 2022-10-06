@@ -1,0 +1,66 @@
+inputs:
+  # Case
+  case: "io/inputs/ACTIVSg200/case_ACTIVSg200.m"
+
+  # Generator information
+  gen_info_matpower: "io/inputs/from_previous_study/gen_info_matpower.csv"
+  gen_info_matches: "io/inputs/from_previous_study/gen_info_matches.csv"
+  gen_info_ramp: "io/inputs/ramp_rates/gen_info_ramp.xlsx"
+  gen_info_emit: "io/inputs/eia_emissions/emission_rates.csv"
+  gen_info_waterlim: "io/inputs/water_use_limits/water_use_limits.csv"
+  eia_raw: "io/inputs/eia_thermoelectric_water_use"
+  eia_heat_rates: "io/inputs/eia_heat_rates/Table_A6_Approximate_Heat_Rates_for_Electricity_-_and_Heat_Content_of_Electricity.xlsx"
+  
+  # Exogenous parameters
+  air_temperature_dir: "io/inputs/air_temperature"
+  synthetic_node_loads: "io/inputs/ACTIVSg_Time_Series/ACTIVISg2000_load_time_series_MW.csv"
+
+  # Parameter names
+  decisions: "io/inputs/parameters/decisions.txt"
+  objectives: "io/inputs/parameters/objectives.txt"
+
+  # Scenario specifications
+  scenario_specs: "io/inputs/scenario_specs/scenario_specs.csv"
+  
+  testing:
+    no_load: "io/inputs/testing/no_load.csv"
+    spikes: "io/inputs/testing/spikes.csv"
+
+outputs:
+  # Generator information
+  gen_info_main: "io/outputs/synthetic_grid/gen_info_main.csv"
+  gen_info_water: "io/outputs/synthetic_grid/gen_info_water.csv"
+  gen_info_water_ramp: "io/outputs/synthetic_grid/gen_info_water_ramp.csv"
+  gen_info_water_ramp_emit: "io/outputs/synthetic_grid/gen_info_water_ramp_emit.csv"
+  gen_info_water_ramp_emit_waterlim: "io/outputs/synthetic_grid/gen_info_water_ramp_emit_waterlim.csv"
+  gen_info_pm: "io/outputs/synthetic_grid/gen_info_pm.csv"
+
+  # Parent exogenous parameters
+  water_temperature: "io/outputs/exogenous/water_temperature.csv"
+  air_temperature: "io/outputs/exogenous/air_temperature.csv"
+  system_load: "io/outputs/exogenous/system_load.csv"
+  hour_to_hour: "io/outputs/exogenous/hour_to_hour.csv"
+
+  # Scenario exogenous parameters
+  air_water_template: "io/outputs/exogenous/scenario_0_air_water.csv"
+  node_load_template: "io/outputs/exogenous/scenario_0_node_load.csv"
+
+  # Debugging
+  objectives: "objectives.csv"
+  discharge_states: "discharge_states.csv"
+  power_states: "power_states.csv"
+
+  # Results
+  runtime_template: "io/outputs/states/scenario_0_runtime.txt"
+
+  figures:
+    # Exogenous figures
+    system_load: "io/outputs/figures/system_load.pdf"
+    system_load_factor: "io/outputs/figures/system_load_factor.pdf"
+    node_load: "io/outputs/figures/node_load.pdf"
+    hour_node_load: "io/outputs/figures/hour_node_load.pdf"
+    temperatures: "io/outputs/figures/temperatures.pdf"
+
+    # Runtime figures
+    interactive_parallel: "io/outputs/figures/runtime_interactive_parallel.html"
+    hypervolume: "io/outputs/figures/runtime_hypervolume.pdf"

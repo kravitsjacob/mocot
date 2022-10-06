@@ -214,3 +214,6 @@ Manifest.toml
 # Slurm
 error.txt
 output.txt
+
+# Plotting
+temp
