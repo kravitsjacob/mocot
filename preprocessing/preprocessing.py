@@ -118,7 +118,10 @@ def main():
 
     # System-level loads
     if not os.path.exists(paths['outputs']['system_load']):
-        df_system_load = premocot.core.process_system_load()
+        df_system_load = premocot.core.process_system_load(
+            paths['inputs']['eia_load_template_j_j'],
+            paths['inputs']['eia_load_template_j_d']
+        )
         df_system_load.to_csv(paths['outputs']['system_load'], index=False)
 
     # Hour-to-hour loads

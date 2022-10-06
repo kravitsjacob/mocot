@@ -179,15 +179,22 @@ def process_air_exogenous(path_to_dir):
     return df_air
 
 
-def process_system_load():
+def process_system_load(eia_load_template_j_j, eia_load_template_j_d):
     """
     Clean system-level miso data includes interpolating missing values
+
+    Parameters
+    ----------
+    eia_load_template_j_j : str
+        Path to EIA load data for January to June
+    eia_load_template_j_d : str
+        Path to EIA load data for July to December
 
     Returns
     -------
     pandas.DataFrame
         Parsed data
-    """
+    """    
     df_system_load = pd.DataFrame()
     df_ls = []
     years = [
@@ -198,8 +205,6 @@ def process_system_load():
         '2020',
         '2021'
     ]
-    template_1 = 'https://www.eia.gov/electricity/gridmonitor/sixMonthFiles/EIA930_BALANCE_0000_Jan_Jun.csv'  # noqa
-    template_2 = 'https://www.eia.gov/electricity/gridmonitor/sixMonthFiles/EIA930_BALANCE_0000_Jul_Dec.csv'  # noqa
 
     # Import
     cols = [
@@ -210,13 +215,13 @@ def process_system_load():
     ]
     for year in years:
         # January to June
-        url_1 = template_1.replace('0000', year)
+        url_1 = eia_load_template_j_j.replace('0000', year)
         df_temp = pd.read_csv(url_1, usecols=cols, thousands=',')
         df_temp = df_temp[df_temp['Balancing Authority'] == 'MISO']
         df_ls.append(df_temp)
 
         # July to December
-        url_2 = template_2.replace('0000', year)
+        url_2 = eia_load_template_j_d.replace('0000', year)
         df_temp = pd.read_csv(url_2, usecols=cols, thousands=',')
         df_temp = df_temp[df_temp['Balancing Authority'] == 'MISO']
         df_ls.append(df_temp)

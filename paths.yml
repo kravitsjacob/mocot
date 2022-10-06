@@ -14,6 +14,8 @@ inputs:
   # Exogenous parameters
   air_temperature_dir: "io/inputs/air_temperature"
   synthetic_node_loads: "io/inputs/ACTIVSg_Time_Series/ACTIVISg2000_load_time_series_MW.csv"
+  eia_load_template_j_j: "https://www.eia.gov/electricity/gridmonitor/sixMonthFiles/EIA930_BALANCE_0000_Jan_Jun.csv"
+  eia_load_template_j_d: "https://www.eia.gov/electricity/gridmonitor/sixMonthFiles/EIA930_BALANCE_0000_Jul_Dec.csv"
 
   # Parameter names
   decisions: "io/inputs/parameters/decisions.txt"
