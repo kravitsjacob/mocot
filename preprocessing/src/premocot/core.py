@@ -21,15 +21,11 @@ def import_eia(path_to_eia):
     DataFrame
         DataFrame of EIA data
     """
-    # Local Vars
-    year = '2019'
-
     # Import all dataframes
-    path = os.path.join(path_to_eia, 'cooling_detail_' + year + '.xlsx')
-    print('Importing EIA water data for {}'.format(year))
+    print('Importing EIA water data from {}'.format(path_to_eia))
 
     # Import Dataframe
-    df = pd.read_excel(path, header=2)
+    df = pd.read_excel(path_to_eia, header=2)
 
     # Replace space values with nan values
     df = df.replace(r'^\s*$', np.nan, regex=True)

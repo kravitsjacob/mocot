@@ -8,7 +8,7 @@ inputs:
   gen_info_ramp: "io/inputs/ramp_rates/gen_info_ramp.xlsx"
   gen_info_emit: "io/inputs/eia_emissions/emission_rates.csv"
   gen_info_waterlim: "io/inputs/water_use_limits/water_use_limits.csv"
-  eia_raw: "io/inputs/eia_thermoelectric_water_use"
+  eia_raw: "https://www.eia.gov/electricity/data/water/archive/xls/cooling_detail_2019.xlsx"
   eia_heat_rates: "io/inputs/eia_heat_rates/Table_A6_Approximate_Heat_Rates_for_Electricity_-_and_Heat_Content_of_Electricity.xlsx"
   
   # Exogenous parameters
