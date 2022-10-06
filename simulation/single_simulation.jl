@@ -16,11 +16,11 @@ function main()
     paths = YAML.load_file("paths.yml")
 
     # Simulation with all scenarios
-    (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 0, 1)
-    # (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 2)
-    # (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 3)
-    # (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 4)
-    # (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 5)
+    (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 1, 1)
+    (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 1, 2)
+    (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 1, 3)
+    (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 1, 4)
+    (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 1, 5)
 
     # Objectives
     df_objs = DataFrames.DataFrame(objectives)
