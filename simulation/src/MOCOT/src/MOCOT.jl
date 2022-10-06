@@ -26,6 +26,7 @@ function simulation(
     w_con_ng:: Float64=0.0,
     w_with_nuc:: Float64=0.0,
     w_con_nuc:: Float64=0.0,
+    verbose_level:: Int64=1
 )
     """
     Simulation of water and energy system
@@ -39,6 +40,7 @@ function simulation(
     - `w_con_ng:: Float64`: Natural gas consumption weight
     - `w_with_nuc:: Float64`: Nuclear withdrawal weight
     - `w_con_nuc:: Float64`: Nuclear consumption weight
+    - `verbose_level:: Int64`: Level of output. Default is 1. Less is 0.
     """
     # Initialization
     d_total = length(exogenous["node_load"]) 
@@ -135,10 +137,17 @@ function simulation(
         )
 
         # Solve power system model
-        state["power"][string(d)] = PowerModels.optimize_model!(
-            pm,
-            optimizer=JuMP.optimizer_with_attributes(Ipopt.Optimizer, "print_level"=>0)
-        )
+        if verbose_level == 1
+            state["power"][string(d)] = PowerModels.optimize_model!(
+                pm,
+                optimizer=JuMP.optimizer_with_attributes(Ipopt.Optimizer)
+            )
+        elseif verbose_level == 0
+            state["power"][string(d)] = PowerModels.optimize_model!(
+                pm,
+                optimizer=JuMP.optimizer_with_attributes(Ipopt.Optimizer, "print_level"=>0)
+            )
+        end
 
         # Water use
         gen_beta_with, gen_beta_con, gen_discharge_violation = gen_water_use(
