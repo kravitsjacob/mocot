@@ -71,7 +71,7 @@ end
 @Test.testset "Test for generator water use with thermal limits" begin
     # Setup    
     air_temperature = 25.0
-    network_data = PowerModels.parse_file("src/julia/MOCOT/testing/case_ACTIVSg200.m")
+    network_data = PowerModels.parse_file("simulation/src/MOCOT/testing/case_ACTIVSg200.m")
     obj_names = ["1", "2", "3", "4", "5", "7", "8", "9", "10", "11", "12", "13", "21", "26", "27", "28", "29", "30", "32", "33", "34", "35", "36", "45", "46", "6", "22", "23", "24", "25", "31", "14", "15", "16", "17", "18", "19", "20", "37", "38", "39", "40", "41", "42", "43", "44", "48", "49", "47"]
 
     # Add custom network properties
@@ -134,7 +134,7 @@ end
 
     # Import static network
     h_total = 24
-    network_data = PowerModels.parse_file("src/julia/MOCOT/testing/case_ACTIVSg200.m")
+    network_data = PowerModels.parse_file("simulation/src/MOCOT/testing/case_ACTIVSg200.m")
     network_data_multi = PowerModels.replicate(network_data, h_total)
 
     # Create power system model
@@ -180,7 +180,7 @@ end
 
 @Test.testset "add_reliability_gens!" begin
     # Setup
-    network_data = PowerModels.parse_file("src/julia/MOCOT/testing/case_ACTIVSg200.m")
+    network_data = PowerModels.parse_file("simulation/src/MOCOT/testing/case_ACTIVSg200.m")
     
     # Add really big load
     network_data["load"]["1"]["pd"] = 100000.0
@@ -189,7 +189,8 @@ end
     network_data = MOCOT.update_all_gens!(network_data, "pmin", 0.0)
 
     # Add reliability
-    network_data = MOCOT.add_reliability_gens!(network_data)
+    voll = 330000.0  # $/pu for MISO
+    network_data = MOCOT.add_reliability_gens!(network_data, voll)
 
     # Solve OPF
     pm = PowerModels.instantiate_model(
