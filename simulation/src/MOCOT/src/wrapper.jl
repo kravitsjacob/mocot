@@ -1,6 +1,7 @@
 import Dates
 import CSV
 import YAML
+import PowerModels
 
 import MOCOT
 
@@ -32,11 +33,19 @@ function borg_simulation_wrapper(
     - `w_with_nuc:: Float64`: Nuclear withdrawal weight
     - `w_con_nuc:: Float64`: Nuclear consumption weight
     - `output_type:: Int64`: Return code. 1 is for standard Borg output. 2 is for returning states and objectives
-    - `verbose_level:: Int64`: Level of output. Default is 1. Less is 0.
+    - `verbose_level:: Int64`: Level of stdout printing. Default is 1. Less is 0.
     - `scenario_code:: Int64`: Scenario code. See update_scenario! for codes
     """
     # Setup
     objective_array = Float64[]
+
+    # Setting verbose
+    logger = Memento.getlogger("PowerModels")
+    if verbose_level == 1
+        Memento.setlevel!(logger, "info")
+    elseif verbose_level == 0
+        Memento.setlevel!(logger, "error")
+    end
 
     # Import
     paths = YAML.load_file("paths.yml")
