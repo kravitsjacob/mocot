@@ -60,7 +60,6 @@ int main(int argc, char* argv[])
     char runtime[256];
     FILE *fp;
     char path_to_runtime[50] = "io/outputs/states/scenario_0_runtime.txt";  // 0 replaced with scenario code
-    char path_to_front[50] = "io/outputs/front/scenario_0_front.txt";  // 0 replaced with scenario code
 
     // Scenario code parsing
     if (argc == 1){  // All generators scenario by default
@@ -73,7 +72,6 @@ int main(int argc, char* argv[])
 
     // Setting output paths
     path_to_runtime[27] = scenario_code_char[0];
-    path_to_front[26] = scenario_code_char[0];
 
     // Setup julia
     jl_init();
@@ -126,10 +124,7 @@ int main(int argc, char* argv[])
     // Print the Pareto optimal solutions to the screen.
     if (result != NULL)
     {
-        fp = fopen(path_to_front, "w+");
-        BORG_Archive_print(result, fp);
         BORG_Archive_destroy(result);
-        fclose(fp);
     }
 
 	// Shutdown the parallel processes and exit.
