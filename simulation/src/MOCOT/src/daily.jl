@@ -7,7 +7,7 @@ function once_through_withdrawal(;
     delta_t:: Float64,
     beta_proc:: Float64,
     rho_w=1.0,
-    c_p=0.04184,
+    c_p=0.004184,
 )
     """
     Once through withdrawal model
@@ -18,10 +18,10 @@ function once_through_withdrawal(;
     - `delta_t:: Float64`: Inlet/outlet water temperature difference in C
     - `beta_proc:: Float64`: Non-cooling rate in L/MWh
     - `rho_w=1.0`: Desnity of Water kg/L, by default 1.0
-    - `c_p=0.04184`: Specific head of water in MJ/(kg-K), by default 0.04184
+    - `c_p=0.004184`: Specific head of water in MJ/(kg-K), by default 0.004184
     """
-    efficiency = 3600 * (1-eta_net-k_os) / eta_net
-    physics = 1 / (rho_w*c_p*delta_t)
+    efficiency = 3600.0 * (1.0-eta_net-k_os) / eta_net
+    physics = 1.0 / (rho_w*c_p*delta_t)
     beta_with = efficiency * physics + beta_proc
 
     return beta_with
@@ -33,7 +33,7 @@ function once_through_withdrawal_for_delta(;
     beta_with_limit:: Float64,
     beta_proc:: Float64,
     rho_w=1.0,
-    c_p=0.04184,
+    c_p=0.004184,
 )
     """
     Once through withdrawal model solving for delta T
@@ -44,12 +44,12 @@ function once_through_withdrawal_for_delta(;
     - `beta_with_limit:: Float64`: Withdrawal limit
     - `beta_proc:: Float64`: Non-cooling rate in L/MWh
     - `rho_w=1.0`: Desnity of Water kg/L, by default 1.0
-    - `c_p=0.04184`: Specific head of water in MJ/(kg-K), by default 0.04184
+    - `c_p=0.004184`: Specific head of water in MJ/(kg-K), by default 0.004184
     """
 
-    efficiency = 3600 * (1-eta_net-k_os) / eta_net
-    physics = 1 / (rho_w*c_p)
-    water_use = 1 / (beta_with_limit - beta_proc)
+    efficiency = 3600.0 * (1.0-eta_net-k_os) / eta_net
+    physics = 1.0 / (rho_w*c_p)
+    water_use = 1.0 / (beta_with_limit - beta_proc)
     delta_t = water_use * physics * efficiency
 
     return delta_t
@@ -367,22 +367,56 @@ function gen_water_use(
 end
 
 
+function once_through_water_use(
+    inlet_temperature:: Float64,
+    regulatory_temperature:: Float64,
+    k_os:: Float64,
+    beta_proc:: Float64,
+    eta_net:: Float64,
+)
+    delta_t = 10.0
+
+    if inlet_temperature + delta_t > regulatory_temperature  # Causes violation
+        delta_t = regulatory_temperature - inlet_temperature  # Try to prevent
+    end
+
+    # Water models
+    beta_with = once_through_withdrawal(
+        eta_net=eta_net,
+        k_os=k_os,
+        delta_t=delta_t,
+        beta_proc=beta_proc
+    )
+    beta_con = once_through_consumption(
+        eta_net=eta_net,
+        k_os=k_os,
+        delta_t=delta_t,
+        beta_proc=beta_proc
+    )
+
+    return beta_with, beta_con, delta_t
+end
+
+
+
 function water_use(
     water_temperature:: Float64,
     air_temperature:: Float64,
     fuel:: String,
     cool:: String,
-    eta_net:: Float64
+    eta_net:: Float64,
+    regulatory_temperature:: Float64
 )
     """
     Water use model
 
     # Arguments
     - `water_temperature:: Float64`: Water temperature in C
-    - `air_temperature:: Float64`: Dry bulb temperature of inlet air C
+    - `air_temperature:: Float64`: Dry bulb temperature of inlet air in C
     - `fuel:: String`: Fuel type
     - `cool:: String`: Cooling system type
     - `eta_net:: Float64`: Ratio of electricity generation rate to thermal input
+    - `regulatory_temperature:: Float64`: Regulatory temperature in C
     """
     # Get coefficients
     k_os = get_k_os(fuel)
@@ -391,8 +425,8 @@ function water_use(
     # Run simulation
     if cool == "OC"
         # Delta t processing
-        max_temp = 33.7
-        delta_t = max_temp - water_temperature
+        reg_temp = 33.7
+        delta_t = regulatory_temperature - water_temperature
 
         # Water models
         beta_with = once_through_withdrawal(
