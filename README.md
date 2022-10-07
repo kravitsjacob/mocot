@@ -5,6 +5,10 @@ Multi-Objective Coordination of Thermoelectric Water Use
 1) Install the python package `$ pip install --editable ./preprocessing/.`
 2) Run the analysis`$ python preprocessing/preprocessing.py`
 
+# Simulation Tests
+1) Activate julia `$ julia --project=simulation\src\MOCOT`
+2) Run tests `julia> include("simulation/src/MOCOT/testing/test.jl")`
+
 # Single Simulation Run (Debugging/Development)
 1) Activate julia `$ julia`
 2) Activate analysis `julia> using Pkg; Pkg.activate("simulation")`
@@ -14,10 +18,6 @@ for every bug:
   * Run `using Infiltrator` to add debugging functionality.
   * Set breakpoint where appropriate using `@Infiltrator.infiltrate` be sure to `import Infiltrator` at the top of development packages. Note, it will throw a warning as it thinks you are adding a not-included dependency.
   * Evaluate using `include("simulation/single_simulation.jl")`
-
-# Simulation Tests
-1) Activate julia `$ julia --project=simulation\src\MOCOT`
-2) Run tests `julia> include("simulation/src/MOCOT/testing/test.jl")`
 
 # Single Simulation Run in C (Debugging/Development)
 1) Download julia and make sure the path is reflected in `optimization/makefile`
