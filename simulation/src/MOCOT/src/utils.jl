@@ -242,7 +242,11 @@ function get_objectives(
     objectives["f_cos_tot"] =  objectives["f_gen"] + withdrawal_cost + consumtion_cost
 
     # Compute discharge violation objectives
-    objectives["f_disvi_tot"] = DataFrames.sum(df_discharge_violation_states[!, "discharge_violation"])
+    if length(df_discharge_violation_states[!, "discharge_violation"]) > 0
+        objectives["f_disvi_tot"] = DataFrames.sum(df_discharge_violation_states[!, "discharge_violation"])
+    else
+        objectives["f_disvi_tot"] = 0.0
+    end
 
     # Compute emission objectives
     df_emit = DataFrames.leftjoin(

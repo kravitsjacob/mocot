@@ -1,4 +1,4 @@
-# Single evaluation of simulation, useful for debugging
+# Evaluations of simulation, useful for debugging
 
 # Dev packages
 using Revise
@@ -15,12 +15,14 @@ function main()
     # Setup
     paths = YAML.load_file("paths.yml")
 
-    # Simulation with all scenarios
-    (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 1, 1)
-    (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 1, 2)
-    (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 1, 3)
-    (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 1, 4)
-    (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 1, 5)
+    # Simulation with all generators
+    (objectives, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 1, 1)
+
+    # Simulation with high water air and water tempeartures
+    (objectives, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 5)
+
+    # Simulation with high water air and water tempeartures with weights
+    (objectives, state) = MOCOT.borg_simulation_wrapper(1000.0, 1000.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 5)
 
     # Objectives
     df_objs = DataFrames.DataFrame(objectives)

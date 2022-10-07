@@ -94,9 +94,11 @@ function simulation(
     # Initialize water use based on 25.0 C
     water_temperature = 25.0
     air_temperature = 25.0
-    gen_beta_with, gen_beta_con = gen_water_use(
+    regulatory_temperature = 33.7  # For Illinois
+    gen_beta_with, gen_beta_con = gen_water_use_wrapper(
         water_temperature,
         air_temperature,
+        regulatory_temperature,
         network_data,
     )
     state["withdraw_rate"]["0"] = gen_beta_with
@@ -150,9 +152,10 @@ function simulation(
         end
 
         # Water use
-        gen_beta_with, gen_beta_con, gen_discharge_violation = gen_water_use(
+        gen_beta_with, gen_beta_con, gen_discharge_violation = gen_water_use_wrapper(
             exogenous["water_temperature"][string(d)],
             exogenous["air_temperature"][string(d)],
+            regulatory_temperature,
             network_data,
         )
         state["discharge_violation"][string(d)] = gen_discharge_violation
