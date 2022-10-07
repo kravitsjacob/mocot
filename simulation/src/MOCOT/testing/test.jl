@@ -115,63 +115,63 @@ end
     @Test.test isapprox(beta_con, 1798.6, atol=1)
 end
 
+@Test.testset "Test for generator water use with thermal limits" begin
+    # Setup
+    air_temperature = 25.0
+    regulatory_temperature = 33.7
+    network_data = PowerModels.parse_file("simulation/src/MOCOT/testing/case_ACTIVSg200.m")
+    obj_names = ["1", "2", "3", "4", "5", "7", "8", "9", "10", "11", "12", "13", "21", "26", "27", "28", "29", "30", "32", "33", "34", "35", "36", "45", "46", "6", "22", "23", "24", "25", "31", "14", "15", "16", "17", "18", "19", "20", "37", "38", "39", "40", "41", "42", "43", "44", "48", "49", "47"]
 
-# @Test.testset "Test for generator water use with thermal limits" begin
-#     # Setup    
-#     air_temperature = 25.0
-#     network_data = PowerModels.parse_file("simulation/src/MOCOT/testing/case_ACTIVSg200.m")
-#     obj_names = ["1", "2", "3", "4", "5", "7", "8", "9", "10", "11", "12", "13", "21", "26", "27", "28", "29", "30", "32", "33", "34", "35", "36", "45", "46", "6", "22", "23", "24", "25", "31", "14", "15", "16", "17", "18", "19", "20", "37", "38", "39", "40", "41", "42", "43", "44", "48", "49", "47"]
+    # Add custom network properties
+    network_data = MOCOT.add_prop!(
+        network_data,
+        "gen",
+        "cus_heat_rate",
+        obj_names,
+        [0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.3236270511239685]
+    )
+    network_data = MOCOT.add_prop!(
+        network_data,
+        "gen",
+        "cus_fuel",
+        obj_names,
+        ["coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "wind", "wind", "wind", "wind", "wind", "wind", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "nuclear"]
+    )
+    network_data = MOCOT.add_prop!(
+        network_data,
+        "gen",
+        "cus_cool",
+        obj_names,
+        ["OC", "OC", "OC", "OC", "OC", "RI", "RI", "RI", "RI", "RI", "RI", "RI", "OC", "OC", "OC", "OC", "RC", "RC", "OC", "OC", "OC", "OC", "OC", "OC", "OC", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "RI", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "RI", "RI", "RC"]
+    )
 
-#     # Add custom network properties
-#     network_data = MOCOT.add_prop!(
-#         network_data,
-#         "gen",
-#         "cus_heat_rate",
-#         obj_names,
-#         [0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.3236270511239685]
-#     )
-#     network_data = MOCOT.add_prop!(
-#         network_data,
-#         "gen",
-#         "cus_fuel",
-#         obj_names,
-#         ["coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "wind", "wind", "wind", "wind", "wind", "wind", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "nuclear"]
-#     )
-#     network_data = MOCOT.add_prop!(
-#         network_data,
-#         "gen",
-#         "cus_cool",
-#         obj_names,
-#         ["OC", "OC", "OC", "OC", "OC", "RI", "RI", "RI", "RI", "RI", "RI", "RI", "OC", "OC", "OC", "OC", "RC", "RC", "OC", "OC", "OC", "OC", "OC", "OC", "OC", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "RI", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "RI", "RI", "RC"]
-#     )
+    # Set limits
+    network_data["gen"]["1"]["cus_with_limit"] = 190000.0
+    network_data["gen"]["1"]["cus_con_limit"] = 400.0
 
-#     # Set limits
-#     network_data["gen"]["1"]["cus_with_limit"] = 190000.0
-#     network_data["gen"]["1"]["cus_con_limit"] = 400.0
+    # No violations
+    inlet_temperature = 25.0
+    gen_beta_with, gen_beta_con, gen_discharge_violation = MOCOT.gen_water_use_wrapper(
+        inlet_temperature,
+        air_temperature,
+        regulatory_temperature,
+        network_data
+    )
+    @Test.test isapprox(gen_beta_with["1"], 167495.7, atol=1)
+    @Test.test isapprox(gen_beta_con["1"], 367.2, atol=1)
 
-#     # Test for limits enforced
-#     water_temperature = 33.6
-#     gen_beta_with, gen_beta_con, gen_discharge_violation = MOCOT.gen_water_use(
-#         water_temperature,
-#         air_temperature,
-#         network_data
-#     )
-#     @Test.test isapprox(gen_discharge_violation["1"], 1.45, atol=1)
-#     @Test.test isapprox(gen_beta_with["1"], 190000.0, atol=1)
-#     @Test.test isapprox(gen_beta_con["1"], 1200.0, atol=1)
-
-#     # Test for limits not enforced
-#     water_temperature = 25.0
-#     gen_beta_with, gen_beta_con, gen_discharge_violation = MOCOT.gen_water_use(
-#         water_temperature,
-#         air_temperature,
-#         network_data
-#     )
-#     @Test.test isapprox(gen_discharge_violation["1"], 0.0, atol=1)
-#     @Test.test isapprox(gen_beta_with["1"], 16929.6, atol=1)
-#     @Test.test isapprox(gen_beta_con["1"], 367.3, atol=1)
-
-# end
+    # Discharge temperature violation
+    inlet_temperature = 27.0
+    gen_beta_with, gen_beta_con, gen_discharge_violation = MOCOT.gen_water_use_wrapper(
+        inlet_temperature,
+        air_temperature,
+        regulatory_temperature,
+        network_data
+    )
+    @Test.test isapprox(gen_beta_with["1"], 190000.0, atol=1)
+    @Test.test isapprox(gen_beta_con["1"], 400.0, atol=1)
+    @Test.test isapprox(gen_discharge_violation["1"], 0.968, atol=1)
+end
 
 @Test.testset "Test for add_linear_obj_terms!" begin
     # Setup
