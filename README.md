@@ -15,6 +15,10 @@ for every bug:
   * Set breakpoint where appropriate using `@Infiltrator.infiltrate` be sure to `import Infiltrator` at the top of development packages. Note, it will throw a warning as it thinks you are adding a not-included dependency.
   * Evaluate using `include("simulation/single_simulation.jl")`
 
+# Simulation Tests
+1) Activate julia `$ julia --project=simulation\src\MOCOT`
+2) Run tests `julia> include("simulation/src/MOCOT/testing/test.jl")`
+
 # Single Simulation Run in C (Debugging/Development)
 1) Download julia and make sure the path is reflected in `optimization/makefile`
 2) Activate julia `$ julia simulation/julia_config.jl`
