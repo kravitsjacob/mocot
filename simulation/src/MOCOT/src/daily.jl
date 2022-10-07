@@ -85,39 +85,6 @@ function once_through_consumption(;
     return beta_con
 end
 
-
-function once_through_consumption_for_delta(;
-    eta_net:: Float64,
-    k_os:: Float64,
-    beta_con_limit:: Float64,
-    beta_proc:: Float64,
-    k_de=0.01,
-    rho_w=1.0,
-    c_p=0.04184,
-)
-    """
-    Once through consumption model
-
-    # Arguments
-    - `eta_net:: Float64`: Ratio of electricity generation rate to thermal input
-    - `k_os:: Float64`: Thermal input lost to non-cooling system sinks
-    - `beta_con_limit:: Float64`: Consumption rate limit
-    - `beta_proc:: Float64`: Non-cooling rate in L/MWh
-    - `k_de:: Float64`: Downstream evaporation, by default 0.01
-    - `rho_w:: Float64`: Desnity of Water kg/L, by default 1.0
-    - `c_p:: Float64`: Specific heat of water in MJ/(kg-K), by default 0.04184
-    """
-    # Model
-
-    efficiency = 3600 * (1-eta_net-k_os) / eta_net
-    physics = k_de / (rho_w*c_p)
-    water_use = 1 / (beta_con_limit - beta_proc)
-    delta_t = water_use * physics * efficiency
-
-    return delta_t
-end
-
-
 function recirculating_withdrawal(;
     eta_net:: Float64,
     k_os:: Float64,
@@ -376,6 +343,18 @@ function once_through_water_use(
     beta_with_limit:: Float64,
     beta_con_limit:: Float64,    
 )
+    """
+    Once through water use (withdrawal and consumption)
+
+    # Arguments
+    - `inlet_temperature:: Float64`: Inlet water temperature in C
+    - `regulatory_temperature:: Float64`: Regulatory water temperature in C
+    - `k_os:: Float64`: Thermal input lost to non-cooling system sinks
+    - `beta_proc:: Float64`: Non-cooling rate in L/MWh
+    - `eta_net:: Float64`: Ratio of electricity generation rate to thermal input
+    - `beta_with_limit:: Float64`: Withdrawal limit in L/MWh
+    - `beta_con_limit:: Float64`: Consumption limit in L/MWh
+    """
     delta_t = 10.0
 
     if inlet_temperature + delta_t > regulatory_temperature  # Causes violation
@@ -414,7 +393,44 @@ function once_through_water_use(
     return beta_with, beta_con, delta_t
 end
 
+function recirculating_water_use(
+    air_temperature,
+    eta_net, 
+    k_os, 
+    beta_proc, 
+    eta_cc=5
+)
+    """
+    Recirculating water use (withdrawal and consumption)
 
+    # Arguments
+    - `air_temperature:: Float64`: Air temperature in C
+    - `eta_net:: Float64`: Ratio of electricity generation rate to thermal input
+    - `k_os:: Float64`: Thermal input lost to non-cooling system sinks
+    - `beta_proc:: Float64`: Non-cooling rate in L/MWh
+    - `eta_cc:: Int64`: Number of cooling cycles between 2 and 10
+    """
+    # Get k_sens
+    k_sens = get_k_sens(air_temperature)
+
+    # Water models
+    beta_with = recirculating_withdrawal(
+        eta_net=eta_net, 
+        k_os=k_os, 
+        beta_proc=beta_proc, 
+        eta_cc=eta_cc, 
+        k_sens=k_sens
+    )
+    beta_con = recirculating_consumption(
+        eta_net=eta_net,
+        k_os=k_os,
+        beta_proc=beta_proc,
+        eta_cc=eta_cc,
+        k_sens=k_sens,
+    )
+
+    return beta_with, beta_con
+end
 
 function water_use(
     water_temperature:: Float64,
