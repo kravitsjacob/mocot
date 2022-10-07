@@ -358,9 +358,10 @@ function themal_limits(
     return beta_with, beta_con, delta_t
 end
 
-function gen_water_use(
-    water_temperature:: Float64,
+function gen_water_use_wrapper(
+    inlet_temperature:: Float64,
     air_temperature:: Float64,
+    regulatory_temperature:: Float64,
     network_data:: Dict
 )
     """
@@ -369,6 +370,7 @@ function gen_water_use(
     # Arguments
     - `water_temperature:: Float64`: Water temperature in C
     - `air_temperature:: Float64`: Dry bulb temperature of inlet air C
+    - `regulatory_temperature:: Float64`: Regulatory discharge tempearture in C
     - `network_data:: Dict`: PowerModels network data
     """
     # Initialization
@@ -379,38 +381,61 @@ function gen_water_use(
     # Water use for each generator
     for (obj_name, obj_props) in network_data["gen"]
         try
+            # Get generator information
             cool = obj_props["cus_cool"]
             fuel = obj_props["cus_fuel"]
             eta_net = obj_props["cus_heat_rate"]
 
-            beta_with, beta_con = MOCOT.water_use(
-                water_temperature,
-                air_temperature,
-                fuel,
-                cool,
-                eta_net
-            )
+            # Get coefficients
+            k_os = get_k_os(fuel)
+            beta_proc = get_beta_proc(fuel)
 
+            # Run water models
             if cool == "OC"
-                delta_t = 0.0
+
+                # Defaults (No limits set)
+                beta_with_limit = 1.0e10
+                beta_con_limit = 1.0e10
+
+                # Extract properties
                 try
-                    k_os = get_k_os(fuel)
-                    beta_proc = get_beta_proc(fuel)
-                    beta_with, beta_con, delta_t = themal_limits(
-                        beta_with,
-                        obj_props["cus_with_limit"],
-                        beta_con,
-                        obj_props["cus_con_limit"],
-                        k_os,
-                        beta_proc,
-                        eta_net
-                    )
+                    beta_with_limit = obj_props["cus_with_limit"]
+                    beta_con_limit = obj_props["cus_con_limit"]
                 catch
-                    println("Missing water use rate limits for generator $obj_name")
+                    println("No water use limits specified for generator $obj_name, setting to infinity")
                 end
-                gen_discharge_violation[obj_name] = delta_t
+
+                # Run water simulation
+                beta_with, beta_con, delta_t = MOCOT.once_through_water_use(
+                    inlet_temperature,
+                    regulatory_temperature,
+                    k_os,
+                    beta_proc,
+                    eta_net,
+                    beta_with_limit,
+                    beta_con_limit
+                )
+
+                # Store violation
+                outlet_temperature = inlet_temperature + delta_t
+                violation = outlet_temperature - regulatory_temperature
+                if violation > 0.0
+                    gen_discharge_violation[obj_name] = violation
+                end
+            elseif cool == "RC" || cool == "RI"
+                # Run water simulation
+                beta_with, beta_con = MOCOT.recirculating_water_use(
+                    air_temperature,
+                    eta_net, 
+                    k_os, 
+                    beta_proc,
+                )
+            elseif cool == "No Cooling System"
+                beta_with = 0.0
+                beta_con = 0.0
             end
 
+            # Store
             gen_beta_with[obj_name] = beta_with
             gen_beta_con[obj_name] = beta_con
         catch
@@ -423,7 +448,6 @@ function gen_water_use(
                 # Skip water use as it's a relaibility generator
             end
         end
-
     end
 
     return gen_beta_with, gen_beta_con, gen_discharge_violation
