@@ -56,8 +56,9 @@ end
         beta_proc,
         eta_net,
     )
-    # @Test.test isapprox(beta_with, 16929.0, atol=1)
-    # @Test.test isapprox(beta_con, 367.0, atol=1)
+    @Test.test isapprox(beta_with, 143603.4, atol=1)
+    @Test.test isapprox(beta_con, 343.4, atol=1)
+    @Test.test isapprox(delta_t, 10.0, atol=1)
 
     # # Recirculating coal
     # fuel = "coal"
