@@ -21,7 +21,7 @@ function main()
     # Simulation with high water air and water tempeartures
     (objectives, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 5)
 
-    # Simulation with high water air and water tempeartures with weights
+    # Simulation with high water air and water tempertures with weights
     (objectives, state) = MOCOT.borg_simulation_wrapper(1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 5)
 
     # Objectives
@@ -47,12 +47,12 @@ function main()
         df_discharge_violation_states
     )
 
-    # # Run all scenarios
-    # (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 0, 1)
-    # (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 0, 2)
-    # (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 0, 3)
-    # (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 0, 4)
-    # (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 0, 5)
+    # Run all scenarios
+    (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 0, 1)
+    (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 0, 2)
+    (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 0, 3)
+    (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 0, 4)
+    (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 0, 5)
 
 end
 
