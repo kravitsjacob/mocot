@@ -68,10 +68,6 @@ end
 
     # Delta t but no limit
     inlet_temperature = 25.0
-    regulatory_temperature = 33.7
-    k_os = 0.12
-    beta_proc = 200.0
-    eta_net = 0.33
     beta_with, beta_con, delta_t = MOCOT.once_through_water_use(
         inlet_temperature,
         regulatory_temperature,
@@ -85,22 +81,20 @@ end
     @Test.test isapprox(beta_con, 364.8, atol=1)
     @Test.test isapprox(delta_t, 8.7, atol=1)
 
-    @Infiltrator.infiltrate
-
-
-    # # Recirculating coal
-    # fuel = "coal"
-    # cool = "RC"
-    # beta_with, beta_con = MOCOT.water_use(air_temperature, water_temperature, fuel, cool, 0.32694518972786507)
-    # @Test.test isapprox(beta_with, 2855.0, atol=1)
-    # @Test.test isapprox(beta_con, 2324.0, atol=1)
-
-    # # Recirculating nuclear
-    # fuel = "nuclear"
-    # cool = "RC"
-    # beta_with, beta_con = MOCOT.water_use(air_temperature, water_temperature, fuel, cool, 0.3236270511239685)
-    # @Test.test isapprox(beta_with, 3290.0, atol=1)
-    # @Test.test isapprox(beta_con, 2634.0, atol=1)
+    # Delta with limits (temperature violations)
+    inlet_temperature = 27.0
+    beta_with, beta_con, delta_t = MOCOT.once_through_water_use(
+        inlet_temperature,
+        regulatory_temperature,
+        k_os,
+        beta_proc,
+        eta_net,
+        beta_with_limit,
+        beta_con_limit
+    )
+    @Test.test isapprox(beta_with, 190000.0, atol=1)
+    @Test.test isapprox(beta_con, 400.0, atol=1)
+    @Test.test isapprox(delta_t, 7.6, atol=1)
 end
 
 # @Test.testset "Test for generator water use with thermal limits" begin
