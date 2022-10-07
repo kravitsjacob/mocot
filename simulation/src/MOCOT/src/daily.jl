@@ -30,7 +30,7 @@ end
 function once_through_withdrawal_for_delta(;
     eta_net:: Float64,
     k_os:: Float64,
-    beta_with_limit:: Float64,
+    beta_with:: Float64,
     beta_proc:: Float64,
     rho_w=1.0,
     c_p=0.004184,
@@ -41,7 +41,7 @@ function once_through_withdrawal_for_delta(;
     # Arguments
     - `eta_net:: Float64`: Ratio of electricity generation rate to thermal input
     - `k_os:: Float64`: Thermal input lost to non-cooling system sinks
-    - `beta_with_limit:: Float64`: Withdrawal limit
+    - `beta_with:: Float64`: Withdrawal limit
     - `beta_proc:: Float64`: Non-cooling rate in L/MWh
     - `rho_w=1.0`: Desnity of Water kg/L, by default 1.0
     - `c_p=0.004184`: Specific head of water in MJ/(kg-K), by default 0.004184
@@ -49,7 +49,7 @@ function once_through_withdrawal_for_delta(;
 
     efficiency = 3600.0 * (1.0-eta_net-k_os) / eta_net
     physics = 1.0 / (rho_w*c_p)
-    water_use = 1.0 / (beta_with_limit - beta_proc)
+    water_use = 1.0 / (beta_with - beta_proc)
     delta_t = water_use * physics * efficiency
 
     return delta_t
@@ -395,6 +395,21 @@ function once_through_water_use(
         delta_t=delta_t,
         beta_proc=beta_proc
     )
+    
+    # If beta limits hit
+    if (beta_with > beta_with_limit) || (beta_con > beta_con_limit)
+        # Set to limits
+        beta_with = beta_with_limit
+        beta_con = beta_con_limit
+
+        # Solve for temperature
+        delta_t = once_through_withdrawal_for_delta(
+            eta_net=eta_net,
+            k_os=k_os,
+            beta_with=beta_with,
+            beta_proc=beta_proc
+        )
+    end
 
     return beta_with, beta_con, delta_t
 end
