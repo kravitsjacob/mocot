@@ -204,136 +204,6 @@ function get_k_sens(t_inlet:: Float64)
     return k_sens
 end
 
-
-function themal_limits(
-    beta_with:: Float64,
-    beta_with_limit:: Float64,
-    beta_con:: Float64,
-    beta_con_limit:: Float64,
-    k_os:: Float64,
-    beta_proc:: Float64,
-    eta_net:: Float64
-)
-    """
-    Thermal discharge limits model
-
-    # Arguments
-    - `beta_with:: Float64`: Withdrawal rate in L/MWh
-    - `beta_with_limit:: Float64`: Withdrawal limit in L/MWh
-    - `beta_con:: Float64`: Consumption rate in L/MWh
-    - `beta_con_limit:: Float64`: Consumption limit in L/MWh
-    - `k_os:: Float64`: Thermal input lost to non-cooling system sinks
-    - `beta_proc:: Float64`: Non-cooling rate in L/MWh
-    - `eta_net:: Float64`: Ratio of electricity generation rate to thermal input
-    """
-    delta_t_con = 0.0
-    delta_t_with = 0.0
-
-    # Withdrawal limits
-    if beta_with >= beta_with_limit
-        beta_with = beta_with_limit
-
-        # Solve for delta t
-        delta_t_with = once_through_withdrawal_for_delta(
-            eta_net=eta_net,
-            k_os=k_os,
-            beta_with_limit=beta_with,
-            beta_proc=beta_proc
-        )
-    end
-
-    # Consumption limits
-    if beta_con >= beta_con_limit
-        beta_con = beta_con_limit
-        
-        # Solve for delta t
-        delta_t_con = once_through_consumption_for_delta(
-            eta_net=eta_net,
-            k_os=k_os,
-            beta_con_limit=beta_con,
-            beta_proc=beta_proc
-        )
-    end
-
-    # Discharge temperature
-    delta_t = max(delta_t_con, delta_t_with)
-
-    return beta_with, beta_con, delta_t
-end
-
-
-function gen_water_use(
-    water_temperature:: Float64,
-    air_temperature:: Float64,
-    network_data:: Dict
-)
-    """
-    Run water use model for every generator
-    
-    # Arguments
-    - `water_temperature:: Float64`: Water temperature in C
-    - `air_temperature:: Float64`: Dry bulb temperature of inlet air C
-    - `network_data:: Dict`: PowerModels network data
-    """
-    # Initialization
-    gen_beta_with = Dict{String, Float64}()
-    gen_beta_con = Dict{String, Float64}()
-    gen_discharge_violation = Dict{String, Float64}()
-
-    # Water use for each generator
-    for (obj_name, obj_props) in network_data["gen"]
-        try
-            cool = obj_props["cus_cool"]
-            fuel = obj_props["cus_fuel"]
-            eta_net = obj_props["cus_heat_rate"]
-
-            beta_with, beta_con = MOCOT.water_use(
-                water_temperature,
-                air_temperature,
-                fuel,
-                cool,
-                eta_net
-            )
-
-            if cool == "OC"
-                delta_t = 0.0
-                try
-                    k_os = get_k_os(fuel)
-                    beta_proc = get_beta_proc(fuel)
-                    beta_with, beta_con, delta_t = themal_limits(
-                        beta_with,
-                        obj_props["cus_with_limit"],
-                        beta_con,
-                        obj_props["cus_con_limit"],
-                        k_os,
-                        beta_proc,
-                        eta_net
-                    )
-                catch
-                    println("Missing water use rate limits for generator $obj_name")
-                end
-                gen_discharge_violation[obj_name] = delta_t
-            end
-
-            gen_beta_with[obj_name] = beta_with
-            gen_beta_con[obj_name] = beta_con
-        catch
-            # Check if reliabilty generator
-            try
-                if obj_name not in network_data["reliability_gen"]
-                    println("Water use not computed for generator $obj_name")
-                end
-            catch
-                # Skip water use as it's a relaibility generator
-            end
-        end
-
-    end
-
-    return gen_beta_with, gen_beta_con, gen_discharge_violation
-end
-
-
 function once_through_water_use(
     inlet_temperature:: Float64,
     regulatory_temperature:: Float64,
@@ -430,6 +300,133 @@ function recirculating_water_use(
     )
 
     return beta_with, beta_con
+end
+
+function themal_limits(
+    beta_with:: Float64,
+    beta_with_limit:: Float64,
+    beta_con:: Float64,
+    beta_con_limit:: Float64,
+    k_os:: Float64,
+    beta_proc:: Float64,
+    eta_net:: Float64
+)
+    """
+    Thermal discharge limits model
+
+    # Arguments
+    - `beta_with:: Float64`: Withdrawal rate in L/MWh
+    - `beta_with_limit:: Float64`: Withdrawal limit in L/MWh
+    - `beta_con:: Float64`: Consumption rate in L/MWh
+    - `beta_con_limit:: Float64`: Consumption limit in L/MWh
+    - `k_os:: Float64`: Thermal input lost to non-cooling system sinks
+    - `beta_proc:: Float64`: Non-cooling rate in L/MWh
+    - `eta_net:: Float64`: Ratio of electricity generation rate to thermal input
+    """
+    delta_t_con = 0.0
+    delta_t_with = 0.0
+
+    # Withdrawal limits
+    if beta_with >= beta_with_limit
+        beta_with = beta_with_limit
+
+        # Solve for delta t
+        delta_t_with = once_through_withdrawal_for_delta(
+            eta_net=eta_net,
+            k_os=k_os,
+            beta_with_limit=beta_with,
+            beta_proc=beta_proc
+        )
+    end
+
+    # Consumption limits
+    if beta_con >= beta_con_limit
+        beta_con = beta_con_limit
+        
+        # Solve for delta t
+        delta_t_con = once_through_consumption_for_delta(
+            eta_net=eta_net,
+            k_os=k_os,
+            beta_con_limit=beta_con,
+            beta_proc=beta_proc
+        )
+    end
+
+    # Discharge temperature
+    delta_t = max(delta_t_con, delta_t_with)
+
+    return beta_with, beta_con, delta_t
+end
+
+function gen_water_use(
+    water_temperature:: Float64,
+    air_temperature:: Float64,
+    network_data:: Dict
+)
+    """
+    Run water use model for every generator
+    
+    # Arguments
+    - `water_temperature:: Float64`: Water temperature in C
+    - `air_temperature:: Float64`: Dry bulb temperature of inlet air C
+    - `network_data:: Dict`: PowerModels network data
+    """
+    # Initialization
+    gen_beta_with = Dict{String, Float64}()
+    gen_beta_con = Dict{String, Float64}()
+    gen_discharge_violation = Dict{String, Float64}()
+
+    # Water use for each generator
+    for (obj_name, obj_props) in network_data["gen"]
+        try
+            cool = obj_props["cus_cool"]
+            fuel = obj_props["cus_fuel"]
+            eta_net = obj_props["cus_heat_rate"]
+
+            beta_with, beta_con = MOCOT.water_use(
+                water_temperature,
+                air_temperature,
+                fuel,
+                cool,
+                eta_net
+            )
+
+            if cool == "OC"
+                delta_t = 0.0
+                try
+                    k_os = get_k_os(fuel)
+                    beta_proc = get_beta_proc(fuel)
+                    beta_with, beta_con, delta_t = themal_limits(
+                        beta_with,
+                        obj_props["cus_with_limit"],
+                        beta_con,
+                        obj_props["cus_con_limit"],
+                        k_os,
+                        beta_proc,
+                        eta_net
+                    )
+                catch
+                    println("Missing water use rate limits for generator $obj_name")
+                end
+                gen_discharge_violation[obj_name] = delta_t
+            end
+
+            gen_beta_with[obj_name] = beta_with
+            gen_beta_con[obj_name] = beta_con
+        catch
+            # Check if reliabilty generator
+            try
+                if obj_name not in network_data["reliability_gen"]
+                    println("Water use not computed for generator $obj_name")
+                end
+            catch
+                # Skip water use as it's a relaibility generator
+            end
+        end
+
+    end
+
+    return gen_beta_with, gen_beta_con, gen_discharge_violation
 end
 
 function water_use(
