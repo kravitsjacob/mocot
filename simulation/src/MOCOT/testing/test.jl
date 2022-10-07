@@ -97,6 +97,25 @@ end
     @Test.test isapprox(delta_t, 7.6, atol=1)
 end
 
+@Test.testset "Test for recirculating_water_use" begin
+    # Setup
+    air_temperature=25.0
+    k_os = 0.20
+    beta_proc = 10.0
+    eta_net = 0.33
+
+    # Cold case 
+    beta_with, beta_con = MOCOT.recirculating_water_use(
+        air_temperature,
+        eta_net, 
+        k_os, 
+        beta_proc,
+    )
+    @Test.test isapprox(beta_with, 2245.7, atol=1)
+    @Test.test isapprox(beta_con, 1798.6, atol=1)
+end
+
+
 # @Test.testset "Test for generator water use with thermal limits" begin
 #     # Setup    
 #     air_temperature = 25.0
