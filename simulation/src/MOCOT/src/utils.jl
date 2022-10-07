@@ -189,6 +189,9 @@ function get_objectives(
     df_power_states = df_all_power_states[.!reliability_gen_rows, :]
     df_discharge_violation_states = MOCOT.custom_state_df(state, "discharge_violation")
 
+    # Round power output from solver
+    df_power_states.pg = round.(df_power_states.pg, digits=7)
+
     # Compute cost objectives
     df_cost = DataFrames.leftjoin(
         df_power_states,
@@ -243,7 +246,14 @@ function get_objectives(
 
     # Compute discharge violation objectives
     if length(df_discharge_violation_states[!, "discharge_violation"]) > 0
-        objectives["f_disvi_tot"] = DataFrames.sum(df_discharge_violation_states[!, "discharge_violation"])
+        df_discharge_violation_states = DataFrames.leftjoin(
+            df_discharge_violation_states,
+            df_water,
+            on=[:obj_name, :day]
+        )
+        temperature = df_discharge_violation_states.discharge_violation
+        discharge = df_discharge_violation_states.hourly_withdrawal - df_discharge_violation_states.hourly_consumption
+        objectives["f_disvi_tot"] = DataFrames.sum(discharge .* temperature)
     else
         objectives["f_disvi_tot"] = 0.0
     end
