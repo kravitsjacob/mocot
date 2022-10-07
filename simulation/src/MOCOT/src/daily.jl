@@ -373,6 +373,8 @@ function once_through_water_use(
     k_os:: Float64,
     beta_proc:: Float64,
     eta_net:: Float64,
+    beta_with_limit:: Float64,
+    beta_con_limit:: Float64,    
 )
     delta_t = 10.0
 

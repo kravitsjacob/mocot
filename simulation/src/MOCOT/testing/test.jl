@@ -43,8 +43,31 @@ using MOCOT
 end
 
 @Test.testset "Test for once_through_water_use" begin
+    # Setup
+    beta_with_limit=190000.0
+    beta_con_limit=400.0
+    regulatory_temperature = 33.7
+    k_os = 0.12
+    beta_proc = 200.0
+    eta_net = 0.33
+
     # Cold case 
     inlet_temperature = 21.0
+    beta_with, beta_con, delta_t = MOCOT.once_through_water_use(
+        inlet_temperature,
+        regulatory_temperature,
+        k_os,
+        beta_proc,
+        eta_net,
+        beta_with_limit,
+        beta_con_limit
+    )
+    @Test.test isapprox(beta_with, 143603.4, atol=1)
+    @Test.test isapprox(beta_con, 343.4, atol=1)
+    @Test.test isapprox(delta_t, 10.0, atol=1)
+
+    # Delta t but no limit
+    inlet_temperature = 25.0
     regulatory_temperature = 33.7
     k_os = 0.12
     beta_proc = 200.0
@@ -55,10 +78,15 @@ end
         k_os,
         beta_proc,
         eta_net,
+        beta_with_limit,
+        beta_con_limit
     )
-    @Test.test isapprox(beta_with, 143603.4, atol=1)
-    @Test.test isapprox(beta_con, 343.4, atol=1)
-    @Test.test isapprox(delta_t, 10.0, atol=1)
+    @Test.test isapprox(beta_with, 165031.5, atol=1)
+    @Test.test isapprox(beta_con, 364.8, atol=1)
+    @Test.test isapprox(delta_t, 8.7, atol=1)
+
+    @Infiltrator.infiltrate
+
 
     # # Recirculating coal
     # fuel = "coal"
@@ -106,7 +134,7 @@ end
 
 #     # Set limits
 #     network_data["gen"]["1"]["cus_with_limit"] = 190000.0
-#     network_data["gen"]["1"]["cus_con_limit"] = 1200.0
+#     network_data["gen"]["1"]["cus_con_limit"] = 400.0
 
 #     # Test for limits enforced
 #     water_temperature = 33.6
