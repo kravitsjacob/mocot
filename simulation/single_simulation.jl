@@ -32,6 +32,9 @@ function main()
 
     # Simulation with high water air and water tempertures with weights
     (objectives, state) = MOCOT.borg_simulation_wrapper(1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 5)
+    
+    # Simulation with high water air and water tempertures with weights
+    (objectives, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 1, 6)
 
     # Objectives
     df_objs = DataFrames.DataFrame(objectives)
