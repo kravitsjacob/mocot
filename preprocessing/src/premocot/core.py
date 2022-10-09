@@ -194,7 +194,7 @@ def process_system_load(eia_load_template_j_j, eia_load_template_j_d):
     -------
     pandas.DataFrame
         Parsed data
-    """    
+    """
     df_system_load = pd.DataFrame()
     df_ls = []
     years = [
@@ -353,8 +353,13 @@ def scenario_dates(df_water, df_air, df_system_load):
     df_air.index = df_air['datetime']
     df_system_load.index = df_system_load['datetime']
 
-    # High 7-day load
+    # Average week
     df_rolling = df_system_load['load'].rolling(7).mean()
+    avg_load = df_rolling.mean()
+    avg_week = abs(df_rolling - avg_load).idxmin()
+    print('Avg week: {}'.format(avg_week))
+
+    # High 7-day load
     print('high load: {}'.format(df_rolling.idxmax()))
 
     # High 7-day standard deviation

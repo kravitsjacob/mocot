@@ -15,8 +15,17 @@ function main()
     # Setup
     paths = YAML.load_file("paths.yml")
 
-    # Simulation with all generators
-    (objectives, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 1, 1)
+    # Simulation with average
+    (objectives, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 1)
+
+    # Simulation with nuclear outage
+    (objectives, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 2)
+
+    # Simulation with high load
+    (objectives, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 3)
+
+    # Simulation with high standard deviation load   
+    (objectives, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 4)
 
     # Simulation with high water air and water tempeartures
     (objectives, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 5)
@@ -46,13 +55,6 @@ function main()
         paths["outputs"]["discharge_states"],
         df_discharge_violation_states
     )
-
-    # Run all scenarios
-    (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 0, 1)
-    (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 0, 2)
-    (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 0, 3)
-    (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 0, 4)
-    (objectives, state) = MOCOT.borg_simulation_wrapper(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 2, 0, 5)
 
 end
 
