@@ -4,3 +4,4 @@ scenario_code,name,datetime_start,datetime_end
 3,high load,2018-06-28 00:00:00,2018-07-04 23:00:00
 4,high standard deviation load,2018-05-25 00:00:00,2018-05-31 23:00:00
 5,high water and air temperature,2017-07-23 00:00:00,2017-07-29 23:00:00
+6,synthetic high load,2018-06-28 00:00:00,2018-07-04 23:00:00
