@@ -33,7 +33,7 @@ function borg_simulation_wrapper(
     - `w_con_ng:: Float64`: Natural gas consumption weight
     - `w_with_nuc:: Float64`: Nuclear withdrawal weight
     - `w_con_nuc:: Float64`: Nuclear consumption weight
-    - `output_type:: Int64`: Return code. 1 is for standard Borg output. 2 is for returning states and objectives
+    - `output_type:: Int64`: Return code. 1 is for standard Borg output. 2 is for returning states, objectives, and metrics
     - `verbose_level:: Int64`: Level of stdout printing. Default is 1. Less is 0.
     - `scenario_code:: Int64`: Scenario code. See update_scenario! for codes
     """
@@ -101,23 +101,49 @@ function borg_simulation_wrapper(
         verbose_level=verbose_level
     )
 
+    # Metrics
+    metrics = get_metrics(state, network_data)
+
     # Console feedback
-    println("Scenario code: $scenario_code")
-    println(Dict(
+    decisions = Dict(
         "w_with_coal" => w_with_coal,
         "w_con_coal" => w_con_coal,
         "w_with_ng" => w_with_ng,
         "w_con_ng" => w_con_ng,
         "w_with_nuc" => w_with_nuc,
         "w_con_nuc" => w_con_nuc
-    ))
+    )
+    println("Scenario code: $scenario_code")
+    println(decisions)
     println(objectives)
+    println(metrics)
 
     if output_type == 1  # "borg"
+        # Collect objectives
         for obj_name in objective_names
             append!(objective_array, objectives[obj_name])
         end
-        
+
+        # Get metrics from simulation
+        metrics_path = replace(paths["outputs"]["metrics_template"], "0" => scenario_code)
+        df_sim_metrics = DataFrames.hcat(
+            DataFrames.DataFrame(decisions),
+            DataFrames.DataFrame(metrics)
+        )
+        # Writing metrics to file
+        if isfile(metrics_path)
+            df_metrics = DataFrames.DataFrame(
+                CSV.File(metrics_path)
+            )
+            df_metrics = DataFrames.vcat(df_metrics, df_sim_metrics) 
+        else
+            df_metrics = df_sim_metrics
+        end
+        CSV.write(
+            metrics_path,
+            df_metrics
+        )
+
         return objective_array
 
     elseif  output_type == 2  # "all"
@@ -125,7 +151,7 @@ function borg_simulation_wrapper(
         # Generator information export
         CSV.write(paths["outputs"]["gen_info_main"], df_gen_info)
 
-        return (objectives, state)
+        return (objectives, state, metrics)
 
     end
 end

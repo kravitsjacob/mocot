@@ -310,16 +310,10 @@ function get_metrics(
         DataFrames.groupby(df_power_states, [:cus_fuel]),
         :pg => sum,
     )
-    coal_output = df_power_fuel[df_power_fuel.cus_fuel .== "coal",:].pg_sum
-    ng_output = df_power_fuel[df_power_fuel.cus_fuel .== "ng",:].pg_sum
-    wind_output = df_power_fuel[df_power_fuel.cus_fuel .== "wind",:].pg_sum
-    nuclear_output = df_power_fuel[df_power_fuel.cus_fuel .== "nuclear",:].pg_sum
-
-    # Populate metrics
-    metrics["coal_output"] = coal_output
-    metrics["ng_output"] = ng_output
-    metrics["wind_output"] = wind_output
-    metrics["nuclear_output"] = nuclear_output
+    df_power_fuel = df_power_fuel[df_power_fuel.cus_fuel .!= "NaN",:]
+    for row in eachrow(df_power_fuel)
+        metrics[row["cus_fuel"] * "_output"] = row["pg_sum"]
+   end
 
     return metrics 
 end

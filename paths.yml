@@ -51,9 +51,11 @@ outputs:
   objectives: "objectives.csv"
   discharge_states: "discharge_states.csv"
   power_states: "power_states.csv"
+  metrics: "metrics.csv"
 
   # Results
   runtime_template: "io/outputs/states/scenario_0_runtime.txt"
+  metrics_template: "io/outputs/states/scenario_0_metrics.csv"
 
   figures:
     # Exogenous figures

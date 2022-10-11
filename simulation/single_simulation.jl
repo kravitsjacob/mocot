@@ -16,25 +16,25 @@ function main()
     paths = YAML.load_file("paths.yml")
 
     # Simulation with average
-    (objectives, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 1)
+    (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 1)
 
-    # Simulation with nuclear outage
-    (objectives, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 2)
+    # # Simulation with nuclear outage
+    # (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1, 0, 2)
 
-    # Simulation with high load
-    (objectives, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 3)
+    # # Simulation with high load
+    # (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1, 0, 3)
 
-    # Simulation with high standard deviation load   
-    (objectives, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 4)
+    # # Simulation with high standard deviation load   
+    # (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 4)
 
-    # Simulation with high water air and water tempeartures
-    (objectives, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 5)
+    # # Simulation with high water air and water tempeartures
+    # (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 5)
 
-    # Simulation with high water air and water tempertures with weights
-    (objectives, state) = MOCOT.borg_simulation_wrapper(1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 5)
+    # # Simulation with high water air and water tempertures with weights
+    # (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 5)
     
-    # Simulation with high water air and water tempertures with weights
-    (objectives, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 6)
+    # # Simulation with high water air and water tempertures with weights
+    # (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 6)
 
     # Objectives
     df_objs = DataFrames.DataFrame(objectives)
@@ -44,6 +44,9 @@ function main()
 
     # Discharge violation states
     df_discharge_violation_states = MOCOT.custom_state_df(state, "discharge_violation")
+
+    # Metrics
+    df_metrics = DataFrames.DataFrame(metrics)
 
     # Export as simulation progresses
     CSV.write(
@@ -57,6 +60,10 @@ function main()
     CSV.write(
         paths["outputs"]["discharge_states"],
         df_discharge_violation_states
+    )
+    CSV.write(
+        paths["outputs"]["metrics"],
+        df_metrics
     )
 
 end
