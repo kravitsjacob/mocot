@@ -11,7 +11,7 @@ void simulation_wrapper(double* decs, double* objs, double* consts)
 {
     // Setup
     int i;
-    int n_args;
+    int n_args = n_decs + 3;
     jl_value_t* args[n_decs+2];
 
     // Decision arguments
@@ -29,7 +29,6 @@ void simulation_wrapper(double* decs, double* objs, double* consts)
 
     // Assign scenario code
     args[n_decs+2] = jl_box_int64(scenario_code);
-    n_args = n_decs + 3;
 
     // Call julia function
     jl_module_t *module = (jl_module_t*)jl_eval_string("MOCOT");
