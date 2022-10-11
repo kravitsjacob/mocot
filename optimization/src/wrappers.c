@@ -12,7 +12,7 @@ void simulation_wrapper(double* decs, double* objs, double* consts)
     // Setup
     int i;
     int n_args;
-    jl_value_t* args[n_args];
+    jl_value_t* args[n_decs+2];
 
     // Decision arguments
     for(i = 0; i < n_decs; i++)
@@ -27,10 +27,8 @@ void simulation_wrapper(double* decs, double* objs, double* consts)
     // Assign verbose to none
     args[n_decs+1] = jl_box_int64(0);
 
-    // Assign scenario type
+    // Assign scenario code
     args[n_decs+2] = jl_box_int64(scenario_code);
-
-    // Account for these three additional arguments
     n_args = n_decs + 3;
 
     // Call julia function
@@ -38,11 +36,11 @@ void simulation_wrapper(double* decs, double* objs, double* consts)
     jl_function_t *func = jl_get_function(module, "borg_simulation_wrapper");
     jl_array_t *ret = (jl_array_t*)jl_call(func, args, n_args);
 
-    // // Set objectives values
-    // double *objData = (double*)jl_array_data(ret);
-    // for(i = 0; i < n_objs; i++)
-    // {
-    //     objs[i] = objData[i];
-    // }
+    // Set objectives values
+    double *objData = (double*)jl_array_data(ret);
+    for(i = 0; i < n_objs; i++)
+    {
+        objs[i] = objData[i];
+    }
 
 }
