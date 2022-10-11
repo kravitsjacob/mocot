@@ -1,5 +1,6 @@
 # Utilities
 
+import DataFrames
 
 function update_all_gens!(nw_data, prop:: String, val)
     """
@@ -275,6 +276,7 @@ function get_objectives(
     return objectives
 end
 
+
 function get_metrics(
     state:: Dict{String, Dict},
     network_data:: Dict{String, Any},
@@ -311,7 +313,7 @@ function get_metrics(
         :pg => sum,
     )
     df_power_fuel = df_power_fuel[df_power_fuel.cus_fuel .!= "NaN",:]
-    for row in eachrow(df_power_fuel)
+    for row in DataFrames.eachrow(df_power_fuel)
         metrics[row["cus_fuel"] * "_output"] = row["pg_sum"]
    end
 

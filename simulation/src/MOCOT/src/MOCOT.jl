@@ -14,6 +14,7 @@ include("utils.jl")
 include("daily.jl")
 include("hourly.jl")
 include("wrapper.jl")
+include("preprocessing.jl")
 
 
 function simulation(
@@ -82,11 +83,11 @@ function simulation(
     end
 
     # Adjust generator capacity
-    network_data = MOCOT.update_all_gens!(network_data, "pmin", 0.0)
+    network_data = update_all_gens!(network_data, "pmin", 0.0)
 
     # Add reliability generators
     voll = 330000.0  # $/pu for MISO
-    network_data = MOCOT.add_reliability_gens!(network_data, voll)
+    network_data = add_reliability_gens!(network_data, voll)
 
     # Make multinetwork
     network_data_multi = PowerModels.replicate(network_data, h_total)
@@ -166,7 +167,10 @@ function simulation(
     # Compute objectives
     objectives = get_objectives(state, network_data, w_with, w_con)
 
-    return (objectives, state)
+    # Compute metrics
+    metrics = get_metrics(state, network_data)
+
+    return (objectives, metrics, state)
 end
 
 end # module

@@ -3,13 +3,12 @@ import CSV
 import YAML
 import PowerModels
 import Memento
+import DataFrames
 
 import MOCOT
 
 # Dev packages
 import Infiltrator  # @Infiltrator.infiltrate
-
-include("preprocessing.jl")
 
 
 function borg_simulation_wrapper(
@@ -89,7 +88,7 @@ function borg_simulation_wrapper(
     network_data = MOCOT.update_scenario!(network_data, scenario_code)
 
     # Simulation
-    (objectives, state) = MOCOT.simulation(
+    (objectives, metrics, state) = MOCOT.simulation(
         network_data,
         exogenous,
         w_with_coal=w_with_coal,
@@ -100,9 +99,6 @@ function borg_simulation_wrapper(
         w_con_nuc= w_con_nuc,
         verbose_level=verbose_level
     )
-
-    # Metrics
-    metrics = get_metrics(state, network_data)
 
     # Console feedback
     decisions = Dict(
@@ -146,7 +142,7 @@ function borg_simulation_wrapper(
 
         return objective_array
 
-    elseif  output_type == 2  # "all"
+    elseif output_type == 2  # "all"
 
         # Generator information export
         CSV.write(paths["outputs"]["gen_info_main"], df_gen_info)

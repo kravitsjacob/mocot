@@ -14,12 +14,6 @@ void simulation_wrapper(double* decs, double* objs, double* consts)
     int n_args;
     jl_value_t* args[n_args];
 
-    // Initialize function
-    jl_module_t *module = (jl_module_t*)jl_eval_string("MOCOT");
-
-    // Initialize simulation function
-    jl_function_t *func = jl_get_function(module, "borg_simulation_wrapper");
-
     // Decision arguments
     for(i = 0; i < n_decs; i++)
     {
@@ -40,13 +34,15 @@ void simulation_wrapper(double* decs, double* objs, double* consts)
     n_args = n_decs + 3;
 
     // Call julia function
+    jl_module_t *module = (jl_module_t*)jl_eval_string("MOCOT");
+    jl_function_t *func = jl_get_function(module, "borg_simulation_wrapper");
     jl_array_t *ret = (jl_array_t*)jl_call(func, args, n_args);
 
-    // Set objectives values
-    double *objData = (double*)jl_array_data(ret);
-    for(i = 0; i < n_objs; i++)
-    {
-        objs[i] = objData[i];
-    }
+    // // Set objectives values
+    // double *objData = (double*)jl_array_data(ret);
+    // for(i = 0; i < n_objs; i++)
+    // {
+    //     objs[i] = objData[i];
+    // }
 
 }

@@ -16,7 +16,7 @@ function main()
     paths = YAML.load_file("paths.yml")
 
     # Simulation with average
-    (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 1)
+    (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1, 0, 1)
 
     # Simulation with nuclear outage
     (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 2)
