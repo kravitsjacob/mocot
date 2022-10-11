@@ -12,7 +12,6 @@ void simulation_wrapper(double* decs, double* objs, double* consts)
     // Setup
     int i;
     int n_args;
-    n_args = n_decs + 2;
     jl_value_t* args[n_args];
 
     // Initialize function
@@ -36,6 +35,9 @@ void simulation_wrapper(double* decs, double* objs, double* consts)
 
     // Assign scenario type
     args[n_decs+2] = jl_box_int64(scenario_code);
+
+    // Account for these three additional arguments
+    n_args = n_decs + 3;
 
     // Call julia function
     jl_array_t *ret = (jl_array_t*)jl_call(func, args, n_args);
