@@ -165,7 +165,9 @@ function get_objectives(
     
     # Arguments
     - `state:: Dict{String, Dict}`: State dictionary
-    - `network_data:: Dict`: PowerModels Network data
+    - `network_data:: Dict{String, Any}`: PowerModels Network data
+    - `w_with:: Dict{String, Float64}`: Withdrawal weights for each generator
+    - `w_con:: Dict{String, Float64}`: Consumption weights for each generator
     """
     objectives = Dict{String, Float64}()
 
@@ -271,6 +273,55 @@ function get_objectives(
     objectives["f_ENS"] = DataFrames.sum(df_reliability_states[!, "pg"])
 
     return objectives
+end
+
+function get_metrics(
+    state:: Dict{String, Dict},
+    network_data:: Dict{String, Any},
+)
+    """
+    Get metrics for simulation. Metrics are different than objectives as they do not
+    inform the next set of objectives but rather just quantify an aspect of a given state.
+
+    # Arguments
+    - `state:: Dict{String, Dict}`: State dictionary
+    - `network_data:: Dict`: PowerModels Network data
+    """
+    metrics = Dict{String, Float64}()
+    
+    # Power states
+    df_power_states = MOCOT.pm_state_df(state, "power", "gen", ["pg"])
+
+    # Add fuel types
+    df_fuel = DataFrames.DataFrame(
+        PowerModels.component_table(network_data, "gen", ["cus_fuel"]),
+        [:obj_name, :cus_fuel]
+    )
+    df_fuel[!, :obj_name] = string.(df_fuel[!, :obj_name])
+    df_fuel[!, :cus_fuel] = string.(df_fuel[!, :cus_fuel])
+    df_power_states = DataFrames.leftjoin(                                                                                                                                                                    
+        df_power_states,                                                                                                                                                                                      
+        df_fuel,                                                                                                                                                                                              
+        on=[:obj_name]                                                                                                                                                                                        
+    )
+
+    # Get total ouputs
+    df_power_fuel = DataFrames.combine(
+        DataFrames.groupby(df_power_states, [:cus_fuel]),
+        :pg => sum,
+    )
+    coal_output = df_power_fuel[df_power_fuel.cus_fuel .== "coal",:].pg_sum
+    ng_output = df_power_fuel[df_power_fuel.cus_fuel .== "ng",:].pg_sum
+    wind_output = df_power_fuel[df_power_fuel.cus_fuel .== "wind",:].pg_sum
+    nuclear_output = df_power_fuel[df_power_fuel.cus_fuel .== "nuclear",:].pg_sum
+
+    # Populate metrics
+    metrics["coal_output"] = coal_output
+    metrics["ng_output"] = ng_output
+    metrics["wind_output"] = wind_output
+    metrics["nuclear_output"] = nuclear_output
+
+    return metrics 
 end
 
 
