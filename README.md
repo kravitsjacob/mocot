@@ -26,10 +26,11 @@ for every bug:
 4) Run simulation using "all generators" scenario (code 1) `$ ./optimization/single_simulation.exe 1`
 
 # Optimization on Unix-like
-1) Download julia and make sure the path is reflected in `optimization/makefile`
-2) Activate julia `$ julia simulation/julia_config.jl`
-3) Compile using `$ make optimization -C ./optimization`
-4) Run optimization using "all generators" scenario (code 1) `$ mpiexec -n 2 ./optimization/optimization.exe 1`
+1) Place borg files in `optimization/src/borg`. We used a modified version of the algorithm where we disable the constraint functionality to isntead pass our metrics during the optimization. We do this by commenting lines 506-510 and 617-620 in borg.c.
+2) Download julia and make sure the path is reflected in `optimization/makefile`
+3) Activate julia `$ julia simulation/julia_config.jl`
+4) Compile using `$ make optimization -C ./optimization`
+5) Run optimization using "all generators" scenario (code 1) `$ mpiexec -n 2 ./optimization/optimization.exe 1`
 
 # Optimization on Alpine
 
