@@ -3,6 +3,7 @@
 import yaml
 import os
 import pandas as pd
+import glob
 
 import postmocot
 
@@ -51,6 +52,26 @@ def main():
         df_node_load = pd.read_csv(path)
         fig = postmocot.viz.node_load(df_node_load)
         fig.savefig(paths['outputs']['figures']['node_load'])
+
+    # Temporary code for metrics (TODO switch to constraints)
+    for (_, row) in df_scenario_specs.iterrows():
+        df_ls = []
+        in_path = 'C:/Users/kravi/Desktop/mocot/io/outputs/states/scenario_0_metrics-*.csv'  # noqa
+        in_path = in_path.replace(
+            '0', str(row['scenario_code'])
+        )
+
+        # Read into single dataframe
+        for file in glob.glob(in_path):
+            df_ls.append(pd.read_csv(file))
+        df = pd.concat(df_ls)
+
+        # Writing
+        out_path = paths['outputs']['runtime_template'].replace(
+            '0', str(row['scenario_code'])
+        )
+        out_path = out_path.replace('runtime.txt', 'metrics.csv')
+        df.to_csv(out_path, index=False)
 
     # Parameter names
     objective_names = pd.read_csv(
