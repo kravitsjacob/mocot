@@ -10,6 +10,7 @@ import Memento
 import Dates
 import CSV
 import YAML
+import UUIDs
 
 # Dev packages
 import Infiltrator  # @Infiltrator.infiltrate
@@ -288,6 +289,8 @@ function borg_simulation_wrapper(
 
         # Get metrics from simulation
         metrics_path = replace(paths["outputs"]["metrics_template"], "0" => scenario_code)
+        id = string(UUIDs.uuid4())
+        metrics_path = replace(metrics_path, ".csv" => "-"*id*".csv")
         df_sim_metrics = DataFrames.hcat(
             DataFrames.DataFrame(decisions),
             DataFrames.DataFrame(metrics)
