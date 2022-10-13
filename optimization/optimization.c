@@ -8,6 +8,11 @@
 #include "src/borg/borgms.h"
 #include "src/wrappers.h"
 
+// Metrics quantify variable behavior but are not intended to be minimized. 
+// Here, we modify the constraint functionality to not consider any violations.
+// Thus, we can freely pass metrics as constraints and not worry about impacting solutions.
+// We do this by commenting lines 506-510 and 617-620 in borg.c
+
 JULIA_DEFINE_FAST_TLS
 
 #define PI 3.14159265358979323846
