@@ -5,6 +5,10 @@ Multi-Objective Coordination of Thermoelectric Water Use
 1) Install the python package `$ pip install --editable ./preprocessing/.`
 2) Run the analysis`$ python preprocessing/preprocessing.py`
 
+# Simulation Tests
+1) Activate julia `$ julia --project=simulation\src\MOCOT`
+2) Run tests `julia> include("simulation/src/MOCOT/testing/test.jl")`
+
 # Single Simulation Run (Debugging/Development)
 1) Activate julia `$ julia`
 2) Activate analysis `julia> using Pkg; Pkg.activate("simulation")`

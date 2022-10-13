@@ -114,7 +114,8 @@ class BorgRuntimeDiagnostic(BorgRuntimeUtils):
         self,
         path_to_runtime,
         decision_names,
-        objective_names
+        objective_names,
+        df_metrics,  # TODO update to add function
     ):
         """
         Parsing runtime file and assigning parameters
@@ -127,6 +128,8 @@ class BorgRuntimeDiagnostic(BorgRuntimeUtils):
             List of decision names
         objective_names : list
             List of objective names
+        df_metrics : pandas.DataFrame
+            Dataframe of decisions and corresponding metrics
         """
         super().__init__()
 
@@ -140,6 +143,7 @@ class BorgRuntimeDiagnostic(BorgRuntimeUtils):
         # General attributes
         self.decision_names = decision_names
         self.objective_names = objective_names
+        self.metrics = df_metrics
 
         # Runtime statistics
         df_res = self._parse_stats(
@@ -414,6 +418,13 @@ class BorgRuntimeAggregator():
             )
             df_front = pd.concat([df_decs, df_objs], axis=1)
             df_front['run_name'] = run_name
+
+            # Get metrics
+            df_front = pd.merge(
+                df_front.round(8),
+                run_obj.metrics.drop_duplicates().round(8),
+                how='left'
+            )
 
             # Store
             df_ls.append(df_front)

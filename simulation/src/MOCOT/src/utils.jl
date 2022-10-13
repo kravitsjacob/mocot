@@ -1,5 +1,6 @@
 # Utilities
 
+import DataFrames
 
 function update_all_gens!(nw_data, prop:: String, val)
     """
@@ -165,7 +166,9 @@ function get_objectives(
     
     # Arguments
     - `state:: Dict{String, Dict}`: State dictionary
-    - `network_data:: Dict`: PowerModels Network data
+    - `network_data:: Dict{String, Any}`: PowerModels Network data
+    - `w_with:: Dict{String, Float64}`: Withdrawal weights for each generator
+    - `w_con:: Dict{String, Float64}`: Consumption weights for each generator
     """
     objectives = Dict{String, Float64}()
 
@@ -188,6 +191,9 @@ function get_objectives(
     df_reliability_states = df_all_power_states[reliability_gen_rows, :]
     df_power_states = df_all_power_states[.!reliability_gen_rows, :]
     df_discharge_violation_states = MOCOT.custom_state_df(state, "discharge_violation")
+
+    # Round power output from solver
+    df_power_states.pg = round.(df_power_states.pg, digits=7)
 
     # Compute cost objectives
     df_cost = DataFrames.leftjoin(
@@ -242,7 +248,18 @@ function get_objectives(
     objectives["f_cos_tot"] =  objectives["f_gen"] + withdrawal_cost + consumtion_cost
 
     # Compute discharge violation objectives
-    objectives["f_disvi_tot"] = DataFrames.sum(df_discharge_violation_states[!, "discharge_violation"])
+    if length(df_discharge_violation_states[!, "discharge_violation"]) > 0
+        df_discharge_violation_states = DataFrames.leftjoin(
+            df_discharge_violation_states,
+            df_water,
+            on=[:obj_name, :day]
+        )
+        temperature = df_discharge_violation_states.discharge_violation
+        discharge = df_discharge_violation_states.hourly_withdrawal - df_discharge_violation_states.hourly_consumption
+        objectives["f_disvi_tot"] = DataFrames.sum(discharge .* temperature)
+    else
+        objectives["f_disvi_tot"] = 0.0
+    end
 
     # Compute emission objectives
     df_emit = DataFrames.leftjoin(
@@ -257,6 +274,50 @@ function get_objectives(
     objectives["f_ENS"] = DataFrames.sum(df_reliability_states[!, "pg"])
 
     return objectives
+end
+
+
+function get_metrics(
+    state:: Dict{String, Dict},
+    network_data:: Dict{String, Any},
+)
+    """
+    Get metrics for simulation. Metrics are different than objectives as they do not
+    inform the next set of objectives but rather just quantify an aspect of a given state.
+
+    # Arguments
+    - `state:: Dict{String, Dict}`: State dictionary
+    - `network_data:: Dict`: PowerModels Network data
+    """
+    metrics = Dict{String, Float64}()
+    
+    # Power states
+    df_power_states = MOCOT.pm_state_df(state, "power", "gen", ["pg"])
+
+    # Add fuel types
+    df_fuel = DataFrames.DataFrame(
+        PowerModels.component_table(network_data, "gen", ["cus_fuel"]),
+        [:obj_name, :cus_fuel]
+    )
+    df_fuel[!, :obj_name] = string.(df_fuel[!, :obj_name])
+    df_fuel[!, :cus_fuel] = string.(df_fuel[!, :cus_fuel])
+    df_power_states = DataFrames.leftjoin(                                                                                                                                                                    
+        df_power_states,                                                                                                                                                                                      
+        df_fuel,                                                                                                                                                                                              
+        on=[:obj_name]                                                                                                                                                                                        
+    )
+
+    # Get total ouputs
+    df_power_fuel = DataFrames.combine(
+        DataFrames.groupby(df_power_states, [:cus_fuel]),
+        :pg => sum,
+    )
+    df_power_fuel = df_power_fuel[df_power_fuel.cus_fuel .!= "NaN",:]
+    for row in DataFrames.eachrow(df_power_fuel)
+        metrics[row["cus_fuel"] * "_output"] = row["pg_sum"]
+   end
+
+    return metrics 
 end
 
 

@@ -118,7 +118,10 @@ def main():
 
     # System-level loads
     if not os.path.exists(paths['outputs']['system_load']):
-        df_system_load = premocot.core.process_system_load()
+        df_system_load = premocot.core.process_system_load(
+            paths['inputs']['eia_load_template_j_j'],
+            paths['inputs']['eia_load_template_j_d']
+        )
         df_system_load.to_csv(paths['outputs']['system_load'], index=False)
 
     # Hour-to-hour loads
@@ -163,6 +166,11 @@ def main():
             df_hour_to_hour,
             net
         )
+
+        if row['scenario_code'] == 6:
+            data_cols = ['air_temperature', 'water_temperature']
+            df_air_water[data_cols] = df_air_water[data_cols] * 1.15
+            df_node_load['load_mw'] = df_node_load['load_mw'] * 1.15
 
         # Write
         path_to_air_water = paths['outputs']['air_water_template'].replace(

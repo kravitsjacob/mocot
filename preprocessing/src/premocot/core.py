@@ -21,24 +21,15 @@ def import_eia(path_to_eia):
     DataFrame
         DataFrame of EIA data
     """
-    # Local Vars
-    years = ['2019', '2018', '2017', '2016', '2015', '2014']
-    df_list = []
-
     # Import all dataframes
-    for i in years:
-        path = os.path.join(path_to_eia, 'cooling_detail_' + i + '.xlsx')
-        print(i)
+    print('Importing EIA water data from {}'.format(path_to_eia))
 
-        # Import Dataframe
-        df_temp = pd.read_excel(path, header=2)
+    # Import Dataframe
+    df = pd.read_excel(path_to_eia, header=2)
 
-        # Replace space values with nan values
-        df_temp = df_temp.replace(r'^\s*$', np.nan, regex=True)
-        df_list.append(df_temp)
+    # Replace space values with nan values
+    df = df.replace(r'^\s*$', np.nan, regex=True)
 
-    # Concat Dataframes into Single Dataframe
-    df = pd.concat(df_list)
     return df
 
 
@@ -188,9 +179,16 @@ def process_air_exogenous(path_to_dir):
     return df_air
 
 
-def process_system_load():
+def process_system_load(eia_load_template_j_j, eia_load_template_j_d):
     """
     Clean system-level miso data includes interpolating missing values
+
+    Parameters
+    ----------
+    eia_load_template_j_j : str
+        Path to EIA load data for January to June
+    eia_load_template_j_d : str
+        Path to EIA load data for July to December
 
     Returns
     -------
@@ -207,8 +205,6 @@ def process_system_load():
         '2020',
         '2021'
     ]
-    template_1 = 'https://www.eia.gov/electricity/gridmonitor/sixMonthFiles/EIA930_BALANCE_0000_Jan_Jun.csv'  # noqa
-    template_2 = 'https://www.eia.gov/electricity/gridmonitor/sixMonthFiles/EIA930_BALANCE_0000_Jul_Dec.csv'  # noqa
 
     # Import
     cols = [
@@ -219,13 +215,13 @@ def process_system_load():
     ]
     for year in years:
         # January to June
-        url_1 = template_1.replace('0000', year)
+        url_1 = eia_load_template_j_j.replace('0000', year)
         df_temp = pd.read_csv(url_1, usecols=cols, thousands=',')
         df_temp = df_temp[df_temp['Balancing Authority'] == 'MISO']
         df_ls.append(df_temp)
 
         # July to December
-        url_2 = template_2.replace('0000', year)
+        url_2 = eia_load_template_j_d.replace('0000', year)
         df_temp = pd.read_csv(url_2, usecols=cols, thousands=',')
         df_temp = df_temp[df_temp['Balancing Authority'] == 'MISO']
         df_ls.append(df_temp)
@@ -357,8 +353,13 @@ def scenario_dates(df_water, df_air, df_system_load):
     df_air.index = df_air['datetime']
     df_system_load.index = df_system_load['datetime']
 
-    # High 7-day load
+    # Average week
     df_rolling = df_system_load['load'].rolling(7).mean()
+    avg_load = df_rolling.mean()
+    avg_week = abs(df_rolling - avg_load).idxmin()
+    print('Avg week: {}'.format(avg_week))
+
+    # High 7-day load
     print('high load: {}'.format(df_rolling.idxmax()))
 
     # High 7-day standard deviation

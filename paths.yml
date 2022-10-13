@@ -8,12 +8,14 @@ inputs:
   gen_info_ramp: "io/inputs/ramp_rates/gen_info_ramp.xlsx"
   gen_info_emit: "io/inputs/eia_emissions/emission_rates.csv"
   gen_info_waterlim: "io/inputs/water_use_limits/water_use_limits.csv"
-  eia_raw: "io/inputs/eia_thermoelectric_water_use"
+  eia_raw: "https://www.eia.gov/electricity/data/water/archive/xls/cooling_detail_2019.xlsx"
   eia_heat_rates: "io/inputs/eia_heat_rates/Table_A6_Approximate_Heat_Rates_for_Electricity_-_and_Heat_Content_of_Electricity.xlsx"
   
   # Exogenous parameters
   air_temperature_dir: "io/inputs/air_temperature"
   synthetic_node_loads: "io/inputs/ACTIVSg_Time_Series/ACTIVISg2000_load_time_series_MW.csv"
+  eia_load_template_j_j: "https://www.eia.gov/electricity/gridmonitor/sixMonthFiles/EIA930_BALANCE_0000_Jan_Jun.csv"
+  eia_load_template_j_d: "https://www.eia.gov/electricity/gridmonitor/sixMonthFiles/EIA930_BALANCE_0000_Jul_Dec.csv"
 
   # Parameter names
   decisions: "io/inputs/parameters/decisions.txt"
@@ -49,9 +51,11 @@ outputs:
   objectives: "objectives.csv"
   discharge_states: "discharge_states.csv"
   power_states: "power_states.csv"
+  metrics: "metrics.csv"
 
   # Results
   runtime_template: "io/outputs/states/scenario_0_runtime.txt"
+  metrics_template: "io/outputs/states/scenario_0_metrics.csv"
 
   figures:
     # Exogenous figures
