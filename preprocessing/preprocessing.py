@@ -145,10 +145,13 @@ def main():
         df_water = pd.read_csv(paths['outputs']['water_temperature'])
         df_air = pd.read_csv(paths['outputs']['air_temperature'])
         df_system_load = pd.read_csv(paths['outputs']['system_load'])
-        premocot.core.scenario_dates(df_water, df_air, df_system_load)
+        df_hour_to_hour = pd.read_csv(paths['outputs']['hour_to_hour'])
+        premocot.core.scenario_dates(
+            df_water, df_air, df_system_load, df_hour_to_hour
+        )
 
     # Generate exogenous inputs for each scenario
-    generate = 0
+    generate = 1
     if generate:
         df_water = pd.read_csv(paths['outputs']['water_temperature'])
         df_air = pd.read_csv(paths['outputs']['air_temperature'])
@@ -163,6 +166,7 @@ def main():
                 row['scenario_code'],
                 pd.to_datetime(row['datetime_start']),
                 pd.to_datetime(row['datetime_end']),
+                pd.to_datetime(row['hour_to_hour_start']),
                 df_water,
                 df_air,
                 df_system_load,
