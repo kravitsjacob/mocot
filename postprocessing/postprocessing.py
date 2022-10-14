@@ -75,6 +75,9 @@ def main():
             n_objectives=len(objective_names),
             n_metrics=len(metric_names),
         )
+        runtime.set_decision_names(decision_names)
+        runtime.set_objective_names(objective_names)
+        runtime.set_metric_names(metric_names)
         runtime_objs[row['name']] = runtime
 
     runtime_multi = postmocot.runtime.BorgRuntimeAggregator(runtime_objs)

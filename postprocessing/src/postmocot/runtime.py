@@ -200,6 +200,36 @@ class BorgRuntimeDiagnostic(BorgRuntimeUtils):
         self.archive_objectives = dict(zip(self.nfe, objectives_ls))
         self.archive_metrics = dict(zip(self.nfe, metrics_ls))
 
+    def set_decision_names(self, decision_names):
+        """Set decision names
+
+        Parameters
+        ----------
+        decision_names : list
+            Decision names
+        """
+        self.decision_names = decision_names
+
+    def set_objective_names(self, objective_names):
+        """Set decision names
+
+        Parameters
+        ----------
+        objective_names : list
+            Objective names
+        """
+        self.objective_names = objective_names
+
+    def set_metric_names(self, metric_names):
+        """Set metric names
+
+        Parameters
+        ----------
+        metric_names : list
+            Metric names
+        """
+        self.metric_names = metric_names
+
     def compute_hypervolume(self, reference_point):
         """Compute hypervolumes
 
