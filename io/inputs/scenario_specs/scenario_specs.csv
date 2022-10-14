@@ -3,5 +3,5 @@ scenario_code,name,datetime_start,datetime_end
 2,nuclear outage,2017-05-12 00:00:00,2017-05-18 23:00:00
 3,high load,2018-06-28 00:00:00,2018-07-04 23:00:00
 4,high standard deviation load,2018-05-25 00:00:00,2018-05-31 23:00:00
-5,high water and air temperature,2017-07-23 00:00:00,2017-07-29 23:00:00
-6,synthetic high load,2018-06-28 00:00:00,2018-07-04 23:00:00
+5,high temperature,2017-07-18 00:00:00,2017-07-24 23:00:00
+6,synthetic extreme,2018-06-28 00:00:00,2018-07-04 23:00:00

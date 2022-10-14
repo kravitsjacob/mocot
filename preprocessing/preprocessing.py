@@ -148,7 +148,7 @@ def main():
         premocot.core.scenario_dates(df_water, df_air, df_system_load)
 
     # Generate exogenous inputs for each scenario
-    generate = 0
+    generate = 1
     if generate:
         df_water = pd.read_csv(paths['outputs']['water_temperature'])
         df_air = pd.read_csv(paths['outputs']['air_temperature'])
