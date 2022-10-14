@@ -6,12 +6,13 @@ using XLSX
 using PowerModels
 using JuMP
 using Ipopt
+using JLD2
 
 using MOCOT
 
 # Global vars
 network_data_raw = PowerModels.parse_file("simulation/src/MOCOT/testing/case_ACTIVSg200.m")
-
+exogenous_raw = JLD2.load("simulation/src/MOCOT/testing/test_exogenous.jld2")["exogenous"]
 
 function create_custom_test_network(network_data)
     """
@@ -86,6 +87,8 @@ function create_custom_test_network(network_data)
         [0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0, 0, 0, 0, 0, 0, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.3236270511239685]
     )
 
+    # Turn on all generators
+    network_data = MOCOT.update_all_gens!(network_data, "gen_status", 1)
     return network_data
 end
 
@@ -322,19 +325,39 @@ end
 
 @Test.testset "Impact of weights" begin
     # Setup
+    network_data = create_custom_test_network(network_data_raw)
+    exogenous = exogenous_raw
 
+    # No weights
+    (objectives_no_weights, metrics, state) = MOCOT.simulation(
+        network_data,
+        exogenous,
+        w_with_coal=0.0,
+        w_con_coal=0.0,
+        w_with_ng=0.0,
+        w_con_ng=0.0,
+        w_with_nuc=0.0,
+        w_con_nuc=0.0,
+        verbose_level=1
+    )
 
-    # # No weights
-    # MOCOT.simulation(
-    #     network_data,
-    #     exogenous,
-    #     w_with_coal=0.0,
-    #     w_con_coal=0.0,
-    #     w_with_ng=0.0,
-    #     w_con_ng=0.0,
-    #     w_with_nuc=0.0,
-    #     w_con_nuc=0.0,
-    #     verbose_level=1
-    # )
+    # Withdrawal weights
+    (objectives_weights, metrics, state) = MOCOT.simulation(
+        network_data,
+        exogenous,
+        w_with_coal=10.0,
+        w_con_coal=0.0,
+        w_with_ng=10.0,
+        w_con_ng=0.0,
+        w_with_nuc=10.0,
+        w_con_nuc=0.0,
+        verbose_level=1
+    )
+
+    # Test for reduced withdrawal
+    @Test.test objectives_weights["f_with_tot"] < objectives_no_weights["f_with_tot"]
+
+    # Test for increased cost
+    @Test.test objectives_weights["f_gen"] > objectives_no_weights["f_gen"]
 
 end
