@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import dataretrieval.nwis as nwis
 import warnings
+import datetime
 
 
 def import_eia(path_to_eia):
@@ -320,7 +321,7 @@ def process_hour_to_hour(df_synthetic_node_loads, net):
         1:, bus_start_idx: bus_end_idx
     ]
     df_temp.index = range(1, len(df_temp) + 1)
-    df_hour_to_hour = df_temp/df_temp_shift
+    df_hour_to_hour = df_temp_shift/df_temp
 
     # Add month and day
     df_hour_to_hour['month'] = df_synthetic_node_loads['month']
@@ -330,7 +331,7 @@ def process_hour_to_hour(df_synthetic_node_loads, net):
     return df_hour_to_hour
 
 
-def scenario_dates(df_water, df_air, df_system_load):
+def scenario_dates(df_water, df_air, df_system_load, df_hour_to_hour):
     """
     Get dates of scenarios based on statistics
 
@@ -342,6 +343,8 @@ def scenario_dates(df_water, df_air, df_system_load):
         Air exogenous dataframe
     df_system_load : pandas.DataFrame
         System load exogenous dataframe
+    df_hour_to_hour : pandas.DataFrame
+        Hour-to-hour exogenous dataframe
 
     Returns
     -------
@@ -362,10 +365,6 @@ def scenario_dates(df_water, df_air, df_system_load):
     # High 7-day load
     print('high load: {}'.format(df_rolling.idxmax()))
 
-    # High 7-day standard deviation
-    df_rolling = df_system_load['load'].rolling(7).std()
-    print('high standard devaiation of load: {}'.format(df_rolling.idxmax()))
-
     # High water temperature
     df_rolling = df_water['water_temperature'].rolling(7).mean()
     print('high water temperature: {}'.format(df_rolling.idxmax()))
@@ -374,6 +373,16 @@ def scenario_dates(df_water, df_air, df_system_load):
     df_rolling = df_air['air_temperature'].rolling(7).mean()
     print('high air temperature: {}'.format(df_rolling.idxmax()))
 
+    # High 7-day standard deviation
+    df_rolling = df_hour_to_hour.iloc[:, :-3]
+    df_rolling = df_rolling.rolling(7).std()
+    idx = df_rolling.iloc[:].sum(axis=1).idxmax()
+    print('high standard devaiation of load: Month {}, Day {}'.format(
+        df_hour_to_hour['month'][idx],
+        df_hour_to_hour['day'][idx],
+        )
+    )
+
     return 0
 
 
@@ -381,6 +390,7 @@ def create_scenario_exogenous(
     scenario_code,
     datetime_start,
     datetime_end,
+    hour_to_hour_start,
     df_water,
     df_air,
     df_system_load,
@@ -398,6 +408,8 @@ def create_scenario_exogenous(
         Start of scenario
     datetime_end : datetime.datetime
         End of scenario
+    hour_to_hour_start : datetime.datetime
+        Start of hour to hour variation information
     df_water : pandas.DataFrame
         Water temperature
     df_air : pandas.DataFrame
@@ -436,15 +448,13 @@ def create_scenario_exogenous(
         (df_system_load['datetime'] >= datetime_start) & \
         (df_system_load['datetime'] <= datetime_end)
     df_system_load = df_system_load[condition]
+    df_system_load = df_system_load.reset_index(drop=True)
     for i, row in df_system_load.iterrows():
         # Create temporary dataframe
         df_temp = pd.DataFrame(df_def_load['bus'])
 
         # Indexing information
         df_temp['datetime'] = row['datetime']
-        month = row['datetime'].month
-        day = row['datetime'].day
-        hour = row['datetime'].hour
 
         # Average magnitude of loads
         df_temp['load_mw'] = df_def_load['p_mw']
@@ -452,14 +462,19 @@ def create_scenario_exogenous(
         # Applying system load factor
         df_temp['load_mw'] = df_temp['load_mw'] * row['load_factor']
 
-        # Applying hour-to-hour
-        condition = (df_hour_to_hour['month'] == month) & \
+        # Applying hour-to-hour (time doesn't have to be same as scenario)
+        time_delta = datetime.timedelta(hours=i)
+        month = (hour_to_hour_start + time_delta).month
+        day = (hour_to_hour_start + time_delta).day
+        hour = (hour_to_hour_start + time_delta).hour
+        condition = \
+            (df_hour_to_hour['month'] == month) & \
             (df_hour_to_hour['day'] == day) & \
             (df_hour_to_hour['hour'] == hour)
         date_col_idx = -3
         hour_to_hour_factors = \
             df_hour_to_hour[condition].values[0][:date_col_idx]
-        df_temp['load_mw'] = df_def_load['p_mw'] * hour_to_hour_factors
+        df_temp['load_mw'] = df_temp['load_mw'] * hour_to_hour_factors
 
         # Store in df list
         df_load_ls.append(df_temp)
