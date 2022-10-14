@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
     // f_cos_tot
     BORG_Problem_set_epsilon(problem, 1, 10000000.0);
     // f_with_peak
-    BORG_Problem_set_epsilon(problem, 2, 10000000.0);
+    BORG_Problem_set_epsilon(problem, 2, 100000000.0);
     // f_con_peak
     BORG_Problem_set_epsilon(problem, 3, 1000000.0);
     // f_with_tot
@@ -107,11 +107,11 @@ int main(int argc, char* argv[])
     // f_con_tot
     BORG_Problem_set_epsilon(problem, 5, 10000000.0);
     // f_disvi_tot
-    BORG_Problem_set_epsilon(problem, 6, 1.0);
+    BORG_Problem_set_epsilon(problem, 6, 100000000.0);
     // f_emit
     BORG_Problem_set_epsilon(problem, 7, 10.0);
     // f_ENS
-    BORG_Problem_set_epsilon(problem, 8, 1.0);
+    BORG_Problem_set_epsilon(problem, 8, 0.1);
 
 	// Get the rank of this process.  The rank is used to ensure each
 	// parallel process uses a different random seed.
