@@ -17,7 +17,10 @@ setuptools.setup(
         'openpyxl',
         'pandapower >= 2.10.1',
         'PyYAML',
-        'matpowercaseframes'
+        'matpowercaseframes',
+        'matplotlib',
+        'seaborn',
+        'hiplot'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

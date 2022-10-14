@@ -5,6 +5,7 @@ import pandapower
 import os
 import pandas as pd
 import yaml
+import datetime
 
 import premocot
 
@@ -181,6 +182,52 @@ def main():
             '0', str(row['scenario_code'])
         )
         df_node_load.to_csv(path_to_node_load, index=False)
+
+    # Example figures (not connected to actual scenarios)
+    # # Daily average air/water temperature
+    if not os.path.exists(paths['outputs']['figures']['temperatures']):
+        df_water = pd.read_csv(paths['outputs']['water_temperature'])
+        df_air = pd.read_csv(paths['outputs']['air_temperature'])
+        fig = premocot.viz.temperatures(df_water, df_air)
+        fig.savefig(paths['outputs']['figures']['temperatures'])
+
+    # # System hourly load data
+    if not os.path.exists(paths['outputs']['figures']['system_load']):
+        df_system_load = pd.read_csv(paths['outputs']['system_load'])
+        fig = premocot.viz.system_load(df_system_load)
+        fig.savefig(paths['outputs']['figures']['system_load'])
+
+    # # System hourly load factors data
+    if not os.path.exists(paths['outputs']['figures']['system_load_factor']):
+        df_system_load = pd.read_csv(paths['outputs']['system_load'])
+        fig = premocot.viz.system_load_factor(df_system_load)
+        fig.savefig(paths['outputs']['figures']['system_load_factor'])
+
+    # # Node hour-to-hour load factors data
+    if not os.path.exists(paths['outputs']['figures']['hour_node_load']):
+        df_hour_to_hour = pd.read_csv(paths['outputs']['hour_to_hour'])
+        fig = premocot.viz.hour_node_load(df_hour_to_hour)
+        fig.savefig(paths['outputs']['figures']['hour_node_load'])
+
+    # # Node hourly load data
+    if not os.path.exists(paths['outputs']['figures']['node_load']):
+        df_water = pd.read_csv(paths['outputs']['water_temperature'])
+        df_air = pd.read_csv(paths['outputs']['air_temperature'])
+        df_system_load = pd.read_csv(paths['outputs']['system_load'])
+        df_hour_to_hour = pd.read_csv(paths['outputs']['hour_to_hour'])
+        net = pandapower.converter.from_mpc(paths['inputs']['case'])
+        df_air_water, df_node_load = premocot.core.create_scenario_exogenous(
+            row['scenario_code'],
+            datetime.datetime(2019, 7, 1),
+            datetime.datetime(2019, 7, 7),
+            df_water,
+            df_air,
+            df_system_load,
+            df_hour_to_hour,
+            net
+        )
+        fig = premocot.viz.node_load(df_node_load)
+        fig.savefig(paths['outputs']['figures']['node_load'])
 
 
 if __name__ == '__main__':
