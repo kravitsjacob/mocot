@@ -338,39 +338,3 @@ def node_load(df_node_load):
     plt.tight_layout()
 
     return fig
-
-
-def synthetic_data(df_synthetic_node_loads):
-    # Type parsing
-    df_synthetic_node_loads['datetime'] = pd.to_datetime(
-        df_synthetic_node_loads['Date'] + ' ' + df_synthetic_node_loads['Time']
-    )
-
-    # Formatting
-    df_synthetic_node_loads = df_synthetic_node_loads.iloc[:, -10:]
-    df = pd.melt(
-        df_synthetic_node_loads,
-        var_name='bus',
-        value_name='load_mw',
-        id_vars='datetime'
-    )
-
-    fig, ax = plt.subplots()
-    palette = sns.color_palette(['black'], len(df['bus'].unique()))
-    sns.lineplot(
-        data=df,
-        x='datetime',
-        y='load_mw',
-        hue='bus',
-        palette=palette,
-        legend=False,
-        lw=0.4,
-        alpha=0.2,
-        ax=ax
-    )
-    plt.xlabel('')
-    plt.ylabel('Power [MW]')
-    plt.xticks(rotation=90)
-    plt.tight_layout()
-
-    return fig
