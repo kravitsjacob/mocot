@@ -99,7 +99,7 @@ function simulation(
     # Initialize water use based on 25.0 C
     water_temperature = 25.0
     air_temperature = 25.0
-    regulatory_temperature = 33.7  # For Illinois
+    regulatory_temperature = 32.2  # For Illinois
     gen_beta_with, gen_beta_con = gen_water_use_wrapper(
         water_temperature,
         air_temperature,
