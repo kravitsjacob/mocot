@@ -160,6 +160,17 @@ class BorgRuntimeDiagnostic(BorgRuntimeUtils):
         self.n_objectives = n_objectives
         self.n_metrics = n_metrics
 
+        # Defaults
+        self.decision_names = [
+            'decision_' + str(i+1) for i in range(n_decisions)
+        ]
+        self.objective_names = [
+            'objective_' + str(i+1) for i in range(n_objectives)
+        ]
+        self.metric_names = [
+            'metric_' + str(i+1) for i in range(n_metrics)
+        ]
+
         # Runtime statistics
         df_res = self._parse_stats(
             df_raw
@@ -433,15 +444,12 @@ class BorgRuntimeAggregator():
                 run_obj.archive_objectives[nfe],
                 columns=run_obj.objective_names
             )
-            df_front = pd.concat([df_decs, df_objs], axis=1)
-            df_front['run_name'] = run_name
-
-            # Get metrics
-            df_front = pd.merge(
-                df_front.round(8),
-                run_obj.metrics.drop_duplicates().round(8),
-                how='left'
+            df_metrics = pd.DataFrame(
+                run_obj.archive_metrics[nfe],
+                columns=run_obj.metric_names
             )
+            df_front = pd.concat([df_decs, df_objs, df_metrics], axis=1)
+            df_front['run_name'] = run_name
 
             # Store
             df_ls.append(df_front)
@@ -450,13 +458,17 @@ class BorgRuntimeAggregator():
         df = pd.concat(df_ls)
 
         # Create Plot
-        cols = run_obj.decision_names + run_obj.objective_names + ['run_name']
+        cols = \
+            run_obj.decision_names +\
+            run_obj.objective_names +\
+            run_obj.metric_names +\
+            ['run_name']
         cols.reverse()
         color_col = 'run_name'
         exp = hip.Experiment.from_dataframe(df)
         exp.parameters_definition[color_col].colormap = 'schemeDark2'
         exp.display_data(hip.Displays.PARALLEL_PLOT).update(
-            {'order': cols}
+            {'order': cols, 'hide': ['uid']},
         )
         exp.display_data(hip.Displays.TABLE).update(
             {'hide': ['uid', 'from_uid']}
