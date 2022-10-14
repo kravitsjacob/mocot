@@ -60,22 +60,31 @@ class BorgRuntimeUtils:
 
         return df_res
 
-    def _parse_archive(self, df, decision_names, objective_names):
-        """Convert archive data to dataframes
+    def _parse_archive(
+        self,
+        df,
+        n_decisions,
+        n_objectives,
+        n_metrics
+    ):
+        """
+        Convert archive data to dataframes
 
         Parameters
         ----------
         df : pandas.DataFrame
             Raw runtime pandas dataframe
-        decision_names : list
-            Decision names
-        objective_names : list
-            Objective names
+        n_decisions : int
+            Number of decisions
+        n_objectives : int
+            Number of objectives
+        n_metrics : int
+            Number of metrics
 
         Returns
         -------
-        pandas.DataFrame
-            Processed archive
+        tuple
+            Tuple of decisions, objectives, and metrics list of lists
         """
         # Extract Archive Prints
         df_temp = df[np.isnan(df['value'])]
@@ -83,27 +92,33 @@ class BorgRuntimeUtils:
 
         # Separate Based on Deliminators
         df_temp = df_temp['var'].str.split(' ', expand=True).astype(float)
-        df_temp.columns = decision_names + objective_names
 
-        # Create Lists of Lists
-        df_temp['decisions'] = df_temp[decision_names].values.tolist()
-        df_temp['objectives'] = df_temp[objective_names].values.tolist()
+        # Extract decisions, objectives, metrics from archive
+        start_idx = 0
+        end_idx = n_decisions
+        df_all_decisions = df_temp.iloc[:, start_idx:end_idx]
+        start_idx = end_idx
+        end_idx = start_idx + n_objectives
+        df_all_objectives = df_temp.iloc[:, start_idx:end_idx]
+        start_idx = end_idx
+        end_idx = start_idx + n_metrics
+        df_all_metrics = df_temp.iloc[:, start_idx:end_idx]
 
-        # Decisions
-        df_param = df_temp['decisions']
-        parameters_ls = [
-            df_param.loc[i].tolist()
-            for i in consecutive_groups(df_param.index)
+        # Turn into list of lists
+        decisions_ls = [
+            df_all_decisions.loc[i].values.tolist()
+            for i in consecutive_groups(df_all_decisions.index)
         ]
-
-        # Objectives
-        df_obj = df_temp['objectives']
         objectives_ls = [
-            df_obj.loc[i].tolist()
-            for i in consecutive_groups(df_obj.index)
+            df_all_objectives.loc[i].values.tolist()
+            for i in consecutive_groups(df_all_objectives.index)
+        ]
+        metrics_ls = [
+            df_all_metrics.loc[i].values.tolist()
+            for i in consecutive_groups(df_all_metrics.index)
         ]
 
-        return parameters_ls, objectives_ls
+        return decisions_ls, objectives_ls, metrics_ls
 
 
 class BorgRuntimeDiagnostic(BorgRuntimeUtils):
@@ -113,9 +128,9 @@ class BorgRuntimeDiagnostic(BorgRuntimeUtils):
     def __init__(
         self,
         path_to_runtime,
-        decision_names,
-        objective_names,
-        df_metrics,  # TODO update to add function
+        n_decisions,
+        n_objectives,
+        n_metrics,
     ):
         """
         Parsing runtime file and assigning parameters
@@ -141,9 +156,9 @@ class BorgRuntimeDiagnostic(BorgRuntimeUtils):
         )
 
         # General attributes
-        self.decision_names = decision_names
-        self.objective_names = objective_names
-        self.metrics = df_metrics
+        self.n_decisions = n_decisions
+        self.n_objectives = n_objectives
+        self.n_metrics = n_metrics
 
         # Runtime statistics
         df_res = self._parse_stats(
@@ -164,13 +179,15 @@ class BorgRuntimeDiagnostic(BorgRuntimeUtils):
         self.undx = df_res['UNDX'].to_dict()
 
         # Parsing archives
-        parameters_ls, objectives_ls = self._parse_archive(
+        decisions_ls, objectives_ls, metrics_ls = self._parse_archive(
             df_raw,
-            decision_names,
-            objective_names
+            self.n_decisions,
+            self.n_objectives,
+            self.n_metrics
         )
-        self.archive_decisions = dict(zip(self.nfe, parameters_ls))
+        self.archive_decisions = dict(zip(self.nfe, decisions_ls))
         self.archive_objectives = dict(zip(self.nfe, objectives_ls))
+        self.archive_metrics = dict(zip(self.nfe, metrics_ls))
 
     def compute_hypervolume(self, reference_point):
         """Compute hypervolumes

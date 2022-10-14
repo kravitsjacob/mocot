@@ -53,26 +53,6 @@ def main():
         fig = postmocot.viz.node_load(df_node_load)
         fig.savefig(paths['outputs']['figures']['node_load'])
 
-    # # Temporary code for metrics (TODO switch to constraints)
-    # for (_, row) in df_scenario_specs.iterrows():
-    #     df_ls = []
-    #     in_path = 'C:/Users/kravi/Desktop/mocot/io/outputs/states/scenario_0_metrics-*.csv'  # noqa
-    #     in_path = in_path.replace(
-    #         '0', str(row['scenario_code'])
-    #     )
-
-    #     # Read into single dataframe
-    #     for file in glob.glob(in_path):
-    #         df_ls.append(pd.read_csv(file))
-    #     df = pd.concat(df_ls)
-
-    #     # Writing
-    #     out_path = paths['outputs']['runtime_template'].replace(
-    #         '0', str(row['scenario_code'])
-    #     )
-    #     out_path = out_path.replace('runtime.txt', 'metrics.csv')
-    #     df.to_csv(out_path, index=False)
-
     # Parameter names
     objective_names = pd.read_csv(
         paths['inputs']['objectives']
@@ -80,20 +60,20 @@ def main():
     decision_names = pd.read_csv(
         paths['inputs']['decisions']
     ).columns.tolist()
+    metric_names = pd.read_csv(
+        paths['inputs']['metrics']
+    ).columns.tolist()
 
     # Create runtime objects
     for (_, row) in df_scenario_specs.iterrows():
         path = paths['outputs']['runtime_template'].replace(
             '0', str(row['scenario_code'])
         )
-        path_metrics = 'io/outputs/states/scenario_0_metrics.csv'
-        path_metrics = path_metrics.replace('0', str(row['scenario_code']))
-        df_metrics = pd.read_csv(path_metrics)
         runtime = postmocot.runtime.BorgRuntimeDiagnostic(
             path,
-            decision_names,
-            objective_names,
-            df_metrics
+            n_decisions=len(decision_names),
+            n_objectives=len(objective_names),
+            n_metrics=len(metric_names),
         )
         runtime_objs[row['name']] = runtime
 
