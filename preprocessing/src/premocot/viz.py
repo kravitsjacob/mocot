@@ -8,6 +8,63 @@ import matplotlib.dates as mdates
 sns.set()
 
 
+def scenario_temperatures(multi_air_water):
+    """Scenario temperatures plot
+
+    Parameters
+    ----------
+    multi_air_water : dict
+        Dictionary of dataframes with keys being scenario name and value being
+         the dataframe
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        Plot of temperatures over time
+    """
+    df_ls = []
+    for scenario_name, df_air_water in multi_air_water.items():
+        df_air_water['scenario_name'] = scenario_name
+
+        # Store
+        df_ls.append(df_air_water)
+
+    # Making parent dataframe
+    df = pd.concat(df_ls)
+    df = pd.melt(
+        df,
+        id_vars=['datetime', 'scenario_name'],
+        var_name='temperature_type',
+        value_name='temperature'
+    )
+
+    g = sns.FacetGrid(
+        df,
+        col="scenario_name",
+        sharex=False,
+        aspect=0.7,
+        height=3.5,
+        gridspec_kws={
+            'wspace': 0.05
+        }
+    )
+    g.map_dataframe(
+        sns.lineplot,
+        x='datetime',
+        y='temperature',
+        style='temperature_type',
+        drawstyle='steps-post',
+    )
+    g.set_titles(col_template="{col_name}")
+    g.add_legend()
+    for ax in g.axes.flat:
+        ax.tick_params(axis='x', rotation=90)
+        ax.set_xlabel('')
+    g.figure.subplots_adjust(bottom=0.3)
+
+    return g
+
+
 def temperatures(df_water, df_air):
     """Plot of first 7 days of July 2019
 

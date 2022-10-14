@@ -26,7 +26,7 @@ def main():
     ).columns.tolist()
 
     # Create runtime objects
-    for (_, row) in df_scenario_specs.head(1).iterrows():
+    for (_, row) in df_scenario_specs.iterrows():
         path = paths['outputs']['runtime_template'].replace(
             '0', str(row['scenario_code'])
         )

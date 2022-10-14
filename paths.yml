@@ -59,12 +59,16 @@ outputs:
   metrics_template: "io/outputs/states/scenario_0_metrics.csv"
 
   figures:
-    # Exogenous figures
+    # Example figures
     system_load: "io/outputs/figures/example_system_load.pdf"
     system_load_factor: "io/outputs/figures/example_system_load_factor.pdf"
     node_load: "io/outputs/figures/example_node_load.pdf"
     hour_node_load: "io/outputs/figures/example_hour_node_load.pdf"
     temperatures: "io/outputs/figures/example_temperatures.pdf"
+
+    # Scenario figures
+    scenario_temperatures: "io/outputs/figures/scenario_temperatures.pdf"
+    scenario_loads: "io/outputs/figures/scenario_node_loads.pdf"
 
     # Runtime figures
     interactive_parallel: "io/outputs/figures/runtime_interactive_parallel.html"
