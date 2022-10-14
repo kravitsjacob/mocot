@@ -26,7 +26,18 @@ for every bug:
 4) Run simulation using "all generators" scenario (code 1) `$ ./optimization/single_simulation.exe 1`
 
 # Optimization on Unix-like
-1) Place borg files in `optimization/src/borg`. We used a modified version of the algorithm where we disable the constraint functionality to isntead pass our metrics during the optimization. We do this by commenting lines 506-510 and 617-620 in borg.c.
+1) Place borg files in `optimization/src/borg`. We used a modified version of the algorithm where we disable the constraint functionality to isntead pass our metrics during the optimization. We do this by 
+* Commenting lines 506-510 and 617-620 in borg.c to disable constraint evaluation.
+* Adding the following lines to line 1811 in borg.c to add constraint printing to archive append.
+```
+		for (j=0; j<solution->problem->numberOfConstraints; j++) {
+			if (j > 0 || solution->problem->numberOfConstraints > 0) {
+				fprintf(file, " ");
+			}
+
+			fprintf(file, "%.*g", BORG_DIGITS, solution->constraints[j]);
+		}
+```
 2) Download julia and make sure the path is reflected in `optimization/makefile`
 3) Activate julia `$ julia simulation/julia_config.jl`
 4) Compile using `$ make optimization -C ./optimization`
