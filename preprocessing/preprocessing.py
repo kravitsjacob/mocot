@@ -224,6 +224,16 @@ def main():
         fig.savefig(paths['outputs']['figures']['scenario_loads'])
 
     # Example figures (not connected to actual scenarios)
+
+    df_synthetic_node_loads = pd.read_csv(
+        paths['inputs']['synthetic_node_loads'],
+        header=1,
+        low_memory=False
+    )
+    fig = premocot.viz.synthetic_data(df_synthetic_node_loads)
+    fig.savefig('io/outputs/figures/test_synthetic_values.pdf')
+
+
     # # Daily average air/water temperature
     if not os.path.exists(paths['outputs']['figures']['temperatures']):
         df_water = pd.read_csv(paths['outputs']['water_temperature'])
