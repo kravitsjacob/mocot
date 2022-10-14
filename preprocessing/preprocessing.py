@@ -140,7 +140,7 @@ def main():
         df_hour_to_hour.to_csv(paths['outputs']['hour_to_hour'], index=False)
 
     # Exogenous scenario
-    print_dates = 0
+    print_dates = 1
     if print_dates:
         df_water = pd.read_csv(paths['outputs']['water_temperature'])
         df_air = pd.read_csv(paths['outputs']['air_temperature'])
@@ -148,40 +148,46 @@ def main():
         premocot.core.scenario_dates(df_water, df_air, df_system_load)
 
     # Generate exogenous inputs for each scenario
-    df_water = pd.read_csv(paths['outputs']['water_temperature'])
-    df_air = pd.read_csv(paths['outputs']['air_temperature'])
-    df_system_load = pd.read_csv(paths['outputs']['system_load'])
-    df_hour_to_hour = pd.read_csv(paths['outputs']['hour_to_hour'])
-    df_scenario_specs = pd.read_csv(paths['inputs']['scenario_specs'])
-    net = pandapower.converter.from_mpc(paths['inputs']['case'])
+    generate = 1
+    if generate:
+        df_water = pd.read_csv(paths['outputs']['water_temperature'])
+        df_air = pd.read_csv(paths['outputs']['air_temperature'])
+        df_system_load = pd.read_csv(paths['outputs']['system_load'])
+        df_hour_to_hour = pd.read_csv(paths['outputs']['hour_to_hour'])
+        df_scenario_specs = pd.read_csv(paths['inputs']['scenario_specs'])
+        net = pandapower.converter.from_mpc(paths['inputs']['case'])
 
-    for (i, row) in df_scenario_specs.iterrows():
-        # Process
-        df_air_water, df_node_load = premocot.core.create_scenario_exogenous(
-            row['scenario_code'],
-            pd.to_datetime(row['datetime_start']),
-            pd.to_datetime(row['datetime_end']),
-            df_water,
-            df_air,
-            df_system_load,
-            df_hour_to_hour,
-            net
-        )
+        for (i, row) in df_scenario_specs.iterrows():
+            # Process
+            df_air_water, df_node_load = premocot.core.create_scenario_exogenous(
+                row['scenario_code'],
+                pd.to_datetime(row['datetime_start']),
+                pd.to_datetime(row['datetime_end']),
+                df_water,
+                df_air,
+                df_system_load,
+                df_hour_to_hour,
+                net
+            )
 
-        if row['scenario_code'] == 6:
-            data_cols = ['air_temperature', 'water_temperature']
-            df_air_water[data_cols] = df_air_water[data_cols] * 1.15
-            df_node_load['load_mw'] = df_node_load['load_mw'] * 1.15
+            if row['scenario_code'] == 6:
+                data_cols = ['air_temperature', 'water_temperature']
+                df_air_water[data_cols] = df_air_water[data_cols] * 1.15
+                df_node_load['load_mw'] = df_node_load['load_mw'] * 1.15
 
-        # Write
-        path_to_air_water = paths['outputs']['air_water_template'].replace(
-            '0', str(row['scenario_code'])
-        )
-        df_air_water.to_csv(path_to_air_water, index=False)
-        path_to_node_load = paths['outputs']['node_load_template'].replace(
-            '0', str(row['scenario_code'])
-        )
-        df_node_load.to_csv(path_to_node_load, index=False)
+            # Write
+            path_to_air_water = paths['outputs']['air_water_template'].replace(
+                '0', str(row['scenario_code'])
+            )
+            df_air_water.to_csv(path_to_air_water, index=False)
+            path_to_node_load = paths['outputs']['node_load_template'].replace(
+                '0', str(row['scenario_code'])
+            )
+            df_node_load.to_csv(path_to_node_load, index=False)
+
+    # Scenario temperature figures
+
+
 
     # Example figures (not connected to actual scenarios)
     # # Daily average air/water temperature
