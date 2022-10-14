@@ -20,6 +20,7 @@ inputs:
   # Parameter names
   decisions: "io/inputs/parameters/decisions.txt"
   objectives: "io/inputs/parameters/objectives.txt"
+  metrics: "io/inputs/parameters/metrics.txt"
 
   # Scenario specifications
   scenario_specs: "io/inputs/scenario_specs/scenario_specs.csv"

@@ -6,7 +6,7 @@ JULIA_DEFINE_FAST_TLS
 
 int n_decs = 6;
 int n_objs = 9;
-int n_consts = 0;
+int n_metrics = 4;
 int scenario_code;
 
 
@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
     char scenario_code_char[2];
     double test_decs[n_decs];
     double test_objs[n_objs];
-    double test_consts[n_consts];
+    double test_metrics[n_metrics];
     test_decs[0] = 0.1;
     test_decs[1] = 0.2;
     test_decs[2] = 0.3;
@@ -37,12 +37,17 @@ int main(int argc, char* argv[])
     jl_init();
     jl_eval_string("using MOCOT");
 
-    simulation_wrapper(test_decs, test_objs, test_consts);
+    simulation_wrapper(test_decs, test_objs, test_metrics);
 
     printf("Objective 1 is %f \n", test_objs[0]);
     printf("Objective 2 is %f \n ", test_objs[1]);
     printf("Objective 3 is %f \n", test_objs[2]);
     printf("Objective 4 is %f \n", test_objs[3]);
+
+    printf("Metric 1 is %f \n", test_metrics[0]);
+    printf("Metric 2 is %f \n", test_metrics[1]);
+    printf("Metric 3 is %f \n", test_metrics[2]);
+    printf("Metric 4 is %f \n", test_metrics[3]);
 
 	return 0;
 }

@@ -19,6 +19,7 @@ function read_inputs(
     case_path:: String,
     decisions_path:: String,
     objectives_path:: String,
+    metrics_path:: String
 )
     """
     Wrapper function for reading inputs
@@ -33,6 +34,7 @@ function read_inputs(
     - `case_path:: String`: Path to MATPOWER case
     - `decisions_path:: String`: Path to decision names
     - `objectives_path:: String`: Path to objective names
+    - `metrics_path:: String`: Path to objective names
     """
     # Reading inputs
     df_scenario_specs = DataFrames.DataFrame(
@@ -57,6 +59,7 @@ function read_inputs(
     # Parameter names
     decision_names = vec(DelimitedFiles.readdlm(decisions_path, ',', String))
     objective_names = vec(DelimitedFiles.readdlm(objectives_path, ',', String))
+    metric_names = vec(DelimitedFiles.readdlm(metrics_path, ',', String))
 
     # Generator information
     df_gen_info = get_gen_info(network_data, df_gen_info_python)
@@ -69,7 +72,8 @@ function read_inputs(
         network_data,
         df_gen_info,
         decision_names,
-        objective_names
+        objective_names,
+        metric_names
     )
     return inputs
 end

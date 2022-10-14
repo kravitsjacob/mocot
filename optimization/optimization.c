@@ -19,7 +19,7 @@ JULIA_DEFINE_FAST_TLS
 
 int n_decs = 6;
 int n_objs = 9;
-int n_consts = 0;
+int n_metrics = 4;
 int scenario_code;
 
 // Set decision bounds based on scenario
@@ -84,11 +84,11 @@ int main(int argc, char* argv[])
 
 	// Simulation setup
     BORG_Algorithm_ms_max_evaluations(10000);
-    BORG_Algorithm_output_frequency(100);
+    BORG_Algorithm_output_frequency(1);
 	BORG_Algorithm_ms_startup(&argc, &argv);
 
     // Setting up problem
-	BORG_Problem problem = BORG_Problem_create(n_decs, n_objs, n_consts, simulation_wrapper);
+	BORG_Problem problem = BORG_Problem_create(n_decs, n_objs, n_metrics, simulation_wrapper);
 
     // Set decision bounds
     set_dec_bounds(problem, scenario_code);

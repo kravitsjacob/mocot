@@ -10,7 +10,7 @@ import Memento
 import Dates
 import CSV
 import YAML
-import UUIDs
+
 
 # Dev packages
 import Infiltrator  # @Infiltrator.infiltrate
@@ -204,7 +204,7 @@ function borg_simulation_wrapper(
     - `scenario_code:: Int64`: Scenario code. See update_scenario! for codes
     """
     # Setup
-    objective_array = Float64[]
+    objective_metric_array = Float64[]
 
     # Setting verbose
     logger = Memento.getlogger("PowerModels")
@@ -224,7 +224,8 @@ function borg_simulation_wrapper(
         network_data,
         df_gen_info,
         decision_names,
-        objective_names
+        objective_names,
+        metric_names
     ) = read_inputs(
         scenario_code,
         paths["inputs"]["scenario_specs"],
@@ -235,6 +236,7 @@ function borg_simulation_wrapper(
         paths["inputs"]["case"],
         paths["inputs"]["decisions"],
         paths["inputs"]["objectives"],
+        paths["inputs"]["metrics"],        
     )
 
     # Preparing network
@@ -284,32 +286,19 @@ function borg_simulation_wrapper(
     if output_type == 1  # "borg"
         # Collect objectives
         for obj_name in objective_names
-            append!(objective_array, objectives[obj_name])
+            append!(objective_metric_array, objectives[obj_name])
         end
 
-        # Get metrics from simulation
-        metrics_path = replace(paths["outputs"]["metrics_template"], "0" => scenario_code)
-        id = string(UUIDs.uuid4())
-        metrics_path = replace(metrics_path, ".csv" => "-"*id*".csv")
-        df_sim_metrics = DataFrames.hcat(
-            DataFrames.DataFrame(decisions),
-            DataFrames.DataFrame(metrics)
-        )
-        # Writing metrics to file
-        if isfile(metrics_path)
-            df_metrics = DataFrames.DataFrame(
-                CSV.File(metrics_path)
-            )
-            df_metrics = DataFrames.vcat(df_metrics, df_sim_metrics) 
-        else
-            df_metrics = df_sim_metrics
+        # Collect metrics
+        for m_name in metric_names
+            try
+                append!(objective_metric_array, metrics[m_name])
+            catch
+                append!(objective_metric_array, 0.0)
+            end
         end
-        CSV.write(
-            metrics_path,
-            df_metrics
-        )
 
-        return objective_array
+        return objective_metric_array
 
     elseif output_type == 2  # "all"
 
