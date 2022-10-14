@@ -65,6 +65,64 @@ def scenario_temperatures(multi_air_water):
     return g
 
 
+def scenario_node_load(multi_node_load):
+    """Scenario node-level plot
+
+    Parameters
+    ----------
+    multi_node_load : dict
+        Dictionary of dataframes with keys being scenario name and value being
+         the dataframe
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        Plot of loads over time
+    """
+    df_ls = []
+    for scenario_name, df_node_load in multi_node_load.items():
+        df_node_load['scenario_name'] = scenario_name
+
+        # Store
+        df_ls.append(df_node_load)
+
+    # Making parent dataframe
+    df = pd.concat(df_ls)
+    df['datetime'] = pd.to_datetime(df['datetime'])
+
+    # Plotting
+    palette = sns.color_palette(
+        ['black'],
+        len(df['bus'].unique())
+    )
+    g = sns.FacetGrid(
+        df,
+        col="scenario_name",
+        sharex=False,
+        aspect=0.7,
+        height=3.5,
+        gridspec_kws={
+            'wspace': 0.05
+        }
+    )
+    g.map_dataframe(
+        sns.lineplot,
+        x='datetime',
+        y='load_mw',
+        hue='bus',
+        palette=palette,
+        lw=0.4,
+        alpha=0.2,
+    )
+    g.set_titles(col_template="{col_name}")
+    for ax in g.axes.flat:
+        ax.tick_params(axis='x', rotation=90)
+        ax.set_xlabel('')
+    g.figure.subplots_adjust(bottom=0.3)
+
+    return g
+
+
 def temperatures(df_water, df_air):
     """Plot of first 7 days of July 2019
 

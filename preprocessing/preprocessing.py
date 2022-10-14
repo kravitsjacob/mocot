@@ -148,7 +148,7 @@ def main():
         premocot.core.scenario_dates(df_water, df_air, df_system_load)
 
     # Generate exogenous inputs for each scenario
-    generate = 1
+    generate = 0
     if generate:
         df_water = pd.read_csv(paths['outputs']['water_temperature'])
         df_air = pd.read_csv(paths['outputs']['air_temperature'])
@@ -203,6 +203,25 @@ def main():
         # Plot
         fig = premocot.viz.scenario_temperatures(multi_air_water)
         fig.savefig(paths['outputs']['figures']['scenario_temperatures'])
+
+    # Scenario load figures
+    if not os.path.exists(paths['outputs']['figures']['scenario_loads']):  # noqa
+        # Import data
+        multi_node_load = {}
+        df_scenario_specs = pd.read_csv(paths['inputs']['scenario_specs'])
+        for (_, row) in df_scenario_specs.iterrows():
+            # Import files
+            path_to_load = paths['outputs']['node_load_template'].replace(
+                '0', str(row['scenario_code'])
+            )
+            df_node_load = pd.read_csv(path_to_load)
+
+            # Store
+            multi_node_load[row['name']] = df_node_load
+
+        # Plot
+        fig = premocot.viz.scenario_node_load(multi_node_load)
+        fig.savefig(paths['outputs']['figures']['scenario_loads'])
 
     # Example figures (not connected to actual scenarios)
     # # Daily average air/water temperature
