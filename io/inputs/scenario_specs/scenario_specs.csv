@@ -1,4 +1,4 @@
-scenario_code,name,datetime_start,datetime_end,hour_to_hour_start,
+scenario_code,name,datetime_start,datetime_end,hour_to_hour_start
 1,average week,2017-05-12 00:00:00,2017-05-18 23:00:00,2017-07-18 00:00:00
 2,nuclear outage,2017-05-12 00:00:00,2017-05-18 23:00:00,2017-07-18 00:00:00
 3,high load,2018-06-28 00:00:00,2018-07-04 23:00:00,2017-07-18 00:00:00
