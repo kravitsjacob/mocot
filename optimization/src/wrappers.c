@@ -21,7 +21,7 @@ void simulation_wrapper(double* decs, double* objs, double* metrics)
         args[i] = dec;
     }
 
-    // Assign output type to borg
+    // Assign return type to borg
     args[n_decs] = jl_box_int64(1);
 
     // Assign verbose to none

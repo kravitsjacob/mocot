@@ -185,7 +185,7 @@ function borg_simulation_wrapper(
     w_con_ng:: Float64=0.0,
     w_with_nuc:: Float64=0.0,
     w_con_nuc:: Float64=0.0,
-    output_type=1,
+    return_type=1,
     verbose_level=1,
     scenario_code=1,
 )
@@ -199,7 +199,7 @@ function borg_simulation_wrapper(
     - `w_con_ng:: Float64`: Natural gas consumption weight
     - `w_with_nuc:: Float64`: Nuclear withdrawal weight
     - `w_con_nuc:: Float64`: Nuclear consumption weight
-    - `output_type:: Int64`: Return code. 1 is for standard Borg output. 2 is for returning states, objectives, and metrics
+    - `return_type:: Int64`: Return code. 1 is for standard Borg output. 2 is for returning states, objectives, and metrics
     - `verbose_level:: Int64`: Level of stdout printing. Default is 1. Less is 0.
     - `scenario_code:: Int64`: Scenario code. See update_scenario! for codes
     """
@@ -283,7 +283,7 @@ function borg_simulation_wrapper(
     println(objectives)
     println(metrics)
 
-    if output_type == 1  # "borg"
+    if return_type == 1  # "borg"
         # Collect objectives
         for obj_name in objective_names
             append!(objective_metric_array, objectives[obj_name])
@@ -300,7 +300,7 @@ function borg_simulation_wrapper(
 
         return objective_metric_array
 
-    elseif output_type == 2  # "all"
+    elseif return_type == 2  # "all"
 
         # Generator information export
         CSV.write(paths["outputs"]["gen_info_main"], df_gen_info)
