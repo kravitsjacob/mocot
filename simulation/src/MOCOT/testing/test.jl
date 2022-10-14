@@ -359,5 +359,28 @@ end
 
     # Test for increased cost
     @Test.test objectives_weights["f_gen"] > objectives_no_weights["f_gen"]
+end
+
+
+@Test.testset "Water weight impact ENS" begin
+    # Setup
+    network_data = create_custom_test_network(network_data_raw)
+    exogenous = exogenous_raw
+
+    # No weights
+    (objectives, metrics, state) = MOCOT.simulation(
+        network_data,
+        exogenous,
+        w_with_coal=100.0,
+        w_con_coal=0.0,
+        w_with_ng=0.0,
+        w_con_ng=0.0,
+        w_with_nuc=0.0,
+        w_con_nuc=0.0,
+        verbose_level=1
+    )
+
+    # Test for increased ENS
+    objectives["f_ENS"] > 0.1
 
 end
