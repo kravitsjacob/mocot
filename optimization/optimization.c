@@ -27,13 +27,13 @@ void set_dec_bounds(BORG_Problem problem, int scenario_code)
 {
     if (scenario_code == 2){
         // w_with_coal
-        BORG_Problem_set_bounds(problem, 0, 0.0, 0.5);
+        BORG_Problem_set_bounds(problem, 0, 0.0, 2.0);
         // w_con_coal
         BORG_Problem_set_bounds(problem, 1, 0.0, 5.0);
         // w_with_ng
-        BORG_Problem_set_bounds(problem, 2, 0.0, 1.0);
+        BORG_Problem_set_bounds(problem, 2, 0.0, 2.0);
         // w_con_ng
-        BORG_Problem_set_bounds(problem, 3, 0.0, 1.0);
+        BORG_Problem_set_bounds(problem, 3, 0.0, 2.0);
         // w_with_nuc
         BORG_Problem_set_bounds(problem, 4, 0.0, 0.00001);
         // w_con_nuc
@@ -41,17 +41,17 @@ void set_dec_bounds(BORG_Problem problem, int scenario_code)
     }
     else {
         // w_with_coal
-        BORG_Problem_set_bounds(problem, 0, 0.0, 0.5);
+        BORG_Problem_set_bounds(problem, 0, 0.0, 2.0);
         // w_con_coal
         BORG_Problem_set_bounds(problem, 1, 0.0, 5.0);
         // w_with_ng
-        BORG_Problem_set_bounds(problem, 2, 0.0, 1.0);
+        BORG_Problem_set_bounds(problem, 2, 0.0, 2.0);
         // w_con_ng
-        BORG_Problem_set_bounds(problem, 3, 0.0, 1.0);
+        BORG_Problem_set_bounds(problem, 3, 0.0, 2.0);
         // w_with_nuc
-        BORG_Problem_set_bounds(problem, 4, 0.0, 1.0);
+        BORG_Problem_set_bounds(problem, 4, 0.0, 2.0);
         // w_con_nuc
-        BORG_Problem_set_bounds(problem, 5, 0.0, 1.0);
+        BORG_Problem_set_bounds(problem, 5, 0.0, 2.0);
     }
 }
 
