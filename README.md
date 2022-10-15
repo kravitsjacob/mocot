@@ -55,7 +55,7 @@ for every bug:
 ## Running optimization
 1) Activate Alpine: `$ ml slurm/alpine`
 2) Change directory to mocot: `$ cd /projects/jakr3868/mocot`
-3) Submit the job using "all generators" scenario (code 1): `$ sbatch --export=scenario_code=1 optimization/slurm_run.sh`
+3) Submit the job for all scenarios: `$ sbatch --array=1-6 optimization/slurm_run.sh`
 
 # Python Postprocessing
 1) Install the python package `$ pip install --editable ./postprocessing/.`
