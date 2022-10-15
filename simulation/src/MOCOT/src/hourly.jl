@@ -20,7 +20,7 @@ function add_linear_obj_terms!(
         for (gen_name, coef) in linear_coef
             gen_index = parse(Int64, gen_name)
             try
-                gen_term = coef * 100.0 * PowerModels.var(
+                gen_term = coef * PowerModels.var(
                     pm, h, :pg, gen_index
                 )
                 terms = terms + gen_term
