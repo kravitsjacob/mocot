@@ -12,7 +12,7 @@ using MOCOT
 
 # Global vars
 network_data_raw = PowerModels.parse_file("simulation/src/MOCOT/testing/case_ACTIVSg200.m")
-exogenous_raw = JLD2.load("simulation/src/MOCOT/testing/test_exogenous.jld2")["exogenous"]
+exogenous_raw = JLD2.load("simulation/src/MOCOT/testing/test_exogenous.jld2")
 
 function create_custom_test_network(network_data)
     """
@@ -30,7 +30,7 @@ function create_custom_test_network(network_data)
         "gen",
         "cus_ramp_rate",
         obj_names,
-        [163.07999999999998, 163.07999999999998, 163.07999999999998, 163.07999999999998, 326.52, 169.2, 1005.12, 1005.12, 1005.12, 1005.12, 1005.12, 1005.12, 647.9999999999999, 4681.8, 4681.8, 4681.8, 16070.399999999998, 16070.399999999998, 194.4, 2779.92, 2779.92, 2779.92, 2779.92, 630.0, 957.6, 420.0, 420.0, 420.0, 420.0, 420.0, 420.0, 48.0, 28.8, 216.0, 216.0, 38.400000000000006, 60.0, 75.6, 1663.1999999999998, 144.00000000000003, 312.0, 112.8, 112.8, 112.8, 112.8, 112.8, 810.0, 810.0, 113.83]
+        [1.6307999999999998, 1.6307999999999998, 1.6307999999999998, 1.6307999999999998, 3.2651999999999997, 1.692, 10.0512, 10.0512, 10.0512, 10.0512, 10.0512, 10.0512, 6.479999999999999, 46.818000000000005, 46.818000000000005, 46.818000000000005, 160.70399999999998, 160.70399999999998, 1.944, 27.7992, 27.7992, 27.7992, 27.7992, 6.3, 9.576, 4.2, 4.2, 4.2, 4.2, 4.2, 4.2, 0.48, 0.28800000000000003, 2.16, 2.16, 0.38400000000000006, 0.6, 0.7559999999999999, 16.631999999999998, 1.4400000000000004, 3.12, 1.128, 1.128, 1.128, 1.128, 1.128, 8.1, 8.1, 1.1383]
     )
 
     # Fuel types
@@ -57,7 +57,7 @@ function create_custom_test_network(network_data)
         "gen",
         "cus_emit",
         obj_names,
-        [0.0022299999999999, 0.0022299999999999, 0.0022299999999999, 0.0022299999999999, 0.0022299999999999, 0.0022299999999999, 0.0022299999999999, 0.0022299999999999, 0.0022299999999999, 0.0022299999999999, 0.0022299999999999, 0.0022299999999999, 0.0022299999999999, 0.0022299999999999, 0.0022299999999999, 0.0022299999999999, 0.0022299999999999, 0.0022299999999999, 0.0022299999999999, 0.0022299999999999, 0.0022299999999999, 0.0022299999999999, 0.0022299999999999, 0.0022299999999999, 0.0022299999999999, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.00091, 0.00091, 0.00091, 0.00091, 0.00091, 0.00091, 0.00091, 0.00091, 0.00091, 0.00091, 0.00091, 0.00091, 0.00091, 0.00091, 0.00091, 0.00091, 0.00091, 0.0]
+        [0.22299999999999, 0.22299999999999, 0.22299999999999, 0.22299999999999, 0.22299999999999, 0.22299999999999, 0.22299999999999, 0.22299999999999, 0.22299999999999, 0.22299999999999, 0.22299999999999, 0.22299999999999, 0.22299999999999, 0.22299999999999, 0.22299999999999, 0.22299999999999, 0.22299999999999, 0.22299999999999, 0.22299999999999, 0.22299999999999, 0.22299999999999, 0.22299999999999, 0.22299999999999, 0.22299999999999, 0.22299999999999, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.091, 0.091, 0.091, 0.091, 0.091, 0.091, 0.091, 0.091, 0.091, 0.091, 0.091, 0.091, 0.091, 0.091, 0.091, 0.091, 0.091, 0.0]
     )
 
     # Withdrawal limit
@@ -66,7 +66,7 @@ function create_custom_test_network(network_data)
         "gen",
         "cus_with_limit",
         obj_names,
-        [190000.0, 190000.0, 190000.0, 190000.0, 190000.0, missing, missing, missing, missing, missing, missing, missing, 190000.0, 190000.0, 190000.0, 190000.0, missing, missing, 190000.0, 190000.0, 190000.0, 190000.0, 190000.0, 190000.0, 190000.0, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing]
+        [1.9e7, 1.9e7, 1.9e7, 1.9e7, 1.9e7, missing, missing, missing, missing, missing, missing, missing, 1.9e7, 1.9e7, 1.9e7, 1.9e7, missing, missing, 1.9e7, 1.9e7, 1.9e7, 1.9e7, 1.9e7, 1.9e7, 1.9e7, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing]
     )
 
     # Consumption limit
@@ -75,7 +75,7 @@ function create_custom_test_network(network_data)
         "gen",
         "cus_con_limit",
         obj_names,
-        [1200.0, 1200.0, 1200.0, 1200.0, 1200.0, missing, missing, missing, missing, missing, missing, missing, 1200.0, 1200.0, 1200.0, 1200.0, missing, missing, 1200.0, 1200.0, 1200.0, 1200.0, 1200.0, 1200.0, 1200.0, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing]
+        [120000.0, 120000.0, 120000.0, 120000.0, 120000.0, missing, missing, missing, missing, missing, missing, missing, 120000.0, 120000.0, 120000.0, 120000.0, missing, missing, 120000.0, 120000.0, 120000.0, 120000.0, 120000.0, 120000.0, 120000.0, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing]
     )
 
     # Heat rates
@@ -295,8 +295,8 @@ end
     network_data = create_custom_test_network(network_data_raw)
 
     # Set limits
-    network_data["gen"]["1"]["cus_with_limit"] = 190000.0
-    network_data["gen"]["1"]["cus_con_limit"] = 400.0
+    network_data["gen"]["1"]["cus_with_limit"] = 19000000.0
+    network_data["gen"]["1"]["cus_con_limit"] = 40000.0
 
     # No violations
     inlet_temperature = 25.0
@@ -306,8 +306,8 @@ end
         regulatory_temperature,
         network_data
     )
-    @Test.test isapprox(gen_beta_with["1"], 167495.7, atol=1)
-    @Test.test isapprox(gen_beta_con["1"], 367.2, atol=1)
+    @Test.test isapprox(gen_beta_with["1"], 1.674957060861525e7, atol=1)
+    @Test.test isapprox(gen_beta_con["1"], 36729.5, atol=1)
 
     # Discharge temperature violation
     inlet_temperature = 27.0
@@ -317,8 +317,8 @@ end
         regulatory_temperature,
         network_data
     )
-    @Test.test isapprox(gen_beta_with["1"], 190000.0, atol=1)
-    @Test.test isapprox(gen_beta_con["1"], 400.0, atol=1)
+    @Test.test isapprox(gen_beta_with["1"], 19000000.0, atol=1)
+    @Test.test isapprox(gen_beta_con["1"], 40000.0, atol=1)
     @Test.test isapprox(gen_discharge_violation["1"], 0.968, atol=1)
 end
 
@@ -345,15 +345,14 @@ end
     (objectives_weights, metrics, state) = MOCOT.simulation(
         network_data,
         exogenous,
-        w_with_coal=10.0,
+        w_with_coal=0.1,
         w_con_coal=0.0,
-        w_with_ng=10.0,
+        w_with_ng=0.1,
         w_con_ng=0.0,
-        w_with_nuc=10.0,
+        w_with_nuc=0.1,
         w_con_nuc=0.0,
         verbose_level=1
     )
-
     # Test for reduced withdrawal
     @Test.test objectives_weights["f_with_tot"] < objectives_no_weights["f_with_tot"]
 
@@ -371,7 +370,7 @@ end
     (objectives, metrics, state) = MOCOT.simulation(
         network_data,
         exogenous,
-        w_with_coal=100.0,
+        w_with_coal=5.0,
         w_con_coal=0.0,
         w_with_ng=0.0,
         w_con_ng=0.0,
@@ -381,6 +380,6 @@ end
     )
 
     # Test for increased ENS
-    objectives["f_ENS"] > 0.1
+    @Test.test objectives["f_ENS"] > 0.1
 
 end

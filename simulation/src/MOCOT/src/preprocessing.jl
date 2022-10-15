@@ -93,7 +93,6 @@ function add_custom_properties!(
     - `df_eia_heat_rates:: DataFrames.DataFrame`: EIA heat rate information
     """
     # Ramp rate
-
     network_data = MOCOT.add_prop!(
         network_data,
         "gen",
