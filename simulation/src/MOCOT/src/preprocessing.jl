@@ -93,12 +93,13 @@ function add_custom_properties!(
     - `df_eia_heat_rates:: DataFrames.DataFrame`: EIA heat rate information
     """
     # Ramp rate
+
     network_data = MOCOT.add_prop!(
         network_data,
         "gen",
         "cus_ramp_rate",
         df_gen_info[!, "obj_name"],
-        convert.(Float64, df_gen_info[!, "Ramp Rate (MW/hr)"])
+        convert.(Float64, df_gen_info[!, "Ramp Rate (MW/hr)"]) / 100.0  # convert to pu/hr
     )
 
     # Fuel types
@@ -125,7 +126,7 @@ function add_custom_properties!(
         "gen",
         "cus_emit",
         df_gen_info[!, "obj_name"],
-        convert.(Float64, df_gen_info[!, "Emission Rate lbs per MWh"])
+        convert.(Float64, df_gen_info[!, "Emission Rate lbs per MWh"]) * 100.0  # convert to lbs / pu
     )
 
     # Withdrawal limit
@@ -134,7 +135,7 @@ function add_custom_properties!(
         "gen",
         "cus_with_limit",
         df_gen_info[!, "obj_name"],
-        df_gen_info[!, "Withdrawal Limit [L/MWh]"]
+        df_gen_info[!, "Withdrawal Limit [L/MWh]"] * 100.0  # convert to L / pu
     )
 
     # Consumption limit
@@ -143,7 +144,7 @@ function add_custom_properties!(
         "gen",
         "cus_con_limit",
         df_gen_info[!, "obj_name"],
-        df_gen_info[!, "Consumption Limit [L/MWh]"]
+        df_gen_info[!, "Consumption Limit [L/MWh]"] * 100.0  # convert to L / pu
     )
 
     # Heat rates
@@ -276,7 +277,7 @@ function add_node_loads!(
                 ## PowerModels indexing
                 powermodels_bus = row["bus"] + 1
 
-                nodes[string(powermodels_bus)] = row["load_mw"]
+                nodes[string(powermodels_bus)] = row["load_mw"] / 100.0 # convert to pu
             end
             h_nodes[string(trunc(Int, h))] = nodes
         end

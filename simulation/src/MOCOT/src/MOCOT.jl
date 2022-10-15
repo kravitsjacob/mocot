@@ -39,26 +39,26 @@ function simulation(
     # Arguments
     - `network_data:: Dict`: PowerModels network data
     - `exogenous:: Dict`: Exogenous parameter data [<parameter_name>][<timestep>]...[<timestep>]
-    - `w_with_coal:: Float64`: Coal withdrawal weight
-    - `w_con_coal:: Float64`: Coal consumption weight
-    - `w_with_ng:: Float64`: Natural gas withdrawal weight
-    - `w_con_ng:: Float64`: Natural gas consumption weight
-    - `w_with_nuc:: Float64`: Nuclear withdrawal weight
-    - `w_con_nuc:: Float64`: Nuclear consumption weight
+    - `w_with_coal:: Float64`: Coal withdrawal weight [dollar/L]
+    - `w_con_coal:: Float64`: Coal consumption weight [dollar/L]
+    - `w_with_ng:: Float64`: Natural gas withdrawal weight [dollar/L]
+    - `w_con_ng:: Float64`: Natural gas consumption weight [dollar/L]
+    - `w_with_nuc:: Float64`: Nuclear withdrawal weight [dollar/L]
+    - `w_con_nuc:: Float64`: Nuclear consumption weight [dollar/L]
     - `verbose_level:: Int64`: Level of output. Default is 1. Less is 0.
     """
     # Initialization
     d_total = length(exogenous["node_load"]) 
     h_total = length(exogenous["node_load"]["1"])
     state = Dict{String, Dict}()
-    state["power"] = Dict("0" => Dict())
-    state["withdraw_rate"] = Dict("0" => Dict{String, Float64}())
-    state["consumption_rate"] = Dict("0" => Dict{String, Float64}())
-    state["discharge_violation"] = Dict("0" => Dict{String, Float64}())
+    state["power"] = Dict("0" => Dict())  # [pu]
+    state["withdraw_rate"] = Dict("0" => Dict{String, Float64}())  # [L/pu]
+    state["consumption_rate"] = Dict("0" => Dict{String, Float64}())  # [L/pu]
+    state["discharge_violation"] = Dict("0" => Dict{String, Float64}())  # [C]
 
     # Processing decision vectors
-    w_with = Dict{String, Float64}()
-    w_con = Dict{String, Float64}()
+    w_with = Dict{String, Float64}()  # [dollar/L]
+    w_con = Dict{String, Float64}()  # [dollar/L]
     for (obj_name, obj_props) in network_data["gen"]
         try
             if obj_props["cus_fuel"] == "coal"
@@ -90,17 +90,17 @@ function simulation(
     network_data = update_all_gens!(network_data, "pmin", 0.0)
 
     # Add reliability generators
-    voll = 330000.0  # $/pu for MISO
+    voll = 330000.0  # for MISO [dollar/pu]
     network_data = add_reliability_gens!(network_data, voll)
 
     # Make multinetwork
     network_data_multi = PowerModels.replicate(network_data, h_total)
 
     # Initialize water use based on 25.0 C
-    water_temperature = 25.0
-    air_temperature = 25.0
+    water_temperature = 20.0
+    air_temperature = 20.0
     regulatory_temperature = 32.2  # For Illinois
-    gen_beta_with, gen_beta_con = gen_water_use_wrapper(
+    gen_beta_with, gen_beta_con = gen_water_use_wrapper(  # [L/pu]
         water_temperature,
         air_temperature,
         regulatory_temperature,
@@ -193,12 +193,12 @@ function borg_simulation_wrapper(
     Simulation wrapper for borg multi-objective MOEA
     
     # Arguments
-    - `w_with_coal:: Float64`: Coal withdrawal weight
-    - `w_con_coal:: Float64`: Coal consumption weight
-    - `w_with_ng:: Float64`: Natural gas withdrawal weight
-    - `w_con_ng:: Float64`: Natural gas consumption weight
-    - `w_with_nuc:: Float64`: Nuclear withdrawal weight
-    - `w_con_nuc:: Float64`: Nuclear consumption weight
+    - `w_with_coal:: Float64`: Coal withdrawal weight [dollar/L]
+    - `w_con_coal:: Float64`: Coal consumption weight [dollar/L]
+    - `w_with_ng:: Float64`: Natural gas withdrawal weight [dollar/L]
+    - `w_con_ng:: Float64`: Natural gas consumption weight [dollar/L]
+    - `w_with_nuc:: Float64`: Nuclear withdrawal weight [dollar/L]
+    - `w_con_nuc:: Float64`: Nuclear consumption weight [dollar/L]
     - `return_type:: Int64`: Return code. 1 is for standard Borg output. 2 is for returning states, objectives, and metrics
     - `verbose_level:: Int64`: Level of stdout printing. Default is 1. Less is 0.
     - `scenario_code:: Int64`: Scenario code. See update_scenario! for codes

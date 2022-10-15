@@ -20,7 +20,7 @@ function add_linear_obj_terms!(
         for (gen_name, coef) in linear_coef
             gen_index = parse(Int64, gen_name)
             try
-                gen_term = coef * PowerModels.var(
+                gen_term = coef * 100.0 * PowerModels.var(
                     pm, h, :pg, gen_index
                 )
                 terms = terms + gen_term
@@ -55,8 +55,8 @@ function add_within_day_ramp_rates!(pm)
 
     for (obj_name, obj_props) in network_data_multi["1"]["gen"]
         try
-            # Extract ramp rates to pu
-            ramp = obj_props["cus_ramp_rate"]/100.0 
+            # Extract ramp rates
+            ramp = obj_props["cus_ramp_rate"]
             
             obj_index = parse(Int, obj_name)
             try
@@ -116,8 +116,8 @@ function add_day_to_day_ramp_rates!(
     
     for (obj_name, obj_props) in network_data_multi["1"]["gen"]
         try
-            # Extract ramp rates to pu
-            ramp = obj_props["cus_ramp_rate"]/100.0 
+            # Extract ramp rates
+            ramp = obj_props["cus_ramp_rate"]
 
             try
                 # Previous power output
@@ -164,7 +164,7 @@ function update_load!(network_data_multi::Dict, day_loads:: Dict)
 
     # Arguments
     - `network_data_multi::Dict`: Multi network data
-    - `day_loads:: Dict`: Loads for one day with buses as keys and loads as values
+    - `day_loads:: Dict`: Loads for one day with buses as keys and loads as values [MW]
     """
     # Looping over hours
     for (h, network_data) in network_data_multi["nw"]
@@ -173,8 +173,7 @@ function update_load!(network_data_multi::Dict, day_loads:: Dict)
         for load in values(network_data["load"])
             # Extracting load
             bus = string(load["load_bus"])
-            load_mw = day_loads[h][bus]
-            load_pu = load_mw/100.0
+            load_pu = day_loads[h][bus]
 
             # Set load
             load["pd"] = load_pu
