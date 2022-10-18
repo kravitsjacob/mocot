@@ -86,7 +86,7 @@ function simulation(
         end
     end
 
-    # Adjust generator capacity
+    # Adjust generator minimum capacity
     network_data = update_all_gens!(network_data, "pmin", 0.0)
 
     # Add reliability generators
@@ -117,6 +117,12 @@ function simulation(
         network_data_multi = update_load!(
             network_data_multi,
             exogenous["node_load"][string(d)]
+        )
+
+        # Adjust wind generator capacity
+        network_data_multi = update_wind_capacity!(
+            network_data_multi,
+            exogenous["wind_capacity_factor"][string(d)]
         )
 
         # Create power system model
@@ -255,7 +261,6 @@ function borg_simulation_wrapper(
         df_wind_cf,
         df_node_load
     )
-    @Infiltrator.infiltrate
 
     # Update generator status
     network_data = update_scenario!(network_data, scenario_code)

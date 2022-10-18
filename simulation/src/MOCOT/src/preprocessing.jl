@@ -272,13 +272,17 @@ function add_wind_cf!(
 
         ## Hours
         hours = Dict{String, Any}()
-        for h in DataFrames.unique(df_wind_cf_filter[!, "hour_index"])
+        for h in DataFrames.unique(df_d[!, "hour_index"])
             df_hour = df_d[in(h).(df_d.hour_index), :]
             hours[string(trunc(Int, h))] = df_hour.wind_capacity_factor[1]
         end
+
         days[string(trunc(Int, d))] = hours
+
     end
+
     exogenous["wind_capacity_factor"] = days
+
     return exogenous
 end
 

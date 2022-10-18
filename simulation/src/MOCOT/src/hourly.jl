@@ -184,6 +184,44 @@ function update_load!(network_data_multi::Dict, day_loads:: Dict)
 end
 
 
+function update_wind_capacity!(
+    network_data_multi::Dict,
+    wind_capacity_factor::Dict
+)
+    """
+    Update generator wind capacity
+
+    # Arguments
+    - `network_data_multi::Dict`: Multi network data
+    - `wind_capacity_factor:: Dict`: Wind capacity factors for one day with hours as keys and factors as values
+    """
+    # Loop through hours
+    for h in 1:length(network_data_multi)
+
+        # Extract network data
+        nw_data = network_data_multi["nw"][string(h)]
+
+        # Extract wind capacity factor
+        wind_cf = wind_capacity_factor[string(h)]
+
+        # Loop through generators
+        for gen_dict in values(nw_data["gen"])
+            
+            try
+                if gen_dict["cus_fuel"] == "wind"
+                    avg_capacity = gen_dict["pmax"]
+                    gen_dict["pmax"] = avg_capacity * wind_cf
+                end
+            catch
+                # Skip as reliability generator
+            end
+        end
+    end
+
+    return network_data_multi
+end
+
+
 function add_reliability_gens!(network_data:: Dict, voll:: Float64)
     """
     Add fake generators at every load to model relaibility. Generators with
