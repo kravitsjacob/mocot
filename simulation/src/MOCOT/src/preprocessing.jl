@@ -13,6 +13,7 @@ function read_inputs(
     scenario_code:: Int64,
     scenario_specs_path:: String,
     air_water_template:: String,
+    wind_capacity_factor_template:: String,
     node_load_template:: String,
     gen_info_from_python_path:: String,
     eia_heat_rates_path:: String,
@@ -28,6 +29,7 @@ function read_inputs(
     - `scenario_code:: Int64`: Scenario code
     - `scenario_specs_path:: String`: Path to scenario specification
     - `air_water_template:: String`: Template to air water temperature exogenous data
+    - `wind_capacity_factor_template:: String`: Template to wind capacity factor
     - `node_load_template:: String`: Template to node exogenous data
     - `gen_info_from_python_path:: String`: Path to generation info generated from preprocessing
     - `eia_heat_rates_path:: String`: Path to eia heat rate information
@@ -51,6 +53,10 @@ function read_inputs(
     # Exogenous parameters
     air_water_path = replace(air_water_template, "0" => scenario_code)
     df_air_water = DataFrames.DataFrame(CSV.File(air_water_path))
+    wind_cf_path = replace(wind_capacity_factor_template, "0" => scenario_code)
+    df_wind_cf = DataFrames.DataFrame(
+        CSV.File(wind_cf_path, dateformat="yy-mm-dd HH:MM:SS"),
+    )
     node_load_path = replace(node_load_template, "0" => scenario_code)
     df_node_load = DataFrames.DataFrame(
         CSV.File(node_load_path, dateformat="yy-mm-dd HH:MM:SS")
@@ -68,6 +74,7 @@ function read_inputs(
         df_scenario_specs,
         df_eia_heat_rates,
         df_air_water,
+        df_wind_cf,
         df_node_load,
         network_data,
         df_gen_info,
