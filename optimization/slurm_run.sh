@@ -7,7 +7,7 @@
 #SBATCH --constraint=ib
 #SBATCH --job-name=gosox
 #SBATCH --partition=amilan
-#SBATCH --time=0-00:150:00
+#SBATCH --time=0-00:100:00
 #SBATCH --mail-user=jakr3868@colorado.edu
 #SBATCH --mail-type=ALL
 
