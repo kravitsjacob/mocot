@@ -252,8 +252,10 @@ function borg_simulation_wrapper(
         start_date,
         end_date,
         df_air_water,
+        df_wind_cf,
         df_node_load
     )
+    @Infiltrator.infiltrate
 
     # Update generator status
     network_data = update_scenario!(network_data, scenario_code)

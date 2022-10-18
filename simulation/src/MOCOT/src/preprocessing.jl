@@ -240,6 +240,49 @@ function add_air_water!(
 end
 
 
+function add_wind_cf!(
+    exogenous:: Dict{String, Any},
+    df_wind_cf::DataFrames.DataFrame,
+    start_date:: Dates.DateTime,
+    end_date:: Dates.DateTime
+)
+    """
+    Add wind capacity factors to exogenous parameters in the proper format
+
+    # Arguments
+    - `exogenous:: Dict{String, Any}`: Exogenous parameter data [<parameter_name>][<timestep>]...[<timestep>]
+    - `df_wind_cf:: DataFrames.DataFrame`: Wind capacity dataframe
+    - `start_date:: Dates.DateTime`: Start time for simulation
+    - `end_date:: Dates.DateTime`: End time for simulation
+    """
+
+    ## Filter dataframes
+    date_filter = end_date .>= df_wind_cf.datetime .>= start_date
+    df_wind_cf_filter = df_wind_cf[date_filter, :]
+
+    ## Get index values
+    df_wind_cf_filter[!, "hour_delta"] = Dates.Hour.(df_wind_cf_filter.datetime .- df_wind_cf_filter.datetime[1])
+    df_wind_cf_filter[!, "day_index"] = floor.(Int64, Dates.value.(df_wind_cf_filter.hour_delta)/24 .+ 1.0)
+    df_wind_cf_filter[!, "hour_index"] = Dates.value.(@.Dates.Hour(df_wind_cf_filter.datetime)) .+ 1
+
+    ## Days
+    days = Dict{String, Any}()
+    for d in DataFrames.unique(df_wind_cf_filter[!, "day_index"])
+        df_d = df_wind_cf_filter[in(d).(df_wind_cf_filter.day_index), :]
+
+        ## Hours
+        hours = Dict{String, Any}()
+        for h in DataFrames.unique(df_wind_cf_filter[!, "hour_index"])
+            df_hour = df_d[in(h).(df_d.hour_index), :]
+            hours[string(trunc(Int, h))] = df_hour.wind_capacity_factor[1]
+        end
+        days[string(trunc(Int, d))] = hours
+    end
+    exogenous["wind_capacity_factor"] = days
+    return exogenous
+end
+
+
 function add_node_loads!(
     exogenous:: Dict{String, Any},
     df_node_load::DataFrames.DataFrame,
@@ -299,6 +342,7 @@ function get_exogenous(
     start_date:: Dates.DateTime,
     end_date:: Dates.DateTime,
     df_air_water:: DataFrames.DataFrame,
+    df_wind_cf:: DataFrames.DataFrame,
     df_node_load:: DataFrames.DataFrame
 )
     """
@@ -308,12 +352,16 @@ function get_exogenous(
     - `start_date:: Dates.DateTime`: Start time for simulation
     - `end_date:: Dates.DateTime`: End time for simulation
     - `df_air_water:: DataFrames.DataFrame`: Air and water temperature dataframe
+    - `df_wind_cf:: DataFrames.DataFrame`: Wind capacity factor dataframes
     - `df_node_load:: DataFrames.DataFrame`: Node-level load dataframe
     """
     exogenous = Dict{String, Any}()
 
     # Air and water temperatures
     exogenous = add_air_water!(exogenous, df_air_water, start_date, end_date)
+
+    # Wind capacity factors
+    exogenous = add_wind_cf!(exogenous, df_wind_cf, start_date, end_date)    
 
     # Node loads
     exogenous = add_node_loads!(exogenous, df_node_load, start_date, end_date)
