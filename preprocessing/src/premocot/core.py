@@ -381,7 +381,9 @@ def process_wind_capacity_factors(path_to_dir):
     return df_air
 
 
-def scenario_dates(df_water, df_air, df_system_load, df_hour_to_hour):
+def scenario_dates(
+    df_water, df_air, df_wind_cf, df_system_load, df_hour_to_hour
+):
     """
     Get dates of scenarios based on statistics
 
@@ -391,6 +393,8 @@ def scenario_dates(df_water, df_air, df_system_load, df_hour_to_hour):
         Water exogenous dataframe
     df_air : pandas.DataFrame
         Air exogenous dataframe
+    df_wind_cf : pandas.DataFrame
+        Wind capacity factor dataframe
     df_system_load : pandas.DataFrame
         System load exogenous dataframe
     df_hour_to_hour : pandas.DataFrame
@@ -405,6 +409,7 @@ def scenario_dates(df_water, df_air, df_system_load, df_hour_to_hour):
     df_water.index = df_water['datetime']
     df_air.index = df_air['datetime']
     df_system_load.index = df_system_load['datetime']
+    df_wind_cf.index = df_wind_cf['datetime']
 
     # Average week
     df_rolling = df_system_load['load'].rolling(7).mean()
@@ -432,6 +437,10 @@ def scenario_dates(df_water, df_air, df_system_load, df_hour_to_hour):
         df_hour_to_hour['day'][idx],
         )
     )
+
+    # Low wind week
+    df_rolling = df_wind_cf['wind_capacity_factor'].rolling(7).mean()
+    print('Low wind week: {}'.format(df_rolling.idxmin()))
 
     return 0
 
