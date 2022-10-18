@@ -45,7 +45,18 @@ def main():
 
     # Hypervolume
     if not os.path.exists(paths['outputs']['figures']['hypervolume']):
-        fig = runtime_multi.plot_hypervolume()
+        reference_point = [
+            1e7,
+            1e9,
+            1e10,
+            1e8,
+            1e11,
+            1e9,
+            1e12,
+            1e3,
+            1e4,
+        ]
+        fig = runtime_multi.plot_hypervolume(reference_point)
         fig.savefig(paths['outputs']['figures']['hypervolume'])
 
     # Interactive parallel

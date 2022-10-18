@@ -417,9 +417,14 @@ class BorgRuntimeAggregator():
         """
         self.runs = runtime_objs
 
-    def plot_hypervolume(self):
+    def plot_hypervolume(self, reference_point):
         """
         Plot hypervolume over the search
+
+        Parameters
+        ----------
+        reference_point : list
+            Reference point for hypervolume calculation
 
         Returns
         -------
@@ -432,7 +437,6 @@ class BorgRuntimeAggregator():
         # Computing hypervolume
         for run_name, run_obj in self.runs.items():
             df_run = pd.DataFrame()
-            reference_point = [1e12] * 9
             run_obj.compute_hypervolume(reference_point)
             df_run['hypervolume'] = pd.Series(run_obj.hypervolume)
             df_run['run_name'] = run_name
