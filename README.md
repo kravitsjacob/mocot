@@ -6,7 +6,7 @@ Multi-Objective Coordination of Thermoelectric Water Use
 2) Run the analysis`$ python preprocessing/preprocessing.py`
 
 # Simulation Tests
-1) Activate julia `$ julia --project=simulation\src\MOCOT`
+1) Activate julia `$ julia --project=simulation/src/MOCOT`
 2) Run tests `julia> include("simulation/src/MOCOT/testing/test.jl")`
 
 # Single Simulation Run (Debugging/Development)
