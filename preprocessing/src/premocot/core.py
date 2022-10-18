@@ -331,6 +331,56 @@ def process_hour_to_hour(df_synthetic_node_loads, net):
     return df_hour_to_hour
 
 
+def process_wind_capacity_factors(path_to_dir):
+    """
+    Import and process air temperature
+
+
+    Returns
+    -------
+    pandas.DataFrame
+        Cleaned exogenous data
+    """
+    df_air = pd.DataFrame()
+    df_raw = pd.DataFrame()
+    df_ls = []
+    file_template = '857101_39.81_-89.66_0000.csv'
+    years = [
+        '2015',
+        '2016',
+        '2017',
+        '2018',
+        '2019',
+        '2020'
+    ]
+
+    # Import raw data
+    for year in years:
+        file_name = file_template.replace('0000', year)
+        path_to_file = os.path.join(path_to_dir, file_name)
+        df_temp = pd.read_csv(
+            path_to_file,
+            header=2
+        )
+        df_ls.append(df_temp)
+    df_raw = pd.concat(df_ls)
+
+    # Datetime combine
+    df_raw['datetime'] = pd.to_datetime(
+        df_raw[['Year', 'Month', 'Day', 'Hour', 'Minute']]
+    )
+
+    # Get wind capacity factors
+    wind_mean = df_raw['Wind Speed'].mean()
+    df_raw['Wind Capacity Factor'] = df_raw['Wind Speed'] / wind_mean
+
+    # Cleanup
+    df_air['datetime'] = df_raw['datetime'] - datetime.timedelta(minutes=30)
+    df_air['wind_capacity_factor'] = df_raw['Wind Capacity Factor'].to_list()
+
+    return df_air
+
+
 def scenario_dates(df_water, df_air, df_system_load, df_hour_to_hour):
     """
     Get dates of scenarios based on statistics

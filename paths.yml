@@ -12,7 +12,7 @@ inputs:
   eia_heat_rates: "io/inputs/eia_heat_rates/Table_A6_Approximate_Heat_Rates_for_Electricity_-_and_Heat_Content_of_Electricity.xlsx"
   
   # Exogenous parameters
-  air_temperature_dir: "io/inputs/air_temperature"
+  air_temperature_dir: "io/inputs/nsrdb"
   synthetic_node_loads: "io/inputs/ACTIVSg_Time_Series/ACTIVISg2000_load_time_series_MW.csv"
   eia_load_template_j_j: "https://www.eia.gov/electricity/gridmonitor/sixMonthFiles/EIA930_BALANCE_0000_Jan_Jun.csv"
   eia_load_template_j_d: "https://www.eia.gov/electricity/gridmonitor/sixMonthFiles/EIA930_BALANCE_0000_Jul_Dec.csv"
@@ -43,6 +43,7 @@ outputs:
   air_temperature: "io/outputs/exogenous/air_temperature.csv"
   system_load: "io/outputs/exogenous/system_load.csv"
   hour_to_hour: "io/outputs/exogenous/hour_to_hour.csv"
+  wind_capacity_factors: "io/outputs/exogenous/wind_capacity_factors.csv"
 
   # Scenario exogenous parameters
   air_water_template: "io/outputs/exogenous/scenario_0_air_water.csv"

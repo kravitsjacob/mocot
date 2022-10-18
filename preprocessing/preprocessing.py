@@ -139,6 +139,13 @@ def main():
         )
         df_hour_to_hour.to_csv(paths['outputs']['hour_to_hour'], index=False)
 
+    # Wind capacity factors
+    if not os.path.exists(paths['outputs']['wind_capacity_factors']):
+        df_air = premocot.core.process_wind_capacity_factors(
+            paths['inputs']['air_temperature_dir']
+        )
+        df_air.to_csv(paths['outputs']['wind_capacity_factors'], index=False)
+
     # Exogenous scenario
     print_dates = 0
     if print_dates:
