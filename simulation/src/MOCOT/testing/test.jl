@@ -202,6 +202,34 @@ end
 end
 
 
+@Test.testset "Test for adding wind capacity" begin
+    # Import static network
+    d_total = 3
+    h_total = 24
+    network_data = create_custom_test_network(network_data_raw)
+    exogenous = exogenous_raw
+    network_data_multi = PowerModels.replicate(network_data, h_total)
+
+    # Save original value
+    orig_cap = network_data_multi["nw"]["1"]["gen"]["6"]["pmax"]
+
+    # Adjust wind generator capacity
+    network_data_multi = MOCOT.update_wind_capacity!(
+        network_data_multi,
+        exogenous["wind_capacity_factor"]["1"]
+    )
+
+    # New value
+    new_cap = network_data_multi["nw"]["1"]["gen"]["6"]["pmax"]
+    
+    @test isapprox(
+        orig_cap*exogenous["wind_capacity_factor"]["1"]["1"],
+        new_cap,
+        atol=-1
+    )
+end
+
+
 @Test.testset "Test for add_linear_obj_terms!" begin
     # Setup
     linear_coef = Dict{String, Float64}(
