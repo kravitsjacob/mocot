@@ -443,6 +443,7 @@ def create_scenario_exogenous(
     hour_to_hour_start,
     df_water,
     df_air,
+    df_wind_cf,
     df_system_load,
     df_hour_to_hour,
     net
@@ -464,6 +465,8 @@ def create_scenario_exogenous(
         Water temperature
     df_air : pandas.DataFrame
         Air temperature
+    df_wind_cf : pandas.DataFrame
+        Wind capacity factors
     df_system_load : pandas.DataFrame
         System load variablity
     df_hour_to_hour : pandas.DataFrame
@@ -492,6 +495,13 @@ def create_scenario_exogenous(
         (df_air_water['datetime'] >= datetime_start) & \
         (df_air_water['datetime'] <= datetime_end)
     df_air_water = df_air_water[condition]
+
+    # Wind capacity
+    df_wind_cf['datetime'] = pd.to_datetime(df_wind_cf['datetime'])
+    condition = \
+        (df_wind_cf['datetime'] >= datetime_start) & \
+        (df_wind_cf['datetime'] <= datetime_end)
+    df_wind_cf = df_wind_cf[condition]
 
     # Node load
     condition = \
@@ -540,6 +550,13 @@ def create_scenario_exogenous(
                 scenario_code
             )
         )
+    print('Lenth of wind cf dataframe {}'.format(len(df_wind_cf)))
+    if df_wind_cf.isna().any().any():
+        warnings.warn(
+            'Null value encountered in node load scenario {}'.format(
+                scenario_code
+            )
+        )
     print('Lenth of node load dataframe {}'.format(len(df_node_load)))
     if df_node_load.isna().any().any():
         warnings.warn(
@@ -548,4 +565,4 @@ def create_scenario_exogenous(
             )
         )
 
-    return df_air_water, df_node_load
+    return df_air_water, df_wind_cf, df_node_load

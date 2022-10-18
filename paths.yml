@@ -48,6 +48,7 @@ outputs:
   # Scenario exogenous parameters
   air_water_template: "io/outputs/exogenous/scenario_0_air_water.csv"
   node_load_template: "io/outputs/exogenous/scenario_0_node_load.csv"
+  wind_capacity_factor_template: "io/outputs/exogenous/scenario_0_wind_capacity_factor.csv"
 
   # Debugging
   objectives: "objectives.csv"
