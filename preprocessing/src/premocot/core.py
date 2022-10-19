@@ -439,7 +439,7 @@ def scenario_dates(
     )
 
     # Low wind week
-    df_rolling = df_wind_cf['wind_capacity_factor'].rolling(7).mean()
+    df_rolling = df_wind_cf['wind_capacity_factor'].rolling(24*7).median()
     print('Low wind week: {}'.format(df_rolling.idxmin()))
 
     return 0
