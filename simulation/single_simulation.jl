@@ -32,6 +32,9 @@ function main()
     
     # Simulation with synthetic high load
     (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 6)
+    
+    # Simulation with synthetic low wind
+    (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 7)
 
     # Objectives
     df_objs = DataFrames.DataFrame(objectives)
