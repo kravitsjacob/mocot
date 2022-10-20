@@ -15,8 +15,8 @@ function main()
     # Setup
     paths = YAML.load_file("paths.yml")
 
-    # Simulation with average
-    (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1, 0, 1)
+    # Simulation with average case
+    (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 1)
 
     # Simulation with nuclear outage
     (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 2)
@@ -29,12 +29,12 @@ function main()
 
     # Simulation with high water air and water tempeartures
     (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 5)
-
-    # Simulation with high water air and water tempertures with weights
-    (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 5)
     
-    # Simulation with high water air and water tempertures with weights
+    # Simulation with synthetic high load
     (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 6)
+    
+    # Simulation with synthetic low wind
+    (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2, 0, 7)
 
     # Objectives
     df_objs = DataFrames.DataFrame(objectives)

@@ -5,6 +5,7 @@ import pandapower
 import os
 import pandas as pd
 import yaml
+import datetime
 
 import premocot
 
@@ -138,49 +139,152 @@ def main():
         )
         df_hour_to_hour.to_csv(paths['outputs']['hour_to_hour'], index=False)
 
+    # Wind capacity factors
+    if not os.path.exists(paths['outputs']['wind_capacity_factors']):
+        df_air = premocot.core.process_wind_capacity_factors(
+            paths['inputs']['air_temperature_dir']
+        )
+        df_air.to_csv(paths['outputs']['wind_capacity_factors'], index=False)
+
     # Exogenous scenario
-    print_dates = 0
+    print_dates = 1
     if print_dates:
         df_water = pd.read_csv(paths['outputs']['water_temperature'])
         df_air = pd.read_csv(paths['outputs']['air_temperature'])
+        df_wind_cf = pd.read_csv(paths['outputs']['wind_capacity_factors'])
         df_system_load = pd.read_csv(paths['outputs']['system_load'])
-        premocot.core.scenario_dates(df_water, df_air, df_system_load)
+        df_hour_to_hour = pd.read_csv(paths['outputs']['hour_to_hour'])
+        premocot.core.scenario_dates(
+            df_water, df_air, df_wind_cf, df_system_load, df_hour_to_hour
+        )
 
     # Generate exogenous inputs for each scenario
-    df_water = pd.read_csv(paths['outputs']['water_temperature'])
-    df_air = pd.read_csv(paths['outputs']['air_temperature'])
-    df_system_load = pd.read_csv(paths['outputs']['system_load'])
-    df_hour_to_hour = pd.read_csv(paths['outputs']['hour_to_hour'])
-    df_scenario_specs = pd.read_csv(paths['inputs']['scenario_specs'])
-    net = pandapower.converter.from_mpc(paths['inputs']['case'])
+    generate = 1
+    if generate:
+        df_water = pd.read_csv(paths['outputs']['water_temperature'])
+        df_air = pd.read_csv(paths['outputs']['air_temperature'])
+        df_wind_cf_raw = pd.read_csv(paths['outputs']['wind_capacity_factors'])
+        df_system_load = pd.read_csv(paths['outputs']['system_load'])
+        df_hour_to_hour = pd.read_csv(paths['outputs']['hour_to_hour'])
+        df_scenario_specs = pd.read_csv(paths['inputs']['scenario_specs'])
+        net = pandapower.converter.from_mpc(paths['inputs']['case'])
 
-    for (i, row) in df_scenario_specs.iterrows():
-        # Process
+        for (_, row) in df_scenario_specs.iterrows():
+            # Process
+            df_air_water, df_wind_cf, df_node_load = premocot.core.create_scenario_exogenous(  # noqa
+                row['scenario_code'],
+                pd.to_datetime(row['datetime_start']),
+                pd.to_datetime(row['datetime_end']),
+                pd.to_datetime(row['hour_to_hour_start']),
+                df_water,
+                df_air,
+                df_wind_cf_raw,
+                df_system_load,
+                df_hour_to_hour,
+                net
+            )
+
+            if row['scenario_code'] == 6:
+                data_cols = ['air_temperature', 'water_temperature']
+                df_air_water[data_cols] = df_air_water[data_cols] * 1.10
+                df_node_load['load_mw'] = df_node_load['load_mw'] * 1.10
+
+            # Write
+            path_to_air_water = paths['outputs']['air_water_template'].replace(
+                '0', str(row['scenario_code'])
+            )
+            df_air_water.to_csv(path_to_air_water, index=False)
+            path_to_wind_cf = paths['outputs']['wind_capacity_factor_template'].replace(  # noqa
+                '0', str(row['scenario_code'])
+            )
+            df_wind_cf.to_csv(path_to_wind_cf, index=False)
+            path_to_node_load = paths['outputs']['node_load_template'].replace(
+                '0', str(row['scenario_code'])
+            )
+            df_node_load.to_csv(path_to_node_load, index=False)
+
+    # Scenario temperature figures
+    if not os.path.exists(paths['outputs']['figures']['scenario_temperatures']):  # noqa
+        # Import data
+        multi_air_water = {}
+        df_scenario_specs = pd.read_csv(paths['inputs']['scenario_specs'])
+        for (_, row) in df_scenario_specs.iterrows():
+            # Import files
+            path_to_air_water = paths['outputs']['air_water_template'].replace(
+                '0', str(row['scenario_code'])
+            )
+            df_air_water = pd.read_csv(path_to_air_water)
+
+            # Store
+            multi_air_water[row['name']] = df_air_water
+
+        # Plot
+        fig = premocot.viz.scenario_temperatures(multi_air_water)
+        fig.savefig(paths['outputs']['figures']['scenario_temperatures'])
+
+    # Scenario load figures
+    if not os.path.exists(paths['outputs']['figures']['scenario_loads']):  # noqa
+        # Import data
+        multi_node_load = {}
+        df_scenario_specs = pd.read_csv(paths['inputs']['scenario_specs'])
+        for (_, row) in df_scenario_specs.iterrows():
+            # Import files
+            path_to_load = paths['outputs']['node_load_template'].replace(
+                '0', str(row['scenario_code'])
+            )
+            df_node_load = pd.read_csv(path_to_load)
+
+            # Store
+            multi_node_load[row['name']] = df_node_load
+
+        # Plot
+        fig = premocot.viz.scenario_node_load(multi_node_load)
+        fig.savefig(paths['outputs']['figures']['scenario_loads'])
+
+    # # Daily average air/water temperature
+    if not os.path.exists(paths['outputs']['figures']['temperatures']):
+        df_water = pd.read_csv(paths['outputs']['water_temperature'])
+        df_air = pd.read_csv(paths['outputs']['air_temperature'])
+        fig = premocot.viz.temperatures(df_water, df_air)
+        fig.savefig(paths['outputs']['figures']['temperatures'])
+
+    # # System hourly load data
+    if not os.path.exists(paths['outputs']['figures']['system_load']):
+        df_system_load = pd.read_csv(paths['outputs']['system_load'])
+        fig = premocot.viz.system_load(df_system_load)
+        fig.savefig(paths['outputs']['figures']['system_load'])
+
+    # # System hourly load factors data
+    if not os.path.exists(paths['outputs']['figures']['system_load_factor']):
+        df_system_load = pd.read_csv(paths['outputs']['system_load'])
+        fig = premocot.viz.system_load_factor(df_system_load)
+        fig.savefig(paths['outputs']['figures']['system_load_factor'])
+
+    # # Node hour-to-hour load factors data
+    if not os.path.exists(paths['outputs']['figures']['hour_node_load']):
+        df_hour_to_hour = pd.read_csv(paths['outputs']['hour_to_hour'])
+        fig = premocot.viz.hour_node_load(df_hour_to_hour)
+        fig.savefig(paths['outputs']['figures']['hour_node_load'])
+
+    # # Node hourly load data
+    if not os.path.exists(paths['outputs']['figures']['node_load']):
+        df_water = pd.read_csv(paths['outputs']['water_temperature'])
+        df_air = pd.read_csv(paths['outputs']['air_temperature'])
+        df_system_load = pd.read_csv(paths['outputs']['system_load'])
+        df_hour_to_hour = pd.read_csv(paths['outputs']['hour_to_hour'])
+        net = pandapower.converter.from_mpc(paths['inputs']['case'])
         df_air_water, df_node_load = premocot.core.create_scenario_exogenous(
             row['scenario_code'],
-            pd.to_datetime(row['datetime_start']),
-            pd.to_datetime(row['datetime_end']),
+            datetime.datetime(2019, 7, 1),
+            datetime.datetime(2019, 7, 7),
             df_water,
             df_air,
             df_system_load,
             df_hour_to_hour,
             net
         )
-
-        if row['scenario_code'] == 6:
-            data_cols = ['air_temperature', 'water_temperature']
-            df_air_water[data_cols] = df_air_water[data_cols] * 1.15
-            df_node_load['load_mw'] = df_node_load['load_mw'] * 1.15
-
-        # Write
-        path_to_air_water = paths['outputs']['air_water_template'].replace(
-            '0', str(row['scenario_code'])
-        )
-        df_air_water.to_csv(path_to_air_water, index=False)
-        path_to_node_load = paths['outputs']['node_load_template'].replace(
-            '0', str(row['scenario_code'])
-        )
-        df_node_load.to_csv(path_to_node_load, index=False)
+        fig = premocot.viz.node_load(df_node_load)
+        fig.savefig(paths['outputs']['figures']['node_load'])
 
 
 if __name__ == '__main__':

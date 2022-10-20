@@ -216,8 +216,8 @@ function get_objectives(
         df_consumption_states,
         on = [:obj_name, :day]
     )
-    df_water[!, "hourly_withdrawal"] = df_water[!, "pg"] .* 100.0 .* df_water[!, "withdraw_rate"]  # Per unit conversion
-    df_water[!, "hourly_consumption"] = df_water[!, "pg"] .* 100.0 .* df_water[!, "consumption_rate"]  # Per unit conversion
+    df_water[!, "hourly_withdrawal"] = df_water[!, "pg"] .* df_water[!, "withdraw_rate"]
+    df_water[!, "hourly_consumption"] = df_water[!, "pg"] .* df_water[!, "consumption_rate"]
     df_daily = DataFrames.combine(
         DataFrames.groupby(df_water, [:day]),
         :hourly_withdrawal => sum,
@@ -267,7 +267,7 @@ function get_objectives(
         df_coef,
         on = [:obj_name]
     )
-    df_emit[!, "hourly_emit"] = df_emit[!, "pg"] .* 100.0 .* df_emit[!, "cus_emit"]  # Per unit conversion
+    df_emit[!, "hourly_emit"] = df_emit[!, "pg"] .* df_emit[!, "cus_emit"]
     objectives["f_emit"] = DataFrames.sum(df_emit[!, "hourly_emit"])
 
     # Compute reliability objectives

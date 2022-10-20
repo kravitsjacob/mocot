@@ -6,7 +6,7 @@ Multi-Objective Coordination of Thermoelectric Water Use
 2) Run the analysis`$ python preprocessing/preprocessing.py`
 
 # Simulation Tests
-1) Activate julia `$ julia --project=simulation\src\MOCOT`
+1) Activate julia `$ julia --project=simulation/src/MOCOT`
 2) Run tests `julia> include("simulation/src/MOCOT/testing/test.jl")`
 
 # Single Simulation Run (Debugging/Development)
@@ -26,10 +26,22 @@ for every bug:
 4) Run simulation using "all generators" scenario (code 1) `$ ./optimization/single_simulation.exe 1`
 
 # Optimization on Unix-like
-1) Download julia and make sure the path is reflected in `optimization/makefile`
-2) Activate julia `$ julia simulation/julia_config.jl`
-3) Compile using `$ make optimization -C ./optimization`
-4) Run optimization using "all generators" scenario (code 1) `$ mpiexec -n 2 ./optimization/optimization.exe 1`
+1) Place borg files in `optimization/src/borg`. We used a modified version of the algorithm where we disable the constraint functionality to isntead pass our metrics during the optimization. We do this by 
+* Commenting lines 506-510 and 617-620 in borg.c to disable constraint evaluation.
+* Adding the following lines to line 1811 in borg.c to add constraint printing to archive append.
+```
+		for (j=0; j<solution->problem->numberOfConstraints; j++) {
+			if (j > 0 || solution->problem->numberOfConstraints > 0) {
+				fprintf(file, " ");
+			}
+
+			fprintf(file, "%.*g", BORG_DIGITS, solution->constraints[j]);
+		}
+```
+2) Download julia and make sure the path is reflected in `optimization/makefile`
+3) Activate julia `$ julia simulation/julia_config.jl`
+4) Compile using `$ make optimization -C ./optimization`
+5) Run optimization using "all generators" scenario (code 1) `$ mpiexec -n 2 ./optimization/optimization.exe 1`
 
 # Optimization on Alpine
 
@@ -43,7 +55,7 @@ for every bug:
 ## Running optimization
 1) Activate Alpine: `$ ml slurm/alpine`
 2) Change directory to mocot: `$ cd /projects/jakr3868/mocot`
-3) Submit the job using "all generators" scenario (code 1): `$ sbatch --export=scenario_code=1 optimization/slurm_run.sh`
+3) Submit the job for all scenarios: `$ sbatch --array=1-6 optimization/slurm_run.sh`
 
 # Python Postprocessing
 1) Install the python package `$ pip install --editable ./postprocessing/.`

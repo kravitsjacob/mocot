@@ -3,7 +3,6 @@
 import yaml
 import os
 import pandas as pd
-import glob
 
 import postmocot
 
@@ -15,64 +14,6 @@ def main():
         paths = yaml.safe_load(f)
     df_scenario_specs = pd.read_csv(paths['inputs']['scenario_specs'])
 
-    # Daily average air/water temperature
-    if not os.path.exists(paths['outputs']['figures']['temperatures']):
-        scenario_code = '1'
-        path = paths['outputs']['air_water_template'].replace(
-            '0', scenario_code
-        )
-        df_air_water = pd.read_csv(path)
-        fig = postmocot.viz.temperatures(df_air_water)
-        fig.savefig(paths['outputs']['figures']['temperatures'])
-
-    # System hourly load data
-    if not os.path.exists(paths['outputs']['figures']['system_load']):
-        df_system_load = pd.read_csv(paths['outputs']['system_load'])
-        fig = postmocot.viz.system_load(df_system_load)
-        fig.savefig(paths['outputs']['figures']['system_load'])
-
-    # System hourly load factors data
-    if not os.path.exists(paths['outputs']['figures']['system_load_factor']):
-        df_system_load = pd.read_csv(paths['outputs']['system_load'])
-        fig = postmocot.viz.system_load_factor(df_system_load)
-        fig.savefig(paths['outputs']['figures']['system_load_factor'])
-
-    # Node hour-to-hour load factors data
-    if not os.path.exists(paths['outputs']['figures']['hour_node_load']):
-        df_hour_to_hour = pd.read_csv(paths['outputs']['hour_to_hour'])
-        fig = postmocot.viz.hour_node_load(df_hour_to_hour)
-        fig.savefig(paths['outputs']['figures']['hour_node_load'])
-
-    # Node hourly load data
-    if not os.path.exists(paths['outputs']['figures']['node_load']):
-        scenario_code = '1'
-        path = paths['outputs']['node_load_template'].replace(
-            '0', scenario_code
-        )
-        df_node_load = pd.read_csv(path)
-        fig = postmocot.viz.node_load(df_node_load)
-        fig.savefig(paths['outputs']['figures']['node_load'])
-
-    # # Temporary code for metrics (TODO switch to constraints)
-    # for (_, row) in df_scenario_specs.iterrows():
-    #     df_ls = []
-    #     in_path = 'C:/Users/kravi/Desktop/mocot/io/outputs/states/scenario_0_metrics-*.csv'  # noqa
-    #     in_path = in_path.replace(
-    #         '0', str(row['scenario_code'])
-    #     )
-
-    #     # Read into single dataframe
-    #     for file in glob.glob(in_path):
-    #         df_ls.append(pd.read_csv(file))
-    #     df = pd.concat(df_ls)
-
-    #     # Writing
-    #     out_path = paths['outputs']['runtime_template'].replace(
-    #         '0', str(row['scenario_code'])
-    #     )
-    #     out_path = out_path.replace('runtime.txt', 'metrics.csv')
-    #     df.to_csv(out_path, index=False)
-
     # Parameter names
     objective_names = pd.read_csv(
         paths['inputs']['objectives']
@@ -80,28 +21,42 @@ def main():
     decision_names = pd.read_csv(
         paths['inputs']['decisions']
     ).columns.tolist()
+    metric_names = pd.read_csv(
+        paths['inputs']['metrics']
+    ).columns.tolist()
 
     # Create runtime objects
     for (_, row) in df_scenario_specs.iterrows():
         path = paths['outputs']['runtime_template'].replace(
             '0', str(row['scenario_code'])
         )
-        path_metrics = 'io/outputs/states/scenario_0_metrics.csv'
-        path_metrics = path_metrics.replace('0', str(row['scenario_code']))
-        df_metrics = pd.read_csv(path_metrics)
         runtime = postmocot.runtime.BorgRuntimeDiagnostic(
             path,
-            decision_names,
-            objective_names,
-            df_metrics
+            n_decisions=len(decision_names),
+            n_objectives=len(objective_names),
+            n_metrics=len(metric_names),
         )
+        runtime.set_decision_names(decision_names)
+        runtime.set_objective_names(objective_names)
+        runtime.set_metric_names(metric_names)
         runtime_objs[row['name']] = runtime
 
     runtime_multi = postmocot.runtime.BorgRuntimeAggregator(runtime_objs)
 
     # Hypervolume
     if not os.path.exists(paths['outputs']['figures']['hypervolume']):
-        fig = runtime_multi.plot_hypervolume()
+        reference_point = [
+            1e7,
+            1e9,
+            1e10,
+            1e8,
+            1e11,
+            1e9,
+            1e12,
+            1e3,
+            1e4,
+        ]
+        fig = runtime_multi.plot_hypervolume(reference_point)
         fig.savefig(paths['outputs']['figures']['hypervolume'])
 
     # Interactive parallel

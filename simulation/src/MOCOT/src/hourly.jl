@@ -55,8 +55,8 @@ function add_within_day_ramp_rates!(pm)
 
     for (obj_name, obj_props) in network_data_multi["1"]["gen"]
         try
-            # Extract ramp rates to pu
-            ramp = obj_props["cus_ramp_rate"]/100.0 
+            # Extract ramp rates
+            ramp = obj_props["cus_ramp_rate"]
             
             obj_index = parse(Int, obj_name)
             try
@@ -116,8 +116,8 @@ function add_day_to_day_ramp_rates!(
     
     for (obj_name, obj_props) in network_data_multi["1"]["gen"]
         try
-            # Extract ramp rates to pu
-            ramp = obj_props["cus_ramp_rate"]/100.0 
+            # Extract ramp rates
+            ramp = obj_props["cus_ramp_rate"]
 
             try
                 # Previous power output
@@ -164,7 +164,7 @@ function update_load!(network_data_multi::Dict, day_loads:: Dict)
 
     # Arguments
     - `network_data_multi::Dict`: Multi network data
-    - `day_loads:: Dict`: Loads for one day with buses as keys and loads as values
+    - `day_loads:: Dict`: Loads for one day with buses as keys and loads as values [MW]
     """
     # Looping over hours
     for (h, network_data) in network_data_multi["nw"]
@@ -173,11 +173,48 @@ function update_load!(network_data_multi::Dict, day_loads:: Dict)
         for load in values(network_data["load"])
             # Extracting load
             bus = string(load["load_bus"])
-            load_mw = day_loads[h][bus]
-            load_pu = load_mw/100.0
+            load_pu = day_loads[h][bus]
 
             # Set load
             load["pd"] = load_pu
+        end
+    end
+
+    return network_data_multi
+end
+
+
+function update_wind_capacity!(
+    network_data_multi::Dict,
+    wind_capacity_factor::Dict
+)
+    """
+    Update generator wind capacity
+
+    # Arguments
+    - `network_data_multi::Dict`: Multi network data
+    - `wind_capacity_factor:: Dict`: Wind capacity factors for one day with hours as keys and factors as values
+    """
+    # Loop through hours
+    for h in 1:length(network_data_multi)
+
+        # Extract network data
+        nw_data = network_data_multi["nw"][string(h)]
+
+        # Extract wind capacity factor
+        wind_cf = wind_capacity_factor[string(h)]
+
+        # Loop through generators
+        for gen_dict in values(nw_data["gen"])
+            
+            try
+                if gen_dict["cus_fuel"] == "wind"
+                    avg_capacity = gen_dict["pmax"]
+                    gen_dict["pmax"] = avg_capacity * wind_cf
+                end
+            catch
+                # Skip as reliability generator
+            end
         end
     end
 

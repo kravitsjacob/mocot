@@ -13,12 +13,14 @@ function read_inputs(
     scenario_code:: Int64,
     scenario_specs_path:: String,
     air_water_template:: String,
+    wind_capacity_factor_template:: String,
     node_load_template:: String,
     gen_info_from_python_path:: String,
     eia_heat_rates_path:: String,
     case_path:: String,
     decisions_path:: String,
     objectives_path:: String,
+    metrics_path:: String
 )
     """
     Wrapper function for reading inputs
@@ -27,12 +29,14 @@ function read_inputs(
     - `scenario_code:: Int64`: Scenario code
     - `scenario_specs_path:: String`: Path to scenario specification
     - `air_water_template:: String`: Template to air water temperature exogenous data
+    - `wind_capacity_factor_template:: String`: Template to wind capacity factor
     - `node_load_template:: String`: Template to node exogenous data
     - `gen_info_from_python_path:: String`: Path to generation info generated from preprocessing
     - `eia_heat_rates_path:: String`: Path to eia heat rate information
     - `case_path:: String`: Path to MATPOWER case
     - `decisions_path:: String`: Path to decision names
     - `objectives_path:: String`: Path to objective names
+    - `metrics_path:: String`: Path to objective names
     """
     # Reading inputs
     df_scenario_specs = DataFrames.DataFrame(
@@ -49,6 +53,10 @@ function read_inputs(
     # Exogenous parameters
     air_water_path = replace(air_water_template, "0" => scenario_code)
     df_air_water = DataFrames.DataFrame(CSV.File(air_water_path))
+    wind_cf_path = replace(wind_capacity_factor_template, "0" => scenario_code)
+    df_wind_cf = DataFrames.DataFrame(
+        CSV.File(wind_cf_path, dateformat="yy-mm-dd HH:MM:SS"),
+    )
     node_load_path = replace(node_load_template, "0" => scenario_code)
     df_node_load = DataFrames.DataFrame(
         CSV.File(node_load_path, dateformat="yy-mm-dd HH:MM:SS")
@@ -57,6 +65,7 @@ function read_inputs(
     # Parameter names
     decision_names = vec(DelimitedFiles.readdlm(decisions_path, ',', String))
     objective_names = vec(DelimitedFiles.readdlm(objectives_path, ',', String))
+    metric_names = vec(DelimitedFiles.readdlm(metrics_path, ',', String))
 
     # Generator information
     df_gen_info = get_gen_info(network_data, df_gen_info_python)
@@ -65,11 +74,13 @@ function read_inputs(
         df_scenario_specs,
         df_eia_heat_rates,
         df_air_water,
+        df_wind_cf,
         df_node_load,
         network_data,
         df_gen_info,
         decision_names,
-        objective_names
+        objective_names,
+        metric_names
     )
     return inputs
 end
@@ -94,7 +105,7 @@ function add_custom_properties!(
         "gen",
         "cus_ramp_rate",
         df_gen_info[!, "obj_name"],
-        convert.(Float64, df_gen_info[!, "Ramp Rate (MW/hr)"])
+        convert.(Float64, df_gen_info[!, "Ramp Rate (MW/hr)"]) / 100.0  # convert to pu/hr
     )
 
     # Fuel types
@@ -121,7 +132,7 @@ function add_custom_properties!(
         "gen",
         "cus_emit",
         df_gen_info[!, "obj_name"],
-        convert.(Float64, df_gen_info[!, "Emission Rate lbs per MWh"])
+        convert.(Float64, df_gen_info[!, "Emission Rate lbs per MWh"]) * 100.0  # convert to lbs / pu
     )
 
     # Withdrawal limit
@@ -130,7 +141,7 @@ function add_custom_properties!(
         "gen",
         "cus_with_limit",
         df_gen_info[!, "obj_name"],
-        df_gen_info[!, "Withdrawal Limit [L/MWh]"]
+        df_gen_info[!, "Withdrawal Limit [L/MWh]"] * 100.0  # convert to L / pu
     )
 
     # Consumption limit
@@ -139,7 +150,7 @@ function add_custom_properties!(
         "gen",
         "cus_con_limit",
         df_gen_info[!, "obj_name"],
-        df_gen_info[!, "Consumption Limit [L/MWh]"]
+        df_gen_info[!, "Consumption Limit [L/MWh]"] * 100.0  # convert to L / pu
     )
 
     # Heat rates
@@ -229,6 +240,53 @@ function add_air_water!(
 end
 
 
+function add_wind_cf!(
+    exogenous:: Dict{String, Any},
+    df_wind_cf::DataFrames.DataFrame,
+    start_date:: Dates.DateTime,
+    end_date:: Dates.DateTime
+)
+    """
+    Add wind capacity factors to exogenous parameters in the proper format
+
+    # Arguments
+    - `exogenous:: Dict{String, Any}`: Exogenous parameter data [<parameter_name>][<timestep>]...[<timestep>]
+    - `df_wind_cf:: DataFrames.DataFrame`: Wind capacity dataframe
+    - `start_date:: Dates.DateTime`: Start time for simulation
+    - `end_date:: Dates.DateTime`: End time for simulation
+    """
+
+    ## Filter dataframes
+    date_filter = end_date .>= df_wind_cf.datetime .>= start_date
+    df_wind_cf_filter = df_wind_cf[date_filter, :]
+
+    ## Get index values
+    df_wind_cf_filter[!, "hour_delta"] = Dates.Hour.(df_wind_cf_filter.datetime .- df_wind_cf_filter.datetime[1])
+    df_wind_cf_filter[!, "day_index"] = floor.(Int64, Dates.value.(df_wind_cf_filter.hour_delta)/24 .+ 1.0)
+    df_wind_cf_filter[!, "hour_index"] = Dates.value.(@.Dates.Hour(df_wind_cf_filter.datetime)) .+ 1
+
+    ## Days
+    days = Dict{String, Any}()
+    for d in DataFrames.unique(df_wind_cf_filter[!, "day_index"])
+        df_d = df_wind_cf_filter[in(d).(df_wind_cf_filter.day_index), :]
+
+        ## Hours
+        hours = Dict{String, Any}()
+        for h in DataFrames.unique(df_d[!, "hour_index"])
+            df_hour = df_d[in(h).(df_d.hour_index), :]
+            hours[string(trunc(Int, h))] = df_hour.wind_capacity_factor[1]
+        end
+
+        days[string(trunc(Int, d))] = hours
+
+    end
+
+    exogenous["wind_capacity_factor"] = days
+
+    return exogenous
+end
+
+
 function add_node_loads!(
     exogenous:: Dict{String, Any},
     df_node_load::DataFrames.DataFrame,
@@ -272,7 +330,7 @@ function add_node_loads!(
                 ## PowerModels indexing
                 powermodels_bus = row["bus"] + 1
 
-                nodes[string(powermodels_bus)] = row["load_mw"]
+                nodes[string(powermodels_bus)] = row["load_mw"] / 100.0 # convert to pu
             end
             h_nodes[string(trunc(Int, h))] = nodes
         end
@@ -288,6 +346,7 @@ function get_exogenous(
     start_date:: Dates.DateTime,
     end_date:: Dates.DateTime,
     df_air_water:: DataFrames.DataFrame,
+    df_wind_cf:: DataFrames.DataFrame,
     df_node_load:: DataFrames.DataFrame
 )
     """
@@ -297,12 +356,16 @@ function get_exogenous(
     - `start_date:: Dates.DateTime`: Start time for simulation
     - `end_date:: Dates.DateTime`: End time for simulation
     - `df_air_water:: DataFrames.DataFrame`: Air and water temperature dataframe
+    - `df_wind_cf:: DataFrames.DataFrame`: Wind capacity factor dataframes
     - `df_node_load:: DataFrames.DataFrame`: Node-level load dataframe
     """
     exogenous = Dict{String, Any}()
 
     # Air and water temperatures
     exogenous = add_air_water!(exogenous, df_air_water, start_date, end_date)
+
+    # Wind capacity factors
+    exogenous = add_wind_cf!(exogenous, df_wind_cf, start_date, end_date)    
 
     # Node loads
     exogenous = add_node_loads!(exogenous, df_node_load, start_date, end_date)

@@ -15,10 +15,10 @@ function once_through_withdrawal(;
     # Arguments
     - `eta_net:: Float64`: Ratio of electricity generation rate to thermal input
     - `k_os:: Float64`: Thermal input lost to non-cooling system sinks
-    - `delta_t:: Float64`: Inlet/outlet water temperature difference in C
-    - `beta_proc:: Float64`: Non-cooling rate in L/MWh
-    - `rho_w=1.0`: Desnity of Water kg/L, by default 1.0
-    - `c_p=0.004184`: Specific head of water in MJ/(kg-K), by default 0.004184
+    - `delta_t:: Float64`: Inlet/outlet water temperature difference [C]
+    - `beta_proc:: Float64`: Non-cooling rate [L/MWh]
+    - `rho_w=1.0`: Desnity of Water [kg/L], by default 1.0
+    - `c_p=0.004184`: Specific head of water in [MJ/(kg-K)], by default 0.004184
     """
     efficiency = 3600.0 * (1.0-eta_net-k_os) / eta_net
     physics = 1.0 / (rho_w*c_p*delta_t)
@@ -41,10 +41,10 @@ function once_through_withdrawal_for_delta(;
     # Arguments
     - `eta_net:: Float64`: Ratio of electricity generation rate to thermal input
     - `k_os:: Float64`: Thermal input lost to non-cooling system sinks
-    - `beta_with:: Float64`: Withdrawal limit
-    - `beta_proc:: Float64`: Non-cooling rate in L/MWh
-    - `rho_w=1.0`: Desnity of Water kg/L, by default 1.0
-    - `c_p=0.004184`: Specific head of water in MJ/(kg-K), by default 0.004184
+    - `beta_with:: Float64`: Withdrawal limit [L/MWh]
+    - `beta_proc:: Float64`: Non-cooling rate [L/MWh]
+    - `rho_w=1.0`: Desnity of Water [kg/L], by default 1.0
+    - `c_p=0.004184`: Specific head of water in [MJ/(kg-K)], by default 0.004184
     """
 
     efficiency = 3600.0 * (1.0-eta_net-k_os) / eta_net
@@ -71,11 +71,11 @@ function once_through_consumption(;
     # Arguments
     - `eta_net:: Float64`: Ratio of electricity generation rate to thermal input
     - `k_os:: Float64`: Thermal input lost to non-cooling system sinks
-    - `delta_t:: Float64`: Inlet/outlet water temperature difference in C
-    - `beta_proc:: Float64`: Non-cooling rate in L/MWh
+    - `delta_t:: Float64`: Inlet/outlet water temperature difference [C]
+    - `beta_proc:: Float64`: Non-cooling rate in [L/MWh]
     - `k_de:: Float64`: Downstream evaporation, by default 0.01
-    - `rho_w:: Float64`: Desnity of Water kg/L, by default 1.0
-    - `c_p:: Float64`: Specific heat of water in MJ/(kg-K), by default 0.04184
+    - `rho_w:: Float64`: Desnity of Water [kg/L], by default 1.0
+    - `c_p:: Float64`: Specific heat of water in [MJ/(kg-K)], by default 0.04184
     """
     # Model
     efficiency = 3600 * (1-eta_net-k_os) / eta_net
@@ -100,11 +100,11 @@ function recirculating_withdrawal(;
     # Arguments
     `eta_net:: Float64`: Ratio of electricity generation rate to thermal input
     `k_os:: Float64`: Thermal input lost to non-cooling system sinks
-    `beta_proc:: Float64`: Non-cooling rate in L/MWh
+    `beta_proc:: Float64`: Non-cooling rate in [L/MWh]
     `eta_cc:: Int64`: Number of cooling cycles between 2 and 10
     `k_sens:: Float64`: Heat load rejected
-    `h_fg:: Float64`: Latent heat of vaporization of water, by default 2.454 MJ/kg
-    `rho_w:: Float64`: Desnity of Water kg/L, by default 1.0
+    `h_fg:: Float64`: Latent heat of vaporization of water, by default 2.454 [MJ/kg]
+    `rho_w:: Float64`: Desnity of Water [kg/L], by default 1.0
     """
     # Model
     efficiency = 3600 * (1-eta_net-k_os) / eta_net
@@ -132,14 +132,14 @@ function recirculating_consumption(;
     # Arguments
     eta_net:: Float64`: Ratio of electricity generation rate to thermal input
     k_os:: Float64`: Thermal input lost to non-cooling system sinks
-    beta_proc:: Float64`: Non-cooling rate in L/MWh
+    beta_proc:: Float64`: Non-cooling rate [L/MWh]
     eta_cc:: Int64`: Number of cooling cycles between 2 and 10
     k_sens:: Float64`: Heat load rejected
     k_bd:: Float64`: Blowdown discharge fraction. Plants in water abundant areas
     are able to legally discharge most of their cooling tower blowndown according
     to Rutberg et al. 2011.
-    h_fg:: Float64`: Latent heat of vaporization of water, default 2.454 MJ/kg
-    rho_w:: Float64`: Desnity of Water kg/L, by default 1.0
+    h_fg:: Float64`: Latent heat of vaporization of water, default 2.454 [MJ/kg]
+    rho_w:: Float64`: Desnity of Water [kg/L], by default 1.0
     """
     # Model
     efficiency = 3600 * (1-eta_net-k_os) / eta_net
@@ -194,7 +194,7 @@ function get_k_sens(t_inlet:: Float64)
     Get heat load rejected through convection
 
     # Arguments
-    `t_inlet:: Float64`: Dry bulb temperature of inlet air C
+    `t_inlet:: Float64`: Dry bulb temperature of inlet air [C]
     """
     term_1 = -0.000279*t_inlet^3
     term_2 = 0.00109*t_inlet^2
@@ -217,13 +217,13 @@ function once_through_water_use(
     Once through water use (withdrawal and consumption)
 
     # Arguments
-    - `inlet_temperature:: Float64`: Inlet water temperature in C
-    - `regulatory_temperature:: Float64`: Regulatory water temperature in C
+    - `inlet_temperature:: Float64`: Inlet water temperature in [C]
+    - `regulatory_temperature:: Float64`: Regulatory water temperature in [C]
     - `k_os:: Float64`: Thermal input lost to non-cooling system sinks
-    - `beta_proc:: Float64`: Non-cooling rate in L/MWh
+    - `beta_proc:: Float64`: Non-cooling rate in [L/MWh]
     - `eta_net:: Float64`: Ratio of electricity generation rate to thermal input
-    - `beta_with_limit:: Float64`: Withdrawal limit in L/MWh
-    - `beta_con_limit:: Float64`: Consumption limit in L/MWh
+    - `beta_with_limit:: Float64`: Withdrawal limit in [L/MWh]
+    - `beta_con_limit:: Float64`: Consumption limit in [L/MWh]
     """
     delta_t = 10.0
 
@@ -277,7 +277,7 @@ function recirculating_water_use(
     - `air_temperature:: Float64`: Air temperature in C
     - `eta_net:: Float64`: Ratio of electricity generation rate to thermal input
     - `k_os:: Float64`: Thermal input lost to non-cooling system sinks
-    - `beta_proc:: Float64`: Non-cooling rate in L/MWh
+    - `beta_proc:: Float64`: Non-cooling rate in [L/MWh]
     - `eta_cc:: Int64`: Number of cooling cycles between 2 and 10
     """
     # Get k_sens
@@ -343,8 +343,8 @@ function gen_water_use_wrapper(
 
                 # Extract properties
                 try
-                    beta_with_limit = obj_props["cus_with_limit"]
-                    beta_con_limit = obj_props["cus_con_limit"]
+                    beta_with_limit = obj_props["cus_with_limit"] / 100.0 # Convert to L/MWh
+                    beta_con_limit = obj_props["cus_con_limit"] / 100.0 # Convert to L/MWh
                 catch
                     println("No water use limits specified for generator $obj_name, setting to infinity")
                 end
@@ -380,8 +380,8 @@ function gen_water_use_wrapper(
             end
 
             # Store
-            gen_beta_with[obj_name] = beta_with
-            gen_beta_con[obj_name] = beta_con
+            gen_beta_with[obj_name] = beta_with * 100 # Convert to L/pu
+            gen_beta_con[obj_name] = beta_con * 100 # Convert to L/pu
         catch
             # Check if reliabilty generator
             try

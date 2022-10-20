@@ -9,6 +9,7 @@ import pygmo
 import paxplot
 import hiplot as hip
 import os
+sns.set()
 
 
 class BorgRuntimeUtils:
@@ -60,22 +61,31 @@ class BorgRuntimeUtils:
 
         return df_res
 
-    def _parse_archive(self, df, decision_names, objective_names):
-        """Convert archive data to dataframes
+    def _parse_archive(
+        self,
+        df,
+        n_decisions,
+        n_objectives,
+        n_metrics
+    ):
+        """
+        Convert archive data to dataframes
 
         Parameters
         ----------
         df : pandas.DataFrame
             Raw runtime pandas dataframe
-        decision_names : list
-            Decision names
-        objective_names : list
-            Objective names
+        n_decisions : int
+            Number of decisions
+        n_objectives : int
+            Number of objectives
+        n_metrics : int
+            Number of metrics
 
         Returns
         -------
-        pandas.DataFrame
-            Processed archive
+        tuple
+            Tuple of decisions, objectives, and metrics list of lists
         """
         # Extract Archive Prints
         df_temp = df[np.isnan(df['value'])]
@@ -83,27 +93,33 @@ class BorgRuntimeUtils:
 
         # Separate Based on Deliminators
         df_temp = df_temp['var'].str.split(' ', expand=True).astype(float)
-        df_temp.columns = decision_names + objective_names
 
-        # Create Lists of Lists
-        df_temp['decisions'] = df_temp[decision_names].values.tolist()
-        df_temp['objectives'] = df_temp[objective_names].values.tolist()
+        # Extract decisions, objectives, metrics from archive
+        start_idx = 0
+        end_idx = n_decisions
+        df_all_decisions = df_temp.iloc[:, start_idx:end_idx]
+        start_idx = end_idx
+        end_idx = start_idx + n_objectives
+        df_all_objectives = df_temp.iloc[:, start_idx:end_idx]
+        start_idx = end_idx
+        end_idx = start_idx + n_metrics
+        df_all_metrics = df_temp.iloc[:, start_idx:end_idx]
 
-        # Decisions
-        df_param = df_temp['decisions']
-        parameters_ls = [
-            df_param.loc[i].tolist()
-            for i in consecutive_groups(df_param.index)
+        # Turn into list of lists
+        decisions_ls = [
+            df_all_decisions.loc[i].values.tolist()
+            for i in consecutive_groups(df_all_decisions.index)
         ]
-
-        # Objectives
-        df_obj = df_temp['objectives']
         objectives_ls = [
-            df_obj.loc[i].tolist()
-            for i in consecutive_groups(df_obj.index)
+            df_all_objectives.loc[i].values.tolist()
+            for i in consecutive_groups(df_all_objectives.index)
+        ]
+        metrics_ls = [
+            df_all_metrics.loc[i].values.tolist()
+            for i in consecutive_groups(df_all_metrics.index)
         ]
 
-        return parameters_ls, objectives_ls
+        return decisions_ls, objectives_ls, metrics_ls
 
 
 class BorgRuntimeDiagnostic(BorgRuntimeUtils):
@@ -113,9 +129,9 @@ class BorgRuntimeDiagnostic(BorgRuntimeUtils):
     def __init__(
         self,
         path_to_runtime,
-        decision_names,
-        objective_names,
-        df_metrics,  # TODO update to add function
+        n_decisions,
+        n_objectives,
+        n_metrics,
     ):
         """
         Parsing runtime file and assigning parameters
@@ -141,9 +157,20 @@ class BorgRuntimeDiagnostic(BorgRuntimeUtils):
         )
 
         # General attributes
-        self.decision_names = decision_names
-        self.objective_names = objective_names
-        self.metrics = df_metrics
+        self.n_decisions = n_decisions
+        self.n_objectives = n_objectives
+        self.n_metrics = n_metrics
+
+        # Defaults
+        self.decision_names = [
+            'decision_' + str(i+1) for i in range(n_decisions)
+        ]
+        self.objective_names = [
+            'objective_' + str(i+1) for i in range(n_objectives)
+        ]
+        self.metric_names = [
+            'metric_' + str(i+1) for i in range(n_metrics)
+        ]
 
         # Runtime statistics
         df_res = self._parse_stats(
@@ -164,13 +191,45 @@ class BorgRuntimeDiagnostic(BorgRuntimeUtils):
         self.undx = df_res['UNDX'].to_dict()
 
         # Parsing archives
-        parameters_ls, objectives_ls = self._parse_archive(
+        decisions_ls, objectives_ls, metrics_ls = self._parse_archive(
             df_raw,
-            decision_names,
-            objective_names
+            self.n_decisions,
+            self.n_objectives,
+            self.n_metrics
         )
-        self.archive_decisions = dict(zip(self.nfe, parameters_ls))
+        self.archive_decisions = dict(zip(self.nfe, decisions_ls))
         self.archive_objectives = dict(zip(self.nfe, objectives_ls))
+        self.archive_metrics = dict(zip(self.nfe, metrics_ls))
+
+    def set_decision_names(self, decision_names):
+        """Set decision names
+
+        Parameters
+        ----------
+        decision_names : list
+            Decision names
+        """
+        self.decision_names = decision_names
+
+    def set_objective_names(self, objective_names):
+        """Set decision names
+
+        Parameters
+        ----------
+        objective_names : list
+            Objective names
+        """
+        self.objective_names = objective_names
+
+    def set_metric_names(self, metric_names):
+        """Set metric names
+
+        Parameters
+        ----------
+        metric_names : list
+            Metric names
+        """
+        self.metric_names = metric_names
 
     def compute_hypervolume(self, reference_point):
         """Compute hypervolumes
@@ -359,9 +418,14 @@ class BorgRuntimeAggregator():
         """
         self.runs = runtime_objs
 
-    def plot_hypervolume(self):
+    def plot_hypervolume(self, reference_point):
         """
         Plot hypervolume over the search
+
+        Parameters
+        ----------
+        reference_point : list
+            Reference point for hypervolume calculation
 
         Returns
         -------
@@ -374,7 +438,6 @@ class BorgRuntimeAggregator():
         # Computing hypervolume
         for run_name, run_obj in self.runs.items():
             df_run = pd.DataFrame()
-            reference_point = [1e12] * 9
             run_obj.compute_hypervolume(reference_point)
             df_run['hypervolume'] = pd.Series(run_obj.hypervolume)
             df_run['run_name'] = run_name
@@ -416,15 +479,12 @@ class BorgRuntimeAggregator():
                 run_obj.archive_objectives[nfe],
                 columns=run_obj.objective_names
             )
-            df_front = pd.concat([df_decs, df_objs], axis=1)
-            df_front['run_name'] = run_name
-
-            # Get metrics
-            df_front = pd.merge(
-                df_front.round(8),
-                run_obj.metrics.drop_duplicates().round(8),
-                how='left'
+            df_metrics = pd.DataFrame(
+                run_obj.archive_metrics[nfe],
+                columns=run_obj.metric_names
             )
+            df_front = pd.concat([df_decs, df_objs, df_metrics], axis=1)
+            df_front['run_name'] = run_name
 
             # Store
             df_ls.append(df_front)
@@ -433,13 +493,17 @@ class BorgRuntimeAggregator():
         df = pd.concat(df_ls)
 
         # Create Plot
-        cols = run_obj.decision_names + run_obj.objective_names + ['run_name']
+        cols = \
+            run_obj.decision_names +\
+            run_obj.objective_names +\
+            run_obj.metric_names +\
+            ['run_name']
         cols.reverse()
         color_col = 'run_name'
         exp = hip.Experiment.from_dataframe(df)
         exp.parameters_definition[color_col].colormap = 'schemeDark2'
         exp.display_data(hip.Displays.PARALLEL_PLOT).update(
-            {'order': cols}
+            {'order': cols, 'hide': ['uid']},
         )
         exp.display_data(hip.Displays.TABLE).update(
             {'hide': ['uid', 'from_uid']}

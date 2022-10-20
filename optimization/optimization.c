@@ -8,13 +8,16 @@
 #include "src/borg/borgms.h"
 #include "src/wrappers.h"
 
-JULIA_DEFINE_FAST_TLS
+// Metrics quantify variable behavior but are not intended to be minimized. 
+// Here, we modify the constraint functionality to not consider any violations.
+// Thus, we can freely pass metrics as constraints and not worry about impacting solutions.
+// We do this by commenting lines 506-510 and 617-620 in borg.c
 
-#define PI 3.14159265358979323846
+JULIA_DEFINE_FAST_TLS
 
 int n_decs = 6;
 int n_objs = 9;
-int n_consts = 0;
+int n_metrics = 4;
 int scenario_code;
 
 // Set decision bounds based on scenario
@@ -22,13 +25,13 @@ void set_dec_bounds(BORG_Problem problem, int scenario_code)
 {
     if (scenario_code == 2){
         // w_with_coal
-        BORG_Problem_set_bounds(problem, 0, 0.0, 0.5);
+        BORG_Problem_set_bounds(problem, 0, 0.0, 0.50);
         // w_con_coal
-        BORG_Problem_set_bounds(problem, 1, 0.0, 5.0);
+        BORG_Problem_set_bounds(problem, 1, 0.0, 0.50);
         // w_with_ng
-        BORG_Problem_set_bounds(problem, 2, 0.0, 1.0);
+        BORG_Problem_set_bounds(problem, 2, 0.0, 0.5);
         // w_con_ng
-        BORG_Problem_set_bounds(problem, 3, 0.0, 1.0);
+        BORG_Problem_set_bounds(problem, 3, 0.0, 0.5);
         // w_with_nuc
         BORG_Problem_set_bounds(problem, 4, 0.0, 0.00001);
         // w_con_nuc
@@ -38,15 +41,15 @@ void set_dec_bounds(BORG_Problem problem, int scenario_code)
         // w_with_coal
         BORG_Problem_set_bounds(problem, 0, 0.0, 0.5);
         // w_con_coal
-        BORG_Problem_set_bounds(problem, 1, 0.0, 5.0);
+        BORG_Problem_set_bounds(problem, 1, 0.0, 0.5);
         // w_with_ng
-        BORG_Problem_set_bounds(problem, 2, 0.0, 1.0);
+        BORG_Problem_set_bounds(problem, 2, 0.0, 0.5);
         // w_con_ng
-        BORG_Problem_set_bounds(problem, 3, 0.0, 1.0);
+        BORG_Problem_set_bounds(problem, 3, 0.0, 0.5);
         // w_with_nuc
-        BORG_Problem_set_bounds(problem, 4, 0.0, 1.0);
+        BORG_Problem_set_bounds(problem, 4, 0.0, 0.5);
         // w_con_nuc
-        BORG_Problem_set_bounds(problem, 5, 0.0, 1.0);
+        BORG_Problem_set_bounds(problem, 5, 0.0, 0.5);
     }
 }
 
@@ -78,35 +81,35 @@ int main(int argc, char* argv[])
     jl_eval_string("using MOCOT");
 
 	// Simulation setup
-    BORG_Algorithm_ms_max_evaluations(10000);
+    BORG_Algorithm_ms_max_evaluations(5000);
     BORG_Algorithm_output_frequency(100);
 	BORG_Algorithm_ms_startup(&argc, &argv);
 
     // Setting up problem
-	BORG_Problem problem = BORG_Problem_create(n_decs, n_objs, n_consts, simulation_wrapper);
+	BORG_Problem problem = BORG_Problem_create(n_decs, n_objs, n_metrics, simulation_wrapper);
 
     // Set decision bounds
     set_dec_bounds(problem, scenario_code);
 
     // Objectives epsilons
     // f_gen
-    BORG_Problem_set_epsilon(problem, 0, 100000.0);
+    BORG_Problem_set_epsilon(problem, 0, 1.0E5);
     // f_cos_tot
-    BORG_Problem_set_epsilon(problem, 1, 10000000.0);
+    BORG_Problem_set_epsilon(problem, 1, 1.0E7);
     // f_with_peak
-    BORG_Problem_set_epsilon(problem, 2, 10000000.0);
+    BORG_Problem_set_epsilon(problem, 2, 1.0E8);
     // f_con_peak
-    BORG_Problem_set_epsilon(problem, 3, 1000000.0);
+    BORG_Problem_set_epsilon(problem, 3, 1.0E6);
     // f_with_tot
-    BORG_Problem_set_epsilon(problem, 4, 1000000000.0);
+    BORG_Problem_set_epsilon(problem, 4, 1.0E9);
     // f_con_tot
-    BORG_Problem_set_epsilon(problem, 5, 10000000.0);
+    BORG_Problem_set_epsilon(problem, 5, 1.0E8);
     // f_disvi_tot
-    BORG_Problem_set_epsilon(problem, 6, 1.0);
+    BORG_Problem_set_epsilon(problem, 6, 1.0E10);
     // f_emit
-    BORG_Problem_set_epsilon(problem, 7, 10.0);
+    BORG_Problem_set_epsilon(problem, 7, 1.0E1);
     // f_ENS
-    BORG_Problem_set_epsilon(problem, 8, 1.0);
+    BORG_Problem_set_epsilon(problem, 8, 0.1);
 
 	// Get the rank of this process.  The rank is used to ensure each
 	// parallel process uses a different random seed.

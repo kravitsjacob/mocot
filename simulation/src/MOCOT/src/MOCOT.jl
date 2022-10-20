@@ -10,7 +10,7 @@ import Memento
 import Dates
 import CSV
 import YAML
-import UUIDs
+
 
 # Dev packages
 import Infiltrator  # @Infiltrator.infiltrate
@@ -39,26 +39,26 @@ function simulation(
     # Arguments
     - `network_data:: Dict`: PowerModels network data
     - `exogenous:: Dict`: Exogenous parameter data [<parameter_name>][<timestep>]...[<timestep>]
-    - `w_with_coal:: Float64`: Coal withdrawal weight
-    - `w_con_coal:: Float64`: Coal consumption weight
-    - `w_with_ng:: Float64`: Natural gas withdrawal weight
-    - `w_con_ng:: Float64`: Natural gas consumption weight
-    - `w_with_nuc:: Float64`: Nuclear withdrawal weight
-    - `w_con_nuc:: Float64`: Nuclear consumption weight
+    - `w_with_coal:: Float64`: Coal withdrawal weight [dollar/L]
+    - `w_con_coal:: Float64`: Coal consumption weight [dollar/L]
+    - `w_with_ng:: Float64`: Natural gas withdrawal weight [dollar/L]
+    - `w_con_ng:: Float64`: Natural gas consumption weight [dollar/L]
+    - `w_with_nuc:: Float64`: Nuclear withdrawal weight [dollar/L]
+    - `w_con_nuc:: Float64`: Nuclear consumption weight [dollar/L]
     - `verbose_level:: Int64`: Level of output. Default is 1. Less is 0.
     """
     # Initialization
     d_total = length(exogenous["node_load"]) 
     h_total = length(exogenous["node_load"]["1"])
     state = Dict{String, Dict}()
-    state["power"] = Dict("0" => Dict())
-    state["withdraw_rate"] = Dict("0" => Dict{String, Float64}())
-    state["consumption_rate"] = Dict("0" => Dict{String, Float64}())
-    state["discharge_violation"] = Dict("0" => Dict{String, Float64}())
+    state["power"] = Dict("0" => Dict())  # [pu]
+    state["withdraw_rate"] = Dict("0" => Dict{String, Float64}())  # [L/pu]
+    state["consumption_rate"] = Dict("0" => Dict{String, Float64}())  # [L/pu]
+    state["discharge_violation"] = Dict("0" => Dict{String, Float64}())  # [C]
 
     # Processing decision vectors
-    w_with = Dict{String, Float64}()
-    w_con = Dict{String, Float64}()
+    w_with = Dict{String, Float64}()  # [dollar/L]
+    w_con = Dict{String, Float64}()  # [dollar/L]
     for (obj_name, obj_props) in network_data["gen"]
         try
             if obj_props["cus_fuel"] == "coal"
@@ -86,21 +86,21 @@ function simulation(
         end
     end
 
-    # Adjust generator capacity
+    # Adjust generator minimum capacity
     network_data = update_all_gens!(network_data, "pmin", 0.0)
 
     # Add reliability generators
-    voll = 330000.0  # $/pu for MISO
+    voll = 330000.0  # for MISO [dollar/pu]
     network_data = add_reliability_gens!(network_data, voll)
 
     # Make multinetwork
     network_data_multi = PowerModels.replicate(network_data, h_total)
 
     # Initialize water use based on 25.0 C
-    water_temperature = 25.0
-    air_temperature = 25.0
-    regulatory_temperature = 33.7  # For Illinois
-    gen_beta_with, gen_beta_con = gen_water_use_wrapper(
+    water_temperature = 20.0
+    air_temperature = 20.0
+    regulatory_temperature = 32.2  # For Illinois
+    gen_beta_with, gen_beta_con = gen_water_use_wrapper(  # [L/pu]
         water_temperature,
         air_temperature,
         regulatory_temperature,
@@ -117,6 +117,12 @@ function simulation(
         network_data_multi = update_load!(
             network_data_multi,
             exogenous["node_load"][string(d)]
+        )
+
+        # Adjust wind generator capacity
+        network_data_multi = update_wind_capacity!(
+            network_data_multi,
+            exogenous["wind_capacity_factor"][string(d)]
         )
 
         # Create power system model
@@ -185,7 +191,7 @@ function borg_simulation_wrapper(
     w_con_ng:: Float64=0.0,
     w_with_nuc:: Float64=0.0,
     w_con_nuc:: Float64=0.0,
-    output_type=1,
+    return_type=1,
     verbose_level=1,
     scenario_code=1,
 )
@@ -193,18 +199,18 @@ function borg_simulation_wrapper(
     Simulation wrapper for borg multi-objective MOEA
     
     # Arguments
-    - `w_with_coal:: Float64`: Coal withdrawal weight
-    - `w_con_coal:: Float64`: Coal consumption weight
-    - `w_with_ng:: Float64`: Natural gas withdrawal weight
-    - `w_con_ng:: Float64`: Natural gas consumption weight
-    - `w_with_nuc:: Float64`: Nuclear withdrawal weight
-    - `w_con_nuc:: Float64`: Nuclear consumption weight
-    - `output_type:: Int64`: Return code. 1 is for standard Borg output. 2 is for returning states, objectives, and metrics
+    - `w_with_coal:: Float64`: Coal withdrawal weight [dollar/L]
+    - `w_con_coal:: Float64`: Coal consumption weight [dollar/L]
+    - `w_with_ng:: Float64`: Natural gas withdrawal weight [dollar/L]
+    - `w_con_ng:: Float64`: Natural gas consumption weight [dollar/L]
+    - `w_with_nuc:: Float64`: Nuclear withdrawal weight [dollar/L]
+    - `w_con_nuc:: Float64`: Nuclear consumption weight [dollar/L]
+    - `return_type:: Int64`: Return code. 1 is for standard Borg output. 2 is for returning states, objectives, and metrics
     - `verbose_level:: Int64`: Level of stdout printing. Default is 1. Less is 0.
     - `scenario_code:: Int64`: Scenario code. See update_scenario! for codes
     """
     # Setup
-    objective_array = Float64[]
+    objective_metric_array = Float64[]
 
     # Setting verbose
     logger = Memento.getlogger("PowerModels")
@@ -220,21 +226,25 @@ function borg_simulation_wrapper(
         df_scenario_specs,
         df_eia_heat_rates,
         df_air_water,
+        df_wind_cf,
         df_node_load,
         network_data,
         df_gen_info,
         decision_names,
-        objective_names
+        objective_names,
+        metric_names
     ) = read_inputs(
         scenario_code,
         paths["inputs"]["scenario_specs"],
         paths["outputs"]["air_water_template"],
+        paths["outputs"]["wind_capacity_factor_template"],
         paths["outputs"]["node_load_template"],       
         paths["outputs"]["gen_info_water_ramp_emit_waterlim"],
         paths["inputs"]["eia_heat_rates"],
         paths["inputs"]["case"],
         paths["inputs"]["decisions"],
         paths["inputs"]["objectives"],
+        paths["inputs"]["metrics"],        
     )
 
     # Preparing network
@@ -248,6 +258,7 @@ function borg_simulation_wrapper(
         start_date,
         end_date,
         df_air_water,
+        df_wind_cf,
         df_node_load
     )
 
@@ -281,37 +292,24 @@ function borg_simulation_wrapper(
     println(objectives)
     println(metrics)
 
-    if output_type == 1  # "borg"
+    if return_type == 1  # "borg"
         # Collect objectives
         for obj_name in objective_names
-            append!(objective_array, objectives[obj_name])
+            append!(objective_metric_array, objectives[obj_name])
         end
 
-        # Get metrics from simulation
-        metrics_path = replace(paths["outputs"]["metrics_template"], "0" => scenario_code)
-        id = string(UUIDs.uuid4())
-        metrics_path = replace(metrics_path, ".csv" => "-"*id*".csv")
-        df_sim_metrics = DataFrames.hcat(
-            DataFrames.DataFrame(decisions),
-            DataFrames.DataFrame(metrics)
-        )
-        # Writing metrics to file
-        if isfile(metrics_path)
-            df_metrics = DataFrames.DataFrame(
-                CSV.File(metrics_path)
-            )
-            df_metrics = DataFrames.vcat(df_metrics, df_sim_metrics) 
-        else
-            df_metrics = df_sim_metrics
+        # Collect metrics
+        for m_name in metric_names
+            try
+                append!(objective_metric_array, metrics[m_name])
+            catch
+                append!(objective_metric_array, 0.0)
+            end
         end
-        CSV.write(
-            metrics_path,
-            df_metrics
-        )
 
-        return objective_array
+        return objective_metric_array
 
-    elseif output_type == 2  # "all"
+    elseif return_type == 2  # "all"
 
         # Generator information export
         CSV.write(paths["outputs"]["gen_info_main"], df_gen_info)

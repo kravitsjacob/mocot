@@ -3,7 +3,7 @@ import setuptools
 
 setuptools.setup(
     name="premocot",
-    version="0.0.14b0",
+    version="0.0.16b0",
     author="Jacob Kravits",
     author_email="kravitsjacob@gmail.com",
     description="Multi-Objective Coordination of Thermoelectric Water Use",
@@ -17,7 +17,10 @@ setuptools.setup(
         'openpyxl',
         'pandapower >= 2.10.1',
         'PyYAML',
-        'matpowercaseframes'
+        'matpowercaseframes',
+        'matplotlib',
+        'seaborn',
+        'hiplot'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

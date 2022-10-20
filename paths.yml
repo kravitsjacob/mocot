@@ -12,7 +12,7 @@ inputs:
   eia_heat_rates: "io/inputs/eia_heat_rates/Table_A6_Approximate_Heat_Rates_for_Electricity_-_and_Heat_Content_of_Electricity.xlsx"
   
   # Exogenous parameters
-  air_temperature_dir: "io/inputs/air_temperature"
+  air_temperature_dir: "io/inputs/nsrdb"
   synthetic_node_loads: "io/inputs/ACTIVSg_Time_Series/ACTIVISg2000_load_time_series_MW.csv"
   eia_load_template_j_j: "https://www.eia.gov/electricity/gridmonitor/sixMonthFiles/EIA930_BALANCE_0000_Jan_Jun.csv"
   eia_load_template_j_d: "https://www.eia.gov/electricity/gridmonitor/sixMonthFiles/EIA930_BALANCE_0000_Jul_Dec.csv"
@@ -20,6 +20,7 @@ inputs:
   # Parameter names
   decisions: "io/inputs/parameters/decisions.txt"
   objectives: "io/inputs/parameters/objectives.txt"
+  metrics: "io/inputs/parameters/metrics.txt"
 
   # Scenario specifications
   scenario_specs: "io/inputs/scenario_specs/scenario_specs.csv"
@@ -42,10 +43,12 @@ outputs:
   air_temperature: "io/outputs/exogenous/air_temperature.csv"
   system_load: "io/outputs/exogenous/system_load.csv"
   hour_to_hour: "io/outputs/exogenous/hour_to_hour.csv"
+  wind_capacity_factors: "io/outputs/exogenous/wind_capacity_factors.csv"
 
   # Scenario exogenous parameters
   air_water_template: "io/outputs/exogenous/scenario_0_air_water.csv"
   node_load_template: "io/outputs/exogenous/scenario_0_node_load.csv"
+  wind_capacity_factor_template: "io/outputs/exogenous/scenario_0_wind_capacity_factor.csv"
 
   # Debugging
   objectives: "objectives.csv"
@@ -58,12 +61,16 @@ outputs:
   metrics_template: "io/outputs/states/scenario_0_metrics.csv"
 
   figures:
-    # Exogenous figures
-    system_load: "io/outputs/figures/system_load.pdf"
-    system_load_factor: "io/outputs/figures/system_load_factor.pdf"
-    node_load: "io/outputs/figures/node_load.pdf"
-    hour_node_load: "io/outputs/figures/hour_node_load.pdf"
-    temperatures: "io/outputs/figures/temperatures.pdf"
+    # Example figures
+    system_load: "io/outputs/figures/example_system_load.pdf"
+    system_load_factor: "io/outputs/figures/example_system_load_factor.pdf"
+    node_load: "io/outputs/figures/example_node_load.pdf"
+    hour_node_load: "io/outputs/figures/example_hour_node_load.pdf"
+    temperatures: "io/outputs/figures/example_temperatures.pdf"
+
+    # Scenario figures
+    scenario_temperatures: "io/outputs/figures/scenario_temperatures.pdf"
+    scenario_loads: "io/outputs/figures/scenario_node_loads.pdf"
 
     # Runtime figures
     interactive_parallel: "io/outputs/figures/runtime_interactive_parallel.html"

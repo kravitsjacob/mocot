@@ -1,0 +1,1 @@
+coal_output,ng_output,nuclear_output,wind_output
