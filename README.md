@@ -7,12 +7,12 @@ Multi-Objective Coordination of Thermoelectric Water Use
 
 # Simulation Tests
 1) Activate julia `$ julia --project=simulation/src/MOCOT`
-2) Run tests `julia> include("simulation/src/MOCOT/testing/test.jl")`
+2) Instantiate julia packages `julia> include("simulation/julia_config.jl")`
+3) Run tests `julia> include("simulation/src/MOCOT/testing/test.jl")`
 
 # Single Simulation Run (Debugging/Development)
-1) Activate julia `$ julia`
-2) Activate analysis `julia> using Pkg; Pkg.activate("simulation")`
-3) Instantiate julia packages (analysis and MOCOT) `julia> include("simulation/julia_config.jl")`
+1) Activate julia `$ julia --project=simulation/src/MOCOT`
+2) Instantiate julia packages `julia> include("simulation/julia_config.jl")`
 
 for every bug:
   * Run `using Infiltrator` to add debugging functionality.
@@ -43,19 +43,24 @@ for every bug:
 4) Compile using `$ make optimization -C ./optimization`
 5) Run optimization using "all generators" scenario (code 1) `$ mpiexec -n 2 ./optimization/optimization.exe 1`
 
-# Optimization on Alpine
+# Optimization on Summit/Alpine
 
-## Building MOCOT and Analysis projects
-1) Activate Alpine: `$ ml slurm/alpine`
+## Building MOCOT project
+1) Activate slurm: `$ ml slurm/alpine`
+	* Summit equivalent: `$ ml slurm/summit`
 2) Go to compile node: `$ acompile`
+	* Summit equivalent: `$ ssh scompile` 
 3) Change directory to mocot: `$ cd /projects/jakr3868/mocot`
 4) Configure slurm: `. optimization/slurm_config.sh` 
+	* Summit equivalent: `$ . optimization/slurm_config_summit.sh` 
 5) Compile using `$ make slurm -C ./optimization`
 
 ## Running optimization
-1) Activate Alpine: `$ ml slurm/alpine`
+1) Activate slurm: `$ ml slurm/alpine`
+	* Summit equivalent: `$ ml slurm/summit`
 2) Change directory to mocot: `$ cd /projects/jakr3868/mocot`
-3) Submit the job for all scenarios: `$ sbatch --array=1-6 optimization/slurm_run.sh`
+3) Submit the job for all scenarios: `$ sbatch --array=1-7 optimization/slurm_run.sh`
+	* Summit equivalent: `$ sbatch --array=1-7 optimization/slurm_run_summit.sh` 
 
 # Python Postprocessing
 1) Install the python package `$ pip install --editable ./postprocessing/.`
