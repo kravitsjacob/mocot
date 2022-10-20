@@ -9,6 +9,7 @@ import pygmo
 import paxplot
 import hiplot as hip
 import os
+sns.set()
 
 
 class BorgRuntimeUtils:
