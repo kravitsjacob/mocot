@@ -3,7 +3,7 @@ import setuptools
 
 setuptools.setup(
     name="postmocot",
-    version="0.0.16b0",
+    version="0.0.17b0",
     author="Jacob Kravits",
     author_email="kravitsjacob@gmail.com",
     description="Multi-Objective Coordination of Thermoelectric Water Use",
