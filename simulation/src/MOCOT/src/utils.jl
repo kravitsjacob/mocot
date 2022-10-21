@@ -381,3 +381,26 @@ function add_prop!(network_data:: Dict, obj_type:: String, prop_name:: String, o
 
     return network_data
 end
+
+
+function create_decision_dict(w:: Float64, network_data:: Dict)
+    """
+    Create dictionary for decision weights
+    
+    # Arguments
+    - `w:: Float64`: Weight to be applied
+    - `network_data:: Dict`: PowerModels network data
+    """
+    w_dict = Dict{String, Float64}()
+
+    # Loop through generators
+    for (obj_name, obj_props) in network_data["gen"]
+        if obj_name in network_data["reliability_gen"]
+            # Skip as its a reliability generator
+        else
+            w_dict[obj_name] = w
+        end
+    end
+
+    return w_dict
+end

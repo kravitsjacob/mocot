@@ -24,13 +24,11 @@ include("preprocessing.jl")
 function simulation(
     network_data:: Dict,
     exogenous:: Dict,
+    voll:: Float64=330000.0,
     ;
-    w_with_coal:: Float64=0.0,
-    w_con_coal:: Float64=0.0,
-    w_with_ng:: Float64=0.0,
-    w_con_ng:: Float64=0.0,
-    w_with_nuc:: Float64=0.0,
-    w_con_nuc:: Float64=0.0,
+    w_with:: Float64=0.0,
+    w_con:: Float64=0.0,
+    w_emit:: Float64=0.0,
     verbose_level:: Int64=1
 )
     """
@@ -39,12 +37,10 @@ function simulation(
     # Arguments
     - `network_data:: Dict`: PowerModels network data
     - `exogenous:: Dict`: Exogenous parameter data [<parameter_name>][<timestep>]...[<timestep>]
-    - `w_with_coal:: Float64`: Coal withdrawal weight [dollar/L]
-    - `w_con_coal:: Float64`: Coal consumption weight [dollar/L]
-    - `w_with_ng:: Float64`: Natural gas withdrawal weight [dollar/L]
-    - `w_con_ng:: Float64`: Natural gas consumption weight [dollar/L]
-    - `w_with_nuc:: Float64`: Nuclear withdrawal weight [dollar/L]
-    - `w_con_nuc:: Float64`: Nuclear consumption weight [dollar/L]
+    - `voll:: Float64`: Value of lost load, Default is 330000.0. [dollar/pu]
+    - `w_with:: Float64`: Coal withdrawal weight [dollar/L]
+    - `w_con:: Float64`: Coal consumption weight [dollar/L]
+    - `w_emit:: Float64`: Emission withdrawal weight [dollar/lbs]
     - `verbose_level:: Int64`: Level of output. Default is 1. Less is 0.
     """
     # Initialization
@@ -57,46 +53,20 @@ function simulation(
     state["discharge_violation"] = Dict("0" => Dict{String, Float64}())  # [C]
 
     # Processing decision vectors
-    w_with = Dict{String, Float64}()  # [dollar/L]
-    w_con = Dict{String, Float64}()  # [dollar/L]
-    for (obj_name, obj_props) in network_data["gen"]
-        try
-            if obj_props["cus_fuel"] == "coal"
-                w_with[obj_name] = w_with_coal
-                w_con[obj_name] = w_con_coal
-            elseif obj_props["cus_fuel"] == "ng"
-                w_with[obj_name] = w_with_ng
-                w_con[obj_name] = w_con_ng
-            elseif obj_props["cus_fuel"] == "nuclear"
-                w_with[obj_name] = w_with_nuc
-                w_con[obj_name] = w_con_nuc
-            else
-                w_with[obj_name] = 0.0
-                w_con[obj_name] = 0.0
-            end
-        catch
-            try 
-                # Check if reliabilty generator
-                if obj_name not in network_data["reliability_gen"]
-                    println("Weight not added for generator $obj_name")
-                end
-            catch
-                # Skip adding weight as it's a reliability generator
-            end
-        end
-    end
+    w_with_dict = create_decision_dict(w_with, network_data)  # [dollar/L]
+    w_con_dict = create_decision_dict(w_con, network_data)  # [dollar/L]
+    w_emit_dict = create_decision_dict(w_emit, network_data)  # [dollar/lbs]
 
     # Adjust generator minimum capacity
     network_data = update_all_gens!(network_data, "pmin", 0.0)
 
     # Add reliability generators
-    voll = 330000.0  # for MISO [dollar/pu]
     network_data = add_reliability_gens!(network_data, voll)
 
     # Make multinetwork
     network_data_multi = PowerModels.replicate(network_data, h_total)
 
-    # Initialize water use based on 25.0 C
+    # Initialize water use based on 20.0 C
     water_temperature = 20.0
     air_temperature = 20.0
     regulatory_temperature = 32.2  # For Illinois
