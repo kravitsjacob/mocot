@@ -1,0 +1,25 @@
+package:
+  name: postmocot
+  version: 0.0.17b0
+
+source:
+  path: .
+
+build:
+  script: python -m pip install --no-deps --ignore-installed .
+
+requirements:
+  build:
+    - python
+    - setuptools
+  run:
+    - python
+    - pandas
+    - PyYAML
+    - matplotlib
+    - seaborn
+    - hiplot
+    - pygmo
+
+about:
+  home: https://github.com/kravitsjacob/mocot
