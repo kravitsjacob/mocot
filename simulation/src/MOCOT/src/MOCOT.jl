@@ -112,11 +112,26 @@ function simulation(
         # Add water use terms
         pm = add_linear_obj_terms!(
             pm,
-            multiply_dicts([state["withdraw_rate"][string(d-1)], w_with])
+            multiply_dicts([state["withdraw_rate"][string(d-1)], w_with_dict])
         )
         pm = add_linear_obj_terms!(
             pm,
-            multiply_dicts([state["consumption_rate"][string(d-1)], w_con])
+            multiply_dicts([state["consumption_rate"][string(d-1)], w_con_dict])
+        )
+
+        # Add emission terms
+        df_emit = DataFrames.DataFrame(
+            PowerModels.component_table(network_data, "gen", ["cus_emit"]),
+            [:obj_name , :cus_emit]
+        )
+        df_emit = DataFrames.filter(
+            :cus_emit => x -> !any(f -> f(x), (ismissing, isnothing, isnan)),
+            df_emit
+        )
+        emit_rate_dict = Dict(Pair.(string.(df_emit.obj_name), df_emit.cus_emit))
+        pm = add_linear_obj_terms!(
+            pm,
+            multiply_dicts([emit_rate_dict, w_emit_dict])
         )
 
         # Solve power system model
@@ -145,7 +160,7 @@ function simulation(
     end
 
     # Compute objectives
-    objectives = get_objectives(state, network_data, w_with, w_con)
+    objectives = get_objectives(state, network_data, w_with_dict, w_con_dict)
 
     # Compute metrics
     metrics = get_metrics(state, network_data)
