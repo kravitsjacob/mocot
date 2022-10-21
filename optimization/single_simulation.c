@@ -4,7 +4,7 @@
 
 JULIA_DEFINE_FAST_TLS
 
-int n_decs = 6;
+int n_decs = 3;
 int n_objs = 9;
 int n_metrics = 4;
 int scenario_code;
@@ -20,9 +20,6 @@ int main(int argc, char* argv[])
     test_decs[0] = 0.1;
     test_decs[1] = 0.2;
     test_decs[2] = 0.3;
-    test_decs[3] = 0.4;
-    test_decs[4] = 0.5;
-    test_decs[5] = 0.6;
 
     // Scenario code parsing
     if (argc == 1){  // All generators scenario by default
