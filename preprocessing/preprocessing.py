@@ -77,7 +77,7 @@ def main():
             df_gen_info_emit,
         )
         df_gen_info_water_ramp_emit['Emission Rate lbs per MWh'] = \
-            df_gen_info_water_ramp_emit['Emission Rate lbs per kWh']/1000.0
+            df_gen_info_water_ramp_emit['Emission Rate lbs per kWh']*1000.0
         df_gen_info_water_ramp_emit.to_csv(
             paths['outputs']['gen_info_water_ramp_emit'],
             index=False
@@ -104,6 +104,20 @@ def main():
             index=False
         )
         print('Success: Adding water use limits')
+
+    # Add julia information
+    if not os.path.exists(
+        paths['outputs']['gen_info_main']
+    ):
+        df_gen_info = pd.read_csv(
+            paths['outputs']['gen_info_water_ramp_emit_waterlim'],
+        )
+        df_gen_info['obj_name'] = df_gen_info.index+1
+        df_gen_info.to_csv(
+            paths['outputs']['gen_info_main'],
+            index=False
+        )
+        print('Success: Julia information')
 
     # Water temperature
     if not os.path.exists(paths['outputs']['water_temperature']):
