@@ -52,6 +52,9 @@ function simulation(
     state["consumption_rate"] = Dict("0" => Dict{String, Float64}())  # [L/pu]
     state["discharge_violation"] = Dict("0" => Dict{String, Float64}())  # [C]
 
+    # Add reliability generators
+    network_data = add_reliability_gens!(network_data, voll)
+
     # Processing decision vectors
     w_with_dict = create_decision_dict(w_with, network_data)  # [dollar/L]
     w_con_dict = create_decision_dict(w_con, network_data)  # [dollar/L]
@@ -59,9 +62,6 @@ function simulation(
 
     # Adjust generator minimum capacity
     network_data = update_all_gens!(network_data, "pmin", 0.0)
-
-    # Add reliability generators
-    network_data = add_reliability_gens!(network_data, voll)
 
     # Make multinetwork
     network_data_multi = PowerModels.replicate(network_data, h_total)
