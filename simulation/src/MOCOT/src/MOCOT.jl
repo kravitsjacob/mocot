@@ -40,7 +40,7 @@ function simulation(
     - `voll:: Float64`: Value of lost load, Default is 330000.0. [dollar/pu]
     - `w_with:: Float64`: Coal withdrawal weight [dollar/L]
     - `w_con:: Float64`: Coal consumption weight [dollar/L]
-    - `w_emit:: Float64`: Emission withdrawal weight [dollar/lbs]
+    - `w_emit:: Float64`: Emission withdrawal weight [dollar/lb]
     - `verbose_level:: Int64`: Level of output. Default is 1. Less is 0.
     """
     # Initialization
@@ -55,7 +55,7 @@ function simulation(
     # Processing decision vectors
     w_with_dict = create_decision_dict(w_with, network_data)  # [dollar/L]
     w_con_dict = create_decision_dict(w_con, network_data)  # [dollar/L]
-    w_emit_dict = create_decision_dict(w_emit, network_data)  # [dollar/lbs]
+    w_emit_dict = create_decision_dict(w_emit, network_data)  # [dollar/lb]
 
     # Adjust generator minimum capacity
     network_data = update_all_gens!(network_data, "pmin", 0.0)
@@ -160,7 +160,7 @@ function simulation(
     end
 
     # Compute objectives
-    objectives = get_objectives(state, network_data, w_with_dict, w_con_dict)
+    objectives = get_objectives(state, network_data, w_with, w_con, w_emit)
 
     # Compute metrics
     metrics = get_metrics(state, network_data)

@@ -1,3 +1,4 @@
+using Infiltrator
 using Revise
 using Test
 using DataFrames
@@ -357,35 +358,47 @@ end
     exogenous = exogenous_raw
 
     # No weights
-    (objectives_no_weights, metrics, state) = MOCOT.simulation(
+    (objectives_no_weight, metrics, state) = MOCOT.simulation(
         network_data,
         exogenous,
-        w_with_coal=0.0,
-        w_con_coal=0.0,
-        w_with_ng=0.0,
-        w_con_ng=0.0,
-        w_with_nuc=0.0,
-        w_con_nuc=0.0,
+        w_with=0.0,
+        w_con=0.0,
+        w_emit=0.0,
         verbose_level=1
     )
 
     # Withdrawal weights
-    (objectives_weights, metrics, state) = MOCOT.simulation(
+    (objectives_with_weight, metrics, state) = MOCOT.simulation(
         network_data,
         exogenous,
-        w_with_coal=0.1,
-        w_con_coal=0.0,
-        w_with_ng=0.1,
-        w_con_ng=0.0,
-        w_with_nuc=0.1,
-        w_con_nuc=0.0,
+        w_with=0.1,
+        w_con=0.0,
+        w_emit=0.0,
         verbose_level=1
     )
+
+    # Emission weights
+    (objectives_emit_weight, metrics, state) = MOCOT.simulation(
+        network_data,
+        exogenous,
+        w_with=0.0,
+        w_con=0.0,
+        w_emit=10000.0,
+        verbose_level=1
+    )
+
     # Test for reduced withdrawal
-    @Test.test objectives_weights["f_with_tot"] < objectives_no_weights["f_with_tot"]
+    @Test.test objectives_with_weight["f_with_tot"] < objectives_no_weight["f_with_tot"]
+
+    # Test for reduced emissions
+    @Test.test objectives_emit_weight["f_emit"] < objectives_no_weight["f_emit"]
 
     # Test for increased cost
-    @Test.test objectives_weights["f_gen"] > objectives_no_weights["f_gen"]
+    @Test.test objectives_with_weight["f_gen"] > objectives_no_weight["f_gen"]
+
+    # Test for increased cost
+    @Test.test objectives_emit_weight["f_gen"] > objectives_no_weight["f_gen"]
+
 end
 
 
@@ -395,19 +408,16 @@ end
     exogenous = exogenous_raw
 
     # No weights
-    (objectives, metrics, state) = MOCOT.simulation(
+    (objectives_weights, metrics, state) = MOCOT.simulation(
         network_data,
         exogenous,
-        w_with_coal=5.0,
-        w_con_coal=0.0,
-        w_with_ng=0.0,
-        w_con_ng=0.0,
-        w_with_nuc=0.0,
-        w_con_nuc=0.0,
+        w_with=5.0,
+        w_con=0.0,
+        w_emit=0.0,
         verbose_level=1
     )
 
     # Test for increased ENS
-    @Test.test objectives["f_ENS"] > 0.1
+    @Test.test objectives_weights["f_ENS"] > 0.1
 
 end

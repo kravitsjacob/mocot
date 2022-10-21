@@ -158,8 +158,9 @@ end
 function get_objectives(
     state:: Dict{String, Dict},
     network_data:: Dict{String, Any},
-    w_with:: Dict{String, Float64},
-    w_con:: Dict{String, Float64},
+    w_with:: Float64,
+    w_con:: Float64,
+    w_emit:: Float64,
 )
     """
     Computing simulation objectives
@@ -167,8 +168,9 @@ function get_objectives(
     # Arguments
     - `state:: Dict{String, Dict}`: State dictionary
     - `network_data:: Dict{String, Any}`: PowerModels Network data
-    - `w_with:: Dict{String, Float64}`: Withdrawal weights for each generator
-    - `w_con:: Dict{String, Float64}`: Consumption weights for each generator
+    - `w_with:: Float64`: Withdrawal weight [dollar/L]
+    - `w_con:: Float64`: Consumption weight [dollar/L]
+    - `w_emit`:: Emission weight [dollar/lbs]
     """
     objectives = Dict{String, Float64}()
 
@@ -228,25 +230,6 @@ function get_objectives(
     objectives["f_with_tot"] = DataFrames.sum(df_water[!, "hourly_withdrawal"])
     objectives["f_con_tot"] = DataFrames.sum(df_water[!, "hourly_consumption"])
     
-    # Total costs
-    df_with = DataFrames.stack(DataFrames.DataFrame(w_with))
-    DataFrames.rename!(df_with, :variable => :obj_name, :value => :w_with)
-    df_con = DataFrames.stack(DataFrames.DataFrame(w_con))
-    DataFrames.rename!(df_con, :variable => :obj_name, :value => :w_con)
-    df_water = DataFrames.leftjoin(
-        df_water,
-        df_with,
-        on=[:obj_name]
-    )
-    df_water = DataFrames.leftjoin(
-        df_water,
-        df_con,
-        on=[:obj_name]
-    )
-    withdrawal_cost = DataFrames.sum(df_water.hourly_withdrawal .* df_water.w_with)
-    consumtion_cost = DataFrames.sum(df_water.hourly_consumption .* df_water.w_con)
-    objectives["f_cos_tot"] =  objectives["f_gen"] + withdrawal_cost + consumtion_cost
-
     # Compute discharge violation objectives
     if length(df_discharge_violation_states[!, "discharge_violation"]) > 0
         df_discharge_violation_states = DataFrames.leftjoin(
@@ -272,6 +255,9 @@ function get_objectives(
 
     # Compute reliability objectives
     objectives["f_ENS"] = DataFrames.sum(df_reliability_states[!, "pg"])
+
+    # Total weights
+    objectives["f_weight_tot"] = w_with + w_con + w_emit
 
     return objectives
 end
