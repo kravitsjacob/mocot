@@ -1,1 +1,1 @@
-coal_output,ng_output,nuclear_output,wind_output
+coal_output,ng_output,nuclear_output,wind_output,RI_output,OC_output,RC_output,No Cooling System_output

@@ -279,7 +279,7 @@ function get_metrics(
     
     # Power states
     df_power_states = MOCOT.pm_state_df(state, "power", "gen", ["pg"])
-
+    
     # Add fuel types
     df_fuel = DataFrames.DataFrame(
         PowerModels.component_table(network_data, "gen", ["cus_fuel"]),
@@ -293,7 +293,20 @@ function get_metrics(
         on=[:obj_name]                                                                                                                                                                                        
     )
 
-    # Get total ouputs
+    # Add cooling type
+    df_cool = DataFrames.DataFrame(
+        PowerModels.component_table(network_data, "gen", ["cus_cool"]),
+        [:obj_name, :cus_cool]
+    )
+    df_cool[!, :obj_name] = string.(df_cool[!, :obj_name])
+    df_cool[!, :cus_cool] = string.(df_cool[!, :cus_cool])
+    df_power_states = DataFrames.leftjoin(                                                                                                                                                                    
+        df_power_states,                                                                                                                                                                                      
+        df_cool,                                                                                                                                                                                              
+        on=[:obj_name]                                                                                                                                                                                        
+    )
+
+    # Get total fuel ouputs
     df_power_fuel = DataFrames.combine(
         DataFrames.groupby(df_power_states, [:cus_fuel]),
         :pg => sum,
@@ -301,7 +314,17 @@ function get_metrics(
     df_power_fuel = df_power_fuel[df_power_fuel.cus_fuel .!= "NaN",:]
     for row in DataFrames.eachrow(df_power_fuel)
         metrics[row["cus_fuel"] * "_output"] = row["pg_sum"]
-   end
+    end
+
+    # Get total cooling ouputs
+    df_power_cool = DataFrames.combine(
+        DataFrames.groupby(df_power_states, [:cus_cool]),
+        :pg => sum,
+    )
+    df_power_cool = df_power_cool[df_power_cool.cus_cool .!= "NaN",:]
+    for row in DataFrames.eachrow(df_power_cool)
+        metrics[row["cus_cool"] * "_output"] = row["pg_sum"]
+    end
 
     return metrics 
 end
