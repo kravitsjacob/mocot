@@ -170,12 +170,9 @@ end
 
 
 function borg_simulation_wrapper(
-    w_with_coal:: Float64=0.0,
-    w_con_coal:: Float64=0.0,
-    w_with_ng:: Float64=0.0,
-    w_con_ng:: Float64=0.0,
-    w_with_nuc:: Float64=0.0,
-    w_con_nuc:: Float64=0.0,
+    w_with:: Float64=0.0,
+    w_con:: Float64=0.0,
+    w_emit:: Float64=0.0,
     return_type=1,
     verbose_level=1,
     scenario_code=1,
@@ -184,12 +181,9 @@ function borg_simulation_wrapper(
     Simulation wrapper for borg multi-objective MOEA
     
     # Arguments
-    - `w_with_coal:: Float64`: Coal withdrawal weight [dollar/L]
-    - `w_con_coal:: Float64`: Coal consumption weight [dollar/L]
-    - `w_with_ng:: Float64`: Natural gas withdrawal weight [dollar/L]
-    - `w_con_ng:: Float64`: Natural gas consumption weight [dollar/L]
-    - `w_with_nuc:: Float64`: Nuclear withdrawal weight [dollar/L]
-    - `w_con_nuc:: Float64`: Nuclear consumption weight [dollar/L]
+    - `w_with:: Float64`: Coal withdrawal weight [dollar/L]
+    - `w_con:: Float64`: Coal consumption weight [dollar/L]
+    - `w_emit:: Float64`: Emission withdrawal weight [dollar/lb]
     - `return_type:: Int64`: Return code. 1 is for standard Borg output. 2 is for returning states, objectives, and metrics
     - `verbose_level:: Int64`: Level of stdout printing. Default is 1. Less is 0.
     - `scenario_code:: Int64`: Scenario code. See update_scenario! for codes
@@ -254,23 +248,17 @@ function borg_simulation_wrapper(
     (objectives, metrics, state) = simulation(
         network_data,
         exogenous,
-        w_with_coal=w_with_coal,
-        w_con_coal=w_con_coal,
-        w_with_ng= w_with_ng,
-        w_con_ng=w_con_ng,
-        w_with_nuc=w_with_nuc,
-        w_con_nuc= w_con_nuc,
+        w_with=w_with,
+        w_con=w_con,
+        w_emit= w_emit,
         verbose_level=verbose_level
     )
 
     # Console feedback
     decisions = Dict(
-        "w_with_coal" => w_with_coal,
-        "w_con_coal" => w_con_coal,
-        "w_with_ng" => w_with_ng,
-        "w_con_ng" => w_con_ng,
-        "w_with_nuc" => w_with_nuc,
-        "w_con_nuc" => w_con_nuc
+        "w_with" => w_with,
+        "w_con" => w_con,
+        "w_emit" => w_emit,
     )
     println("Scenario code: $scenario_code")
     println(decisions)
@@ -295,9 +283,6 @@ function borg_simulation_wrapper(
         return objective_metric_array
 
     elseif return_type == 2  # "all"
-
-        # Generator information export
-        CSV.write(paths["outputs"]["gen_info_main"], df_gen_info)
 
         return (objectives, state, metrics)
 
