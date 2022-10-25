@@ -9,7 +9,7 @@ export SLURM_EXPORT_ENV=ALL
 # Load modules
 ml julia/1.8.1
 ml gcc/10.2.0
-ml openmpi
+ml openmpi/4.0.5
 
 # Instantiate julia packages
 julia ./simulation/julia_config.jl
