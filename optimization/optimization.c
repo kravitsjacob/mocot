@@ -67,17 +67,17 @@ int main(int argc, char* argv[])
     // f_gen
     BORG_Problem_set_epsilon(problem, 0, 1.0E5);
     // f_with_peak
-    BORG_Problem_set_epsilon(problem, 2, 1.0E8);
+    BORG_Problem_set_epsilon(problem, 2, 1.0E6);
     // f_con_peak
     BORG_Problem_set_epsilon(problem, 3, 1.0E6);
     // f_with_tot
-    BORG_Problem_set_epsilon(problem, 4, 1.0E9);
+    BORG_Problem_set_epsilon(problem, 4, 1.0E6);
     // f_con_tot
-    BORG_Problem_set_epsilon(problem, 5, 1.0E7);
+    BORG_Problem_set_epsilon(problem, 5, 1.0E6);
     // f_disvi_tot
-    BORG_Problem_set_epsilon(problem, 6, 1.0E10);
+    BORG_Problem_set_epsilon(problem, 6, 1.0E6);
     // f_emit
-    BORG_Problem_set_epsilon(problem, 7, 1.0E8);
+    BORG_Problem_set_epsilon(problem, 7, 1.0E6);
     // f_ENS
     BORG_Problem_set_epsilon(problem, 8, 0.1);
     // f_weight_tot
