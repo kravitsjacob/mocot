@@ -24,13 +24,11 @@ include("preprocessing.jl")
 function simulation(
     network_data:: Dict,
     exogenous:: Dict,
+    voll:: Float64=330000.0,
     ;
-    w_with_coal:: Float64=0.0,
-    w_con_coal:: Float64=0.0,
-    w_with_ng:: Float64=0.0,
-    w_con_ng:: Float64=0.0,
-    w_with_nuc:: Float64=0.0,
-    w_con_nuc:: Float64=0.0,
+    w_with:: Float64=0.0,
+    w_con:: Float64=0.0,
+    w_emit:: Float64=0.0,
     verbose_level:: Int64=1
 )
     """
@@ -39,12 +37,10 @@ function simulation(
     # Arguments
     - `network_data:: Dict`: PowerModels network data
     - `exogenous:: Dict`: Exogenous parameter data [<parameter_name>][<timestep>]...[<timestep>]
-    - `w_with_coal:: Float64`: Coal withdrawal weight [dollar/L]
-    - `w_con_coal:: Float64`: Coal consumption weight [dollar/L]
-    - `w_with_ng:: Float64`: Natural gas withdrawal weight [dollar/L]
-    - `w_con_ng:: Float64`: Natural gas consumption weight [dollar/L]
-    - `w_with_nuc:: Float64`: Nuclear withdrawal weight [dollar/L]
-    - `w_con_nuc:: Float64`: Nuclear consumption weight [dollar/L]
+    - `voll:: Float64`: Value of lost load, Default is 330000.0. [dollar/pu]
+    - `w_with:: Float64`: Coal withdrawal weight [dollar/L]
+    - `w_con:: Float64`: Coal consumption weight [dollar/L]
+    - `w_emit:: Float64`: Emission withdrawal weight [dollar/lb]
     - `verbose_level:: Int64`: Level of output. Default is 1. Less is 0.
     """
     # Initialization
@@ -56,47 +52,21 @@ function simulation(
     state["consumption_rate"] = Dict("0" => Dict{String, Float64}())  # [L/pu]
     state["discharge_violation"] = Dict("0" => Dict{String, Float64}())  # [C]
 
+    # Add reliability generators
+    network_data = add_reliability_gens!(network_data, voll)
+
     # Processing decision vectors
-    w_with = Dict{String, Float64}()  # [dollar/L]
-    w_con = Dict{String, Float64}()  # [dollar/L]
-    for (obj_name, obj_props) in network_data["gen"]
-        try
-            if obj_props["cus_fuel"] == "coal"
-                w_with[obj_name] = w_with_coal
-                w_con[obj_name] = w_con_coal
-            elseif obj_props["cus_fuel"] == "ng"
-                w_with[obj_name] = w_with_ng
-                w_con[obj_name] = w_con_ng
-            elseif obj_props["cus_fuel"] == "nuclear"
-                w_with[obj_name] = w_with_nuc
-                w_con[obj_name] = w_con_nuc
-            else
-                w_with[obj_name] = 0.0
-                w_con[obj_name] = 0.0
-            end
-        catch
-            try 
-                # Check if reliabilty generator
-                if obj_name not in network_data["reliability_gen"]
-                    println("Weight not added for generator $obj_name")
-                end
-            catch
-                # Skip adding weight as it's a reliability generator
-            end
-        end
-    end
+    w_with_dict = create_decision_dict(w_with, network_data)  # [dollar/L]
+    w_con_dict = create_decision_dict(w_con, network_data)  # [dollar/L]
+    w_emit_dict = create_decision_dict(w_emit, network_data)  # [dollar/lb]
 
     # Adjust generator minimum capacity
     network_data = update_all_gens!(network_data, "pmin", 0.0)
 
-    # Add reliability generators
-    voll = 330000.0  # for MISO [dollar/pu]
-    network_data = add_reliability_gens!(network_data, voll)
-
     # Make multinetwork
     network_data_multi = PowerModels.replicate(network_data, h_total)
 
-    # Initialize water use based on 25.0 C
+    # Initialize water use based on 20.0 C
     water_temperature = 20.0
     air_temperature = 20.0
     regulatory_temperature = 32.2  # For Illinois
@@ -142,11 +112,26 @@ function simulation(
         # Add water use terms
         pm = add_linear_obj_terms!(
             pm,
-            multiply_dicts([state["withdraw_rate"][string(d-1)], w_with])
+            multiply_dicts([state["withdraw_rate"][string(d-1)], w_with_dict])
         )
         pm = add_linear_obj_terms!(
             pm,
-            multiply_dicts([state["consumption_rate"][string(d-1)], w_con])
+            multiply_dicts([state["consumption_rate"][string(d-1)], w_con_dict])
+        )
+
+        # Add emission terms
+        df_emit = DataFrames.DataFrame(
+            PowerModels.component_table(network_data, "gen", ["cus_emit"]),
+            [:obj_name , :cus_emit]
+        )
+        df_emit = DataFrames.filter(
+            :cus_emit => x -> !any(f -> f(x), (ismissing, isnothing, isnan)),
+            df_emit
+        )
+        emit_rate_dict = Dict(Pair.(string.(df_emit.obj_name), df_emit.cus_emit))
+        pm = add_linear_obj_terms!(
+            pm,
+            multiply_dicts([emit_rate_dict, w_emit_dict])
         )
 
         # Solve power system model
@@ -175,7 +160,7 @@ function simulation(
     end
 
     # Compute objectives
-    objectives = get_objectives(state, network_data, w_with, w_con)
+    objectives = get_objectives(state, network_data, w_with, w_con, w_emit)
 
     # Compute metrics
     metrics = get_metrics(state, network_data)
@@ -185,12 +170,9 @@ end
 
 
 function borg_simulation_wrapper(
-    w_with_coal:: Float64=0.0,
-    w_con_coal:: Float64=0.0,
-    w_with_ng:: Float64=0.0,
-    w_con_ng:: Float64=0.0,
-    w_with_nuc:: Float64=0.0,
-    w_con_nuc:: Float64=0.0,
+    w_with:: Float64=0.0,
+    w_con:: Float64=0.0,
+    w_emit:: Float64=0.0,
     return_type=1,
     verbose_level=1,
     scenario_code=1,
@@ -199,12 +181,9 @@ function borg_simulation_wrapper(
     Simulation wrapper for borg multi-objective MOEA
     
     # Arguments
-    - `w_with_coal:: Float64`: Coal withdrawal weight [dollar/L]
-    - `w_con_coal:: Float64`: Coal consumption weight [dollar/L]
-    - `w_with_ng:: Float64`: Natural gas withdrawal weight [dollar/L]
-    - `w_con_ng:: Float64`: Natural gas consumption weight [dollar/L]
-    - `w_with_nuc:: Float64`: Nuclear withdrawal weight [dollar/L]
-    - `w_con_nuc:: Float64`: Nuclear consumption weight [dollar/L]
+    - `w_with:: Float64`: Coal withdrawal weight [dollar/L]
+    - `w_con:: Float64`: Coal consumption weight [dollar/L]
+    - `w_emit:: Float64`: Emission withdrawal weight [dollar/lb]
     - `return_type:: Int64`: Return code. 1 is for standard Borg output. 2 is for returning states, objectives, and metrics
     - `verbose_level:: Int64`: Level of stdout printing. Default is 1. Less is 0.
     - `scenario_code:: Int64`: Scenario code. See update_scenario! for codes
@@ -269,23 +248,17 @@ function borg_simulation_wrapper(
     (objectives, metrics, state) = simulation(
         network_data,
         exogenous,
-        w_with_coal=w_with_coal,
-        w_con_coal=w_con_coal,
-        w_with_ng= w_with_ng,
-        w_con_ng=w_con_ng,
-        w_with_nuc=w_with_nuc,
-        w_con_nuc= w_con_nuc,
+        w_with=w_with,
+        w_con=w_con,
+        w_emit= w_emit,
         verbose_level=verbose_level
     )
 
     # Console feedback
     decisions = Dict(
-        "w_with_coal" => w_with_coal,
-        "w_con_coal" => w_con_coal,
-        "w_with_ng" => w_with_ng,
-        "w_con_ng" => w_con_ng,
-        "w_with_nuc" => w_with_nuc,
-        "w_con_nuc" => w_con_nuc
+        "w_with" => w_with,
+        "w_con" => w_con,
+        "w_emit" => w_emit,
     )
     println("Scenario code: $scenario_code")
     println(decisions)
@@ -310,9 +283,6 @@ function borg_simulation_wrapper(
         return objective_metric_array
 
     elseif return_type == 2  # "all"
-
-        # Generator information export
-        CSV.write(paths["outputs"]["gen_info_main"], df_gen_info)
 
         return (objectives, state, metrics)
 
