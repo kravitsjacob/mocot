@@ -51,7 +51,7 @@ for every bug:
 2) Go to compile node: `$ acompile`
 	* Summit equivalent: `$ ssh scompile` 
 3) Change directory to mocot: `$ cd /projects/jakr3868/mocot`
-4) Configure slurm: `. optimization/slurm_config.sh` 
+4) Configure slurm: `$ . optimization/slurm_config.sh` 
 	* Summit equivalent: `$ . optimization/slurm_config_summit.sh` 
 5) Compile using `$ make slurm -C ./optimization`
 
