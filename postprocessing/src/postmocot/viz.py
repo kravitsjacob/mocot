@@ -80,7 +80,12 @@ def average_parallel(runtime):
     # Add remaining solutions
     paxfig.plot(
         df.to_numpy(),
-        line_kwargs={'alpha': 0.5, 'color': 'grey', 'zorder': 0}
+        line_kwargs={
+            'alpha': 0.1,
+            'linewidth': 0.5,
+            'color': 'grey',
+            'zorder': 0
+        }
     )
 
     # Dimensions
