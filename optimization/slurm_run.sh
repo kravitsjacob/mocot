@@ -1,13 +1,13 @@
 #!/bin/sh
 
-#SBATCH --nodes=4
-#SBATCH --ntasks-per-node=16
+#SBATCH --nodes=9
+#SBATCH --ntasks-per-node=8
 #SBATCH --cpus-per-task=1
 #SBATCH --switches=1
 #SBATCH --constraint=ib
 #SBATCH --job-name=gosox
 #SBATCH --partition=amilan
-#SBATCH --time=0-00:300:00
+#SBATCH --time=0-00:200:00
 #SBATCH --mail-user=jakr3868@colorado.edu
 #SBATCH --mail-type=ALL
 

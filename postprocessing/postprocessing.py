@@ -47,8 +47,6 @@ def main():
     if not os.path.exists(paths['outputs']['figures']['hypervolume']):
         reference_point = [
             1e7,
-            1e10,
-            1e8,
             1e11,
             1e9,
             1e12,
