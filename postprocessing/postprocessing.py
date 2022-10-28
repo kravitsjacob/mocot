@@ -62,6 +62,13 @@ def main():
         exp = runtime_multi.plot_interactive_front()
         exp.to_html(paths['outputs']['figures']['interactive_parallel'])
 
+    # Average scenario parallel
+    if not os.path.exists(paths['outputs']['figures']['average_parallel']):
+        fig = postmocot.viz.average_parallel(
+            runtime_multi.runs['average week']
+        )
+        fig.savefig(paths['outputs']['figures']['average_parallel'])
+
 
 if __name__ == '__main__':
     main()
