@@ -77,10 +77,20 @@ def main():
                 'f_emit',
                 'f_with_tot',
                 'f_con_tot',
-                'f_disvi_tot',
                 'f_ENS',
+                'f_disvi_tot'
+            ],
+            x_col='f_gen',
+            nondom_labels=[
+                'f_gen only',
+                'f_gen, f_emit',
+                'f_gen, f_emit \n f_with_tot',
+                'f_gen, f_emit \n f_with_tot, f_con_tot',
+                'f_gen, f_emit \n f_with_tot, f_con_tot, \n f_ENS',
+                'f_gen, f_emit \n f_with_tot, f_con_tot, \n f_ENS, f_disvi_tot'
             ]
         )
+        fig.savefig(paths['outputs']['figures']['compare'])
 
 
 if __name__ == '__main__':

@@ -565,7 +565,12 @@ class BorgRuntimeAggregator():
 
         return df_parent
 
-    def plot_subequent_nondomination(self, nondom_col_order):
+    def plot_subequent_nondomination(
+        self,
+        nondom_col_order,
+        nondom_labels,
+        x_col
+    ):
         """
         Nondomination of subsequent scenarios
 
@@ -575,15 +580,57 @@ class BorgRuntimeAggregator():
             Runtime scenarios
         nondom_col_order : list
             Order of columns to nondomiate
+        x_col : str
+            Column for x plotting
 
         Returns
         -------
-        pandas.DataFrame
-            Results of subsequent nondomination
+        seaborn.axisgrid.FacetGrid
+            Plot of subsequent scenarios
         """
+        sns.set()
         # Prepare data
         df = self._subsequent_non_domination(nondom_col_order)
+        df = pd.melt(
+            df,
+            value_vars=nondom_col_order[1:],
+            id_vars=[x_col] + ['scenario', 'nondomination_cols'],
+            var_name='obj',
+            value_name='obj_value'
+        )
 
         # Make plot
-        
-        a = 1
+        g = sns.FacetGrid(
+            df,
+            col='obj',
+            row='nondomination_cols',
+            sharey=False,
+            aspect=1.2,
+            height=1.8,
+            gridspec_kws={
+                'wspace': 0.4,
+                'hspace': 0.15
+            }
+        )
+        g.map_dataframe(
+            sns.scatterplot,
+            x=x_col,
+            y='obj_value',
+            hue='scenario',
+        )
+        g.set_titles(
+            template=""
+        )
+        g.set_ylabels('Objective Value')
+        # Set ylabels
+        for i, ax in enumerate(g.axes[:, -1]):
+            label = 'Nondomination wrt: \n' + nondom_labels[i]
+            ax.set_ylabel(label, labelpad=60, rotation=0)
+            ax.yaxis.set_label_position("right")
+        # Set titles
+        for i, ax in enumerate(g.axes[0, :]):
+            ax.set_title(nondom_col_order[i+1])
+        g.add_legend(bbox_to_anchor=(1.0, 0.50))
+        g.figure.subplots_adjust(right=0.7)
+
+        return g
