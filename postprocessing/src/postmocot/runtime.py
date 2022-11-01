@@ -9,6 +9,7 @@ import pygmo
 import paxplot
 import hiplot as hip
 import os
+import postmocot
 sns.set()
 
 
@@ -510,3 +511,79 @@ class BorgRuntimeAggregator():
         )
 
         return exp
+
+    def _subsequent_non_domination(self, nondom_col_order):
+        """Nondomination of subsequent scenarios
+
+        Parameters
+        ----------
+        nondom_col_order : list
+            Order of columns to nondomiate
+
+        Returns
+        -------
+        pandas.DataFrame
+            Results of subsequent nondomination
+        """
+        df_parent = pd.DataFrame()
+
+        for r_name, runtime in self.runs.items():
+            # Setup
+            df_scenario = pd.DataFrame()
+
+            # Get archive
+            nfe = runtime.nfe[-1]
+            df_archive = pd.DataFrame(
+                runtime.archive_objectives[nfe],
+                columns=runtime.objective_names
+            )
+
+            # Subsequent non-domination
+            for i in range(len(nondom_col_order)):
+
+                # Run non-domination
+                nondom_cols = nondom_col_order[0:i+1]
+                df_nondom = postmocot.process.get_nondomintated(
+                    df=df_archive,
+                    objs=nondom_cols,
+                    max_objs=None
+                )
+
+                # Store
+                df_nondom['nondomination_cols'] = str(nondom_cols)
+                df_scenario = pd.concat(
+                    [df_scenario, df_nondom],
+                    axis=0
+                )
+
+            # Storing
+            df_scenario['scenario'] = r_name
+            df_parent = pd.concat(
+                [df_parent, df_scenario],
+                axis=0
+            )
+
+        return df_parent
+
+    def plot_subequent_nondomination(self, nondom_col_order):
+        """
+        Nondomination of subsequent scenarios
+
+        Parameters
+        ----------
+        runtime_multi : postmocot.runtime.BorgRuntimeAggregator
+            Runtime scenarios
+        nondom_col_order : list
+            Order of columns to nondomiate
+
+        Returns
+        -------
+        pandas.DataFrame
+            Results of subsequent nondomination
+        """
+        # Prepare data
+        df = self._subsequent_non_domination(nondom_col_order)
+
+        # Make plot
+        
+        a = 1

@@ -69,6 +69,19 @@ def main():
         )
         fig.savefig(paths['outputs']['figures']['average_parallel'])
 
+    # Compare scenario plot
+    if not os.path.exists(paths['outputs']['figures']['compare']):
+        fig = runtime_multi.plot_subequent_nondomination(
+            nondom_col_order=[
+                'f_gen',
+                'f_emit',
+                'f_with_tot',
+                'f_con_tot',
+                'f_disvi_tot',
+                'f_ENS',
+            ]
+        )
+
 
 if __name__ == '__main__':
     main()
