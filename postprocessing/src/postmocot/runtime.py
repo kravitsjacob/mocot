@@ -9,6 +9,7 @@ import pygmo
 import paxplot
 import hiplot as hip
 import os
+import postmocot
 sns.set()
 
 
@@ -510,3 +511,126 @@ class BorgRuntimeAggregator():
         )
 
         return exp
+
+    def _subsequent_non_domination(self, nondom_col_order):
+        """Nondomination of subsequent scenarios
+
+        Parameters
+        ----------
+        nondom_col_order : list
+            Order of columns to nondomiate
+
+        Returns
+        -------
+        pandas.DataFrame
+            Results of subsequent nondomination
+        """
+        df_parent = pd.DataFrame()
+
+        for r_name, runtime in self.runs.items():
+            # Setup
+            df_scenario = pd.DataFrame()
+
+            # Get archive
+            nfe = runtime.nfe[-1]
+            df_archive = pd.DataFrame(
+                runtime.archive_objectives[nfe],
+                columns=runtime.objective_names
+            )
+
+            # Subsequent non-domination
+            for i in range(len(nondom_col_order)):
+
+                # Run non-domination
+                nondom_cols = nondom_col_order[0:i+1]
+                df_nondom = postmocot.process.get_nondomintated(
+                    df=df_archive,
+                    objs=nondom_cols,
+                    max_objs=None
+                )
+
+                # Store
+                df_nondom['nondomination_cols'] = str(nondom_cols)
+                df_scenario = pd.concat(
+                    [df_scenario, df_nondom],
+                    axis=0
+                )
+
+            # Storing
+            df_scenario['scenario'] = r_name
+            df_parent = pd.concat(
+                [df_parent, df_scenario],
+                axis=0
+            )
+
+        return df_parent
+
+    def plot_subequent_nondomination(
+        self,
+        nondom_col_order,
+        nondom_labels,
+        x_col
+    ):
+        """
+        Nondomination of subsequent scenarios
+
+        Parameters
+        ----------
+        runtime_multi : postmocot.runtime.BorgRuntimeAggregator
+            Runtime scenarios
+        nondom_col_order : list
+            Order of columns to nondomiate
+        x_col : str
+            Column for x plotting
+
+        Returns
+        -------
+        seaborn.axisgrid.FacetGrid
+            Plot of subsequent scenarios
+        """
+        sns.set()
+        # Prepare data
+        df = self._subsequent_non_domination(nondom_col_order)
+        df = pd.melt(
+            df,
+            value_vars=nondom_col_order[1:],
+            id_vars=[x_col] + ['scenario', 'nondomination_cols'],
+            var_name='obj',
+            value_name='obj_value'
+        )
+
+        # Make plot
+        g = sns.FacetGrid(
+            df,
+            col='obj',
+            row='nondomination_cols',
+            sharey=False,
+            aspect=1.2,
+            height=1.8,
+            gridspec_kws={
+                'wspace': 0.4,
+                'hspace': 0.15
+            }
+        )
+        g.map_dataframe(
+            sns.scatterplot,
+            x=x_col,
+            y='obj_value',
+            hue='scenario',
+        )
+        g.set_titles(
+            template=""
+        )
+        g.set_ylabels('Objective Value')
+        # Set ylabels
+        for i, ax in enumerate(g.axes[:, -1]):
+            label = 'Nondomination wrt: \n' + nondom_labels[i]
+            ax.set_ylabel(label, labelpad=60, rotation=0)
+            ax.yaxis.set_label_position("right")
+        # Set titles
+        for i, ax in enumerate(g.axes[0, :]):
+            ax.set_title(nondom_col_order[i+1])
+        g.add_legend(bbox_to_anchor=(1.0, 0.50))
+        g.figure.subplots_adjust(right=0.7)
+
+        return g

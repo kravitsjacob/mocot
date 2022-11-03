@@ -225,8 +225,8 @@ function get_objectives(
         :hourly_withdrawal => sum,
         :hourly_consumption => sum
     )
-    objectives["f_with_peak"] = DataFrames.maximum(df_daily.hourly_withdrawal_sum)
-    objectives["f_con_peak"] = DataFrames.maximum(df_daily.hourly_consumption_sum)
+    # objectives["f_with_peak"] = DataFrames.maximum(df_daily.hourly_withdrawal_sum)
+    # objectives["f_con_peak"] = DataFrames.maximum(df_daily.hourly_consumption_sum)
     objectives["f_with_tot"] = DataFrames.sum(df_water[!, "hourly_withdrawal"])
     objectives["f_con_tot"] = DataFrames.sum(df_water[!, "hourly_consumption"])
     

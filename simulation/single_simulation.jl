@@ -27,7 +27,7 @@ function main()
     # Simulation with high standard deviation load   
     (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 4)
 
-    # Simulation with high water air and water tempeartures
+    # Simulation with high water and air tempeartures
     (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 5)
     
     # Simulation with synthetic high load

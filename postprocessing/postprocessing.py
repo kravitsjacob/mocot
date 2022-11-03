@@ -47,8 +47,6 @@ def main():
     if not os.path.exists(paths['outputs']['figures']['hypervolume']):
         reference_point = [
             1e7,
-            1e10,
-            1e8,
             1e11,
             1e9,
             1e12,
@@ -63,6 +61,36 @@ def main():
     if not os.path.exists(paths['outputs']['figures']['interactive_parallel']):
         exp = runtime_multi.plot_interactive_front()
         exp.to_html(paths['outputs']['figures']['interactive_parallel'])
+
+    # Average scenario parallel
+    if not os.path.exists(paths['outputs']['figures']['average_parallel']):
+        fig = postmocot.viz.average_parallel(
+            runtime_multi.runs['average week']
+        )
+        fig.savefig(paths['outputs']['figures']['average_parallel'])
+
+    # Compare scenario plot
+    if not os.path.exists(paths['outputs']['figures']['compare']):
+        fig = runtime_multi.plot_subequent_nondomination(
+            nondom_col_order=[
+                'f_gen',
+                'f_emit',
+                'f_with_tot',
+                'f_con_tot',
+                'f_ENS',
+                'f_disvi_tot'
+            ],
+            x_col='f_gen',
+            nondom_labels=[
+                'f_gen only',
+                'f_gen, f_emit',
+                'f_gen, f_emit \n f_with_tot',
+                'f_gen, f_emit \n f_with_tot, f_con_tot',
+                'f_gen, f_emit \n f_with_tot, f_con_tot, \n f_ENS',
+                'f_gen, f_emit \n f_with_tot, f_con_tot, \n f_ENS, f_disvi_tot'
+            ]
+        )
+        fig.savefig(paths['outputs']['figures']['compare'])
 
 
 if __name__ == '__main__':
