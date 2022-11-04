@@ -58,6 +58,7 @@ outputs:
   # Results
   runtime_template: "io/outputs/states/scenario_0_runtime.txt"
   metrics_template: "io/outputs/states/scenario_0_metrics.csv"
+  selected_policies: "io/outputs/selected_policies/selected_policies.csv"
 
   figures:
     # Example figures
