@@ -78,6 +78,18 @@ def main():
         )
         fig.savefig(paths['outputs']['figures']['average_parallel'])
 
+    # Comparison plot
+    if not os.path.exists(paths['outputs']['figures']['compare']):
+        df_policy_performance = pd.read_csv(
+            paths['outputs']['selected_policy_performance']
+        )
+        fig = postmocot.viz.comparison(
+            df_policy_performance,
+            runtime_multi.runs['average week'].objective_names,
+            runtime_multi.runs['average week'].decision_names
+        )
+        fig.savefig(paths['outputs']['figures']['compare'])
+
 
 if __name__ == '__main__':
     main()

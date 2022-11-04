@@ -95,3 +95,83 @@ def average_parallel(runtime, df_policies):
     paxfig.set_size_inches(10, 3)
 
     return paxfig
+
+
+def comparison(
+    df,
+    objectives,
+    decisions,
+):
+    """
+    Compare selected policies across scenarios relative to status quo
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Policy performance dataframe
+
+    Returns
+    -------
+    seaborn.axisgrid.FacetGrid
+        Plot of subsequent scenarios
+    """
+    sns.set()
+    scenarios = df['scenario'].unique().tolist()
+    policies = df['policy_label'].unique().tolist()
+
+    # Get relative performance
+    df_ls = []
+
+    for s in scenarios:
+        # Get scenario
+        df_temp = df[df['scenario'] == s].copy()
+
+        # Subtract from status quo
+        status_quo = df_temp[df_temp['policy_label'] == 'status quo']
+        differences = df_temp[objectives] - status_quo[objectives].to_numpy()
+        df_temp[objectives] = differences
+
+        # Store
+        df_ls.append(df_temp)
+
+    df_relative = pd.concat(df_ls)
+
+    # Prepare data
+    df_plot = df_relative.copy()
+    df_plot = df_plot[df_plot['policy_label'] != 'status quo']
+    df_plot = df_plot.drop(columns=decisions)
+    df_plot = pd.melt(
+        df_plot,
+        value_vars=objectives,
+        id_vars=['scenario', 'policy_label'],
+        var_name='obj',
+        value_name='obj_value'
+    )
+    df_plot = df_plot[df_plot['obj'] != 'f_weight_tot']
+
+    # Make plot
+    g = sns.FacetGrid(
+        df_plot,
+        row='obj',
+        col='scenario',
+        sharey='row',
+        height=1.0,
+        aspect=0.9,
+        gridspec_kws={
+            'wspace': 0.1,
+            'hspace': 0.1
+        }
+    )
+    g.set_titles(
+        template=""
+    )
+    g.map(
+        sns.barplot,
+        'policy_label',
+        'obj_value',
+        'policy_label',
+        palette=sns.color_palette('tab10')
+    )
+    g.add_legend()
+
+    return g
