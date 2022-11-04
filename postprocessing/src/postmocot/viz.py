@@ -6,13 +6,15 @@ import seaborn as sns
 sns.reset_orig()
 
 
-def average_parallel(runtime):
+def average_parallel(runtime, df_policies):
     """Summary plot for average scenario
 
     Parameters
     ----------
     runtime : postmocot.runtime.BorgRuntimeDiagnostic
         Runtime obeject for average scenario
+    df_policies : pandas.DataFrame
+        Selected policies
 
     Returns
     -------
@@ -32,24 +34,25 @@ def average_parallel(runtime):
         'f_con_tot': 'Water Consumption [L]',
         'f_emit': 'Emissions [lbs]'
     })
-
-    # Selecting a few solutions
-    df_label = df.copy()
-    df_label['label'] = ''
-    df_label.at[df_label['Generation Cost [$]'].idxmin(), 'label'] = 'No Policy'  # noqa
-    df_label.at[df_label['Emissions [lbs]'].idxmin(), 'label'] = 'Emissions-Only Policy'  # noqa
-    df_label.at[df_label['Water Withdrawal [L]'].idxmin(), 'label'] = 'Withdrawal-Only Policy'  # noqa
-    df_label.at[df_label['Water Consumption [L]'].idxmin(), 'label'] = 'Consumption-Only Policy'  # noqa
-    idx_compromise = df_label.iloc[(df_label['Generation Cost [$]']-4644519).abs().argsort()[:1]].index[0]  # noqa
-    df_label.at[idx_compromise, 'label'] = 'Informed Policy'
-    df_label = df_label[df_label['label'] != '']
+    df_policies = df_policies.drop(
+        columns=[
+            'w_with',
+            'w_con',
+            'w_emit',
+            'f_ENS',
+            'f_disvi_tot',
+            'f_weight_tot'
+        ]
+    )
 
     # Plotting
     paxfig = paxplot.pax_parallel(n_axes=len(df.columns))
-    paxfig.plot(df_label.loc[:, df_label.columns != 'label'].to_numpy())
+    paxfig.plot(
+        df_policies.loc[:, df_policies.columns != 'policy_label'].to_numpy()
+    )
 
     # Adding a colorbar
-    paxfig.add_legend(labels=df_label['label'].tolist())
+    paxfig.add_legend(labels=df_policies['policy_label'].tolist())
     paxfig.axes[-1].get_legend().set_bbox_to_anchor((1.50, 0.5))
 
     # Limits
