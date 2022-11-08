@@ -29,10 +29,10 @@ def average_parallel(runtime, df_policies):
     )
     df = df.drop(columns=['f_ENS', 'f_disvi_tot', 'f_weight_tot'])
     df = df.rename(columns={
-        'f_gen': 'Generation Cost [$]',
-        'f_with_tot': 'Water Withdrawal [L]',
-        'f_con_tot': 'Water Consumption [L]',
-        'f_emit': 'Emissions [lbs]'
+        'f_gen': '$f_{gen}$ [\$]',
+        'f_with_tot': '$f_{with,tot}$ [L]',
+        'f_con_tot': '$f_{con,tot}$ [L]',
+        'f_emit': '$f_{emit}$ [lbs]'
     })
     df_policies = df_policies.drop(
         columns=[
