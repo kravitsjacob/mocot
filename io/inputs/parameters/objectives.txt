@@ -1,1 +1,1 @@
-f_gen,f_with_tot,f_con_tot,f_disvi_tot,f_emit,f_ENS,f_weight_tot
+f_gen,f_with_tot,f_con_tot,f_disvi_tot,f_emit,f_ENS,f_w_with,f_w_con,f_w_emit
