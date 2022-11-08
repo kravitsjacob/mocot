@@ -117,7 +117,6 @@ def comparison(
     """
     sns.set()
     scenarios = df['scenario'].unique().tolist()
-    policies = df['policy_label'].unique().tolist()
 
     # Get relative performance
     df_ls = []
@@ -148,30 +147,51 @@ def comparison(
         value_name='obj_value'
     )
     df_plot = df_plot[df_plot['obj'] != 'f_weight_tot']
+    df_plot['obj'] = df_plot['obj'].replace(
+        {
+            'f_gen': '$f_{gen}$',
+            'f_with_tot': '$f_{with,tot}$',
+            'f_con_tot': '$f_{con,tot}$',
+            'f_disvi_tot': '$f_{disvi,tot}$',
+            'f_emit': '$f_{emit}$',
+            'f_ENS': '$f_{ENS}$ ',
+        }
+    )
 
-    # Make plot
+    # Plotting
     g = sns.FacetGrid(
         df_plot,
         row='obj',
         col='scenario',
         sharey='row',
-        height=1.0,
+        height=1.2,
         aspect=0.9,
         gridspec_kws={
             'wspace': 0.1,
-            'hspace': 0.1
+            'hspace': 0.25
         }
-    )
-    g.set_titles(
-        template=""
     )
     g.map(
         sns.barplot,
         'policy_label',
         'obj_value',
         'policy_label',
-        palette=sns.color_palette('tab10')
+        palette=sns.color_palette('tab10'),
+        dodge=False
     )
+
+    # Titles
+    g.set_titles(
+        template=""
+    )
+    y_labels = df_plot['obj'].unique().tolist()
+    x_labels = df_plot['scenario'].unique().tolist()
+    for i, ax in enumerate(g.axes[:, 0]):
+        ax.set_ylabel(y_labels[i])
+    for i, ax in enumerate(g.axes[-1, :]):
+        ax.set_xlabel(x_labels[i], rotation=20)
+        ax.set_xticklabels('')
     g.add_legend()
+    g.figure.subplots_adjust(bottom=0.2)
 
     return g
