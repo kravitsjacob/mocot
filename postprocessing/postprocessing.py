@@ -77,8 +77,8 @@ def main():
         )
         fig = postmocot.viz.comparison(
             df_policy_performance,
-            runtime_multi.runs['average week'].objective_names,
-            runtime_multi.runs['average week'].decision_names
+            runtime.objective_names,
+            runtime.decision_names
         )
         fig.savefig(paths['outputs']['figures']['compare'])
 

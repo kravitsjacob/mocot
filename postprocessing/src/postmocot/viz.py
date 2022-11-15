@@ -150,7 +150,9 @@ def comparison(
         var_name='obj',
         value_name='obj_value'
     )
-    df_plot = df_plot[df_plot['obj'] != 'f_weight_tot']
+    df_plot = df_plot[df_plot['obj'] != 'f_w_with']
+    df_plot = df_plot[df_plot['obj'] != 'f_w_con']
+    df_plot = df_plot[df_plot['obj'] != 'f_w_emit']
     df_plot['obj'] = df_plot['obj'].replace(
         {
             'f_gen': '$f_{gen}$',
