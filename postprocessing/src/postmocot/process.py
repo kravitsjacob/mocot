@@ -99,7 +99,7 @@ def select_policies(runtime):
     df.at[df['f_emit'].idxmin(), 'policy_label'] = 'high emission penality'  # noqa
     df.at[df['f_con_tot'].idxmin(), 'policy_label'] = 'high consumption penality'  # noqa
     df.at[df['f_with_tot'].idxmin(), 'policy_label'] = 'high withdrawal penality'  # noqa
-    idx_compromise = df.iloc[(df['f_gen']-4989849.4357).abs().argsort()[:1]].index[0]  # noqa
+    idx_compromise = df.iloc[(df['f_gen']-5186690.359442655).abs().argsort()[:1]].index[0]  # noqa
     df.at[idx_compromise, 'policy_label'] = 'water-emission policy'
     df = df[df['policy_label'] != '']
 

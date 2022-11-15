@@ -27,7 +27,9 @@ def average_parallel(runtime, df_policies):
         runtime.archive_objectives[runtime.nfe[-1]],
         columns=runtime.objective_names
     )
-    df = df.drop(columns=['f_ENS', 'f_disvi_tot', 'f_weight_tot'])
+    df = df.drop(
+        columns=['f_ENS', 'f_disvi_tot', 'f_w_with', 'f_w_con', 'f_w_emit']
+    )
     df = df.rename(columns={
         'f_gen': '$f_{gen}$ [\$]',
         'f_with_tot': '$f_{with,tot}$ [L]',
@@ -41,7 +43,9 @@ def average_parallel(runtime, df_policies):
             'w_emit',
             'f_ENS',
             'f_disvi_tot',
-            'f_weight_tot'
+            'f_w_with',
+            'f_w_con',
+            'f_w_emit'
         ]
     )
 

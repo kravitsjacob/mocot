@@ -58,16 +58,14 @@ def main():
 
     # Select policies
     if not os.path.exists(paths['outputs']['selected_policies']):
-        df = postmocot.process.select_policies(
-            runtime_multi.runs['average week']
-        )
+        df = postmocot.process.select_policies(runtime)
         df.to_csv(paths['outputs']['selected_policies'], index=False)
 
     # Average scenario parallel
     if not os.path.exists(paths['outputs']['figures']['average_parallel']):
         df_policies = pd.read_csv(paths['outputs']['selected_policies'])
         fig = postmocot.viz.average_parallel(
-            runtime_multi.runs['average week'],
+            runtime,
             df_policies
         )
         fig.savefig(paths['outputs']['figures']['average_parallel'])
