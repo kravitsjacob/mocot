@@ -274,21 +274,36 @@ class BorgRuntimeDiagnostic(BorgRuntimeUtils):
 
         return fig
 
-    def plot_hypervolume(self):
+    def plot_hypervolume(self, reference_point):
         """
         Plot hypervolume over the search
+
+        Parameters
+        ----------
+        reference_point : list
+            Reference point for hypervolume calculation
 
         Returns
         -------
         matplotlib.figure.Figure
             Plot of improvments
         """
-        # Get data
-        df = pd.Series(self.hypervolume).to_frame().reset_index()
+        sns.set()
 
-        # Plot
-        fig = plt.figure()
-        sns.lineplot(data=df, x='index', y=0)
+        # Computing hypervolume
+        self.compute_hypervolume(reference_point)
+        df_run = pd.DataFrame()
+        df_run['hypervolume'] = pd.Series(self.hypervolume)
+        df_run['nfe'] = df_run.index
+
+        # Plotting
+        fig, ax = plt.subplots()
+        sns.lineplot(
+            data=df_run,
+            x='nfe',
+            y='hypervolume',
+            ax=ax
+        )
         plt.ylabel('Hypervolume')
         plt.xlabel('Function Evaluations')
 
@@ -313,10 +328,17 @@ class BorgRuntimeDiagnostic(BorgRuntimeUtils):
             self.archive_objectives[nfe],
             columns=self.objective_names
         )
-        df_front = pd.concat([df_decs, df_objs], axis=1)
+        df_metrics = pd.DataFrame(
+            self.archive_metrics[nfe],
+            columns=self.metric_names
+        )
+        df_front = pd.concat([df_decs, df_objs, df_metrics], axis=1)
 
         # Create Plot
-        cols = self.decision_names+self.objective_names
+        cols = \
+            self.decision_names +\
+            self.objective_names +\
+            self.metric_names
         cols.reverse()
         color_col = self.objective_names[0]
         exp = hip.Experiment.from_dataframe(df_front)
