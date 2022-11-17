@@ -25,6 +25,11 @@ for every bug:
 3) Compile using `$ make single -C ./optimization`
 4) Run simulation using "all generators" scenario (code 1) `$ ./optimization/single_simulation.exe 1`
 
+# Informal (Engineering Judgement) Optimization
+1) Activate julia `$ julia --project=simulation/src/MOCOT`
+2) Instantiate julia packages `julia> include("simulation/julia_config.jl")`
+3) Run postprocessing `julia> include("optimization/engineering_judgement.jl")`
+
 # Optimization on Unix-like
 1) Place borg files in `optimization/src/borg`. We used a modified version of the algorithm where we disable the constraint functionality to isntead pass our metrics during the optimization. We do this by 
 * Commenting lines 506-510 and 617-620 in borg.c to disable constraint evaluation.
