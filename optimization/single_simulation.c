@@ -5,7 +5,7 @@
 JULIA_DEFINE_FAST_TLS
 
 int n_decs = 3;
-int n_objs = 7;
+int n_objs = 9;
 int n_metrics = 4;
 int scenario_code;
 

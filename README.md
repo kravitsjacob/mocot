@@ -67,5 +67,10 @@ for every bug:
 2) Install the conda packages `$ conda install -c conda-forge pygmo` 
 3) Run the analysis`$ python postprocessing/postprocessing.py`
 
+# Julia Postprocessing
+1) Activate julia `$ julia --project=simulation/src/MOCOT`
+2) Instantiate julia packages `julia> include("simulation/julia_config.jl")`
+3) Run postprocessing `julia> include("postprocessing/run_scenarios.jl")`
+
 # Notes on old commits/releases
 Releases of week-01 to week-09 were regenerated due to migration away from git lfs. Thus, their release data all occur on the same day. 

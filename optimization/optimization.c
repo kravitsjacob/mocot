@@ -16,7 +16,7 @@
 JULIA_DEFINE_FAST_TLS
 
 int n_decs = 3;
-int n_objs = 7;
+int n_objs = 9;
 int n_metrics = 8;
 int scenario_code;
 
@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
     jl_eval_string("using MOCOT");
 
 	// Simulation setup
-    BORG_Algorithm_ms_max_evaluations(5000);
+    BORG_Algorithm_ms_max_evaluations(10000);
     BORG_Algorithm_output_frequency(100);
 	BORG_Algorithm_ms_startup(&argc, &argv);
 
@@ -65,19 +65,23 @@ int main(int argc, char* argv[])
 
     // Objectives epsilons
     // f_gen
-    BORG_Problem_set_epsilon(problem, 0, 1.0E5);
+    BORG_Problem_set_epsilon(problem, 0, 1.0E6);
     // f_with_tot
-    BORG_Problem_set_epsilon(problem, 1, 1.0E5);
+    BORG_Problem_set_epsilon(problem, 1, 1.0E6);
     // f_con_tot
-    BORG_Problem_set_epsilon(problem, 2, 1.0E5);
+    BORG_Problem_set_epsilon(problem, 2, 1.0E6);
     // f_disvi_tot
-    BORG_Problem_set_epsilon(problem, 3, 1.0E5);
+    BORG_Problem_set_epsilon(problem, 3, 1.0E6);
     // f_emit
-    BORG_Problem_set_epsilon(problem, 4, 1.0E5);
+    BORG_Problem_set_epsilon(problem, 4, 1.0E6);
     // f_ENS
     BORG_Problem_set_epsilon(problem, 5, 0.1);
-    // f_weight_tot
+    // f_w_with
     BORG_Problem_set_epsilon(problem, 6, 0.00000001);
+    // f_w_con
+    BORG_Problem_set_epsilon(problem, 7, 0.00000001);
+    // f_w_emit
+    BORG_Problem_set_epsilon(problem, 8, 0.00000001);
 
 	// Get the rank of this process.  The rank is used to ensure each
 	// parallel process uses a different random seed.

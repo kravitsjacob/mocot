@@ -257,7 +257,9 @@ function get_objectives(
     objectives["f_ENS"] = DataFrames.sum(df_reliability_states[!, "pg"])
 
     # Total weights
-    objectives["f_weight_tot"] = w_with + w_con + w_emit
+    objectives["f_w_with"] = w_with
+    objectives["f_w_con"] = w_con
+    objectives["f_w_emit"] = w_emit
 
     return objectives
 end
