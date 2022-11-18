@@ -15,7 +15,7 @@ function find_engineering_judgement_weight(
     right_start:: Float64,
     simulation,
     search_epsilon=0.0005,
-    objective_epsilon=10,
+    objective_epsilon=1000.0,
 )
     """
     Simple algorithm that mimics the process of manually checking
@@ -88,8 +88,8 @@ function main()
 
     # Find engineering judgement w_con
     w_con = find_engineering_judgement_weight(
-        0.009,
-        0.010,
+        0.041,
+        0.042,
         function (x)
             (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, x, 0.0, 2, 0, 1)
             return objectives["f_con_tot"]
