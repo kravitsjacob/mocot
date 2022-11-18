@@ -18,23 +18,11 @@ function main()
     # Simulation with average case
     (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 1)
 
-    # Simulation with nuclear outage
+    # Simulation with extreme load/climate
     (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 2)
 
-    # Simulation with high load
+    # Simulation with nuclear outage
     (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 3)
-
-    # Simulation with high standard deviation load   
-    (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 4)
-
-    # Simulation with high water and air tempeartures
-    (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 5)
-    
-    # Simulation with synthetic high load
-    (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 6)
-    
-    # Simulation with synthetic low wind
-    (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 7)
 
     # Objectives
     df_objs = DataFrames.DataFrame(objectives)

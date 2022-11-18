@@ -383,12 +383,10 @@ function update_scenario!(network_data, scenario_code:: Int64)
     - `network_data::Dict`: Network data (e.g., network_data_multi["nw"])
     - `scenario_code:: Int64`: Scenario code. 1 for all generators. 2 for no nuclear.
     """
-    if scenario_code == 1  # "All generators"
+    if scenario_code == 3  # "Nuclear outage"
         network_data = MOCOT.update_all_gens!(network_data, "gen_status", 1)
-    elseif scenario_code == 2  # "No nuclear"
-        network_data = MOCOT.update_all_gens!(network_data, "gen_status", 1)
-        network_data["gen"]["47"]["gen_status"]=0
-    else
+        network_data["gen"]["47"]["gen_status"] = 0
+    else  # "All generators"
         network_data = MOCOT.update_all_gens!(network_data, "gen_status", 1)
     end
 
