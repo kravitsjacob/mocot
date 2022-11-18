@@ -6,14 +6,14 @@ import seaborn as sns
 sns.reset_orig()
 
 
-def average_parallel(runtime, df_policies):
+def average_parallel(runtime, df_policy_performance):
     """Summary plot for average scenario
 
     Parameters
     ----------
     runtime : postmocot.runtime.BorgRuntimeDiagnostic
         Runtime obeject for average scenario
-    df_policies : pandas.DataFrame
+    df_policy_performance : pandas.DataFrame
         Selected policies
 
     Returns
@@ -21,8 +21,7 @@ def average_parallel(runtime, df_policies):
     paxplot.core.PaxFigure
         Plot
     """
-
-    # Data preparation
+    # Archive preparation
     df = pd.DataFrame(
         runtime.archive_objectives[runtime.nfe[-1]],
         columns=runtime.objective_names
@@ -30,33 +29,33 @@ def average_parallel(runtime, df_policies):
     df = df.drop(
         columns=['f_ENS', 'f_disvi_tot', 'f_w_with', 'f_w_con', 'f_w_emit']
     )
+
+    # Judgement policy performance preparation
+    df_policy_performance = df_policy_performance[
+        df_policy_performance['scenario'] == 'average week'
+    ]
+    df_policy_performance = df_policy_performance[
+        df.columns.tolist() + ['policy_label']
+    ]
+
+    # Column preparation
     df = df.rename(columns={
         'f_gen': '$f_{gen}$ [\$]',
         'f_with_tot': '$f_{with,tot}$ [L]',
         'f_con_tot': '$f_{con,tot}$ [L]',
         'f_emit': '$f_{emit}$ [lbs]'
     })
-    df_policies = df_policies.drop(
-        columns=[
-            'w_with',
-            'w_con',
-            'w_emit',
-            'f_ENS',
-            'f_disvi_tot',
-            'f_w_with',
-            'f_w_con',
-            'f_w_emit'
-        ]
-    )
 
     # Plotting
     paxfig = paxplot.pax_parallel(n_axes=len(df.columns))
     paxfig.plot(
-        df_policies.loc[:, df_policies.columns != 'policy_label'].to_numpy()
+        df_policy_performance.loc[
+            :, df_policy_performance.columns != 'policy_label'
+        ].to_numpy()
     )
 
     # Adding a colorbar
-    paxfig.add_legend(labels=df_policies['policy_label'].tolist())
+    paxfig.add_legend(labels=df_policy_performance['policy_label'].tolist())
     paxfig.axes[-1].get_legend().set_bbox_to_anchor((1.50, 0.5))
 
     # Limits

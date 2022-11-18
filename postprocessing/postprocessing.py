@@ -64,10 +64,12 @@ def main():
 
     # Average scenario parallel
     if not os.path.exists(paths['outputs']['figures']['average_parallel']):
-        df_policies = pd.read_csv(paths['outputs']['selected_policies'])
+        df_policy_performance = pd.read_csv(
+            paths['outputs']['selected_policy_performance']
+        )
         fig = postmocot.viz.average_parallel(
             runtime,
-            df_policies
+            df_policy_performance
         )
         fig.savefig(paths['outputs']['figures']['average_parallel'])
 
