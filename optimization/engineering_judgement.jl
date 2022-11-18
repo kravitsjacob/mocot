@@ -4,6 +4,8 @@
 using Revise
 using Infiltrator  # @Infiltrator.infiltrate
 
+using YAML
+using CSV
 using DataFrames
 using MOCOT
 
@@ -71,10 +73,13 @@ end
 
 
 function main()
+    # Setup
+    paths = YAML.load_file("paths.yml")
+
     # Find engineering judgement w_with
     w_with = find_engineering_judgement_weight(
-        0.03,
-        0.04,
+        0.034,
+        0.036,
         function (x)
             (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(x, 0.0, 0.0, 2, 0, 1)
             return objectives["f_with_tot"]
@@ -83,8 +88,8 @@ function main()
 
     # Find engineering judgement w_con
     w_con = find_engineering_judgement_weight(
-        0.00,
-        0.01,
+        0.009,
+        0.010,
         function (x)
             (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, x, 0.0, 2, 0, 1)
             return objectives["f_con_tot"]
@@ -93,14 +98,24 @@ function main()
 
     # Find engineering judgement w_emit
     w_emit = find_engineering_judgement_weight(
-        0.00,
-        0.01,
+        0.004,
+        0.006,
         function (x)
             (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, x, 2, 0, 1)
             return objectives["f_emit"]
         end
     )
 
+    # Export
+    df = DataFrames.DataFrame(Dict(
+        "w_with"=>w_with,
+        "w_con"=>w_con,
+        "w_emit"=>w_emit,
+    ))
+    CSV.write(
+        paths["outputs"]["judgement_policies"],
+        df
+    )
 
 end
 
