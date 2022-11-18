@@ -198,11 +198,6 @@ def main():
                 net
             )
 
-            if row['scenario_code'] == 6:
-                data_cols = ['air_temperature', 'water_temperature']
-                df_air_water[data_cols] = df_air_water[data_cols] * 1.10
-                df_node_load['load_mw'] = df_node_load['load_mw'] * 1.10
-
             # Write
             path_to_air_water = paths['outputs']['air_water_template'].replace(
                 '0', str(row['scenario_code'])
