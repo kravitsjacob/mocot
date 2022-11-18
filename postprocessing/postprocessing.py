@@ -58,7 +58,8 @@ def main():
 
     # Select policies
     if not os.path.exists(paths['outputs']['selected_policies']):
-        df = postmocot.process.select_policies(runtime)
+        df_judgement = pd.read_csv(paths['outputs']['judgement_policies'])
+        df = postmocot.process.select_policies(runtime, df_judgement)
         df.to_csv(paths['outputs']['selected_policies'], index=False)
 
     # Average scenario parallel
