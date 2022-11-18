@@ -40,7 +40,7 @@ def average_parallel(runtime, df_policy_performance):
 
     # Column preparation
     df = df.rename(columns={
-        'f_gen': '$f_{gen}$ [\$]',
+        'f_gen': r'$f_{gen}$ [\$]',
         'f_with_tot': '$f_{with,tot}$ [L]',
         'f_con_tot': '$f_{con,tot}$ [L]',
         'f_emit': '$f_{emit}$ [lbs]'
@@ -196,7 +196,10 @@ def comparison(
     for i, ax in enumerate(g.axes[-1, :]):
         ax.set_xlabel(x_labels[i], rotation=20)
         ax.set_xticklabels('')
+    for ax in g.axes.flat:
+        yabs_max = abs(max(ax.get_ylim(), key=abs))
+        ax.set_ylim(ymin=-yabs_max, ymax=yabs_max)
     g.add_legend()
-    g.figure.subplots_adjust(bottom=0.2)
+    g.figure.subplots_adjust(left=0.2, bottom=0.2)
 
     return g
