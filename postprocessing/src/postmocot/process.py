@@ -109,6 +109,7 @@ def select_policies(runtime, df_judement):
         'w_emit': [0.0],
         'policy_label': 'status quo'
     })
+    df = pd.concat([df, row], axis=0)
     row = pd.DataFrame({
         'w_with': df_judement['w_with'],
         'w_con': [0.0],
