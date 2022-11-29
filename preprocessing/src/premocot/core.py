@@ -564,7 +564,8 @@ def create_scenario_exogenous(
     datetime_start,
     datetime_end,
     hour_to_hour_start,
-    df_water,
+    df_water_temperature,
+    df_water_flow,
     df_air,
     df_wind_cf,
     df_system_load,
@@ -609,9 +610,13 @@ def create_scenario_exogenous(
     df_system_load['datetime'] = pd.to_datetime(df_system_load['datetime'])
 
     # Filter air water
+    df_water = pd.merge(
+        df_water_temperature,
+        df_water_flow,
+    )
     df_air_water = pd.merge(
         df_air,
-        df_water
+        df_water,
     )
     df_air_water['datetime'] = pd.to_datetime(df_air_water['datetime'])
     condition = \
