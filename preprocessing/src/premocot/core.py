@@ -90,44 +90,6 @@ def get_cooling_system(df_eia, df_gen_info):
     return df_gen_info
 
 
-def process_water_exogenous():
-    """
-    Import and water air temperature
-
-    # Potential sources
-    USGS 05558300 ILLINOIS RIVER AT HENRY, IL
-    USGS 05578300 CLINTON LAKE NEAR LANE, IL
-    USGS 05578100 SALT CREEK NEAR FARMER CITY, IL
-    USGS 05578250 NORTH FORK SALT CREEK NEAR DE WITT, IL
-
-    Returns
-    -------
-    pandas.DataFrame
-        Cleaned exogenous data
-    """
-    df_water = pd.DataFrame()
-
-    # Water temperature
-    site = '05578100'
-    df_raw = nwis.get_record(
-        sites=site,
-        service='dv',
-        start='2016-01-01',
-        end='2022-01-01',
-        parameterCd='00010'
-    )
-
-    # Cleanup
-    timestamps = pd.to_datetime(df_raw.index).tz_localize(None).to_list()
-    df_water['datetime'] = timestamps
-    df_water['water_temperature'] = df_raw['00010_Mean'].to_list()
-
-    # Missing values
-    df_water = fill_datetime(df_water, 'D')
-
-    return df_water
-
-
 def process_air_exogenous(path_to_dir):
     """
     Import and process air temperature
@@ -178,6 +140,87 @@ def process_air_exogenous(path_to_dir):
     df_air = fill_datetime(df_air, 'D')
 
     return df_air
+
+
+def fit_water_model(
+    df_air,
+    site='05558300',
+):
+    # Get water data
+    df_water = pd.DataFrame()
+
+    # Water temperature
+    df_raw = nwis.get_record(
+        sites=site,
+        start='2000-01-01',
+        end='2022-01-01',
+        parameterCd=['00010']
+    )
+
+    # Mean
+    df_raw = df_raw.groupby(pd.Grouper(freq='1D')).mean()
+
+    # Cleanup
+    timestamps = pd.to_datetime(df_raw.index).tz_localize(None).to_list()
+    df_water['datetime'] = timestamps
+    df_water['water_temperature'] = df_raw['00010_ysi'].to_list()
+
+    # Missing values
+    df_water = fill_datetime(df_water, 'D')
+
+    # Join
+    df_air['datetime'] = pd.to_datetime(df_air['datetime'])
+    df_temperature = pd.merge(
+        left=df_water,
+        right=df_air,
+        how='inner'
+    )
+
+    # Plot
+    
+    return 0
+
+
+
+
+def process_water_exogenous(
+    site='05558300',
+    period_start='2019-01-01',
+    period_end='2022-01-01',
+):
+    """
+    Import and water air temperature
+
+    # Potential sources
+    USGS 05558300 ILLINOIS RIVER AT HENRY, IL
+    USGS 05578300 CLINTON LAKE NEAR LANE, IL
+    USGS 05578100 SALT CREEK NEAR FARMER CITY, IL
+    USGS 05578250 NORTH FORK SALT CREEK NEAR DE WITT, IL
+
+    Returns
+    -------
+    pandas.DataFrame
+        Cleaned exogenous data
+    """
+    df_water = pd.DataFrame()
+
+    # Water temperature
+    df_raw = nwis.get_record(
+        sites=site,
+        start='2016-01-01',
+        end='2022-01-01',
+        parameterCd='00010',
+    )
+
+    # Cleanup
+    timestamps = pd.to_datetime(df_raw.index).tz_localize(None).to_list()
+    df_water['datetime'] = timestamps
+    df_water['water_temperature'] = df_raw['00010_Mean'].to_list()
+
+    # Missing values
+    df_water = fill_datetime(df_water, 'D')
+
+    return df_water
 
 
 def process_system_load(eia_load_template_j_j, eia_load_template_j_d):

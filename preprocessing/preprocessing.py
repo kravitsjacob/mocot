@@ -119,17 +119,24 @@ def main():
         )
         print('Success: Julia information')
 
-    # Water temperature
-    if not os.path.exists(paths['outputs']['water_temperature']):
-        df_water = premocot.core.process_water_exogenous()
-        df_water.to_csv(paths['outputs']['water_temperature'], index=False)
-
     # Air temperature
     if not os.path.exists(paths['outputs']['air_temperature']):
         df_air = premocot.core.process_air_exogenous(
             paths['inputs']['air_temperature_dir']
         )
         df_air.to_csv(paths['outputs']['air_temperature'], index=False)
+
+    # Water temperature (from fitted model)
+    if not os.path.exists(paths['outputs']['water_model_parameters']):
+        df_air = pd.read_csv(paths['outputs']['air_temperature'])
+        premocot.core.fit_water_model(df_air)
+
+    # Water and air temperature
+
+    # Water temperature
+    if not os.path.exists(paths['outputs']['water_temperature']):
+        df_water = premocot.core.process_water_exogenous()
+        df_water.to_csv(paths['outputs']['water_temperature'], index=False)
 
     # System-level loads
     if not os.path.exists(paths['outputs']['system_load']):

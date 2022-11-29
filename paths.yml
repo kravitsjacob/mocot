@@ -38,6 +38,7 @@ outputs:
   gen_info_water_ramp_emit_waterlim: "io/outputs/synthetic_grid/gen_info_water_ramp_emit_waterlim.csv"
 
   # Parent exogenous parameters
+  water_model_parameters: "io/outputs/exognous/water_parameters.csv"
   water_temperature: "io/outputs/exogenous/water_temperature.csv"
   air_temperature: "io/outputs/exogenous/air_temperature.csv"
   system_load: "io/outputs/exogenous/system_load.csv"
