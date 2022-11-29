@@ -19,6 +19,7 @@ include("utils.jl")
 include("daily.jl")
 include("hourly.jl")
 include("preprocessing.jl")
+include("capacity_reduction.jl")
 
 
 function simulation(

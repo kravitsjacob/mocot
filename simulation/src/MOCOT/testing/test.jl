@@ -128,6 +128,19 @@ end
 end
 
 
+@Test.testset "Fundamental Capacity Reduction Models" begin
+    p_thermo_OC = MOCOT.once_through_capacity(
+        KW=400.0,
+        delta_T=5.0,
+        Q=621.712,
+        eta_total=0.50,
+        eta_elec=0.50,
+    )
+    @Test.test isapprox(p_thermo_OC, 262.2, atol=1)
+
+end
+
+
 @Test.testset "Test for once_through_water_use" begin
     # Setup
     beta_with_limit=190000.0
