@@ -147,7 +147,14 @@ def fit_water_model(
     df_air,
     site='05558300',
 ):
-    """Fit water model
+    """
+    Fit water model
+
+    # Potential sources
+    USGS 05558300 ILLINOIS RIVER AT HENRY, IL
+    USGS 05578300 CLINTON LAKE NEAR LANE, IL
+    USGS 05578100 SALT CREEK NEAR FARMER CITY, IL
+    USGS 05578250 NORTH FORK SALT CREEK NEAR DE WITT, IL
 
     Parameters
     ----------
@@ -178,7 +185,7 @@ def fit_water_model(
     timestamps = pd.to_datetime(df_raw.index).tz_localize(None).to_list()
     df_water_historic['datetime'] = timestamps
     df_water_historic['water_temperature'] = df_raw['00010_ysi'].to_list()
-    df_water_historic['water_flow'] = df_raw['00060'].to_list()
+    df_water_historic['water_flow'] = (df_raw['00060'] * 28.317).to_list()  # cfs to Lps  # noqa
 
     # Join
     df_air['datetime'] = pd.to_datetime(df_air['datetime'])
@@ -248,50 +255,31 @@ def water_temperature_model(
     min_temperature,
     max_temperture,
 ):
+    """
+    Water temperature model from Mohseni, O., Stefan, H. G., & Erickson, T. R. (1998). A nonlinear regression model for weekly stream temperatures. Water Resources Research, 34(10), 2685–2692. https://doi.org/10.1029/98WR01877
+
+    Parameters
+    ----------
+    air_temperature : float
+        Air temperature [C]
+    gamma : float
+        Steepest slope of the function
+    beta : float
+        Air temperature at inflection point [C]
+    min_temperature : float
+        Minimum stream temperature [C]
+    max_temperture : float
+        Maximum stream temperture [C]
+
+    Returns
+    -------
+    float
+        Air temperature [C]
+    """
     num = (max_temperture - min_temperature)
     denom = (1 + np.exp(gamma*(beta - air_temperature)))
     stream_temperature = min_temperature + num/denom
     return stream_temperature
-
-
-def process_water_exogenous(
-    site='05558300',
-    period_start='2019-01-01',
-    period_end='2022-01-01',
-):
-    """
-    Import and water air temperature
-
-    # Potential sources
-    USGS 05558300 ILLINOIS RIVER AT HENRY, IL
-    USGS 05578300 CLINTON LAKE NEAR LANE, IL
-    USGS 05578100 SALT CREEK NEAR FARMER CITY, IL
-    USGS 05578250 NORTH FORK SALT CREEK NEAR DE WITT, IL
-
-    Returns
-    -------
-    pandas.DataFrame
-        Cleaned exogenous data
-    """
-    df_water = pd.DataFrame()
-
-    # Water temperature
-    df_raw = nwis.get_record(
-        sites=site,
-        start='2016-01-01',
-        end='2022-01-01',
-        parameterCd='00010',
-    )
-
-    # Cleanup
-    timestamps = pd.to_datetime(df_raw.index).tz_localize(None).to_list()
-    df_water['datetime'] = timestamps
-    df_water['water_temperature'] = df_raw['00010_Mean'].to_list()
-
-    # Missing values
-    df_water = fill_datetime(df_water, 'D')
-
-    return df_water
 
 
 def process_system_load(eia_load_template_j_j, eia_load_template_j_d):
