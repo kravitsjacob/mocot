@@ -38,8 +38,8 @@ outputs:
   gen_info_water_ramp_emit_waterlim: "io/outputs/synthetic_grid/gen_info_water_ramp_emit_waterlim.csv"
 
   # Parent exogenous parameters
-  water_model_parameters: "io/outputs/exognous/water_parameters.csv"
   water_temperature: "io/outputs/exogenous/water_temperature.csv"
+  water_flow: "io/outputs/exogenous/water_flow.csv"
   air_temperature: "io/outputs/exogenous/air_temperature.csv"
   system_load: "io/outputs/exogenous/system_load.csv"
   hour_to_hour: "io/outputs/exogenous/hour_to_hour.csv"
@@ -65,6 +65,7 @@ outputs:
 
   figures:
     # Example figures
+    water_model_fit: "io/outputs/figures/water_model_fit.pdf"
     system_load: "io/outputs/figures/example_system_load.pdf"
     system_load_factor: "io/outputs/figures/example_system_load_factor.pdf"
     node_load: "io/outputs/figures/example_node_load.pdf"

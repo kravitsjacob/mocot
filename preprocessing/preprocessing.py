@@ -127,16 +127,27 @@ def main():
         df_air.to_csv(paths['outputs']['air_temperature'], index=False)
 
     # Water temperature (from fitted model)
-    if not os.path.exists(paths['outputs']['water_model_parameters']):
+    if not os.path.exists(paths['outputs']['figures']['water_model_fit']):
         df_air = pd.read_csv(paths['outputs']['air_temperature'])
-        premocot.core.fit_water_model(df_air)
+        (
+            df_modeled_temperature,
+            df_water_temperature,
+            df_water_flow
+        ) = premocot.core.fit_water_model(df_air)
 
-    # Water and air temperature
+        # Save
+        df_water_flow.to_csv(
+            paths['outputs']['water_flow'],
+            index=False,
+        )
+        df_water_temperature.to_csv(
+            paths['outputs']['water_temperature'],
+            index=False,
+        )
 
-    # Water temperature
-    if not os.path.exists(paths['outputs']['water_temperature']):
-        df_water = premocot.core.process_water_exogenous()
-        df_water.to_csv(paths['outputs']['water_temperature'], index=False)
+        # Plot of model fit
+        fig = premocot.viz.model_fit(df_modeled_temperature)
+        fig.savefig(paths['outputs']['figures']['water_model_fit'])
 
     # System-level loads
     if not os.path.exists(paths['outputs']['system_load']):

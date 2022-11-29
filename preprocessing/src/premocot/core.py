@@ -7,6 +7,7 @@ import numpy as np
 import dataretrieval.nwis as nwis
 import warnings
 import datetime
+import scipy
 
 
 def import_eia(path_to_eia):
@@ -146,41 +147,111 @@ def fit_water_model(
     df_air,
     site='05558300',
 ):
-    # Get water data
-    df_water = pd.DataFrame()
+    """Fit water model
 
-    # Water temperature
+    Parameters
+    ----------
+    df_air : pandas.DataFrame
+        DataFrame of air temperature
+    site : str, optional
+        USGS site, by default '05558300'
+
+    Returns
+    -------
+    tuple
+        DataFrame of modeled temperatures (for plotting), water temperatures,
+        and water flows.
+    """
+    # Get water data
     df_raw = nwis.get_record(
         sites=site,
         start='2000-01-01',
         end='2022-01-01',
-        parameterCd=['00010']
+        parameterCd=['00010', '00060']
     )
 
     # Mean
     df_raw = df_raw.groupby(pd.Grouper(freq='1D')).mean()
 
     # Cleanup
+    df_water_historic = pd.DataFrame()
     timestamps = pd.to_datetime(df_raw.index).tz_localize(None).to_list()
-    df_water['datetime'] = timestamps
-    df_water['water_temperature'] = df_raw['00010_ysi'].to_list()
-
-    # Missing values
-    df_water = fill_datetime(df_water, 'D')
+    df_water_historic['datetime'] = timestamps
+    df_water_historic['water_temperature'] = df_raw['00010_ysi'].to_list()
+    df_water_historic['water_flow'] = df_raw['00060'].to_list()
 
     # Join
     df_air['datetime'] = pd.to_datetime(df_air['datetime'])
-    df_temperature = pd.merge(
-        left=df_water,
+    df_modeled_temperature = pd.merge(
+        left=df_water_historic,
         right=df_air,
         how='inner'
     )
+    df_modeled_temperature = df_modeled_temperature.dropna()
+    min_temperature = df_modeled_temperature['water_temperature'].min()
+    max_temperature = df_modeled_temperature['water_temperature'].max()
+    epsi = 0.00001
 
-    # Plot
-    
-    return 0
+    # Fit model
+    popt, _ = scipy.optimize.curve_fit(
+        water_temperature_model,
+        df_modeled_temperature['air_temperature'],
+        df_modeled_temperature['water_temperature'],
+        bounds=(
+            [-np.inf, -np.inf, min_temperature-epsi, max_temperature-epsi],
+            [np.inf, np.inf, min_temperature+epsi, max_temperature+epsi]
+        )
+    )
+    # Add model to data
+    col_name = 'modeled_water_temperature'
+    df_modeled_temperature[col_name] = df_modeled_temperature.apply(
+        lambda row: water_temperature_model(
+            row['air_temperature'],
+            popt[0],
+            popt[1],
+            popt[2],
+            popt[3],
+        ),
+        axis=1
+    )
+
+    # Generate water temperture
+    df_water_temperature = pd.DataFrame()
+    df_water_temperature['datetime'] = df_air['datetime']
+    df_water_temperature['water_temperature'] = df_air.apply(
+        lambda row: water_temperature_model(
+            row['air_temperature'],
+            popt[0],
+            popt[1],
+            popt[2],
+            popt[3],
+        ),
+        axis=1
+    )
+
+    # Get flow
+    df_water_flow = pd.DataFrame()
+    df_water_flow['datetime'] = df_air['datetime']
+    df_water_flow = pd.merge(
+        left=df_water_flow,
+        right=df_water_historic[['datetime', 'water_flow']],
+        how='left'
+    )
+
+    return df_modeled_temperature, df_water_temperature, df_water_flow
 
 
+def water_temperature_model(
+    air_temperature,
+    gamma,
+    beta,
+    min_temperature,
+    max_temperture,
+):
+    num = (max_temperture - min_temperature)
+    denom = (1 + np.exp(gamma*(beta - air_temperature)))
+    stream_temperature = min_temperature + num/denom
+    return stream_temperature
 
 
 def process_water_exogenous(

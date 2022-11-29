@@ -338,3 +338,37 @@ def node_load(df_node_load):
     plt.tight_layout()
 
     return fig
+
+
+def model_fit(df_modeled_temperatures):
+    """Make figure of water temperature model fit
+
+    Parameters
+    ----------
+    df_modeled_temperatures : pandas.DataFrame
+        DataFrame of water, air, and modeled air temperature
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        Plot of model fit
+    """
+    df_modeled_temperatures = df_modeled_temperatures.sort_values(
+        'air_temperature'
+    )
+    fig, ax = plt.subplots()
+    plt.scatter(
+        df_modeled_temperatures['air_temperature'],
+        df_modeled_temperatures['water_temperature'],
+        label='Historic Observation',
+    )
+    plt.plot(
+        df_modeled_temperatures['air_temperature'],
+        df_modeled_temperatures['modeled_water_temperature'],
+        label='Model',
+        color=sns.color_palette()[1],
+    )
+    plt.legend()
+    plt.xlabel('Air Temperature [C]')
+    plt.ylabel('Water Temperature [C]')
+    return fig
