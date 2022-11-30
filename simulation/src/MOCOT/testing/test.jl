@@ -137,7 +137,14 @@ end
         eta_elec=0.50,
     )
     @Test.test isapprox(p_thermo_OC, 262.2, atol=1)
-
+    p_thermo_RC = MOCOT.recirculating_capacity(
+        KW=400.0,
+        delta_T=5.0,
+        Q=621.712,
+        eta_total=0.50,
+        eta_elec=0.50,
+    )
+    @Test.test isapprox(p_thermo_RC, 83.9, atol=1)
 end
 
 
