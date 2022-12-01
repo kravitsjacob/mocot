@@ -31,6 +31,7 @@ def scenario_temperatures(multi_air_water):
 
     # Making parent dataframe
     df = pd.concat(df_ls)
+    df = df.drop('water_flow', axis=1)
     df = pd.melt(
         df,
         id_vars=['datetime', 'scenario_name'],
