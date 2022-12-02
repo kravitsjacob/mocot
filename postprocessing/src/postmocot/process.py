@@ -114,14 +114,14 @@ def select_policies(runtime, df_judement):
         'w_with': df_judement['w_with'],
         'w_con': [0.0],
         'w_emit': [0.0],
-        'policy_label': 'high withdrawal penalty'
+        'policy_label': 'high water withdrawal penalty'
     })
     df = pd.concat([df, row], axis=0)
     row = pd.DataFrame({
         'w_with': [0.0],
         'w_con': df_judement['w_con'],
         'w_emit': [0.0],
-        'policy_label': 'high consumption penalty'
+        'policy_label': 'high water consumption penalty'
     })
     df = pd.concat([df, row], axis=0)
     row = pd.DataFrame({
