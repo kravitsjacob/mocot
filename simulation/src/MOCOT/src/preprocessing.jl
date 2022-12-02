@@ -228,13 +228,16 @@ function add_air_water!(
 
     # Exogenous formatting
     water_temperature = Dict{String, Float64}()
+    water_flow = Dict{String, Float64}()
     air_temperature = Dict{String, Float64}()
     for row in eachrow(df_air_water_filter)
         water_temperature[string(row["day_index"])] = row["water_temperature"]
         air_temperature[string(row["day_index"])] = row["air_temperature"]
+        water_flow[string(row["day_index"])] = row["water_flow"] * 0.001  # Convert to [cmps]
     end
     exogenous["water_temperature"] = water_temperature
     exogenous["air_temperature"] = air_temperature
+    exogenous["water_flow"] = water_flow
 
     return exogenous
 end

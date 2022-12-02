@@ -166,13 +166,16 @@ function simulation(
             regulatory_temperature,
             network_data,
         )
-        gen_capacity, gen_capacity_reduction = get_gen_capacity_reduction(network_data, gen_delta_t, Q)
+        gen_capacity, gen_capacity_reduction = get_gen_capacity_reduction(
+            network_data,
+            gen_delta_t,
+            exogenous["water_flow"][string(d)]
+        )
         state["capacity_reduction"][string(d)] = gen_capacity_reduction    
         state["discharge_violation"][string(d)] = gen_discharge_violation
         state["withdraw_rate"][string(d)] = gen_beta_with
         state["consumption_rate"][string(d)] = gen_beta_con
 
-        @Infiltrator.infiltrate
     end
 
     # Compute objectives
@@ -256,6 +259,7 @@ function borg_simulation_wrapper(
         df_wind_cf,
         df_node_load
     )
+    @Infiltrator.infiltrate
 
     # Update generator status
     network_data = update_scenario!(network_data, scenario_code)

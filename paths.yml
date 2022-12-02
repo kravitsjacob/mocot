@@ -50,12 +50,6 @@ outputs:
   node_load_template: "io/outputs/exogenous/scenario_0_node_load.csv"
   wind_capacity_factor_template: "io/outputs/exogenous/scenario_0_wind_capacity_factor.csv"
 
-  # Debugging
-  objectives: "objectives.csv"
-  discharge_states: "discharge_states.csv"
-  power_states: "power_states.csv"
-  metrics: "metrics.csv"
-
   # Results
   runtime_1: "io/outputs/states/scenario_1_runtime.txt"
   runtime_template: "io/outputs/states/scenario_0_runtime.txt"

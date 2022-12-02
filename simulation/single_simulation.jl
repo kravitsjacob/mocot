@@ -33,26 +33,11 @@ function main()
     # Discharge violation states
     df_discharge_violation_states = MOCOT.custom_state_df(state, "discharge_violation")
 
+    # Discharge violation states
+    df_capacity_reduction = MOCOT.custom_state_df(state, "capacity_reduction")
+
     # Metrics
     df_metrics = DataFrames.DataFrame(metrics)
-
-    # Export as simulation progresses
-    CSV.write(
-        paths["outputs"]["objectives"],
-        df_objs
-    )
-    CSV.write(
-        paths["outputs"]["power_states"],
-        df_power_states
-    )
-    CSV.write(
-        paths["outputs"]["discharge_states"],
-        df_discharge_violation_states
-    )
-    CSV.write(
-        paths["outputs"]["metrics"],
-        df_metrics
-    )
 
 end
 
