@@ -169,6 +169,14 @@ def comparison(
             'nuclear outage': 'Nuclear\noutage',
         }
     )
+    df_plot['policy_label'] = df_plot['policy_label'].replace(
+        {
+            'water-emission policy': 'water-emission\npolicy\n',
+            'high withdrawal penalty': 'high\nwater\nwithdrawal\npenalty\n',
+            'high consumption penalty': 'high\nwater\nconsumption\npenalty\n',
+            'high emission penalty': 'high\nemission\npenalty\n',
+        }
+    )
 
     # Plotting
     custom_pallete = [
@@ -183,7 +191,7 @@ def comparison(
         col='scenario',
         sharey='row',
         height=1.4,
-        aspect=0.7,
+        aspect=1.1,
         gridspec_kws={
             'wspace': 0.1,
             'hspace': 0.25
@@ -212,7 +220,7 @@ def comparison(
     for ax in g.axes.flat:
         yabs_max = abs(max(ax.get_ylim(), key=abs))
         ax.set_ylim(ymin=-yabs_max, ymax=yabs_max)
-    g.add_legend(loc='lower center')
-    g.figure.subplots_adjust(left=0.2, bottom=0.2, right=0.9, top=0.9)
+    g.add_legend(loc='lower right')
+    g.figure.subplots_adjust(left=0.2, bottom=0.1, right=0.7, top=0.9)
 
     return g
