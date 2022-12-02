@@ -58,7 +58,7 @@ function recirculating_capacity(;
     eta_total:: Float64,
     eta_elec:: Float64,
     alpha=0.01,
-    beta=0.013696,
+    beta=0.986,
     omega=0.95,
     lambda=1.0,
     gamma=0.02,
@@ -72,11 +72,11 @@ function recirculating_capacity(;
     # Arguments
     - `KW:: Float64`: Capacity [MW]
     - `delta_T:: Float64`: Inlet outlet temperature difference [C]
-    - `Q:: Float64`: Streamflow [cms]
+    - `Q:: Float64`: Streamflow [cmps]
     - `eta_total:: Float64`: Total efficiency
     - `eta_elec:: Float64`: Electric efficiency
     - `alpha=0.01`: Share of waste heat not discharged by cooling water
-    - `beta=0.013696`: Share of waste heat not released into the air
+    - `beta=0.986`: Share of waste heat released into the air
     - `omega=0.95`: Correction factor accounting for effects of changes in air temperature and humidity within a year
     - `lambda=1.0`: Correction factor accounting for the effects of reductions in efficiencies when power plants are operating at low capacities.
     - `gamma=0.02`: Maximum fraction of streamflow to be withdrawn for cooling of thermoelectric power.
@@ -106,4 +106,74 @@ function recirculating_capacity(;
     end
 
     return p_thermo_RC
+end
+
+
+function get_gen_capacity_reduction(
+    network_data:: Dict,
+    gen_delta_T:: Dict,
+    Q:: Float64,
+)
+    """
+    Get generator capacity reductions
+
+    # Arguments
+    - `network_data:: Float64`: Network data
+    - `gen_delta_T:: Dict`: Generator delta temperature [C]
+    - `Q:: Float64`: Flow [cmps]
+    """
+    gen_capacity_reduction = Dict()
+    gen_capacity = Dict()
+
+    for (obj_name, obj_props) in network_data["gen"]
+
+        try
+            # Cooling information
+            cool = obj_props["cus_cool"]
+
+            if cool == "No Cooling System"
+                # No capacity impact
+            else
+                # Extract information
+                delta_T = gen_delta_T[obj_name]
+                KW = obj_props["pmax"] * 100  # Convert to MW
+                eta_total = obj_props["cus_heat_rate"]
+                eta_elec = obj_props["cus_heat_rate"]
+
+                # Run water models
+                if cool == "OC"
+                    KW_updated = MOCOT.once_through_capacity(
+                        KW=KW,
+                        delta_T=delta_T,
+                        Q=Q,
+                        eta_total=eta_total,
+                        eta_elec=eta_elec,
+                    )
+    
+                elseif cool == "RC" || cool == "RI"
+                    KW_updated = MOCOT.recirculating_capacity(
+                        KW=KW,
+                        delta_T=delta_T,
+                        Q=Q,
+                        eta_total=eta_total,
+                        eta_elec=eta_elec,
+                    )
+
+                end
+
+                # Store 
+                gen_capacity_reduction[obj_name] = KW - KW_updated
+
+                # Update 
+                gen_capacity[obj_name] = KW_updated /100.0  # Convert to pu
+
+            end
+        
+        catch  # Reliability generator
+            # Skip as reliability generator
+        end
+
+    end
+
+    return gen_capacity, gen_capacity_reduction
 end

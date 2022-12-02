@@ -144,7 +144,7 @@ end
         eta_total=0.50,
         eta_elec=0.50,
     )
-    @Test.test isapprox(p_thermo_RC, 83.9, atol=1)
+    @Test.test isapprox(p_thermo_RC, 400.0, atol=1)
 end
 
 
