@@ -13,7 +13,7 @@ using MOCOT
 
 # Global vars
 network_data_raw = PowerModels.parse_file("simulation/src/MOCOT/testing/case_ACTIVSg200.m")
-exogenous_raw = JLD2.load("simulation/src/MOCOT/testing/test_exogenous.jld2")
+exogenous_raw = JLD2.load("simulation/src/MOCOT/testing/test_exogenous.jld2")["exogenous"]
 
 function create_custom_test_network(network_data)
     """
