@@ -154,23 +154,36 @@ def comparison(
     df_plot = df_plot[df_plot['obj'] != 'f_w_emit']
     df_plot['obj'] = df_plot['obj'].replace(
         {
-            'f_gen': '$f_{gen}$',
-            'f_with_tot': '$f_{with,tot}$',
-            'f_con_tot': '$f_{con,tot}$',
-            'f_disvi_tot': '$f_{disvi,tot}$',
-            'f_emit': '$f_{emit}$',
-            'f_ENS': '$f_{ENS}$ ',
+            'f_gen': 'Cost',
+            'f_with_tot': 'Withdrawal',
+            'f_con_tot': 'Consumption',
+            'f_disvi_tot': 'Discharge\nViolations',
+            'f_emit': 'Emissions',
+            'f_ENS': 'ENS',
+        }
+    )
+    df_plot['scenario'] = df_plot['scenario'].replace(
+        {
+            'average week': 'Average\nweek',
+            'extreme load/climate': 'Extreme\nload/climate',
+            'nuclear outage': 'Nuclear\noutage',
         }
     )
 
     # Plotting
+    custom_pallete = [
+        sns.color_palette('tab10')[2],
+        sns.color_palette('gray')[1],
+        sns.color_palette('gray')[3],
+        sns.color_palette('gray')[-1],
+    ]
     g = sns.FacetGrid(
         df_plot,
         row='obj',
         col='scenario',
         sharey='row',
-        height=1.2,
-        aspect=0.9,
+        height=1.4,
+        aspect=0.7,
         gridspec_kws={
             'wspace': 0.1,
             'hspace': 0.25
@@ -181,7 +194,7 @@ def comparison(
         'policy_label',
         'obj_value',
         'policy_label',
-        palette=sns.color_palette('tab10'),
+        palette=custom_pallete,
         dodge=False
     )
 
@@ -194,12 +207,12 @@ def comparison(
     for i, ax in enumerate(g.axes[:, 0]):
         ax.set_ylabel(y_labels[i])
     for i, ax in enumerate(g.axes[-1, :]):
-        ax.set_xlabel(x_labels[i], rotation=20)
+        ax.set_xlabel(x_labels[i], rotation=0)
         ax.set_xticklabels('')
     for ax in g.axes.flat:
         yabs_max = abs(max(ax.get_ylim(), key=abs))
         ax.set_ylim(ymin=-yabs_max, ymax=yabs_max)
-    g.add_legend()
-    g.figure.subplots_adjust(left=0.2, bottom=0.2)
+    g.add_legend(loc='lower center')
+    g.figure.subplots_adjust(left=0.2, bottom=0.2, right=0.9, top=0.9)
 
     return g
