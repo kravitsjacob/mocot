@@ -1,0 +1,6 @@
+w_with,w_con,w_emit,policy_label
+0.02258372603460162,0.0,0.0,water-emission policy
+0.0,0.0,0.0,status quo
+0.03525,0.0,0.0,high water withdrawal penalty
+0.0,0.04125,0.0,high water consumption penalty
+0.0,0.0,0.0045,high emission penalty
