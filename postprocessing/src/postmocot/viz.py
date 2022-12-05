@@ -95,7 +95,7 @@ def average_parallel(runtime, df_policy_performance):
     )
 
     # Dimensions
-    paxfig.set_size_inches(10, 3)
+    paxfig.set_size_inches(11, 3)
 
     return paxfig
 
@@ -172,8 +172,8 @@ def comparison(
     df_plot['policy_label'] = df_plot['policy_label'].replace(
         {
             'water-emission policy': 'water-emission\npolicy\n',
-            'high withdrawal penalty': 'high\nwater\nwithdrawal\npenalty\n',
-            'high consumption penalty': 'high\nwater\nconsumption\npenalty\n',
+            'high water withdrawal penalty': 'high\nwater\nwithdrawal\npenalty\n',
+            'high water consumption penalty': 'high\nwater\nconsumption\npenalty\n',
             'high emission penalty': 'high\nemission\npenalty\n',
         }
     )
