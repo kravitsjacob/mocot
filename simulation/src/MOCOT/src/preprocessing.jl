@@ -228,13 +228,16 @@ function add_air_water!(
 
     # Exogenous formatting
     water_temperature = Dict{String, Float64}()
+    water_flow = Dict{String, Float64}()
     air_temperature = Dict{String, Float64}()
     for row in eachrow(df_air_water_filter)
         water_temperature[string(row["day_index"])] = row["water_temperature"]
         air_temperature[string(row["day_index"])] = row["air_temperature"]
+        water_flow[string(row["day_index"])] = row["water_flow"] * 0.001  # Convert to [cmps]
     end
     exogenous["water_temperature"] = water_temperature
     exogenous["air_temperature"] = air_temperature
+    exogenous["water_flow"] = water_flow
 
     return exogenous
 end
@@ -383,12 +386,10 @@ function update_scenario!(network_data, scenario_code:: Int64)
     - `network_data::Dict`: Network data (e.g., network_data_multi["nw"])
     - `scenario_code:: Int64`: Scenario code. 1 for all generators. 2 for no nuclear.
     """
-    if scenario_code == 1  # "All generators"
+    if scenario_code == 3  # "Nuclear outage"
         network_data = MOCOT.update_all_gens!(network_data, "gen_status", 1)
-    elseif scenario_code == 2  # "No nuclear"
-        network_data = MOCOT.update_all_gens!(network_data, "gen_status", 1)
-        network_data["gen"]["47"]["gen_status"]=0
-    else
+        network_data["gen"]["47"]["gen_status"] = 0
+    else  # "All generators"
         network_data = MOCOT.update_all_gens!(network_data, "gen_status", 1)
     end
 

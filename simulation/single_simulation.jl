@@ -18,23 +18,11 @@ function main()
     # Simulation with average case
     (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 1)
 
-    # Simulation with nuclear outage
+    # Simulation with extreme load/climate
     (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 2)
 
-    # Simulation with high load
+    # Simulation with nuclear outage
     (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 3)
-
-    # Simulation with high standard deviation load   
-    (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 4)
-
-    # Simulation with high water and air tempeartures
-    (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 5)
-    
-    # Simulation with synthetic high load
-    (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 6)
-    
-    # Simulation with synthetic low wind
-    (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 7)
 
     # Objectives
     df_objs = DataFrames.DataFrame(objectives)
@@ -45,26 +33,11 @@ function main()
     # Discharge violation states
     df_discharge_violation_states = MOCOT.custom_state_df(state, "discharge_violation")
 
+    # Discharge violation states
+    df_capacity_reduction = MOCOT.custom_state_df(state, "capacity_reduction")
+
     # Metrics
     df_metrics = DataFrames.DataFrame(metrics)
-
-    # Export as simulation progresses
-    CSV.write(
-        paths["outputs"]["objectives"],
-        df_objs
-    )
-    CSV.write(
-        paths["outputs"]["power_states"],
-        df_power_states
-    )
-    CSV.write(
-        paths["outputs"]["discharge_states"],
-        df_discharge_violation_states
-    )
-    CSV.write(
-        paths["outputs"]["metrics"],
-        df_metrics
-    )
 
 end
 

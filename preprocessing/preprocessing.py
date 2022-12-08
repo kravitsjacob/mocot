@@ -119,17 +119,35 @@ def main():
         )
         print('Success: Julia information')
 
-    # Water temperature
-    if not os.path.exists(paths['outputs']['water_temperature']):
-        df_water = premocot.core.process_water_exogenous()
-        df_water.to_csv(paths['outputs']['water_temperature'], index=False)
-
     # Air temperature
     if not os.path.exists(paths['outputs']['air_temperature']):
         df_air = premocot.core.process_air_exogenous(
             paths['inputs']['air_temperature_dir']
         )
         df_air.to_csv(paths['outputs']['air_temperature'], index=False)
+
+    # Water temperature (from fitted model)
+    if not os.path.exists(paths['outputs']['figures']['water_model_fit']):
+        df_air = pd.read_csv(paths['outputs']['air_temperature'])
+        (
+            df_modeled_temperature,
+            df_water_temperature,
+            df_water_flow
+        ) = premocot.core.fit_water_model(df_air)
+
+        # Save
+        df_water_flow.to_csv(
+            paths['outputs']['water_flow'],
+            index=False,
+        )
+        df_water_temperature.to_csv(
+            paths['outputs']['water_temperature'],
+            index=False,
+        )
+
+        # Plot of model fit
+        fig = premocot.viz.model_fit(df_modeled_temperature)
+        fig.savefig(paths['outputs']['figures']['water_model_fit'])
 
     # System-level loads
     if not os.path.exists(paths['outputs']['system_load']):
@@ -175,7 +193,12 @@ def main():
     # Generate exogenous inputs for each scenario
     generate = 1
     if generate:
-        df_water = pd.read_csv(paths['outputs']['water_temperature'])
+        df_water_temperature = pd.read_csv(
+            paths['outputs']['water_temperature']
+        )
+        df_water_flow = pd.read_csv(
+            paths['outputs']['water_flow']
+        )
         df_air = pd.read_csv(paths['outputs']['air_temperature'])
         df_wind_cf_raw = pd.read_csv(paths['outputs']['wind_capacity_factors'])
         df_system_load = pd.read_csv(paths['outputs']['system_load'])
@@ -185,23 +208,21 @@ def main():
 
         for (_, row) in df_scenario_specs.iterrows():
             # Process
-            df_air_water, df_wind_cf, df_node_load = premocot.core.create_scenario_exogenous(  # noqa
+            (
+                df_air_water, df_wind_cf, df_node_load
+            ) = premocot.core.create_scenario_exogenous(
                 row['scenario_code'],
                 pd.to_datetime(row['datetime_start']),
                 pd.to_datetime(row['datetime_end']),
                 pd.to_datetime(row['hour_to_hour_start']),
-                df_water,
+                df_water_temperature,
+                df_water_flow,
                 df_air,
                 df_wind_cf_raw,
                 df_system_load,
                 df_hour_to_hour,
                 net
             )
-
-            if row['scenario_code'] == 6:
-                data_cols = ['air_temperature', 'water_temperature']
-                df_air_water[data_cols] = df_air_water[data_cols] * 1.10
-                df_node_load['load_mw'] = df_node_load['load_mw'] * 1.10
 
             # Write
             path_to_air_water = paths['outputs']['air_water_template'].replace(

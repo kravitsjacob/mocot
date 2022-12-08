@@ -13,6 +13,7 @@ using MOCOT
 
 function main()
     # Setup
+    df_scenario_performance = DataFrames.DataFrame()
     paths = YAML.load_file("paths.yml")
 
     # Reading policy configurations
@@ -26,12 +27,8 @@ function main()
         )
     ) 
 
-    # Average scenario done
-    df_scenario_performance = DataFrames.copy(df_policies)
-    df_scenario_performance[!, "scenario"] .= "average week"
-
     # Simulate policies on all scenarios except average
-    for scen_row in eachrow(df_scenario_specs[2:nrow(df_scenario_specs), :])
+    for scen_row in eachrow(df_scenario_specs)
         scenario_name = scen_row["name"]
         scenario_code = scen_row["scenario_code"]
 

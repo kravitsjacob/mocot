@@ -320,6 +320,7 @@ function gen_water_use_wrapper(
     # Initialization
     gen_beta_with = Dict{String, Float64}()
     gen_beta_con = Dict{String, Float64}()
+    gen_delta_t = Dict{String, Float64}()
     gen_discharge_violation = Dict{String, Float64}()
 
     # Water use for each generator
@@ -374,6 +375,9 @@ function gen_water_use_wrapper(
                     k_os, 
                     beta_proc,
                 )
+                
+                # Assume reciruclating systems do not violate
+                delta_t = regulatory_temperature - inlet_temperature # C
             elseif cool == "No Cooling System"
                 beta_with = 0.0
                 beta_con = 0.0
@@ -382,6 +386,7 @@ function gen_water_use_wrapper(
             # Store
             gen_beta_with[obj_name] = beta_with * 100 # Convert to L/pu
             gen_beta_con[obj_name] = beta_con * 100 # Convert to L/pu
+            gen_delta_t[obj_name] = delta_t  # C
         catch
             # Check if reliabilty generator
             try
@@ -394,5 +399,5 @@ function gen_water_use_wrapper(
         end
     end
 
-    return gen_beta_with, gen_beta_con, gen_discharge_violation
+    return gen_beta_with, gen_beta_con, gen_discharge_violation, gen_delta_t
 end

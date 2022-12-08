@@ -39,6 +39,7 @@ outputs:
 
   # Parent exogenous parameters
   water_temperature: "io/outputs/exogenous/water_temperature.csv"
+  water_flow: "io/outputs/exogenous/water_flow.csv"
   air_temperature: "io/outputs/exogenous/air_temperature.csv"
   system_load: "io/outputs/exogenous/system_load.csv"
   hour_to_hour: "io/outputs/exogenous/hour_to_hour.csv"
@@ -49,20 +50,16 @@ outputs:
   node_load_template: "io/outputs/exogenous/scenario_0_node_load.csv"
   wind_capacity_factor_template: "io/outputs/exogenous/scenario_0_wind_capacity_factor.csv"
 
-  # Debugging
-  objectives: "objectives.csv"
-  discharge_states: "discharge_states.csv"
-  power_states: "power_states.csv"
-  metrics: "metrics.csv"
-
   # Results
   runtime_1: "io/outputs/states/scenario_1_runtime.txt"
   runtime_template: "io/outputs/states/scenario_0_runtime.txt"
+  judgement_policies: "io/outputs/selected_policies/judegment_policies.csv"
   selected_policies: "io/outputs/selected_policies/selected_policies.csv"
   selected_policy_performance: "io/outputs/selected_policies/selected_policy_performance.csv"
 
   figures:
     # Example figures
+    water_model_fit: "io/outputs/figures/water_model_fit.pdf"
     system_load: "io/outputs/figures/example_system_load.pdf"
     system_load_factor: "io/outputs/figures/example_system_load_factor.pdf"
     node_load: "io/outputs/figures/example_node_load.pdf"

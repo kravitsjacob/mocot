@@ -7,6 +7,7 @@ import numpy as np
 import dataretrieval.nwis as nwis
 import warnings
 import datetime
+import scipy
 
 
 def import_eia(path_to_eia):
@@ -90,44 +91,6 @@ def get_cooling_system(df_eia, df_gen_info):
     return df_gen_info
 
 
-def process_water_exogenous():
-    """
-    Import and water air temperature
-
-    # Potential sources
-    USGS 05558300 ILLINOIS RIVER AT HENRY, IL
-    USGS 05578300 CLINTON LAKE NEAR LANE, IL
-    USGS 05578100 SALT CREEK NEAR FARMER CITY, IL
-    USGS 05578250 NORTH FORK SALT CREEK NEAR DE WITT, IL
-
-    Returns
-    -------
-    pandas.DataFrame
-        Cleaned exogenous data
-    """
-    df_water = pd.DataFrame()
-
-    # Water temperature
-    site = '05578100'
-    df_raw = nwis.get_record(
-        sites=site,
-        service='dv',
-        start='2016-01-01',
-        end='2022-01-01',
-        parameterCd='00010'
-    )
-
-    # Cleanup
-    timestamps = pd.to_datetime(df_raw.index).tz_localize(None).to_list()
-    df_water['datetime'] = timestamps
-    df_water['water_temperature'] = df_raw['00010_Mean'].to_list()
-
-    # Missing values
-    df_water = fill_datetime(df_water, 'D')
-
-    return df_water
-
-
 def process_air_exogenous(path_to_dir):
     """
     Import and process air temperature
@@ -178,6 +141,145 @@ def process_air_exogenous(path_to_dir):
     df_air = fill_datetime(df_air, 'D')
 
     return df_air
+
+
+def fit_water_model(
+    df_air,
+    site='05558300',
+):
+    """
+    Fit water model
+
+    # Potential sources
+    USGS 05558300 ILLINOIS RIVER AT HENRY, IL
+    USGS 05578300 CLINTON LAKE NEAR LANE, IL
+    USGS 05578100 SALT CREEK NEAR FARMER CITY, IL
+    USGS 05578250 NORTH FORK SALT CREEK NEAR DE WITT, IL
+
+    Parameters
+    ----------
+    df_air : pandas.DataFrame
+        DataFrame of air temperature
+    site : str, optional
+        USGS site, by default '05558300'
+
+    Returns
+    -------
+    tuple
+        DataFrame of modeled temperatures (for plotting), water temperatures,
+        and water flows.
+    """
+    # Get water data
+    df_raw = nwis.get_record(
+        sites=site,
+        start='2000-01-01',
+        end='2022-01-01',
+        parameterCd=['00010', '00060']
+    )
+
+    # Mean
+    df_raw = df_raw.groupby(pd.Grouper(freq='1D')).mean()
+
+    # Cleanup
+    df_water_historic = pd.DataFrame()
+    timestamps = pd.to_datetime(df_raw.index).tz_localize(None).to_list()
+    df_water_historic['datetime'] = timestamps
+    df_water_historic['water_temperature'] = df_raw['00010_ysi'].to_list()
+    df_water_historic['water_flow'] = (df_raw['00060'] * 28.317).to_list()  # cfs to Lps  # noqa
+
+    # Join
+    df_air['datetime'] = pd.to_datetime(df_air['datetime'])
+    df_modeled_temperature = pd.merge(
+        left=df_water_historic,
+        right=df_air,
+        how='inner'
+    )
+    df_modeled_temperature = df_modeled_temperature.dropna()
+    min_temperature = df_modeled_temperature['water_temperature'].min()
+    max_temperature = df_modeled_temperature['water_temperature'].max()
+    epsi = 0.00001
+
+    # Fit model
+    popt, _ = scipy.optimize.curve_fit(
+        water_temperature_model,
+        df_modeled_temperature['air_temperature'],
+        df_modeled_temperature['water_temperature'],
+        bounds=(
+            [-np.inf, -np.inf, min_temperature-epsi, max_temperature-epsi],
+            [np.inf, np.inf, min_temperature+epsi, max_temperature+epsi]
+        )
+    )
+    # Add model to data
+    col_name = 'modeled_water_temperature'
+    df_modeled_temperature[col_name] = df_modeled_temperature.apply(
+        lambda row: water_temperature_model(
+            row['air_temperature'],
+            popt[0],
+            popt[1],
+            popt[2],
+            popt[3],
+        ),
+        axis=1
+    )
+
+    # Generate water temperture
+    df_water_temperature = pd.DataFrame()
+    df_water_temperature['datetime'] = df_air['datetime']
+    df_water_temperature['water_temperature'] = df_air.apply(
+        lambda row: water_temperature_model(
+            row['air_temperature'],
+            popt[0],
+            popt[1],
+            popt[2],
+            popt[3],
+        ),
+        axis=1
+    )
+
+    # Get flow
+    df_water_flow = pd.DataFrame()
+    df_water_flow['datetime'] = df_air['datetime']
+    df_water_flow = pd.merge(
+        left=df_water_flow,
+        right=df_water_historic[['datetime', 'water_flow']],
+        how='left'
+    )
+
+    return df_modeled_temperature, df_water_temperature, df_water_flow
+
+
+def water_temperature_model(
+    air_temperature,
+    gamma,
+    beta,
+    min_temperature,
+    max_temperture,
+):
+    """
+    Water temperature model from Mohseni, O., Stefan, H. G., & Erickson, T. R. (1998). A nonlinear regression model for weekly stream temperatures. Water Resources Research, 34(10), 2685–2692. https://doi.org/10.1029/98WR01877
+
+    Parameters
+    ----------
+    air_temperature : float
+        Air temperature [C]
+    gamma : float
+        Steepest slope of the function
+    beta : float
+        Air temperature at inflection point [C]
+    min_temperature : float
+        Minimum stream temperature [C]
+    max_temperture : float
+        Maximum stream temperture [C]
+
+    Returns
+    -------
+    float
+        Air temperature [C]
+    """
+    num = (max_temperture - min_temperature)
+    denom = (1 + np.exp(gamma*(beta - air_temperature)))
+    stream_temperature = min_temperature + num/denom
+    return stream_temperature
 
 
 def process_system_load(eia_load_template_j_j, eia_load_template_j_d):
@@ -450,7 +552,8 @@ def create_scenario_exogenous(
     datetime_start,
     datetime_end,
     hour_to_hour_start,
-    df_water,
+    df_water_temperature,
+    df_water_flow,
     df_air,
     df_wind_cf,
     df_system_load,
@@ -495,9 +598,13 @@ def create_scenario_exogenous(
     df_system_load['datetime'] = pd.to_datetime(df_system_load['datetime'])
 
     # Filter air water
+    df_water = pd.merge(
+        df_water_temperature,
+        df_water_flow,
+    )
     df_air_water = pd.merge(
         df_air,
-        df_water
+        df_water,
     )
     df_air_water['datetime'] = pd.to_datetime(df_air_water['datetime'])
     condition = \

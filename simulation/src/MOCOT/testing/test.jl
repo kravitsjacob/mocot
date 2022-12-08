@@ -13,7 +13,7 @@ using MOCOT
 
 # Global vars
 network_data_raw = PowerModels.parse_file("simulation/src/MOCOT/testing/case_ACTIVSg200.m")
-exogenous_raw = JLD2.load("simulation/src/MOCOT/testing/test_exogenous.jld2")
+exogenous_raw = JLD2.load("simulation/src/MOCOT/testing/test_exogenous.jld2")["exogenous"]
 
 function create_custom_test_network(network_data)
     """
@@ -125,6 +125,26 @@ end
         k_sens=0.15
     )
     @Test.test isapprox(beta_con, 3629.0, atol=1)
+end
+
+
+@Test.testset "Fundamental Capacity Reduction Models" begin
+    p_thermo_OC = MOCOT.once_through_capacity(
+        KW=400.0,
+        delta_T=5.0,
+        Q=621.712,
+        eta_total=0.50,
+        eta_elec=0.50,
+    )
+    @Test.test isapprox(p_thermo_OC, 262.2, atol=1)
+    p_thermo_RC = MOCOT.recirculating_capacity(
+        KW=400.0,
+        delta_T=5.0,
+        Q=621.712,
+        eta_total=0.50,
+        eta_elec=0.50,
+    )
+    @Test.test isapprox(p_thermo_RC, 400.0, atol=1)
 end
 
 

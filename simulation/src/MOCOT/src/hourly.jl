@@ -184,6 +184,26 @@ function update_load!(network_data_multi::Dict, day_loads:: Dict)
 end
 
 
+function update_gen_capacity!(network_data_multi::Dict, gen_capacity:: Dict)
+    """
+    Update loads for network data 
+
+    # Arguments
+    - `network_data_multi::Dict`: Multi network data
+    - `gen_capacity:: Dict`: Genertor capacities
+    """
+    # Looping of generators
+    for (obj_name, new_capacity) in gen_capacity
+        # Looping over hours
+        for (h, network_data) in network_data_multi["nw"]
+            network_data["gen"][obj_name]["pmax"] = new_capacity
+        end
+    end
+
+    return network_data_multi
+end
+
+
 function update_wind_capacity!(
     network_data_multi::Dict,
     wind_capacity_factor::Dict

@@ -69,13 +69,15 @@ def get_nondomintated(df, objs, max_objs=None):
     return df_nondom
 
 
-def select_policies(runtime):
+def select_policies(runtime, df_judement):
     """Select policies based on objective performance
 
     Parameters
     ----------
     runtime : postmocot.runtime.BorgRuntimeDiagnostic
         Runtime object
+    df_judement : pandas.DataFrame
+        Policies based on judgement
 
     Returns
     -------
@@ -95,12 +97,38 @@ def select_policies(runtime):
 
     # Extracting policies
     df['policy_label'] = ''
-    df.at[df['f_gen'].idxmin(), 'policy_label'] = 'status quo'  # noqa
-    df.at[df['f_emit'].idxmin(), 'policy_label'] = 'high emission penality'  # noqa
-    df.at[df['f_con_tot'].idxmin(), 'policy_label'] = 'high consumption penality'  # noqa
-    df.at[df['f_with_tot'].idxmin(), 'policy_label'] = 'high withdrawal penality'  # noqa
-    idx_compromise = df.iloc[(df['f_gen']-5186690.359442655).abs().argsort()[:1]].index[0]  # noqa
+    idx_compromise = df.iloc[(df['f_gen']-5186066.459283395).abs().argsort()[:1]].index[0]  # noqa
     df.at[idx_compromise, 'policy_label'] = 'water-emission policy'
     df = df[df['policy_label'] != '']
+    df = df[runtime.decision_names + ['policy_label']]
 
+    # Making judgement solutions
+    row = pd.DataFrame({
+        'w_with': [0.0],
+        'w_con': [0.0],
+        'w_emit': [0.0],
+        'policy_label': 'status quo'
+    })
+    df = pd.concat([df, row], axis=0)
+    row = pd.DataFrame({
+        'w_with': df_judement['w_with'],
+        'w_con': [0.0],
+        'w_emit': [0.0],
+        'policy_label': 'high water withdrawal penalty'
+    })
+    df = pd.concat([df, row], axis=0)
+    row = pd.DataFrame({
+        'w_with': [0.0],
+        'w_con': df_judement['w_con'],
+        'w_emit': [0.0],
+        'policy_label': 'high water consumption penalty'
+    })
+    df = pd.concat([df, row], axis=0)
+    row = pd.DataFrame({
+        'w_with': [0.0],
+        'w_con': [0.0],
+        'w_emit': df_judement['w_emit'],
+        'policy_label': 'high emission penalty'
+    })
+    df = pd.concat([df, row], axis=0)
     return df

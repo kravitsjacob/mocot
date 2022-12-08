@@ -6,14 +6,14 @@ import seaborn as sns
 sns.reset_orig()
 
 
-def average_parallel(runtime, df_policies):
+def average_parallel(runtime, df_policy_performance):
     """Summary plot for average scenario
 
     Parameters
     ----------
     runtime : postmocot.runtime.BorgRuntimeDiagnostic
         Runtime obeject for average scenario
-    df_policies : pandas.DataFrame
+    df_policy_performance : pandas.DataFrame
         Selected policies
 
     Returns
@@ -21,8 +21,7 @@ def average_parallel(runtime, df_policies):
     paxplot.core.PaxFigure
         Plot
     """
-
-    # Data preparation
+    # Archive preparation
     df = pd.DataFrame(
         runtime.archive_objectives[runtime.nfe[-1]],
         columns=runtime.objective_names
@@ -30,33 +29,33 @@ def average_parallel(runtime, df_policies):
     df = df.drop(
         columns=['f_ENS', 'f_disvi_tot', 'f_w_with', 'f_w_con', 'f_w_emit']
     )
+
+    # Judgement policy performance preparation
+    df_policy_performance = df_policy_performance[
+        df_policy_performance['scenario'] == 'average week'
+    ]
+    df_policy_performance = df_policy_performance[
+        df.columns.tolist() + ['policy_label']
+    ]
+
+    # Column preparation
     df = df.rename(columns={
-        'f_gen': '$f_{gen}$ [\$]',
+        'f_gen': r'$f_{gen}$ [\$]',
         'f_with_tot': '$f_{with,tot}$ [L]',
         'f_con_tot': '$f_{con,tot}$ [L]',
         'f_emit': '$f_{emit}$ [lbs]'
     })
-    df_policies = df_policies.drop(
-        columns=[
-            'w_with',
-            'w_con',
-            'w_emit',
-            'f_ENS',
-            'f_disvi_tot',
-            'f_w_with',
-            'f_w_con',
-            'f_w_emit'
-        ]
-    )
 
     # Plotting
     paxfig = paxplot.pax_parallel(n_axes=len(df.columns))
     paxfig.plot(
-        df_policies.loc[:, df_policies.columns != 'policy_label'].to_numpy()
+        df_policy_performance.loc[
+            :, df_policy_performance.columns != 'policy_label'
+        ].to_numpy()
     )
 
     # Adding a colorbar
-    paxfig.add_legend(labels=df_policies['policy_label'].tolist())
+    paxfig.add_legend(labels=df_policy_performance['policy_label'].tolist())
     paxfig.axes[-1].get_legend().set_bbox_to_anchor((1.50, 0.5))
 
     # Limits
@@ -96,7 +95,7 @@ def average_parallel(runtime, df_policies):
     )
 
     # Dimensions
-    paxfig.set_size_inches(10, 3)
+    paxfig.set_size_inches(11, 3)
 
     return paxfig
 
@@ -155,23 +154,44 @@ def comparison(
     df_plot = df_plot[df_plot['obj'] != 'f_w_emit']
     df_plot['obj'] = df_plot['obj'].replace(
         {
-            'f_gen': '$f_{gen}$',
-            'f_with_tot': '$f_{with,tot}$',
-            'f_con_tot': '$f_{con,tot}$',
-            'f_disvi_tot': '$f_{disvi,tot}$',
-            'f_emit': '$f_{emit}$',
-            'f_ENS': '$f_{ENS}$ ',
+            'f_gen': 'Cost',
+            'f_with_tot': 'Withdrawal',
+            'f_con_tot': 'Consumption',
+            'f_disvi_tot': 'Discharge\nViolations',
+            'f_emit': 'Emissions',
+            'f_ENS': 'ENS',
+        }
+    )
+    df_plot['scenario'] = df_plot['scenario'].replace(
+        {
+            'average week': 'Average\nweek',
+            'extreme load/climate': 'Extreme\nload/climate',
+            'nuclear outage': 'Nuclear\noutage',
+        }
+    )
+    df_plot['policy_label'] = df_plot['policy_label'].replace(
+        {
+            'water-emission policy': 'water-emission\npolicy\n',
+            'high water withdrawal penalty': 'high\nwater\nwithdrawal\npenalty\n',
+            'high water consumption penalty': 'high\nwater\nconsumption\npenalty\n',
+            'high emission penalty': 'high\nemission\npenalty\n',
         }
     )
 
     # Plotting
+    custom_pallete = [
+        sns.color_palette('tab10')[2],
+        sns.color_palette('gray')[1],
+        sns.color_palette('gray')[3],
+        sns.color_palette('gray')[-1],
+    ]
     g = sns.FacetGrid(
         df_plot,
         row='obj',
         col='scenario',
         sharey='row',
-        height=1.2,
-        aspect=0.9,
+        height=1.4,
+        aspect=1.1,
         gridspec_kws={
             'wspace': 0.1,
             'hspace': 0.25
@@ -182,7 +202,7 @@ def comparison(
         'policy_label',
         'obj_value',
         'policy_label',
-        palette=sns.color_palette('tab10'),
+        palette=custom_pallete,
         dodge=False
     )
 
@@ -195,9 +215,12 @@ def comparison(
     for i, ax in enumerate(g.axes[:, 0]):
         ax.set_ylabel(y_labels[i])
     for i, ax in enumerate(g.axes[-1, :]):
-        ax.set_xlabel(x_labels[i], rotation=20)
+        ax.set_xlabel(x_labels[i], rotation=0)
         ax.set_xticklabels('')
-    g.add_legend()
-    g.figure.subplots_adjust(bottom=0.2)
+    for ax in g.axes.flat:
+        yabs_max = abs(max(ax.get_ylim(), key=abs))
+        ax.set_ylim(ymin=-yabs_max, ymax=yabs_max)
+    g.add_legend(loc='lower right')
+    g.figure.subplots_adjust(left=0.2, bottom=0.1, right=0.7, top=0.9)
 
     return g

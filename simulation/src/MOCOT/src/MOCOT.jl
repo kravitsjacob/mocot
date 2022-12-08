@@ -19,6 +19,7 @@ include("utils.jl")
 include("daily.jl")
 include("hourly.jl")
 include("preprocessing.jl")
+include("capacity_reduction.jl")
 
 
 function simulation(
@@ -51,6 +52,7 @@ function simulation(
     state["withdraw_rate"] = Dict("0" => Dict{String, Float64}())  # [L/pu]
     state["consumption_rate"] = Dict("0" => Dict{String, Float64}())  # [L/pu]
     state["discharge_violation"] = Dict("0" => Dict{String, Float64}())  # [C]
+    state["capacity_reduction"] = Dict("0" => Dict{String, Float64}())  # [MW]
 
     # Add reliability generators
     network_data = add_reliability_gens!(network_data, voll)
@@ -69,19 +71,29 @@ function simulation(
     # Initialize water use based on 20.0 C
     water_temperature = 20.0
     air_temperature = 20.0
+    Q = 1400.0 # cmps
     regulatory_temperature = 32.2  # For Illinois
-    gen_beta_with, gen_beta_con = gen_water_use_wrapper(  # [L/pu]
+    gen_beta_with, gen_beta_con, gen_discharge_violation, gen_delta_t = gen_water_use_wrapper(  # [L/pu], [C]
         water_temperature,
         air_temperature,
         regulatory_temperature,
         network_data,
     )
+    gen_capacity, gen_capacity_reduction = get_gen_capacity_reduction(network_data, gen_delta_t, Q)
+    state["capacity_reduction"]["0"] = gen_capacity_reduction    
+    state["discharge_violation"]["0"] = gen_discharge_violation
     state["withdraw_rate"]["0"] = gen_beta_with
     state["consumption_rate"]["0"] = gen_beta_con
 
     # Simulation
     for d in 1:d_total
         println("Simulation Day: " * string(d))
+
+        # Update generator capacity
+        network_data_multi = update_gen_capacity!(
+            network_data_multi,
+            gen_capacity
+        )
 
         # Update loads
         network_data_multi = update_load!(
@@ -148,15 +160,22 @@ function simulation(
         end
 
         # Water use
-        gen_beta_with, gen_beta_con, gen_discharge_violation = gen_water_use_wrapper(
+        gen_beta_with, gen_beta_con, gen_discharge_violation, gen_delta_t = gen_water_use_wrapper(
             exogenous["water_temperature"][string(d)],
             exogenous["air_temperature"][string(d)],
             regulatory_temperature,
             network_data,
         )
+        gen_capacity, gen_capacity_reduction = get_gen_capacity_reduction(
+            network_data,
+            gen_delta_t,
+            exogenous["water_flow"][string(d)]
+        )
+        state["capacity_reduction"][string(d)] = gen_capacity_reduction    
         state["discharge_violation"][string(d)] = gen_discharge_violation
         state["withdraw_rate"][string(d)] = gen_beta_with
         state["consumption_rate"][string(d)] = gen_beta_con
+
     end
 
     # Compute objectives
