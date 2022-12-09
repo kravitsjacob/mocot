@@ -72,7 +72,7 @@ function read_inputs(
 
     # Update lines
     if scenario_code == 4
-        delete!(network_data["branch"], "243")
+        delete!(network_data["branch"], "158")
     end
 
     inputs = (

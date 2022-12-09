@@ -52,15 +52,16 @@ function main()
 
 
     # Remove line
+    @Infiltrator.infiltrate
     df = DataFrames.DataFrame(
         PowerModels.component_table(
             results["solution"], "branch", ["pt", "pf"]
         ),
         :auto
     )
-    println(df[abs.(df.x2) .== maximum(abs.(df.x2)), :])
+    println(sort(abs.(df), [:x2]))
 
-    delete!(network_data["branch"], "243")
+    delete!(network_data["branch"], "158")
 
     # Run powerflow
     pm = PowerModels.instantiate_model(
