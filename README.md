@@ -14,11 +14,7 @@ Multi-Objective Coordination of Thermoelectric Water Use
 ## Single Simulation Run (Debugging/Development)
 1) Activate julia `$ julia --project=simulation/src/MOCOT`
 2) Instantiate julia packages `julia> include("simulation/julia_config.jl")`
-
-for every bug:
-  * Run `using Infiltrator` to add debugging functionality.
-  * Set breakpoint where appropriate using `@Infiltrator.infiltrate` be sure to `import Infiltrator` at the top of development packages. Note, it will throw a warning as it thinks you are adding a not-included dependency.
-  * Evaluate using `include("simulation/single_simulation.jl")`
+3) Evaluate using `include("simulation/single_simulation.jl")`
 
 ## Single Simulation Run in C (Debugging/Development)
 1) Download julia and make sure the path is reflected in `optimization/makefile`
@@ -83,4 +79,9 @@ for every bug:
 3) Run postprocessing `julia> include("postprocessing/run_scenarios.jl")`
 
 # Notes on old commits/releases
-Releases of week-01 to week-09 were regenerated due to migration away from git lfs. Thus, their release data all occur on the same day. 
+Releases of week-01 to week-09 were regenerated due to migration away from git lfs. Thus, their release data all occur on the same day.
+
+for every bug:
+  * Run `using Infiltrator` to add debugging functionality.
+  * Set breakpoint where appropriate using `@Infiltrator.infiltrate` be sure to `import Infiltrator` at the top of development packages. Note, it will throw a warning as it thinks you are adding a not-included dependency.
+  * Evaluate using `include(<path>)`
