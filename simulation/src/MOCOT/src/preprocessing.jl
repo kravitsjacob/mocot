@@ -70,6 +70,11 @@ function read_inputs(
     # Generator information
     df_gen_info = get_gen_info(network_data, df_gen_info_python)
 
+    # Update lines
+    if scenario_code == 4
+        delete!(network_data["branch"], "243")
+    end
+
     inputs = (
         df_scenario_specs,
         df_eia_heat_rates,

@@ -24,6 +24,9 @@ function main()
     # Simulation with nuclear outage
     (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 3)
 
+    # Simulation with line outage
+    (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 4)
+
     # Objectives
     df_objs = DataFrames.DataFrame(objectives)
 
