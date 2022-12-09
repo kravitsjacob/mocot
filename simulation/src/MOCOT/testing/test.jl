@@ -113,7 +113,7 @@ end
 
     # Cold case 
     inlet_temperature = 21.0
-    beta_with, beta_con, delta_t = MOCOT.water_use(
+    beta_with, beta_con, delta_t = MOCOT.get_water_use(
         gen,
         inlet_temperature,
         regulatory_temperature,
@@ -124,7 +124,7 @@ end
 
     # Delta t but no limit
     inlet_temperature = 25.0
-    beta_with, beta_con, delta_t = MOCOT.water_use(
+    beta_with, beta_con, delta_t = MOCOT.get_water_use(
         gen,    
         inlet_temperature,
         regulatory_temperature,
@@ -135,7 +135,7 @@ end
 
     # Delta with limits (temperature violations)
     inlet_temperature = 27.0
-    beta_with, beta_con, delta_t = MOCOT.water_use(
+    beta_with, beta_con, delta_t = MOCOT.get_water_use(
         gen,    
         inlet_temperature,
         regulatory_temperature,
@@ -146,23 +146,32 @@ end
 end
 
 
-# @Test.testset "Test for recirculating_water_use" begin
-#     # Setup
-#     air_temperature=25.0
-#     k_os = 0.20
-#     beta_proc = 10.0
-#     eta_net = 0.33
+@Test.testset "Test for recirculating water use" begin
+    # Setup
+    air_temperature=25.0
+    k_os = 0.20
+    beta_proc = 10.0
+    eta_net = 0.33
+    eta_cc = 5
+    k_bd = 1.0
+    gen = MOCOT.RecirculatingGenerator(
+        eta_net,
+        k_os,
+        beta_proc,
+        eta_cc,
+        k_bd,
+        0.0,
+        0.0,
+    )
 
-#     # Cold case 
-#     beta_with, beta_con = MOCOT.recirculating_water_use(
-#         air_temperature,
-#         eta_net, 
-#         k_os, 
-#         beta_proc,
-#     )
-#     @Test.test isapprox(beta_with, 2245.7, atol=1)
-#     @Test.test isapprox(beta_con, 1798.6, atol=1)
-# end
+    # Cold case 
+    beta_with, beta_con = MOCOT.get_water_use(
+        gen,
+        air_temperature,
+    )
+    @Test.test isapprox(beta_with, 2245.7, atol=1)
+    @Test.test isapprox(beta_con, 1798.6, atol=1)
+end
 
 
 # @Test.testset "Test for adding wind capacity" begin

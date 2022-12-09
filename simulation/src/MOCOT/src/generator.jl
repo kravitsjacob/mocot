@@ -165,7 +165,7 @@ function get_capacity(
 end
 
 
-water_use(
+get_water_use(
     gen:: OnceThroughGenerator,
     inlet_temperature:: Float64,
     regulatory_temperature:: Float64,
@@ -312,6 +312,7 @@ function get_capacity(
     Recirculating capacity reduction model
 
     # Arguments
+    - `gen:: RecirculatingGenerator`: Generator
     - `KW:: Float64`: Capacity [MW]
     - `delta_T:: Float64`: Inlet outlet temperature difference [C]
     - `Q:: Float64`: Streamflow [cmps]
@@ -350,4 +351,48 @@ function get_capacity(
     end
 
     return p_thermo_RC
+end
+
+
+get_water_use(
+    gen,
+    air_temperature,
+) = begin
+    """
+    Recirculating water use (withdrawal and consumption)
+
+    # Arguments
+    - `gen:: RecirculatingGenerator`: Generator
+    - `air_temperature:: Float64`: Air temperature in C
+    """
+    # Get k_sens
+    k_sens = get_k_sens(air_temperature)
+
+    # Water models
+    beta_with = get_withdrawal(
+        gen,
+        k_sens,
+    )
+    beta_con = get_consumption(
+        gen,
+        k_sens,
+    )
+
+    return beta_with, beta_con
+end
+
+
+function get_k_sens(t_inlet:: Float64)
+    """
+    Get heat load rejected through convection
+
+    # Arguments
+    `t_inlet:: Float64`: Dry bulb temperature of inlet air [C]
+    """
+    term_1 = -0.000279*t_inlet^3
+    term_2 = 0.00109*t_inlet^2
+    term_3 = -0.345*t_inlet
+    k_sens = term_1 + term_2 + term_3 + 26.7
+    k_sens = k_sens/100  # Convert to ratio
+    return k_sens
 end
