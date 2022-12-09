@@ -47,16 +47,16 @@ def main():
         fig.savefig(paths['outputs']['figures']['average_parallel'])
 
     # Comparison plot
-    if not os.path.exists(paths['outputs']['figures']['compare']):
+    if not os.path.exists(paths['outputs']['figures']['compare_all']):
         df_policy_performance = pd.read_csv(
             paths['outputs']['selected_policy_performance']
         )
-        fig = postmocot.viz.comparison(
+        fig = postmocot.viz.comparison_all(
             df_policy_performance,
             runtime.objective_names,
             runtime.decision_names
         )
-        fig.savefig(paths['outputs']['figures']['compare'])
+        fig.savefig(paths['outputs']['figures']['compare_all'])
 
 
 if __name__ == '__main__':

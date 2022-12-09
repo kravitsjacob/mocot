@@ -100,7 +100,7 @@ def average_parallel(runtime, df_policy_performance):
     return paxfig
 
 
-def comparison(
+def comparison_all(
     df,
     objectives,
     decisions,
@@ -167,6 +167,7 @@ def comparison(
             'average week': 'Average\nweek',
             'extreme load/climate': 'Extreme\nload/climate',
             'nuclear outage': 'Nuclear\noutage',
+            'line outage': 'Line\noutage',
         }
     )
     df_plot['policy_label'] = df_plot['policy_label'].replace(
@@ -221,6 +222,6 @@ def comparison(
         yabs_max = abs(max(ax.get_ylim(), key=abs))
         ax.set_ylim(ymin=-yabs_max, ymax=yabs_max)
     g.add_legend(loc='lower right')
-    g.figure.subplots_adjust(left=0.2, bottom=0.1, right=0.7, top=0.9)
+    g.figure.subplots_adjust(left=0.2, bottom=0.1, right=0.75, top=0.9)
 
     return g
