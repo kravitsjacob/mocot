@@ -122,35 +122,27 @@ end
     @Test.test isapprox(beta_con, 343.4, atol=1)
     @Test.test isapprox(delta_t, 10.0, atol=1)
 
-#     # Delta t but no limit
-#     inlet_temperature = 25.0
-#     beta_with, beta_con, delta_t = MOCOT.once_through_water_use(
-#         inlet_temperature,
-#         regulatory_temperature,
-#         k_os,
-#         beta_proc,
-#         eta_net,
-#         beta_with_limit,
-#         beta_con_limit
-#     )
-#     @Test.test isapprox(beta_with, 165031.5, atol=1)
-#     @Test.test isapprox(beta_con, 364.8, atol=1)
-#     @Test.test isapprox(delta_t, 8.7, atol=1)
+    # Delta t but no limit
+    inlet_temperature = 25.0
+    beta_with, beta_con, delta_t = MOCOT.water_use(
+        gen,    
+        inlet_temperature,
+        regulatory_temperature,
+    )
+    @Test.test isapprox(beta_with, 165031.5, atol=1)
+    @Test.test isapprox(beta_con, 364.8, atol=1)
+    @Test.test isapprox(delta_t, 8.7, atol=1)
 
-#     # Delta with limits (temperature violations)
-#     inlet_temperature = 27.0
-#     beta_with, beta_con, delta_t = MOCOT.once_through_water_use(
-#         inlet_temperature,
-#         regulatory_temperature,
-#         k_os,
-#         beta_proc,
-#         eta_net,
-#         beta_with_limit,
-#         beta_con_limit
-#     )
-#     @Test.test isapprox(beta_with, 190000.0, atol=1)
-#     @Test.test isapprox(beta_con, 400.0, atol=1)
-#     @Test.test isapprox(delta_t, 7.6, atol=1)
+    # Delta with limits (temperature violations)
+    inlet_temperature = 27.0
+    beta_with, beta_con, delta_t = MOCOT.water_use(
+        gen,    
+        inlet_temperature,
+        regulatory_temperature,
+    )
+    @Test.test isapprox(beta_with, 190000.0, atol=1)
+    @Test.test isapprox(beta_con, 400.0, atol=1)
+    @Test.test isapprox(delta_t, 7.6, atol=1)
 end
 
 

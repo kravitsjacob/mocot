@@ -196,15 +196,13 @@ water_use(
     # If beta limits hit
     if (beta_with > gen.beta_with_limit) || (beta_con > gen.beta_con_limit)
         # Set to limits
-        beta_with = beta_with_limit
-        beta_con = beta_con_limit
+        beta_with = gen.beta_with_limit
+        beta_con = gen.beta_con_limit
 
         # Solve for temperature
-        delta_t = once_through_withdrawal_for_delta(
-            eta_net=eta_net,
-            k_os=k_os,
-            beta_with=beta_with,
-            beta_proc=beta_proc
+        delta_t = MOCOT.get_delta(
+            gen,
+            beta_with
         )
     end
 
