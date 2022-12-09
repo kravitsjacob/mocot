@@ -1,35 +1,6 @@
 # Functions for running at a daily-resolution simulation
 
 
-function once_through_withdrawal_for_delta(;
-    eta_net:: Float64,
-    k_os:: Float64,
-    beta_with:: Float64,
-    beta_proc:: Float64,
-    rho_w=1.0,
-    c_p=0.004184,
-)
-    """
-    Once through withdrawal model solving for delta T
-
-    # Arguments
-    - `eta_net:: Float64`: Ratio of electricity generation rate to thermal input
-    - `k_os:: Float64`: Thermal input lost to non-cooling system sinks
-    - `beta_with:: Float64`: Withdrawal limit [L/MWh]
-    - `beta_proc:: Float64`: Non-cooling rate [L/MWh]
-    - `rho_w=1.0`: Desnity of Water [kg/L], by default 1.0
-    - `c_p=0.004184`: Specific head of water in [MJ/(kg-K)], by default 0.004184
-    """
-
-    efficiency = 3600.0 * (1.0-eta_net-k_os) / eta_net
-    physics = 1.0 / (rho_w*c_p)
-    water_use = 1.0 / (beta_with - beta_proc)
-    delta_t = water_use * physics * efficiency
-
-    return delta_t
-end
-
-
 function get_k_os(fuel:: String)
     """
     Get other sinks fraction from DOE-NETL reference models

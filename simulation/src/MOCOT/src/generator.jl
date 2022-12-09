@@ -74,6 +74,36 @@ function get_consumption(
 end
 
 
+function get_delta(
+    gen:: OnceThroughGenerator,
+    beta_with:: Float64,
+    rho_w=1.0,
+    c_p=0.004184,
+)
+    """
+    Once through withdrawal model solving for delta T
+
+    # Arguments
+    - `gen:: OnceThroughGenerator`: Generator
+    - `beta_with:: Float64`: Withdrawal limit [L/MWh]
+    - `rho_w=1.0`: Desnity of Water [kg/L], by default 1.0
+    - `c_p=0.004184`: Specific head of water in [MJ/(kg-K)], by default 0.004184
+    """
+    # Unpack
+    eta_net = gen.eta_net
+    k_os = gen.k_os
+    beta_proc = gen.beta_proc    
+
+    # Model
+    efficiency = 3600.0 * (1.0-eta_net-k_os) / eta_net
+    physics = 1.0 / (rho_w*c_p)
+    water_use = 1.0 / (beta_with - beta_proc)
+    delta_t = water_use * physics * efficiency
+
+    return delta_t
+end
+
+
 """
 Thermoelectric generator with reciruclating cooling system
 """
