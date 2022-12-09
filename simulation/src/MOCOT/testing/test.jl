@@ -17,6 +17,8 @@ using MOCOT
         0.25,
         0.25,
         200.0,
+        0.0,
+        0.0,
     )
     beta_with = MOCOT.get_withdrawal(
         gen,
@@ -34,6 +36,8 @@ using MOCOT
         200.0,
         5,
         1.0,
+        0.0,
+        0.0,
     )
     beta_with = MOCOT.get_withdrawal(
         gen,
@@ -48,24 +52,39 @@ using MOCOT
 end
 
 
-# @Test.testset "Fundamental Capacity Reduction Models" begin
-#     p_thermo_OC = MOCOT.once_through_capacity(
-#         KW=400.0,
-#         delta_T=5.0,
-#         Q=621.712,
-#         eta_total=0.50,
-#         eta_elec=0.50,
-#     )
-#     @Test.test isapprox(p_thermo_OC, 262.2, atol=1)
-#     p_thermo_RC = MOCOT.recirculating_capacity(
-#         KW=400.0,
-#         delta_T=5.0,
-#         Q=621.712,
-#         eta_total=0.50,
-#         eta_elec=0.50,
-#     )
-#     @Test.test isapprox(p_thermo_RC, 400.0, atol=1)
-# end
+@Test.testset "Fundamental Capacity Reduction Models" begin
+    gen = MOCOT.OnceThroughGenerator(
+        0.0,
+        0.0,
+        0.0,
+        0.5,
+        0.5,
+    )
+    p_thermo_OC = MOCOT.get_capacity(
+        gen,
+        400.0,
+        5.0,
+        621.712,
+    )
+    @Test.test isapprox(p_thermo_OC, 262.2, atol=1)
+
+    gen = MOCOT.RecirculatingGenerator(
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.5,
+        0.5,
+    )
+    p_thermo_RC = MOCOT.get_capacity(
+        gen,    
+        400.0,
+        5.0,
+        621.712,
+    )
+    @Test.test isapprox(p_thermo_RC, 400.0, atol=1)
+end
 
 
 # @Test.testset "Test for once_through_water_use" begin
