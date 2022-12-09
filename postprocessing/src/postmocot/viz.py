@@ -100,7 +100,7 @@ def average_parallel(runtime, df_policy_performance):
     return paxfig
 
 
-def comparison_all(
+def comparison(
     df,
     objectives,
     decisions,
@@ -152,6 +152,43 @@ def comparison_all(
     df_plot = df_plot[df_plot['obj'] != 'f_w_with']
     df_plot = df_plot[df_plot['obj'] != 'f_w_con']
     df_plot = df_plot[df_plot['obj'] != 'f_w_emit']
+
+    policy_order = [
+        'high water withdrawal penalty',
+        'high water consumption penalty',
+        'high emission penalty',
+        'water-emission policy',
+    ]
+    df_plot['policy_label'] = pd.Categorical(
+        df_plot['policy_label'],
+        policy_order
+    )
+    df_plot = df_plot.sort_values('policy_label')
+    scenario_order = [
+        'average week',
+        'extreme load/climate',
+        'nuclear outage',
+        'line outage',
+    ]
+    df_plot['scenario'] = pd.Categorical(
+        df_plot['scenario'],
+        scenario_order
+    )
+    df_plot = df_plot.sort_values('scenario')
+    obj_order = [
+        'f_gen',
+        'f_with_tot',
+        'f_con_tot',
+        'f_disvi_tot',
+        'f_emit',
+        'f_ENS',
+    ]
+    df_plot['obj'] = pd.Categorical(
+        df_plot['obj'],
+        obj_order
+    )
+    df_plot = df_plot.sort_values('obj')
+
     df_plot['obj'] = df_plot['obj'].replace(
         {
             'f_gen': 'Cost',
@@ -173,20 +210,20 @@ def comparison_all(
     df_plot['policy_label'] = df_plot['policy_label'].replace(
         {
             'water-emission policy': 'water-emission\npolicy\n',
-            'high water withdrawal penalty': 'high\nwater\nwithdrawal\npenalty\n',
-            'high water consumption penalty': 'high\nwater\nconsumption\npenalty\n',
+            'high water withdrawal penalty': 'high\nwater\nwithdrawal\npenalty\n',  # noqa
+            'high water consumption penalty': 'high\nwater\nconsumption\npenalty\n',  # noqa
             'high emission penalty': 'high\nemission\npenalty\n',
         }
     )
 
-    # Plotting
+    # All scenarsio comparison
     custom_pallete = [
-        sns.color_palette('tab10')[2],
         sns.color_palette('gray')[1],
         sns.color_palette('gray')[3],
         sns.color_palette('gray')[-1],
+        sns.color_palette('tab10')[2],
     ]
-    g = sns.FacetGrid(
+    g_compare = sns.FacetGrid(
         df_plot,
         row='obj',
         col='scenario',
@@ -198,7 +235,7 @@ def comparison_all(
             'hspace': 0.25
         }
     )
-    g.map(
+    g_compare.map(
         sns.barplot,
         'policy_label',
         'obj_value',
@@ -206,22 +243,58 @@ def comparison_all(
         palette=custom_pallete,
         dodge=False
     )
-
-    # Titles
-    g.set_titles(
+    g_compare.set_titles(
         template=""
     )
     y_labels = df_plot['obj'].unique().tolist()
     x_labels = df_plot['scenario'].unique().tolist()
-    for i, ax in enumerate(g.axes[:, 0]):
+    for i, ax in enumerate(g_compare.axes[:, 0]):
         ax.set_ylabel(y_labels[i])
-    for i, ax in enumerate(g.axes[-1, :]):
+    for i, ax in enumerate(g_compare.axes[-1, :]):
         ax.set_xlabel(x_labels[i], rotation=0)
         ax.set_xticklabels('')
-    for ax in g.axes.flat:
+    for ax in g_compare.axes.flat:
         yabs_max = abs(max(ax.get_ylim(), key=abs))
         ax.set_ylim(ymin=-yabs_max, ymax=yabs_max)
-    g.add_legend(loc='lower right')
-    g.figure.subplots_adjust(left=0.2, bottom=0.1, right=0.75, top=0.9)
+    g_compare.add_legend(loc='right')
+    g_compare.figure.subplots_adjust(left=0.2, bottom=0.1, right=0.75, top=0.9)
 
-    return g
+    # Single plot
+    df_plot = df_plot[df_plot['scenario'] == 'Extreme\nload/climate']
+    g_single = sns.FacetGrid(
+        df_plot,
+        row='obj',
+        sharey='row',
+        height=1.3,
+        aspect=4.0,
+        gridspec_kws={
+            'wspace': 0.1,
+            'hspace': 0.25
+        }
+    )
+    g_single.map(
+        sns.barplot,
+        'policy_label',
+        'obj_value',
+        'policy_label',
+        palette=custom_pallete,
+        dodge=False
+    )
+    g_single.set_titles(
+        template=""
+    )
+    g_single.set_xlabels('')
+    y_labels = df_plot['obj'].unique().tolist()
+    x_labels = df_plot['scenario'].unique().tolist()
+    for i, ax in enumerate(g_single.axes[:, 0]):
+        ax.set_ylabel(y_labels[i])
+        ax2 = ax.twinx()
+        ax2.set_yticks([1, 0], ['Worse', 'Better'])
+    for ax in g_single.axes.flat:
+        yabs_max = abs(max(ax.get_ylim(), key=abs))
+        ax.set_ylim(ymin=-yabs_max, ymax=yabs_max)
+    g_single.figure.subplots_adjust(
+        left=0.20, bottom=0.1, right=0.85, top=0.90
+    )
+
+    return g_compare, g_single

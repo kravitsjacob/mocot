@@ -51,12 +51,13 @@ def main():
         df_policy_performance = pd.read_csv(
             paths['outputs']['selected_policy_performance']
         )
-        fig = postmocot.viz.comparison_all(
+        fig_compare, fig_single = postmocot.viz.comparison(
             df_policy_performance,
             runtime.objective_names,
             runtime.decision_names
         )
-        fig.savefig(paths['outputs']['figures']['compare_all'])
+        fig_compare.savefig(paths['outputs']['figures']['compare_all'])
+        fig_single.savefig(paths['outputs']['figures']['compare_single'])
 
 
 if __name__ == '__main__':

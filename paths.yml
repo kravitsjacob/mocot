@@ -70,6 +70,7 @@ outputs:
     scenario_temperatures: "io/outputs/figures/scenario_temperatures.pdf"
     scenario_loads: "io/outputs/figures/scenario_node_loads.pdf"
     average_parallel: "io/outputs/figures/average_parallel.pdf"
+    compare_single: "io/outputs/figures/compare_single.pdf"
     compare_all: "io/outputs/figures/compare_all.pdf"
 
     # Runtime figures
