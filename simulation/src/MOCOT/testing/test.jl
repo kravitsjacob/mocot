@@ -19,6 +19,8 @@ using MOCOT
         200.0,
         0.0,
         0.0,
+        0.0,
+        0.0,
     )
     beta_with = MOCOT.get_withdrawal(
         gen,
@@ -59,6 +61,8 @@ end
         0.0,
         0.5,
         0.5,
+        0.0,
+        0.0,
     )
     p_thermo_OC = MOCOT.get_capacity(
         gen,
@@ -87,29 +91,36 @@ end
 end
 
 
-# @Test.testset "Test for once_through_water_use" begin
-#     # Setup
-#     beta_with_limit=190000.0
-#     beta_con_limit=400.0
-#     regulatory_temperature = 33.7
-#     k_os = 0.12
-#     beta_proc = 200.0
-#     eta_net = 0.33
+@Test.testset "Test for once through water use" begin
+    # Setup
+    beta_with_limit=190000.0
+    beta_con_limit=400.0
+    regulatory_temperature = 33.7
+    k_os = 0.12
+    beta_proc = 200.0
+    eta_net = 0.33
+    eta_total = 0.0
+    eta_elec = 0.0
+    gen = MOCOT.OnceThroughGenerator(
+        eta_net,
+        k_os,
+        beta_proc,
+        eta_total,
+        eta_elec,
+        beta_with_limit,
+        beta_con_limit,
+    )
 
-#     # Cold case 
-#     inlet_temperature = 21.0
-#     beta_with, beta_con, delta_t = MOCOT.once_through_water_use(
-#         inlet_temperature,
-#         regulatory_temperature,
-#         k_os,
-#         beta_proc,
-#         eta_net,
-#         beta_with_limit,
-#         beta_con_limit
-#     )
-#     @Test.test isapprox(beta_with, 143603.4, atol=1)
-#     @Test.test isapprox(beta_con, 343.4, atol=1)
-#     @Test.test isapprox(delta_t, 10.0, atol=1)
+    # Cold case 
+    inlet_temperature = 21.0
+    beta_with, beta_con, delta_t = MOCOT.water_use(
+        gen,
+        inlet_temperature,
+        regulatory_temperature,
+    )
+    @Test.test isapprox(beta_with, 143603.4, atol=1)
+    @Test.test isapprox(beta_con, 343.4, atol=1)
+    @Test.test isapprox(delta_t, 10.0, atol=1)
 
 #     # Delta t but no limit
 #     inlet_temperature = 25.0
@@ -140,7 +151,7 @@ end
 #     @Test.test isapprox(beta_with, 190000.0, atol=1)
 #     @Test.test isapprox(beta_con, 400.0, atol=1)
 #     @Test.test isapprox(delta_t, 7.6, atol=1)
-# end
+end
 
 
 # @Test.testset "Test for recirculating_water_use" begin

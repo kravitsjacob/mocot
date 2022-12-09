@@ -54,64 +54,6 @@ function get_k_sens(t_inlet:: Float64)
     return k_sens
 end
 
-function once_through_water_use(
-    inlet_temperature:: Float64,
-    regulatory_temperature:: Float64,
-    k_os:: Float64,
-    beta_proc:: Float64,
-    eta_net:: Float64,
-    beta_with_limit:: Float64,
-    beta_con_limit:: Float64,    
-)
-    """
-    Once through water use (withdrawal and consumption)
-
-    # Arguments
-    - `inlet_temperature:: Float64`: Inlet water temperature in [C]
-    - `regulatory_temperature:: Float64`: Regulatory water temperature in [C]
-    - `k_os:: Float64`: Thermal input lost to non-cooling system sinks
-    - `beta_proc:: Float64`: Non-cooling rate in [L/MWh]
-    - `eta_net:: Float64`: Ratio of electricity generation rate to thermal input
-    - `beta_with_limit:: Float64`: Withdrawal limit in [L/MWh]
-    - `beta_con_limit:: Float64`: Consumption limit in [L/MWh]
-    """
-    delta_t = 10.0
-
-    if inlet_temperature + delta_t > regulatory_temperature  # Causes violation
-        delta_t = regulatory_temperature - inlet_temperature  # Try to prevent
-    end
-
-    # Water models
-    beta_with = once_through_withdrawal(
-        eta_net=eta_net,
-        k_os=k_os,
-        delta_t=delta_t,
-        beta_proc=beta_proc
-    )
-    beta_con = once_through_consumption(
-        eta_net=eta_net,
-        k_os=k_os,
-        delta_t=delta_t,
-        beta_proc=beta_proc
-    )
-    
-    # If beta limits hit
-    if (beta_with > beta_with_limit) || (beta_con > beta_con_limit)
-        # Set to limits
-        beta_with = beta_with_limit
-        beta_con = beta_con_limit
-
-        # Solve for temperature
-        delta_t = once_through_withdrawal_for_delta(
-            eta_net=eta_net,
-            k_os=k_os,
-            beta_with=beta_with,
-            beta_proc=beta_proc
-        )
-    end
-
-    return beta_with, beta_con, delta_t
-end
 
 function recirculating_water_use(
     air_temperature,

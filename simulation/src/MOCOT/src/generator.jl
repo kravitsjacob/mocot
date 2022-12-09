@@ -15,6 +15,10 @@ struct OnceThroughGenerator
     eta_total:: Float64
     "Electric efficiency"
     eta_elec:: Float64
+    "Withdrawal limit in [L/MWh]"
+    beta_with_limit:: Float64
+    "Consumption limit in [L/MWh]"
+    beta_con_limit:: Float64
 end
 
 
@@ -158,6 +162,53 @@ function get_capacity(
     end
 
     return p_thermo_OC
+end
+
+
+water_use(
+    gen:: OnceThroughGenerator,
+    inlet_temperature:: Float64,
+    regulatory_temperature:: Float64,
+) = begin
+    """
+    Once through water use (withdrawal and consumption)
+
+    # Arguments
+    - `inlet_temperature:: Float64`: Inlet water temperature in [C]
+    - `regulatory_temperature:: Float64`: Regulatory water temperature in [C]
+    """
+    delta_t = 10.0
+
+    if inlet_temperature + delta_t > regulatory_temperature  # Causes violation
+        delta_t = regulatory_temperature - inlet_temperature  # Try to prevent
+    end
+
+    # Water models
+    beta_with = MOCOT.get_withdrawal(
+        gen,
+        delta_t,
+    )
+    beta_con = MOCOT.get_consumption(
+        gen,
+        delta_t,
+    )
+    
+    # If beta limits hit
+    if (beta_with > gen.beta_with_limit) || (beta_con > gen.beta_con_limit)
+        # Set to limits
+        beta_with = beta_with_limit
+        beta_con = beta_con_limit
+
+        # Solve for temperature
+        delta_t = once_through_withdrawal_for_delta(
+            eta_net=eta_net,
+            k_os=k_os,
+            beta_with=beta_with,
+            beta_proc=beta_proc
+        )
+    end
+
+    return beta_with, beta_con, delta_t
 end
 
 
