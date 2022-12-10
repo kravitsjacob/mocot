@@ -101,10 +101,18 @@ function create_model_from_dataframes(
     # Create generators
     gen_dict = Dict()
     for row in eachrow(df_gen_info)
+        # All-generator properties
         emit_rate = row["Emission Rate lbs per kWh"] * 100.0  # convert to lbs / pu
+        ramp_rate = row["Ramp Rate (MW/hr)"] / 100.0  # convert to pu/hr
+        fuel = row["MATPOWER Fuel"]
+        cool = row["923 Cooling Type"]
+
         if row["923 Cooling Type"] == "No Cooling System"
             gen_dict[string(row["obj_name"])] = NoCoolingGenerator(
-                emit_rate
+                emit_rate,
+                ramp_rate,
+                fuel,
+                cool,
             )
         elseif row["923 Cooling Type"] == "RC" || row["923 Cooling Type"] == "RI"
             # Unpack
@@ -126,6 +134,9 @@ function create_model_from_dataframes(
                 eta_total,
                 eta_elec,
                 emit_rate,
+                ramp_rate,
+                fuel,
+                cool,
             )
 
         elseif row["923 Cooling Type"] == "OC"
@@ -148,6 +159,9 @@ function create_model_from_dataframes(
                 beta_with_limit,
                 beta_con_limit,
                 emit_rate,
+                ramp_rate,
+                fuel,
+                cool
             )
         end
     end

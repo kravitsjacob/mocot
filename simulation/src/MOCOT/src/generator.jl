@@ -21,6 +21,12 @@ struct OnceThroughGenerator
     beta_con_limit:: Float64
     "Emission rate in [lbs/pu]"
     emit_rate:: Float64
+    "Ramp rate in [pu/hr]"
+    ramp_rate:: Float64
+    "Fuel type (only for metric aggregation)"
+    fuel:: String
+    "Cooling type (only for metric aggregation)"
+    cool:: String
 end
 
 
@@ -232,6 +238,12 @@ struct RecirculatingGenerator
     eta_elec:: Float64
     "Emission rate in [lbs/pu]"
     emit_rate:: Float64
+    "Ramp rate in [pu/hr]"
+    ramp_rate:: Float64
+    "Fuel type (only for metric aggregation)"
+    fuel:: String
+    "Cooling type (only for metric aggregation)"
+    cool:: String
 end
 
 
@@ -408,4 +420,10 @@ Thermoelectric generator with no cooling system
 struct NoCoolingGenerator
     "Emission rate in [lbs/pu]"
     emit_rate:: Float64
+    "Ramp rate in [pu/hr]"
+    ramp_rate:: Float64
+    "Fuel type (only for metric aggregation)"
+    fuel:: String
+    "Cooling type (only for metric aggregation)"
+    cool:: String
 end
