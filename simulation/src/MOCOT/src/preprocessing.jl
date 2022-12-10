@@ -15,7 +15,7 @@ function read_inputs(
     air_water_template:: String,
     wind_capacity_factor_template:: String,
     node_load_template:: String,
-    gen_info_from_python_path:: String,
+    df_gen_info_path:: String,
     eia_heat_rates_path:: String,
     case_path:: String,
     decisions_path:: String,
@@ -42,8 +42,8 @@ function read_inputs(
     df_scenario_specs = DataFrames.DataFrame(
         CSV.File(scenario_specs_path, dateformat="yyyy-mm-dd HH:MM:SS")
     )
-    df_gen_info_python = DataFrames.DataFrame(
-        CSV.File(gen_info_from_python_path)
+    df_gen_info = DataFrames.DataFrame(
+        CSV.File(df_gen_info_path)
     )
     df_eia_heat_rates = DataFrames.DataFrame(
         XLSX.readtable(eia_heat_rates_path, "Annual Data")
@@ -67,9 +67,6 @@ function read_inputs(
     objective_names = vec(DelimitedFiles.readdlm(objectives_path, ',', String))
     metric_names = vec(DelimitedFiles.readdlm(metrics_path, ',', String))
 
-    # Generator information
-    df_gen_info = get_gen_info(network_data, df_gen_info_python)
-
     # Update lines
     if scenario_code == 4
         delete!(network_data["branch"], "158")
@@ -88,6 +85,67 @@ function read_inputs(
         metric_names
     )
     return inputs
+end
+
+
+function create_model_from_dataframes(
+    network_data,
+    df_gen_info,
+    df_eia_heat_rates,
+)
+    # Create generators
+    gen_dict = Dict()
+    for row in eachrow(df_gen_info)
+        if row["923 Cooling Type"] == "No Cooling System"
+            gen_dict[string(row["obj_name"])] = NoCoolingGenerator()
+        elseif row["923 Cooling Type"] == "RC" || row["923 Cooling Type"] == "RI"
+            # Unpack
+            eta_net = get_eta_net(string(row["MATPOWER Fuel"]), df_eia_heat_rates)
+            k_os = get_k_os(string(row["MATPOWER Fuel"]))
+            beta_proc = get_beta_proc(string(row["MATPOWER Fuel"]))
+            eta_cc = 5
+            k_bd = 1.0
+            eta_total = eta_net
+            eta_elec = eta_net
+
+            # Store
+            gen_dict[string(row["obj_name"])] = MOCOT.RecirculatingGenerator(
+                eta_net,
+                k_os,
+                beta_proc,
+                eta_cc,
+                k_bd,
+                eta_total,
+                eta_elec,
+            )
+
+        elseif row["923 Cooling Type"] == "OC"
+            # Unpack
+            eta_net = get_eta_net(string(row["MATPOWER Fuel"]), df_eia_heat_rates)
+            k_os = get_k_os(string(row["MATPOWER Fuel"]))
+            beta_proc = get_beta_proc(string(row["MATPOWER Fuel"]))
+            eta_total = eta_net
+            eta_elec = eta_net
+            beta_with_limit = row["Withdrawal Limit [L/MWh]"]
+            beta_con_limit = row["Consumption Limit [L/MWh]"]
+
+            # Store
+            gen_dict[string(row["obj_name"])] = MOCOT.OnceThroughGenerator(
+                eta_net,
+                k_os,
+                beta_proc,
+                eta_total,
+                eta_elec,
+                beta_with_limit,
+                beta_con_limit,
+            )
+        end
+    end
+
+    # Create model
+    model = WaterPowerModel(gen_dict, network_data)
+    
+    return model
 end
 
 
@@ -402,22 +460,61 @@ function update_scenario!(network_data, scenario_code:: Int64)
 end
 
 
-function get_gen_info(
-    network_data:: Dict,
-    df_gen_info_python:: DataFrames.DataFrame
-)
+# function get_gen_info(
+#     network_data:: Dict,
+#     df_gen_info_python:: DataFrames.DataFrame
+# )
+#     """
+#     Get generator information by merging PowerModels and MATPOWER data
+
+#     # Arguments
+#     - `network_data:: Dict`: Network data 
+#     - `df_gen_info_python:: DataFrames.DataFrame`: Generator information from preprocessing
+#     """
+#     @Infiltrator.infiltrate
+#     df_gen_info_pm = MOCOT.network_to_df(network_data, "gen", ["gen_bus"])
+#     df_gen_info = DataFrames.leftjoin(
+#         df_gen_info_pm,
+#         df_gen_info_python,
+#         on = :gen_bus => Symbol("MATPOWER Index")
+#     )
+#     return df_gen_info
+# end
+
+
+function get_k_os(fuel:: String)
     """
-    Get generator information by merging PowerModels and MATPOWER data
+    Get other sinks fraction from DOE-NETL reference models
 
     # Arguments
-    - `network_data:: Dict`: Network data 
-    - `df_gen_info_python:: DataFrames.DataFrame`: Generator information from preprocessing
+    `fuel:: String`: Fuel code
     """
-    df_gen_info_pm = MOCOT.network_to_df(network_data, "gen", ["gen_bus"])
-    df_gen_info = DataFrames.leftjoin(
-        df_gen_info_pm,
-        df_gen_info_python,
-        on = :gen_bus => Symbol("MATPOWER Index")
-    )
-    return df_gen_info
+    if fuel == "coal"
+        k_os = 0.12
+    elseif fuel == "ng"
+        k_os = 0.20
+    elseif fuel == "nuclear"
+        k_os = 0.0
+    elseif fuel == "wind"
+        k_os = 0.0
+    end
+
+    return k_os
+end
+
+
+function get_beta_proc(fuel:: String)
+    """
+    Get water withdrawal from non-cooling processes in [L/MWh] based on DOE-NETL model
+
+    # Arguments
+    `fuel:: String`: Fuel code
+    """
+    if fuel == "coal"
+        beta_proc = 200.0
+    else
+        beta_proc = 10.0
+    end
+
+    return beta_proc
 end

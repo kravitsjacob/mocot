@@ -396,3 +396,10 @@ function get_k_sens(t_inlet:: Float64)
     k_sens = k_sens/100  # Convert to ratio
     return k_sens
 end
+
+
+"""
+Thermoelectric generator with no cooling system
+"""
+struct NoCoolingGenerator
+end
