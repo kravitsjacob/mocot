@@ -89,10 +89,18 @@ end
 
 
 function create_model_from_dataframes(
-    network_data,
-    df_gen_info,
-    df_eia_heat_rates,
+    network_data:: Dict,
+    df_gen_info:: DataFrames.DataFrame,
+    df_eia_heat_rates:: DataFrames.DataFrame,
 )
+    """
+    Create WaterPowerModel from dataframes
+
+    # Arguments
+    - `network_data:: Dict`: PowerModels network data
+    - `df_gen_info:: DataFrames.DataFrame`: Generator information
+    - `df_eia_heat_rates:: DataFrames.DataFrame`: Energy information heat rates table
+    """
     # Create generators
     gen_dict = Dict()
     for row in eachrow(df_gen_info)
@@ -149,97 +157,13 @@ function create_model_from_dataframes(
 end
 
 
-function add_custom_properties!(
-    network_data:: Dict,
-    df_gen_info:: DataFrames.DataFrame,
-    df_eia_heat_rates:: DataFrames.DataFrame
-)
-    """
-    Add custom properties to the network
-
-    # Arguments
-    - `network_data:: Dict`: PowerModels network data
-    - `df_gen_info:: DataFrames.DataFrame`: Generator information
-    - `df_eia_heat_rates:: DataFrames.DataFrame`: EIA heat rate information
-    """
-    # Ramp rate
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_ramp_rate",
-        df_gen_info[!, "obj_name"],
-        convert.(Float64, df_gen_info[!, "Ramp Rate (MW/hr)"]) / 100.0  # convert to pu/hr
-    )
-
-    # Fuel types
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_fuel",
-        df_gen_info[!, "obj_name"],
-        convert.(String, df_gen_info[!, "MATPOWER Fuel"])
-    )
-
-    # Cooling type
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_cool",
-        df_gen_info[!, "obj_name"],
-        convert.(String, df_gen_info[!, "923 Cooling Type"])
-    )
-
-    # Emissions coefficient
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_emit",
-        df_gen_info[!, "obj_name"],
-        convert.(Float64, df_gen_info[!, "Emission Rate lbs per MWh"]) * 100.0  # convert to lbs / pu
-    )
-
-    # Withdrawal limit
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_with_limit",
-        df_gen_info[!, "obj_name"],
-        df_gen_info[!, "Withdrawal Limit [L/MWh]"] * 100.0  # convert to L / pu
-    )
-
-    # Consumption limit
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_con_limit",
-        df_gen_info[!, "obj_name"],
-        df_gen_info[!, "Consumption Limit [L/MWh]"] * 100.0  # convert to L / pu
-    )
-
-    # Heat rates
-    df_gen_info = DataFrames.transform!(
-        df_gen_info,
-        Symbol("MATPOWER Fuel") => DataFrames.ByRow(fuel -> get_eta_net(string(fuel), df_eia_heat_rates)) => "Heat Rate"
-    )
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_heat_rate",
-        df_gen_info[!, "obj_name"],
-        convert.(Float64, df_gen_info[!, "Heat Rate"])
-    )
-
-    return network_data
-end
-
-
 function get_eta_net(fuel:: String, df_eia_heat_rates:: DataFrames.DataFrame)
     """
     Get net efficiency of plant
     
     # Arguments
-    `fuel:: String`: Fuel code
-    `df_eia_heat_rates:: DataFrames.DataFrame`: DataFrame of eia heat rates
+    - `fuel:: String`: Fuel code
+    - `df_eia_heat_rates:: DataFrames.DataFrame`: DataFrame of eia heat rates
     """
     if fuel == "coal"
         col_name = "Electricity Net Generation, Coal Plants Heat Rate"
@@ -262,6 +186,109 @@ function get_eta_net(fuel:: String, df_eia_heat_rates:: DataFrames.DataFrame)
     end
 
     return eta_net
+end
+
+
+function get_k_os(fuel:: String)
+    """
+    Get other sinks fraction from DOE-NETL reference models
+
+    # Arguments
+    - `fuel:: String`: Fuel code
+    """
+    if fuel == "coal"
+        k_os = 0.12
+    elseif fuel == "ng"
+        k_os = 0.20
+    elseif fuel == "nuclear"
+        k_os = 0.0
+    elseif fuel == "wind"
+        k_os = 0.0
+    end
+
+    return k_os
+end
+
+
+function get_beta_proc(fuel:: String)
+    """
+    Get water withdrawal from non-cooling processes in [L/MWh] based on DOE-NETL model
+
+    # Arguments
+    - `fuel:: String`: Fuel code
+    """
+    if fuel == "coal"
+        beta_proc = 200.0
+    else
+        beta_proc = 10.0
+    end
+
+    return beta_proc
+end
+
+
+function create_simulation_from_dataframes(
+    model:: WaterPowerModel,
+    scenario_code,
+    df_scenario_specs:: DataFrames.DataFrame,
+    df_air_water:: DataFrames.DataFrame,
+    df_wind_cf:: DataFrames.DataFrame,
+    df_node_load:: DataFrames.DataFrame,
+)
+    # Exogenous parameters
+    specs = df_scenario_specs[df_scenario_specs.scenario_code .== scenario_code, :]
+    start_date = specs.datetime_start[1]
+    end_date = specs.datetime_end[1]
+    exogenous = get_exogenous(
+        start_date,
+        end_date,
+        df_air_water,
+        df_wind_cf,
+        df_node_load
+    )
+
+    # States
+    state = Dict()
+
+    # Store
+    simulation = MOCOT.WaterPowerSimulation(
+        model,
+        exogenous,
+        state,
+    )
+end
+
+
+function get_exogenous(
+    start_date:: Dates.DateTime,
+    end_date:: Dates.DateTime,
+    df_air_water:: DataFrames.DataFrame,
+    df_wind_cf:: DataFrames.DataFrame,
+    df_node_load:: DataFrames.DataFrame
+)
+    """
+    Format exogenous parameters
+
+    # Arguments
+    - `start_date:: Dates.DateTime`: Start time for simulation
+    - `end_date:: Dates.DateTime`: End time for simulation
+    - `df_air_water:: DataFrames.DataFrame`: Air and water temperature dataframe
+    - `df_wind_cf:: DataFrames.DataFrame`: Wind capacity factor dataframes
+    - `df_node_load:: DataFrames.DataFrame`: Node-level load dataframe
+    """
+    exogenous = Dict{String, Any}()
+
+    # Air and water temperatures
+    exogenous = add_air_water!(exogenous, df_air_water, start_date, end_date)
+
+    # Wind capacity factors
+    exogenous = add_wind_cf!(exogenous, df_wind_cf, start_date, end_date)    
+
+    # Node loads
+    exogenous = add_node_loads!(exogenous, df_node_load, start_date, end_date)
+
+    return exogenous
+
 end
 
 
@@ -408,39 +435,6 @@ function add_node_loads!(
 end
 
 
-function get_exogenous(
-    start_date:: Dates.DateTime,
-    end_date:: Dates.DateTime,
-    df_air_water:: DataFrames.DataFrame,
-    df_wind_cf:: DataFrames.DataFrame,
-    df_node_load:: DataFrames.DataFrame
-)
-    """
-    Format exogenous parameters
-
-    # Arguments
-    - `start_date:: Dates.DateTime`: Start time for simulation
-    - `end_date:: Dates.DateTime`: End time for simulation
-    - `df_air_water:: DataFrames.DataFrame`: Air and water temperature dataframe
-    - `df_wind_cf:: DataFrames.DataFrame`: Wind capacity factor dataframes
-    - `df_node_load:: DataFrames.DataFrame`: Node-level load dataframe
-    """
-    exogenous = Dict{String, Any}()
-
-    # Air and water temperatures
-    exogenous = add_air_water!(exogenous, df_air_water, start_date, end_date)
-
-    # Wind capacity factors
-    exogenous = add_wind_cf!(exogenous, df_wind_cf, start_date, end_date)    
-
-    # Node loads
-    exogenous = add_node_loads!(exogenous, df_node_load, start_date, end_date)
-
-    return exogenous
-
-end
-
-
 function update_scenario!(network_data, scenario_code:: Int64)
     """
     Update network based on scenario
@@ -481,40 +475,85 @@ end
 #     return df_gen_info
 # end
 
+# function add_custom_properties!(
+#     network_data:: Dict,
+#     df_gen_info:: DataFrames.DataFrame,
+#     df_eia_heat_rates:: DataFrames.DataFrame
+# )
+#     """
+#     Add custom properties to the network
 
-function get_k_os(fuel:: String)
-    """
-    Get other sinks fraction from DOE-NETL reference models
+#     # Arguments
+#     - `network_data:: Dict`: PowerModels network data
+#     - `df_gen_info:: DataFrames.DataFrame`: Generator information
+#     - `df_eia_heat_rates:: DataFrames.DataFrame`: EIA heat rate information
+#     """
+#     # Ramp rate
+#     network_data = MOCOT.add_prop!(
+#         network_data,
+#         "gen",
+#         "cus_ramp_rate",
+#         df_gen_info[!, "obj_name"],
+#         convert.(Float64, df_gen_info[!, "Ramp Rate (MW/hr)"]) / 100.0  # convert to pu/hr
+#     )
 
-    # Arguments
-    `fuel:: String`: Fuel code
-    """
-    if fuel == "coal"
-        k_os = 0.12
-    elseif fuel == "ng"
-        k_os = 0.20
-    elseif fuel == "nuclear"
-        k_os = 0.0
-    elseif fuel == "wind"
-        k_os = 0.0
-    end
+#     # Fuel types
+#     network_data = MOCOT.add_prop!(
+#         network_data,
+#         "gen",
+#         "cus_fuel",
+#         df_gen_info[!, "obj_name"],
+#         convert.(String, df_gen_info[!, "MATPOWER Fuel"])
+#     )
 
-    return k_os
-end
+#     # Cooling type
+#     network_data = MOCOT.add_prop!(
+#         network_data,
+#         "gen",
+#         "cus_cool",
+#         df_gen_info[!, "obj_name"],
+#         convert.(String, df_gen_info[!, "923 Cooling Type"])
+#     )
 
+#     # Emissions coefficient
+#     network_data = MOCOT.add_prop!(
+#         network_data,
+#         "gen",
+#         "cus_emit",
+#         df_gen_info[!, "obj_name"],
+#         convert.(Float64, df_gen_info[!, "Emission Rate lbs per MWh"]) * 100.0  # convert to lbs / pu
+#     )
 
-function get_beta_proc(fuel:: String)
-    """
-    Get water withdrawal from non-cooling processes in [L/MWh] based on DOE-NETL model
+#     # Withdrawal limit
+#     network_data = MOCOT.add_prop!(
+#         network_data,
+#         "gen",
+#         "cus_with_limit",
+#         df_gen_info[!, "obj_name"],
+#         df_gen_info[!, "Withdrawal Limit [L/MWh]"] * 100.0  # convert to L / pu
+#     )
 
-    # Arguments
-    `fuel:: String`: Fuel code
-    """
-    if fuel == "coal"
-        beta_proc = 200.0
-    else
-        beta_proc = 10.0
-    end
+#     # Consumption limit
+#     network_data = MOCOT.add_prop!(
+#         network_data,
+#         "gen",
+#         "cus_con_limit",
+#         df_gen_info[!, "obj_name"],
+#         df_gen_info[!, "Consumption Limit [L/MWh]"] * 100.0  # convert to L / pu
+#     )
 
-    return beta_proc
-end
+#     # Heat rates
+#     df_gen_info = DataFrames.transform!(
+#         df_gen_info,
+#         Symbol("MATPOWER Fuel") => DataFrames.ByRow(fuel -> get_eta_net(string(fuel), df_eia_heat_rates)) => "Heat Rate"
+#     )
+#     network_data = MOCOT.add_prop!(
+#         network_data,
+#         "gen",
+#         "cus_heat_rate",
+#         df_gen_info[!, "obj_name"],
+#         convert.(Float64, df_gen_info[!, "Heat Rate"])
+#     )
+
+#     return network_data
+# end

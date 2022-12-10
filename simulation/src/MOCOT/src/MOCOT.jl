@@ -21,6 +21,7 @@ import Infiltrator  # @Infiltrator.infiltrate
 include("preprocessing.jl")
 # include("capacity_reduction.jl")
 include("generator.jl")
+include("simulation.jl")
 include("waterpowermodel.jl")
 
 
@@ -252,6 +253,16 @@ function borg_simulation_wrapper(
         network_data,
         df_gen_info,
         df_eia_heat_rates,
+    )
+
+    # Create simulation
+    simulation = create_simulation_from_dataframes(
+        model,
+        scenario_code,
+        df_scenario_specs,
+        df_air_water,
+        df_wind_cf,
+        df_node_load,
     )
 
     @Infiltrator.infiltrate
