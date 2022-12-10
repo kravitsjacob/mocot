@@ -15,14 +15,15 @@ import YAML
 # Dev packages
 import Infiltrator  # @Infiltrator.infiltrate
 
-# include("utils.jl")
+include("generator.jl")
+include("waterpowermodel.jl")
+include("simulation.jl")
+include("utils.jl")
+include("preprocessing.jl")
+
 # include("daily.jl")
 # include("hourly.jl")
-include("preprocessing.jl")
 # include("capacity_reduction.jl")
-include("generator.jl")
-include("simulation.jl")
-include("waterpowermodel.jl")
 
 
 # function simulation(
@@ -251,6 +252,7 @@ function borg_simulation_wrapper(
     # Create model
     model = create_model_from_dataframes(
         network_data,
+        scenario_code,
         df_gen_info,
         df_eia_heat_rates,
     )
@@ -266,23 +268,6 @@ function borg_simulation_wrapper(
     )
 
     @Infiltrator.infiltrate
-    # # Preparing network
-    # network_data = add_custom_properties!(network_data, df_gen_info, df_eia_heat_rates)
-
-    # # Exogenous parameters
-    # specs = df_scenario_specs[df_scenario_specs.scenario_code .== scenario_code, :]
-    # start_date = specs.datetime_start[1]
-    # end_date = specs.datetime_end[1]
-    # exogenous = get_exogenous(
-    #     start_date,
-    #     end_date,
-    #     df_air_water,
-    #     df_wind_cf,
-    #     df_node_load
-    # )
-
-    # # Update generator status
-    # network_data = update_scenario!(network_data, scenario_code)
 
     # # Simulation
     # (objectives, metrics, state) = simulation(

@@ -21,6 +21,7 @@ using MOCOT
         0.0,
         0.0,
         0.0,
+        0.0,
     )
     beta_with = MOCOT.get_withdrawal(
         gen,
@@ -38,6 +39,7 @@ using MOCOT
         200.0,
         5,
         1.0,
+        0.0,
         0.0,
         0.0,
     )
@@ -63,6 +65,7 @@ end
         0.5,
         0.0,
         0.0,
+        0.0,
     )
     p_thermo_OC = MOCOT.get_capacity(
         gen,
@@ -80,6 +83,7 @@ end
         0.0,
         0.5,
         0.5,
+        0.0,
     )
     p_thermo_RC = MOCOT.get_capacity(
         gen,    
@@ -101,6 +105,7 @@ end
     eta_net = 0.33
     eta_total = 0.0
     eta_elec = 0.0
+    emit_rate = 0.0
     gen = MOCOT.OnceThroughGenerator(
         eta_net,
         k_os,
@@ -109,6 +114,7 @@ end
         eta_elec,
         beta_with_limit,
         beta_con_limit,
+        emit_rate,
     )
 
     # Cold case 
@@ -154,6 +160,7 @@ end
     eta_net = 0.33
     eta_cc = 5
     k_bd = 1.0
+    emit_rate = 0.0
     gen = MOCOT.RecirculatingGenerator(
         eta_net,
         k_os,
@@ -162,6 +169,7 @@ end
         k_bd,
         0.0,
         0.0,
+        emit_rate,
     )
 
     # Cold case 

@@ -19,6 +19,8 @@ struct OnceThroughGenerator
     beta_with_limit:: Float64
     "Consumption limit in [L/MWh]"
     beta_con_limit:: Float64
+    "Emission rate in [lbs/pu]"
+    emit_rate:: Float64
 end
 
 
@@ -228,6 +230,8 @@ struct RecirculatingGenerator
     eta_total:: Float64
     "Electric efficiency"
     eta_elec:: Float64
+    "Emission rate in [lbs/pu]"
+    emit_rate:: Float64
 end
 
 
@@ -402,4 +406,6 @@ end
 Thermoelectric generator with no cooling system
 """
 struct NoCoolingGenerator
+    "Emission rate in [lbs/pu]"
+    emit_rate:: Float64
 end

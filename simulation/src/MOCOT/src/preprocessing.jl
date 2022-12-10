@@ -67,11 +67,6 @@ function read_inputs(
     objective_names = vec(DelimitedFiles.readdlm(objectives_path, ',', String))
     metric_names = vec(DelimitedFiles.readdlm(metrics_path, ',', String))
 
-    # Update lines
-    if scenario_code == 4
-        delete!(network_data["branch"], "158")
-    end
-
     inputs = (
         df_scenario_specs,
         df_eia_heat_rates,
@@ -90,6 +85,7 @@ end
 
 function create_model_from_dataframes(
     network_data:: Dict,
+    scenario_code:: Int64,
     df_gen_info:: DataFrames.DataFrame,
     df_eia_heat_rates:: DataFrames.DataFrame,
 )
@@ -98,14 +94,18 @@ function create_model_from_dataframes(
 
     # Arguments
     - `network_data:: Dict`: PowerModels network data
+    - `scenario_code:: Int64`: Numeric scenario code
     - `df_gen_info:: DataFrames.DataFrame`: Generator information
     - `df_eia_heat_rates:: DataFrames.DataFrame`: Energy information heat rates table
     """
     # Create generators
     gen_dict = Dict()
     for row in eachrow(df_gen_info)
+        emit_rate = row["Emission Rate lbs per kWh"] * 100.0  # convert to lbs / pu
         if row["923 Cooling Type"] == "No Cooling System"
-            gen_dict[string(row["obj_name"])] = NoCoolingGenerator()
+            gen_dict[string(row["obj_name"])] = NoCoolingGenerator(
+                emit_rate
+            )
         elseif row["923 Cooling Type"] == "RC" || row["923 Cooling Type"] == "RI"
             # Unpack
             eta_net = get_eta_net(string(row["MATPOWER Fuel"]), df_eia_heat_rates)
@@ -125,6 +125,7 @@ function create_model_from_dataframes(
                 k_bd,
                 eta_total,
                 eta_elec,
+                emit_rate,
             )
 
         elseif row["923 Cooling Type"] == "OC"
@@ -146,8 +147,18 @@ function create_model_from_dataframes(
                 eta_elec,
                 beta_with_limit,
                 beta_con_limit,
+                emit_rate,
             )
         end
+    end
+
+    # Network-specific updates scenario
+    network_data = MOCOT.update_all_gens!(network_data, "gen_status", 1)
+    if scenario_code == 3  # Nuclear outage
+        network_data = MOCOT.update_all_gens!(network_data, "gen_status", 1)
+        network_data["gen"]["47"]["gen_status"] = 0
+    elseif scenario_code == 4  # Line outage
+        delete!(network_data["branch"], "158")
     end
 
     # Create model
@@ -229,12 +240,23 @@ end
 
 function create_simulation_from_dataframes(
     model:: WaterPowerModel,
-    scenario_code,
+    scenario_code:: Int64,
     df_scenario_specs:: DataFrames.DataFrame,
     df_air_water:: DataFrames.DataFrame,
     df_wind_cf:: DataFrames.DataFrame,
     df_node_load:: DataFrames.DataFrame,
 )
+    """
+    Create simulation from dataframes
+
+    # Arguments
+    - `model:: WaterPowerModel`: System model
+    - `scenario_code:: Int64`: Numeric scenario code
+    - `df_scenario_specs:: DataFrames.DataFrame`: Scenario specifications
+    - `df_air_water:: DataFrames.DataFrame`: Air and water temperature dataframe
+    - `df_wind_cf:: DataFrames.DataFrame`: Wind capacity factor dataframes
+    - `df_node_load:: DataFrames.DataFrame`: Node-level load dataframe
+    """
     # Exogenous parameters
     specs = df_scenario_specs[df_scenario_specs.scenario_code .== scenario_code, :]
     start_date = specs.datetime_start[1]
@@ -256,6 +278,8 @@ function create_simulation_from_dataframes(
         exogenous,
         state,
     )
+
+    return simulation
 end
 
 
