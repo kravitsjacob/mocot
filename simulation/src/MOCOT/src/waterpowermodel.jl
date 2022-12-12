@@ -71,16 +71,6 @@ function water_use_wrapper(
 
     # Water use for each generator
     for (gen_name, gen) in model.gens
-        # # Get generator information
-        # cool = obj_props["cus_cool"]
-        # fuel = obj_props["cus_fuel"]
-        # eta_net = obj_props["cus_heat_rate"]
-
-        # # Get coefficients
-        # k_os = get_k_os(fuel)
-        # beta_proc = get_beta_proc(fuel)
-
-        # Run water models
         if typeof(gen) == OnceThroughGenerator
             # Run water simulation
             beta_with, beta_con, delta_t = MOCOT.get_water_use(
@@ -118,4 +108,59 @@ function water_use_wrapper(
     end
 
     return gen_beta_with, gen_beta_con, gen_discharge_violation, gen_delta_t
+end
+
+
+function get_capacity_wrapper(
+    model:: WaterPowerModel,
+    gen_delta_T:: Dict,
+    Q:: Float64,
+)
+    """
+    Get generator capacity reductions
+
+    # Arguments
+    - `network_data:: Float64`: Network data
+    - `gen_delta_T:: Dict`: Generator delta temperature [C]
+    - `Q:: Float64`: Flow [cmps]
+    """
+    gen_capacity_reduction = Dict()
+    gen_capacity = Dict()
+
+    for (gen_name, gen) in model.gens
+        if typeof(gen) == NoCoolingGenerator
+            # No capacity impact
+        else
+            # Extract information
+            delta_T = gen_delta_T[gen_name]
+            KW = model.network_data["gen"][gen_name]["pmax"] * 100  # Convert to MW
+
+            # Run water models
+            if typeof(gen) == OnceThroughGenerator
+                KW_updated = MOCOT.get_capacity(
+                    gen,
+                    KW,
+                    delta_T,
+                    Q,
+                )
+
+            elseif typeof(gen) == RecirculatingGenerator
+                KW_updated = MOCOT.get_capacity(
+                    gen,
+                    KW,
+                    delta_T,
+                    Q,
+                )
+
+            end
+
+            # Store 
+            gen_capacity_reduction[gen_name] = KW - KW_updated
+            gen_capacity[gen_name] = KW_updated /100.0  # Convert to pu
+
+        end
+
+    end
+
+    return gen_capacity, gen_capacity_reduction
 end

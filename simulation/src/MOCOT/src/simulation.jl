@@ -64,12 +64,11 @@ function run_simulation(
         air_temperature,
         regulatory_temperature,
     )
-    @Infiltrator.infiltrate
-    gen_capacity, gen_capacity_reduction = capacity_reduction_wrapper(network_data, gen_delta_t, Q)
-    state["capacity_reduction"]["0"] = gen_capacity_reduction    
-    state["discharge_violation"]["0"] = gen_discharge_violation
-    state["withdraw_rate"]["0"] = gen_beta_with
-    state["consumption_rate"]["0"] = gen_beta_con
+    simulation.state["withdraw_rate"]["0"] = gen_beta_with
+    simulation.state["consumption_rate"]["0"] = gen_beta_con
+    gen_capacity, gen_capacity_reduction = get_capacity_wrapper(simulation.model, gen_delta_t, Q)
+    simulation.state["capacity_reduction"]["0"] = gen_capacity_reduction    
+    simulation.state["discharge_violation"]["0"] = gen_discharge_violation
 
     # # Simulation
     # for d in 1:d_total
