@@ -10,6 +10,8 @@ mutable struct WaterPowerSimulation
     exogenous:: Dict
     "State parameters"
     state:: Dict
+    "Multi-timestep network data for each day"
+    multi_network_data:: Dict
 end
 
 
@@ -41,6 +43,7 @@ function run_simulation(
     simulation.state["consumption_rate"] = Dict("0" => Dict{String, Float64}())  # [L/pu]
     simulation.state["discharge_violation"] = Dict("0" => Dict{String, Float64}())  # [C]
     simulation.state["capacity_reduction"] = Dict("0" => Dict{String, Float64}())  # [MW]
+    simulation.state["capacity"] = Dict("0" => Dict{String, Float64}())  # [MW]
 
     # Add reliability generators
     simulation.model = add_reliability_gens!(simulation.model, voll)
@@ -49,9 +52,6 @@ function run_simulation(
     w_with_dict = create_decision_dict(w_with, simulation.model.network_data)  # [dollar/L]
     w_con_dict = create_decision_dict(w_con, simulation.model.network_data)  # [dollar/L]
     w_emit_dict = create_decision_dict(w_emit, simulation.model.network_data)  # [dollar/lb]
-
-    # Make multinetwork
-    network_data_multi = PowerModels.replicate(simulation.model.network_data, h_total)
 
     # Initialize water use based on 20.0 C
     water_temperature = 20.0
@@ -66,38 +66,47 @@ function run_simulation(
     )
     simulation.state["withdraw_rate"]["0"] = gen_beta_with
     simulation.state["consumption_rate"]["0"] = gen_beta_con
-    gen_capacity, gen_capacity_reduction = get_capacity_wrapper(simulation.model, gen_delta_t, Q)
-    simulation.state["capacity_reduction"]["0"] = gen_capacity_reduction    
     simulation.state["discharge_violation"]["0"] = gen_discharge_violation
+    gen_capacity, gen_capacity_reduction = get_capacity_wrapper(simulation.model, gen_delta_t, Q)
+    simulation.state["capacity_reduction"]["0"] = gen_capacity_reduction 
+    simulation.state["capacity"]["0"] = gen_capacity   
 
-    # # Simulation
-    # for d in 1:d_total
-    #     println("Simulation Day: " * string(d))
+    # Make multinetwork
+    simulation.multi_network_data["raw"] = PowerModels.replicate(simulation.model.network_data, h_total)
 
-    #     # Update generator capacity
-    #     network_data_multi = update_gen_capacity!(
-    #         network_data_multi,
-    #         gen_capacity
-    #     )
+    # Simulation
+    for d in 1:d_total
+        println("Simulation Day: " * string(d))
 
-    #     # Update loads
-    #     network_data_multi = update_load!(
-    #         network_data_multi,
-    #         exogenous["node_load"][string(d)]
-    #     )
+        # Store updated multi_network_data
+        simulation.multi_network_data["1"] = simulation.multi_network_data["raw"]
 
-    #     # Adjust wind generator capacity
-    #     network_data_multi = update_wind_capacity!(
-    #         network_data_multi,
-    #         exogenous["wind_capacity_factor"][string(d)]
-    #     )
+        # Update generator capacity
+        simulation = update_gen_capacity!(
+            simulation,
+            d,
+        )
 
-    #     # Create power system model
-    #     pm = PowerModels.instantiate_model(
-    #         network_data_multi,
-    #         PowerModels.DCPPowerModel,
-    #         PowerModels.build_mn_opf
-    #     )
+        # Update loads
+        simulation = update_load!(
+            simulation,
+            d,
+        )
+
+        # Adjust wind generator capacity
+        network_data_multi = update_wind_capacity!(
+            network_data_multi,
+            exogenous["wind_capacity_factor"][string(d)]
+        )
+
+        # Create power system model
+        pm = PowerModels.instantiate_model(
+            network_data_multi,
+            PowerModels.DCPPowerModel,
+            PowerModels.build_mn_opf
+        )
+
+        @Infiltrator.infiltrate
 
     #     # Add ramp rates
     #     pm = add_within_day_ramp_rates!(pm)
@@ -161,7 +170,7 @@ function run_simulation(
     #     state["withdraw_rate"][string(d)] = gen_beta_with
     #     state["consumption_rate"][string(d)] = gen_beta_con
 
-    # end
+    end
 
     # # Compute objectives
     # objectives = get_objectives(state, network_data, w_with, w_con, w_emit)
@@ -170,4 +179,50 @@ function run_simulation(
     # metrics = get_metrics(state, network_data)
 
     return (objectives, metrics, state)
+end
+
+
+function update_gen_capacity!(simulation:: WaterPowerSimulation, day:: Int64)
+    """
+    Update loads for network data 
+
+    # Arguments
+    - `simulation:: WaterPowerSimulation`: Simulation data
+    - `day:: Int64`: Day of simulation
+    """
+    # Looping of generators
+    for (gen_name, new_capacity) in simulation.state["capacity"][string(day-1)]
+        # Looping over hours
+        for (h, network_data) in simulation.multi_network_data["1"]["nw"]
+            simulation.multi_network_data[string(day)]["nw"][h]["gen"][gen_name]["pmax"] = new_capacity
+        end
+    end
+
+    return simulation
+end
+
+
+function update_load!(network_data_multi::Dict, day_loads:: Dict)
+    """
+    Update loads for network data 
+
+    # Arguments
+    - `network_data_multi::Dict`: Multi network data
+    - `day_loads:: Dict`: Loads for one day with buses as keys and loads as values [MW]
+    """
+    # Looping over hours
+    for (h, network_data) in network_data_multi["nw"]
+
+        # Looping over loads
+        for load in values(network_data["load"])
+            # Extracting load
+            bus = string(load["load_bus"])
+            load_pu = day_loads[h][bus]
+
+            # Set load
+            load["pd"] = load_pu
+        end
+    end
+
+    return network_data_multi
 end

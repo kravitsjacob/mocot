@@ -158,52 +158,6 @@ function add_day_to_day_ramp_rates!(
 end
 
 
-function update_load!(network_data_multi::Dict, day_loads:: Dict)
-    """
-    Update loads for network data 
-
-    # Arguments
-    - `network_data_multi::Dict`: Multi network data
-    - `day_loads:: Dict`: Loads for one day with buses as keys and loads as values [MW]
-    """
-    # Looping over hours
-    for (h, network_data) in network_data_multi["nw"]
-
-        # Looping over loads
-        for load in values(network_data["load"])
-            # Extracting load
-            bus = string(load["load_bus"])
-            load_pu = day_loads[h][bus]
-
-            # Set load
-            load["pd"] = load_pu
-        end
-    end
-
-    return network_data_multi
-end
-
-
-function update_gen_capacity!(network_data_multi::Dict, gen_capacity:: Dict)
-    """
-    Update loads for network data 
-
-    # Arguments
-    - `network_data_multi::Dict`: Multi network data
-    - `gen_capacity:: Dict`: Genertor capacities
-    """
-    # Looping of generators
-    for (obj_name, new_capacity) in gen_capacity
-        # Looping over hours
-        for (h, network_data) in network_data_multi["nw"]
-            network_data["gen"][obj_name]["pmax"] = new_capacity
-        end
-    end
-
-    return network_data_multi
-end
-
-
 function update_wind_capacity!(
     network_data_multi::Dict,
     wind_capacity_factor::Dict
