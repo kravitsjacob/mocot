@@ -12,6 +12,8 @@ mutable struct WaterPowerSimulation
     state:: Dict
     "Multi-timestep network data for each day"
     multi_network_data:: Dict
+    "Multi-timestep pm data for each day"
+    multi_pm:: Dict
 end
 
 
@@ -99,19 +101,17 @@ function run_simulation(
             d,
         )
 
-        @Infiltrator.infiltrate
-        # Create power system model
-        pm = PowerModels.instantiate_model(
-            network_data_multi,
+        # Instantiate model
+        simulation.multi_pm[string(d)] = PowerModels.instantiate_model(
+            simulation.multi_network_data[string(d)],
             PowerModels.DCPPowerModel,
             PowerModels.build_mn_opf
         )
 
+        # Add ramp rates
+        simulation = add_within_day_ramp_rates!(simulation, d)
+
         @Infiltrator.infiltrate
-
-    #     # Add ramp rates
-    #     pm = add_within_day_ramp_rates!(pm)
-
     #     if d > 1
     #         pm = add_day_to_day_ramp_rates!(pm, state, d)
     #     end
@@ -252,6 +252,46 @@ function update_wind_capacity!(simulation:: WaterPowerSimulation, day:: Int64)
                 # Update
                 simulation.multi_network_data[string(day)]["nw"][string(h)]["gen"][gen_name]["pmax"] = avg_capacity * wind_cf
             end
+        end
+    end
+
+    return simulation
+end
+
+
+function add_within_day_ramp_rates!(simulation:: WaterPowerSimulation, day:: Int64)
+    """
+    Add hourly ramp rates to model
+
+    # Arguments
+    - `simulation:: WaterPowerSimulation`: Simulation data
+    - `day:: Int64`: Day of simulation
+    """
+    h_total = length(simulation.multi_network_data[string(day)])
+    for (gen_name, gen) in simulation.model.gens
+        # Extract generator information
+        ramp = gen.ramp_rate
+        obj_index = parse(Int, gen_name)
+
+        try
+            # Ramping up
+            JuMP.@constraint(
+                simulation.multi_pm[string(day)].model,
+                [h in 2:h_total],
+                PowerModels.var(simulation.multi_pm[string(day)], h-1, :pg, obj_index) - PowerModels.var(simulation.multi_pm[string(day)], h, :pg, obj_index) <= ramp
+            )
+            # Ramping down
+            JuMP.@constraint(
+                simulation.multi_pm[string(day)].model,
+                [h in 2:h_total],
+                PowerModels.var(simulation.multi_pm[string(day)], h, :pg, obj_index) - PowerModels.var(simulation.multi_pm[string(day)], h-1, :pg, obj_index) <= ramp
+            )
+        catch
+            println(
+                """
+                Ramping constraint for generator $obj_index was specified but the corresponding decision variable was not found.
+                """
+            )
         end
     end
 
