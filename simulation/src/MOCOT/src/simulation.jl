@@ -3,7 +3,7 @@
 """
 Water and power simulation
 """
-struct WaterPowerSimulation
+mutable struct WaterPowerSimulation
     "WaterPowerModel"
     model:: WaterPowerModel
     "Exogenous parameters"
@@ -43,8 +43,7 @@ function run_simulation(
     simulation.state["capacity_reduction"] = Dict("0" => Dict{String, Float64}())  # [MW]
 
     # Add reliability generators
-    network_data = add_reliability_gens!(simulation.model.network_data, voll)
-    @Infiltrator.infiltrate
+    simulation.model = add_reliability_gens!(simulation.model, voll)
 
     # # Processing decision vectors
     # w_with_dict = create_decision_dict(w_with, network_data)  # [dollar/L]
