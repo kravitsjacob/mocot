@@ -50,9 +50,6 @@ function run_simulation(
     # w_con_dict = create_decision_dict(w_con, network_data)  # [dollar/L]
     # w_emit_dict = create_decision_dict(w_emit, network_data)  # [dollar/lb]
 
-    # # Adjust generator minimum capacity
-    # network_data = update_all_gens!(network_data, "pmin", 0.0)
-
     # # Make multinetwork
     # network_data_multi = PowerModels.replicate(network_data, h_total)
 
