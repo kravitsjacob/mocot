@@ -45,30 +45,31 @@ function run_simulation(
     # Add reliability generators
     simulation.model = add_reliability_gens!(simulation.model, voll)
 
-    # # Processing decision vectors
-    # w_with_dict = create_decision_dict(w_with, network_data)  # [dollar/L]
-    # w_con_dict = create_decision_dict(w_con, network_data)  # [dollar/L]
-    # w_emit_dict = create_decision_dict(w_emit, network_data)  # [dollar/lb]
+    # Processing decision vectors
+    w_with_dict = create_decision_dict(w_with, simulation.model.network_data)  # [dollar/L]
+    w_con_dict = create_decision_dict(w_con, simulation.model.network_data)  # [dollar/L]
+    w_emit_dict = create_decision_dict(w_emit, simulation.model.network_data)  # [dollar/lb]
 
-    # # Make multinetwork
-    # network_data_multi = PowerModels.replicate(network_data, h_total)
+    # Make multinetwork
+    network_data_multi = PowerModels.replicate(simulation.model.network_data, h_total)
 
-    # # Initialize water use based on 20.0 C
-    # water_temperature = 20.0
-    # air_temperature = 20.0
-    # Q = 1400.0 # cmps
-    # regulatory_temperature = 32.2  # For Illinois
-    # gen_beta_with, gen_beta_con, gen_discharge_violation, gen_delta_t = gen_water_use_wrapper(  # [L/pu], [C]
-    #     water_temperature,
-    #     air_temperature,
-    #     regulatory_temperature,
-    #     network_data,
-    # )
-    # gen_capacity, gen_capacity_reduction = get_gen_capacity_reduction(network_data, gen_delta_t, Q)
-    # state["capacity_reduction"]["0"] = gen_capacity_reduction    
-    # state["discharge_violation"]["0"] = gen_discharge_violation
-    # state["withdraw_rate"]["0"] = gen_beta_with
-    # state["consumption_rate"]["0"] = gen_beta_con
+    # Initialize water use based on 20.0 C
+    water_temperature = 20.0
+    air_temperature = 20.0
+    Q = 1400.0 # cmps
+    regulatory_temperature = 32.2  # For Illinois
+    gen_beta_with, gen_beta_con, gen_discharge_violation, gen_delta_t = water_use_wrapper(
+        simulation.model,
+        water_temperature,
+        air_temperature,
+        regulatory_temperature,
+    )
+    @Infiltrator.infiltrate
+    gen_capacity, gen_capacity_reduction = capacity_reduction_wrapper(network_data, gen_delta_t, Q)
+    state["capacity_reduction"]["0"] = gen_capacity_reduction    
+    state["discharge_violation"]["0"] = gen_discharge_violation
+    state["withdraw_rate"]["0"] = gen_beta_with
+    state["consumption_rate"]["0"] = gen_beta_con
 
     # # Simulation
     # for d in 1:d_total

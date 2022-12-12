@@ -200,7 +200,7 @@ get_water_use(
         gen,
         delta_t,
     )
-    
+
     # If beta limits hit
     if (beta_with > gen.beta_with_limit) || (beta_con > gen.beta_con_limit)
         # Set to limits
@@ -210,7 +210,7 @@ get_water_use(
         # Solve for temperature
         delta_t = MOCOT.get_delta(
             gen,
-            beta_with
+            beta_with*100.0  # Convert to L/MWh
         )
     end
 

@@ -146,8 +146,8 @@ function create_model_from_dataframes(
             beta_proc = get_beta_proc(string(row["MATPOWER Fuel"]))
             eta_total = eta_net
             eta_elec = eta_net
-            beta_with_limit = row["Withdrawal Limit [L/MWh]"]
-            beta_con_limit = row["Consumption Limit [L/MWh]"]
+            beta_with_limit = row["Withdrawal Limit [L/MWh]"] / 100.0 # Convert to L/MWh
+            beta_con_limit = row["Consumption Limit [L/MWh]"] / 100.0 # Convert to L/MWh
 
             # Store
             gen_dict[string(row["obj_name"])] = MOCOT.OnceThroughGenerator(

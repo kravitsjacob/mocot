@@ -47,3 +47,75 @@ function add_reliability_gens!(model:: WaterPowerModel, voll:: Float64)
     return model
 end
 
+
+function water_use_wrapper(
+    model:: WaterPowerModel,
+    inlet_temperature:: Float64,
+    air_temperature:: Float64,
+    regulatory_temperature:: Float64,
+)
+    """
+    Run water use model for every generator
+    
+    # Arguments
+    - `model:: WaterPowerModel`: Water and power model
+    - `water_temperature:: Float64`: Water temperature in C
+    - `air_temperature:: Float64`: Dry bulb temperature of inlet air C
+    - `regulatory_temperature:: Float64`: Regulatory discharge tempearture in C
+    """
+    # Initialization
+    gen_beta_with = Dict{String, Float64}()
+    gen_beta_con = Dict{String, Float64}()
+    gen_delta_t = Dict{String, Float64}()
+    gen_discharge_violation = Dict{String, Float64}()
+
+    # Water use for each generator
+    for (gen_name, gen) in model.gens
+        # # Get generator information
+        # cool = obj_props["cus_cool"]
+        # fuel = obj_props["cus_fuel"]
+        # eta_net = obj_props["cus_heat_rate"]
+
+        # # Get coefficients
+        # k_os = get_k_os(fuel)
+        # beta_proc = get_beta_proc(fuel)
+
+        # Run water models
+        if typeof(gen) == OnceThroughGenerator
+            # Run water simulation
+            beta_with, beta_con, delta_t = MOCOT.get_water_use(
+                gen,
+                inlet_temperature,
+                regulatory_temperature,
+            )
+
+            # Compute violation
+            outlet_temperature = inlet_temperature + delta_t
+            violation = outlet_temperature - regulatory_temperature
+            if violation > 0.0
+                gen_discharge_violation[obj_name] = violation
+            end
+        elseif typeof(gen) == RecirculatingGenerator
+            # Run water simulation
+            beta_with, beta_con = MOCOT.get_water_use(
+                gen,
+                air_temperature
+            )
+            
+            # # Assume reciruclating systems do not violate
+            delta_t = regulatory_temperature - inlet_temperature # C
+
+        elseif typeof(gen) == NoCoolingGenerator
+            beta_with = 0.0
+            beta_con = 0.0
+            delta_t = 0.0
+        end
+
+        # Store
+        gen_beta_with[gen_name] = beta_with * 100 # Convert to L/pu
+        gen_beta_con[gen_name] = beta_con * 100 # Convert to L/pu
+        gen_delta_t[gen_name] = delta_t  # C
+    end
+
+    return gen_beta_with, gen_beta_con, gen_discharge_violation, gen_delta_t
+end
