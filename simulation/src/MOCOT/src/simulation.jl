@@ -202,27 +202,28 @@ function update_gen_capacity!(simulation:: WaterPowerSimulation, day:: Int64)
 end
 
 
-function update_load!(network_data_multi::Dict, day_loads:: Dict)
+function update_load!(simulation:: WaterPowerSimulation, day:: Int64)
     """
     Update loads for network data 
 
     # Arguments
-    - `network_data_multi::Dict`: Multi network data
-    - `day_loads:: Dict`: Loads for one day with buses as keys and loads as values [MW]
+    - `simulation:: WaterPowerSimulation`: Simulation data
+    - `day:: Int64`: Day of simulation
     """
     # Looping over hours
-    for (h, network_data) in network_data_multi["nw"]
-
+    for (h, network_data) in simulation.multi_network_data[string(day)]["nw"]
         # Looping over loads
-        for load in values(network_data["load"])
-            # Extracting load
-            bus = string(load["load_bus"])
-            load_pu = day_loads[h][bus]
+        for (load_name, load_dict) in network_data["load"]
+            # Extracting load bus
+            bus = string(load_dict["load_bus"])
+
+            # Extracting load value
+            load_value = simulation.exogenous["node_load"][string(day)][h][bus]
 
             # Set load
-            load["pd"] = load_pu
+            simulation.multi_network_data[string(day)]["nw"][string(h)]["load"][load_name]["pd"] = load_value
         end
     end
 
-    return network_data_multi
+    return simulation
 end
