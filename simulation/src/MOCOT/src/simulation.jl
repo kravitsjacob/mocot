@@ -94,11 +94,12 @@ function run_simulation(
         )
 
         # Adjust wind generator capacity
-        network_data_multi = update_wind_capacity!(
-            network_data_multi,
-            exogenous["wind_capacity_factor"][string(d)]
+        simulation = update_wind_capacity!(
+            simulation,
+            d,
         )
 
+        @Infiltrator.infiltrate
         # Create power system model
         pm = PowerModels.instantiate_model(
             network_data_multi,
@@ -222,6 +223,35 @@ function update_load!(simulation:: WaterPowerSimulation, day:: Int64)
 
             # Set load
             simulation.multi_network_data[string(day)]["nw"][string(h)]["load"][load_name]["pd"] = load_value
+        end
+    end
+
+    return simulation
+end
+
+
+function update_wind_capacity!(simulation:: WaterPowerSimulation, day:: Int64)
+    """
+    Update generator wind capacity
+
+    # Arguments
+    - `simulation:: WaterPowerSimulation`: Simulation data
+    - `day:: Int64`: Day of simulation
+    """
+    # Loop through generators
+    for (gen_name, gen) in simulation.model.gens
+        if gen.fuel == "wind"
+            # Loop through all hours
+            for h in 1:length(simulation.multi_network_data[string(day)])
+                # Extract wind capacity factor
+                wind_cf = simulation.exogenous["wind_capacity_factor"][string(day)][string(h)]
+                
+                # Extract average capacity
+                avg_capacity = simulation.multi_network_data[string(day)]["nw"][string(h)]["gen"][gen_name]["pmax"]
+
+                # Update
+                simulation.multi_network_data[string(day)]["nw"][string(h)]["gen"][gen_name]["pmax"] = avg_capacity * wind_cf
+            end
         end
     end
 
