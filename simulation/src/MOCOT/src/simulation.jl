@@ -79,9 +79,8 @@ function run_simulation(
     # Simulation
     for d in 1:d_total
         println("Simulation Day: " * string(d))
-
         # Store updated multi_network_data
-        simulation.multi_network_data["1"] = simulation.multi_network_data["raw"]
+        simulation.multi_network_data[string(d)] = simulation.multi_network_data["raw"]
 
         # Update generator capacity
         simulation = update_gen_capacity!(
@@ -110,66 +109,60 @@ function run_simulation(
 
         # Add ramp rates
         simulation = add_within_day_ramp_rates!(simulation, d)
+        # if d > 1
+        #     pm = add_day_to_day_ramp_rates!(pm, state, d)
+        # end
 
-        @Infiltrator.infiltrate
-    #     if d > 1
-    #         pm = add_day_to_day_ramp_rates!(pm, state, d)
-    #     end
+        # Add water use terms
+        simulation = add_linear_obj_terms!(
+            simulation,
+            d,
+            multiply_dicts([simulation.state["withdraw_rate"][string(d-1)], w_with_dict])
+        )
+        simulation = add_linear_obj_terms!(
+            simulation,
+            d,
+            multiply_dicts([simulation.state["consumption_rate"][string(d-1)], w_con_dict])
+        )
 
-    #     # Add water use terms
-    #     pm = add_linear_obj_terms!(
-    #         pm,
-    #         multiply_dicts([state["withdraw_rate"][string(d-1)], w_with_dict])
-    #     )
-    #     pm = add_linear_obj_terms!(
-    #         pm,
-    #         multiply_dicts([state["consumption_rate"][string(d-1)], w_con_dict])
-    #     )
+        # Add emission terms
+        emit_rate_dict = Dict(gen_name => gen.emit_rate for (gen_name, gen) in simulation.model.gens)
+        simulation = add_linear_obj_terms!(
+            simulation,
+            d,
+            multiply_dicts([emit_rate_dict, w_emit_dict])
+        )
 
-    #     # Add emission terms
-    #     df_emit = DataFrames.DataFrame(
-    #         PowerModels.component_table(network_data, "gen", ["cus_emit"]),
-    #         [:obj_name , :cus_emit]
-    #     )
-    #     df_emit = DataFrames.filter(
-    #         :cus_emit => x -> !any(f -> f(x), (ismissing, isnothing, isnan)),
-    #         df_emit
-    #     )
-    #     emit_rate_dict = Dict(Pair.(string.(df_emit.obj_name), df_emit.cus_emit))
-    #     pm = add_linear_obj_terms!(
-    #         pm,
-    #         multiply_dicts([emit_rate_dict, w_emit_dict])
-    #     )
+        # Solve power system model
+        if verbose_level == 1
+            simulation.state["power"][string(d)] = PowerModels.optimize_model!(
+                simulation.multi_pm[string(d)],
+                optimizer=JuMP.optimizer_with_attributes(Ipopt.Optimizer)
+            )
+        elseif verbose_level == 0
+            simulation.state["power"][string(d)] = PowerModels.optimize_model!(
+                simulation.multi_pm[string(d)],
+                optimizer=JuMP.optimizer_with_attributes(Ipopt.Optimizer, "print_level"=>0)
+            )
+        end
 
-    #     # Solve power system model
-    #     if verbose_level == 1
-    #         state["power"][string(d)] = PowerModels.optimize_model!(
-    #             pm,
-    #             optimizer=JuMP.optimizer_with_attributes(Ipopt.Optimizer)
-    #         )
-    #     elseif verbose_level == 0
-    #         state["power"][string(d)] = PowerModels.optimize_model!(
-    #             pm,
-    #             optimizer=JuMP.optimizer_with_attributes(Ipopt.Optimizer, "print_level"=>0)
-    #         )
-    #     end
-
-    #     # Water use
-    #     gen_beta_with, gen_beta_con, gen_discharge_violation, gen_delta_t = gen_water_use_wrapper(
-    #         exogenous["water_temperature"][string(d)],
-    #         exogenous["air_temperature"][string(d)],
-    #         regulatory_temperature,
-    #         network_data,
-    #     )
-    #     gen_capacity, gen_capacity_reduction = get_gen_capacity_reduction(
-    #         network_data,
-    #         gen_delta_t,
-    #         exogenous["water_flow"][string(d)]
-    #     )
-    #     state["capacity_reduction"][string(d)] = gen_capacity_reduction    
-    #     state["discharge_violation"][string(d)] = gen_discharge_violation
-    #     state["withdraw_rate"][string(d)] = gen_beta_with
-    #     state["consumption_rate"][string(d)] = gen_beta_con
+        # Water use
+        gen_beta_with, gen_beta_con, gen_discharge_violation, gen_delta_t = water_use_wrapper(
+            simulation.model,
+            simulation.exogenous["water_temperature"][string(d)],
+            simulation.exogenous["air_temperature"][string(d)],
+            regulatory_temperature,
+        )
+        simulation.state["withdraw_rate"][string(d)] = gen_beta_with
+        simulation.state["consumption_rate"][string(d)] = gen_beta_con
+        simulation.state["discharge_violation"][string(d)] = gen_discharge_violation
+        gen_capacity, gen_capacity_reduction = get_capacity_wrapper(
+            simulation.model,
+            gen_delta_t,
+            simulation.exogenous["water_flow"][string(d)],
+        )
+        simulation.state["capacity_reduction"][string(d)] = gen_capacity_reduction 
+        simulation.state["capacity"][string(d)] = gen_capacity
 
     end
 
@@ -294,6 +287,49 @@ function add_within_day_ramp_rates!(simulation:: WaterPowerSimulation, day:: Int
             )
         end
     end
+
+    return simulation
+end
+
+
+function add_linear_obj_terms!(
+    simulation:: WaterPowerSimulation,
+    day:: Int64,
+    linear_coef:: Dict{String, Float64},
+)
+    """
+    Add linear objective function terms
+    
+    # Arguments
+    - `simulation:: WaterPowerSimulation`: Simulation data
+    - `day:: Int64`: Day of simulation
+    - `linear_coef:: Dict{String, Float64}`: Dictionary generator names and coefficients
+    """
+    # Setup
+    terms = 0.0
+    # Loop through hours
+    for h in 1:length(simulation.multi_pm[string(day)].data["nw"])
+        for (gen_name, coef) in linear_coef
+            gen_index = parse(Int64, gen_name)
+            try
+                gen_term = coef * PowerModels.var(
+                    simulation.multi_pm[string(day)], h, :pg, gen_index
+                )
+                terms = terms + gen_term
+            catch
+                println(
+                    """
+                    Linear term for generator $gen_name was specified but the corresponding decision variable was not found.
+                    """
+                )
+            end
+        end
+    end
+    
+    # Update objective function
+    current_objective = JuMP.objective_function(simulation.multi_pm[string(day)].model)
+    new_objective = @JuMP.expression(simulation.multi_pm[string(day)].model, current_objective + terms)
+    JuMP.set_objective_function(simulation.multi_pm[string(day)].model, new_objective)
 
     return simulation
 end

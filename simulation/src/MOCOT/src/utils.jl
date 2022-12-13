@@ -352,27 +352,27 @@ end
 # end
 
 
-# function multiply_dicts(dict_array:: Array)
-#     """
-#     Multiply corresponding entries in two dictionaries
+function multiply_dicts(dict_array:: Array)
+    """
+    Multiply corresponding entries in two dictionaries
 
-#     # Arguments
-#     - `dict_array:: Array`: Array of dictionaries with matching indices
-#     """
-#     # Setup
-#     result = Dict{String, Float64}()
-#     ref_dict = dict_array[1]
+    # Arguments
+    - `dict_array:: Array`: Array of dictionaries with matching indices
+    """
+    # Setup
+    result = Dict{String, Float64}()
+    ref_dict = dict_array[1]
 
-#     # Multiplying corresponding entries
-#     for (key, val) in ref_dict
-#         for dict_entry in dict_array[2:end]
-#             val = val * dict_entry[key]
-#         end
-#         result[key] = val
-#     end
+    # Multiplying corresponding entries
+    for (key, val) in ref_dict
+        for dict_entry in dict_array[2:end]
+            val = val * dict_entry[key]
+        end
+        result[key] = val
+    end
 
-#     return result
-# end
+    return result
+end
 
 
 # function add_prop!(network_data:: Dict, obj_type:: String, prop_name:: String, obj_names, prop_vals)
