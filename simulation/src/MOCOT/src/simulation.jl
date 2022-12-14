@@ -166,8 +166,8 @@ function run_simulation(
 
     end
 
-    # # Compute objectives
-    # objectives = get_objectives(state, network_data, w_with, w_con, w_emit)
+    # Compute objectives
+    objectives = get_objectives(simulation, w_with, w_con, w_emit)
 
     # # Compute metrics
     # metrics = get_metrics(state, network_data)
@@ -380,3 +380,183 @@ function add_linear_obj_terms!(
 
     return simulation
 end
+
+
+function get_objectives(
+    simulation:: WaterPowerSimulation,
+    w_with:: Float64,
+    w_con:: Float64,
+    w_emit:: Float64,
+)
+    """
+    Computing simulation objectives
+    
+    # Arguments
+    - `simulation: WaterPowerSimulation`: Water/power simulation
+    - `w_with:: Float64`: Withdrawal weight [dollar/L]
+    - `w_con:: Float64`: Consumption weight [dollar/L]
+    - `w_emit`:: Emission weight [dollar/lbs]
+    """
+    @Infiltrator.infiltrate
+    objectives = Dict{String, Float64}()
+
+    # Cost coefficients
+    df_cost_coef = DataFrames.DataFrame(
+        PowerModels.component_table(simulation.model.network_data, "gen", ["cost"]),
+        ["obj_name", "cost"]
+    )
+    gen_rows = in.(string.(df_cost_coef.obj_name), Ref(collect(keys(simulation.model.gens))))
+    df_cost_coef = df_cost_coef[.gen_rows, :]
+    df_cost_coef[!, "obj_name"] = string.(df_cost_coef[!, "obj_name"])
+    df_cost_coef[!, "c_per_mw2_pu"] = extract_from_array_column(df_cost_coef[!, "cost"], 1)
+    df_cost_coef[!, "c_per_mw_pu"] = extract_from_array_column(df_cost_coef[!, "cost"], 2)
+    df_cost_coef[!, "c"] = extract_from_array_column(df_cost_coef[!, "cost"], 3)
+
+    # Emission coefficients
+    df_emit_coef = get_gen_prop_dataframe(model, ["emit_rate"])
+
+    # States-dependent coefficients
+    df_withdraw_states = MOCOT.custom_state_df(state, "withdraw_rate")
+    df_consumption_states = MOCOT.custom_state_df(state, "consumption_rate")
+    df_all_power_states = MOCOT.pm_state_df(state, "power", "gen", ["pg"])
+    reliability_gen_rows = in.(df_all_power_states.obj_name, Ref(network_data["reliability_gen"]))
+    df_reliability_states = df_all_power_states[reliability_gen_rows, :]
+    df_power_states = df_all_power_states[.!reliability_gen_rows, :]
+    df_discharge_violation_states = MOCOT.custom_state_df(state, "discharge_violation")
+
+    # Round power output from solver
+    df_power_states.pg = round.(df_power_states.pg, digits=7)
+
+    # Compute cost objectives
+    df_cost = DataFrames.leftjoin(
+        df_power_states,
+        df_coef,
+        on = [:obj_name]
+    )
+    objectives["f_gen"] = DataFrames.sum(DataFrames.skipmissing(
+        df_cost.c .+ df_cost.pg .* df_cost.c_per_mw_pu .+ df_cost.pg.^2 .* df_cost.c_per_mw2_pu
+    ))
+
+    # Compute water objectives
+    df_water = DataFrames.leftjoin(
+        df_power_states,
+        df_withdraw_states,
+        on = [:obj_name, :day]
+    )
+    df_water = DataFrames.leftjoin(
+        df_water,
+        df_consumption_states,
+        on = [:obj_name, :day]
+    )
+    df_water[!, "hourly_withdrawal"] = df_water[!, "pg"] .* df_water[!, "withdraw_rate"]
+    df_water[!, "hourly_consumption"] = df_water[!, "pg"] .* df_water[!, "consumption_rate"]
+    df_daily = DataFrames.combine(
+        DataFrames.groupby(df_water, [:day]),
+        :hourly_withdrawal => sum,
+        :hourly_consumption => sum
+    )
+    # objectives["f_with_peak"] = DataFrames.maximum(df_daily.hourly_withdrawal_sum)
+    # objectives["f_con_peak"] = DataFrames.maximum(df_daily.hourly_consumption_sum)
+    objectives["f_with_tot"] = DataFrames.sum(df_water[!, "hourly_withdrawal"])
+    objectives["f_con_tot"] = DataFrames.sum(df_water[!, "hourly_consumption"])
+    
+    # Compute discharge violation objectives
+    if length(df_discharge_violation_states[!, "discharge_violation"]) > 0
+        df_discharge_violation_states = DataFrames.leftjoin(
+            df_discharge_violation_states,
+            df_water,
+            on=[:obj_name, :day]
+        )
+        temperature = df_discharge_violation_states.discharge_violation
+        discharge = df_discharge_violation_states.hourly_withdrawal - df_discharge_violation_states.hourly_consumption
+        objectives["f_disvi_tot"] = DataFrames.sum(discharge .* temperature)
+    else
+        objectives["f_disvi_tot"] = 0.0
+    end
+
+    # Compute emission objectives
+    df_emit = DataFrames.leftjoin(
+        df_power_states,
+        df_coef,
+        on = [:obj_name]
+    )
+    df_emit[!, "hourly_emit"] = df_emit[!, "pg"] .* df_emit[!, "cus_emit"]
+    objectives["f_emit"] = DataFrames.sum(df_emit[!, "hourly_emit"])
+
+    # Compute reliability objectives
+    objectives["f_ENS"] = DataFrames.sum(df_reliability_states[!, "pg"])
+
+    # Total weights
+    objectives["f_w_with"] = w_with
+    objectives["f_w_con"] = w_con
+    objectives["f_w_emit"] = w_emit
+
+    return objectives
+end
+
+
+# function get_metrics(
+#     state:: Dict{String, Dict},
+#     network_data:: Dict{String, Any},
+# )
+#     """
+#     Get metrics for simulation. Metrics are different than objectives as they do not
+#     inform the next set of objectives but rather just quantify an aspect of a given state.
+
+#     # Arguments
+#     - `state:: Dict{String, Dict}`: State dictionary
+#     - `network_data:: Dict`: PowerModels Network data
+#     """
+#     metrics = Dict{String, Float64}()
+    
+#     # Power states
+#     df_power_states = MOCOT.pm_state_df(state, "power", "gen", ["pg"])
+    
+#     # Add fuel types
+#     df_fuel = DataFrames.DataFrame(
+#         PowerModels.component_table(network_data, "gen", ["cus_fuel"]),
+#         [:obj_name, :cus_fuel]
+#     )
+#     df_fuel[!, :obj_name] = string.(df_fuel[!, :obj_name])
+#     df_fuel[!, :cus_fuel] = string.(df_fuel[!, :cus_fuel])
+#     df_power_states = DataFrames.leftjoin(                                                                                                                                                                    
+#         df_power_states,                                                                                                                                                                                      
+#         df_fuel,                                                                                                                                                                                              
+#         on=[:obj_name]                                                                                                                                                                                        
+#     )
+
+#     # Add cooling type
+#     df_cool = DataFrames.DataFrame(
+#         PowerModels.component_table(network_data, "gen", ["cus_cool"]),
+#         [:obj_name, :cus_cool]
+#     )
+#     df_cool[!, :obj_name] = string.(df_cool[!, :obj_name])
+#     df_cool[!, :cus_cool] = string.(df_cool[!, :cus_cool])
+#     df_power_states = DataFrames.leftjoin(                                                                                                                                                                    
+#         df_power_states,                                                                                                                                                                                      
+#         df_cool,                                                                                                                                                                                              
+#         on=[:obj_name]                                                                                                                                                                                        
+#     )
+
+#     # Get total fuel ouputs
+#     df_power_fuel = DataFrames.combine(
+#         DataFrames.groupby(df_power_states, [:cus_fuel]),
+#         :pg => sum,
+#     )
+#     df_power_fuel = df_power_fuel[df_power_fuel.cus_fuel .!= "NaN",:]
+#     for row in DataFrames.eachrow(df_power_fuel)
+#         metrics[row["cus_fuel"] * "_output"] = row["pg_sum"]
+#     end
+
+#     # Get total cooling ouputs
+#     df_power_cool = DataFrames.combine(
+#         DataFrames.groupby(df_power_states, [:cus_cool]),
+#         :pg => sum,
+#     )
+#     df_power_cool = df_power_cool[df_power_cool.cus_cool .!= "NaN",:]
+#     for row in DataFrames.eachrow(df_power_cool)
+#         metrics[row["cus_cool"] * "_output"] = row["pg_sum"]
+#     end
+
+#     return metrics 
+# end
