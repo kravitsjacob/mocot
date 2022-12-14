@@ -185,8 +185,9 @@ get_water_use(
     - `inlet_temperature:: Float64`: Inlet water temperature in [C]
     - `regulatory_temperature:: Float64`: Regulatory water temperature in [C]
     """
-    delta_t = 10.0
 
+    # Initial violation test
+    delta_t = 10.0
     if inlet_temperature + delta_t > regulatory_temperature  # Causes violation
         delta_t = regulatory_temperature - inlet_temperature  # Try to prevent
     end
