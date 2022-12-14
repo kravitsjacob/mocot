@@ -257,11 +257,7 @@ function create_decision_dict(w:: Float64, network_data:: Dict)
 
     # Loop through generators
     for (obj_name, obj_props) in network_data["gen"]
-        if obj_name in network_data["reliability_gen"]
-            # Skip as its a reliability generator
-        else
-            w_dict[obj_name] = w
-        end
+        w_dict[obj_name] = w
     end
 
     return w_dict

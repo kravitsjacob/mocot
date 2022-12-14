@@ -12,7 +12,7 @@ struct WaterPowerModel
 end
 
 
-function add_reliability_gens!(model:: WaterPowerModel, voll:: Float64)
+function create_reliabilty_network(model:: WaterPowerModel, voll:: Float64)
     """
     Add fake generators at every load to model relaibility. Generators with
     more than 1000 name are reliability generators.
@@ -41,10 +41,7 @@ function add_reliability_gens!(model:: WaterPowerModel, voll:: Float64)
         )
     end
 
-    # Add to reliability generator list
-    model.network_data["reliability_gen"] = reliability_gen_ls
-
-    return model
+    return model.network_data
 end
 
 

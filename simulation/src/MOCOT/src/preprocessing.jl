@@ -285,16 +285,12 @@ function create_simulation_from_dataframes(
 
     # Fill empty
     state = Dict()
-    multi_network_data = Dict()
-    multi_pm = Dict()
 
     # Store
     simulation = MOCOT.WaterPowerSimulation(
         model,
         exogenous,
-        state,
-        multi_network_data,
-        multi_pm,
+        state
     )
 
     return simulation

@@ -9,11 +9,7 @@ mutable struct WaterPowerSimulation
     "Exogenous parameters"
     exogenous:: Dict
     "State parameters"
-    state:: Dict
-    "Multi-timestep network data for each day"
-    multi_network_data:: Dict
-    "Multi-timestep pm data for each day"
-    multi_pm:: Dict
+    state:: Dict{String, Dict}
 end
 
 
@@ -40,15 +36,14 @@ function run_simulation(
     # Initialization
     d_total = length(simulation.exogenous["node_load"]) 
     h_total = length(simulation.exogenous["node_load"]["1"])
-    simulation.state["power"] = Dict("0" => Dict())  # [pu]
+    simulation.state["multi_network_data"] = Dict("0" => Dict{String, Any}())
+    simulation.state["pm"] = Dict{String, PowerModels.DCPPowerModel}()
+    simulation.state["solution"] = Dict("0" => Dict{String, Any}())
     simulation.state["withdraw_rate"] = Dict("0" => Dict{String, Float64}())  # [L/pu]
     simulation.state["consumption_rate"] = Dict("0" => Dict{String, Float64}())  # [L/pu]
     simulation.state["discharge_violation"] = Dict("0" => Dict{String, Float64}())  # [C]
     simulation.state["capacity_reduction"] = Dict("0" => Dict{String, Float64}())  # [MW]
     simulation.state["capacity"] = Dict("0" => Dict{String, Float64}())  # [MW]
-
-    # Add reliability generators
-    simulation.model = add_reliability_gens!(simulation.model, voll)
 
     # Processing decision vectors
     w_with_dict = create_decision_dict(w_with, simulation.model.network_data)  # [dollar/L]
@@ -73,14 +68,17 @@ function run_simulation(
     simulation.state["capacity_reduction"]["0"] = gen_capacity_reduction 
     simulation.state["capacity"]["0"] = gen_capacity   
 
+    # Add reliability generators
+    temp_network_data = create_reliabilty_network(simulation.model, voll)
+
     # Make multinetwork
-    simulation.multi_network_data["raw"] = PowerModels.replicate(simulation.model.network_data, h_total)
+    simulation.state["multi_network_data"]["default"] = PowerModels.replicate(temp_network_data, h_total)
 
     # Simulation
     for d in 1:d_total
         println("Simulation Day: " * string(d))
         # Store updated multi_network_data
-        simulation.multi_network_data[string(d)] = simulation.multi_network_data["raw"]
+        simulation.state["multi_network_data"][string(d)] = simulation.state["multi_network_data"]["default"]
 
         # Update generator capacity
         simulation = update_gen_capacity!(
@@ -101,8 +99,8 @@ function run_simulation(
         )
 
         # Instantiate model
-        simulation.multi_pm[string(d)] = PowerModels.instantiate_model(
-            simulation.multi_network_data[string(d)],
+        simulation.state["pm"][string(d)] = PowerModels.instantiate_model(
+            simulation.state["multi_network_data"][string(d)],
             PowerModels.DCPPowerModel,
             PowerModels.build_mn_opf
         )
@@ -135,13 +133,13 @@ function run_simulation(
 
         # Solve power system model
         if verbose_level == 1
-            simulation.state["power"][string(d)] = PowerModels.optimize_model!(
-                simulation.multi_pm[string(d)],
+            simulation.state["solution"][string(d)] = PowerModels.optimize_model!(
+                simulation.state["pm"][string(d)],
                 optimizer=JuMP.optimizer_with_attributes(Ipopt.Optimizer)
             )
         elseif verbose_level == 0
-            simulation.state["power"][string(d)] = PowerModels.optimize_model!(
-                simulation.multi_pm[string(d)],
+            simulation.state["solution"][string(d)] = PowerModels.optimize_model!(
+                simulation.state["pm"][string(d)],
                 optimizer=JuMP.optimizer_with_attributes(Ipopt.Optimizer, "print_level"=>0)
             )
         end
@@ -187,8 +185,8 @@ function update_gen_capacity!(simulation:: WaterPowerSimulation, day:: Int64)
     # Looping of generators
     for (gen_name, new_capacity) in simulation.state["capacity"][string(day-1)]
         # Looping over hours
-        for (h, network_data) in simulation.multi_network_data["1"]["nw"]
-            simulation.multi_network_data[string(day)]["nw"][h]["gen"][gen_name]["pmax"] = new_capacity
+        for (h, network_data) in simulation.state["multi_network_data"]["default"]["nw"]
+            simulation.state["multi_network_data"][string(day)]["nw"][h]["gen"][gen_name]["pmax"] = new_capacity
         end
     end
 
@@ -205,7 +203,7 @@ function update_load!(simulation:: WaterPowerSimulation, day:: Int64)
     - `day:: Int64`: Day of simulation
     """
     # Looping over hours
-    for (h, network_data) in simulation.multi_network_data[string(day)]["nw"]
+    for (h, network_data) in simulation.state["multi_network_data"][string(day)]["nw"]
         # Looping over loads
         for (load_name, load_dict) in network_data["load"]
             # Extracting load bus
@@ -215,7 +213,7 @@ function update_load!(simulation:: WaterPowerSimulation, day:: Int64)
             load_value = simulation.exogenous["node_load"][string(day)][h][bus]
 
             # Set load
-            simulation.multi_network_data[string(day)]["nw"][string(h)]["load"][load_name]["pd"] = load_value
+            simulation.state["multi_network_data"][string(day)]["nw"][string(h)]["load"][load_name]["pd"] = load_value
         end
     end
 
@@ -235,15 +233,15 @@ function update_wind_capacity!(simulation:: WaterPowerSimulation, day:: Int64)
     for (gen_name, gen) in simulation.model.gens
         if gen.fuel == "wind"
             # Loop through all hours
-            for h in 1:length(simulation.multi_network_data[string(day)])
+            for h in 1:length(simulation.state["multi_network_data"][string(day)])
                 # Extract wind capacity factor
                 wind_cf = simulation.exogenous["wind_capacity_factor"][string(day)][string(h)]
                 
                 # Extract average capacity
-                avg_capacity = simulation.multi_network_data[string(day)]["nw"][string(h)]["gen"][gen_name]["pmax"]
+                avg_capacity = simulation.state["multi_network_data"][string(day)]["nw"][string(h)]["gen"][gen_name]["pmax"]
 
                 # Update
-                simulation.multi_network_data[string(day)]["nw"][string(h)]["gen"][gen_name]["pmax"] = avg_capacity * wind_cf
+                simulation.state["multi_network_data"][string(day)]["nw"][string(h)]["gen"][gen_name]["pmax"] = avg_capacity * wind_cf
             end
         end
     end
@@ -260,7 +258,7 @@ function add_within_day_ramp_rates!(simulation:: WaterPowerSimulation, day:: Int
     - `simulation:: WaterPowerSimulation`: Simulation data
     - `day:: Int64`: Day of simulation
     """
-    h_total = length(simulation.multi_network_data[string(day)])
+    h_total = length(simulation.state["multi_network_data"][string(day)])
     for (gen_name, gen) in simulation.model.gens
         # Extract generator information
         ramp = gen.ramp_rate
@@ -269,15 +267,15 @@ function add_within_day_ramp_rates!(simulation:: WaterPowerSimulation, day:: Int
         try
             # Ramping up
             JuMP.@constraint(
-                simulation.multi_pm[string(day)].model,
+                simulation.state["pm"][string(day)].model,
                 [h in 2:h_total],
-                PowerModels.var(simulation.multi_pm[string(day)], h-1, :pg, obj_index) - PowerModels.var(simulation.multi_pm[string(day)], h, :pg, obj_index) <= ramp
+                PowerModels.var(simulation.state["pm"][string(day)], h-1, :pg, obj_index) - PowerModels.var(simulation.state["pm"][string(day)], h, :pg, obj_index) <= ramp
             )
             # Ramping down
             JuMP.@constraint(
-                simulation.multi_pm[string(day)].model,
+                simulation.state["pm"][string(day)].model,
                 [h in 2:h_total],
-                PowerModels.var(simulation.multi_pm[string(day)], h, :pg, obj_index) - PowerModels.var(simulation.multi_pm[string(day)], h-1, :pg, obj_index) <= ramp
+                PowerModels.var(simulation.state["pm"][string(day)], h, :pg, obj_index) - PowerModels.var(simulation.state["pm"][string(day)], h-1, :pg, obj_index) <= ramp
             )
         catch
             println(
@@ -302,7 +300,7 @@ function add_day_to_day_ramp_rates!(simulation:: WaterPowerSimulation, day:: Int
     """
     h = 1
     h_previous = 24
-    results_previous_day = simulation.state["power"][string(day-1)]["solution"]["nw"]
+    results_previous_day = simulation.state["solution"][string(day-1)]["solution"]["nw"]
     results_previous_hour = results_previous_day[string(h_previous)]
     
     for (gen_name, gen) in simulation.model.gens
@@ -317,14 +315,14 @@ function add_day_to_day_ramp_rates!(simulation:: WaterPowerSimulation, day:: Int
             # Ramping up
             obj_index = parse(Int, gen_name)
             JuMP.@constraint(
-                simulation.multi_pm[string(day)].model,
-                pg_previous - PowerModels.var(simulation.multi_pm[string(day)], h, :pg, obj_index) <= ramp
+                simulation.state["pm"][string(day)].model,
+                pg_previous - PowerModels.var(simulation.state["pm"][string(day)], h, :pg, obj_index) <= ramp
             )
 
             # Ramping down
             JuMP.@constraint(
-                simulation.multi_pm[string(day)].model,
-                PowerModels.var(simulation.multi_pm[string(day)], h, :pg, obj_index) - pg_previous <= ramp
+                simulation.state["pm"][string(day)].model,
+                PowerModels.var(simulation.state["pm"][string(day)], h, :pg, obj_index) - pg_previous <= ramp
             )
         catch
             println(
@@ -355,12 +353,12 @@ function add_linear_obj_terms!(
     # Setup
     terms = 0.0
     # Loop through hours
-    for h in 1:length(simulation.multi_pm[string(day)].data["nw"])
+    for h in 1:length(simulation.state["pm"][string(day)].data["nw"])
         for (gen_name, coef) in linear_coef
             gen_index = parse(Int64, gen_name)
             try
                 gen_term = coef * PowerModels.var(
-                    simulation.multi_pm[string(day)], h, :pg, gen_index
+                    simulation.state["pm"][string(day)], h, :pg, gen_index
                 )
                 terms = terms + gen_term
             catch
@@ -374,9 +372,9 @@ function add_linear_obj_terms!(
     end
     
     # Update objective function
-    current_objective = JuMP.objective_function(simulation.multi_pm[string(day)].model)
-    new_objective = @JuMP.expression(simulation.multi_pm[string(day)].model, current_objective + terms)
-    JuMP.set_objective_function(simulation.multi_pm[string(day)].model, new_objective)
+    current_objective = JuMP.objective_function(simulation.state["pm"][string(day)].model)
+    new_objective = @JuMP.expression(simulation.state["pm"][string(day)].model, current_objective + terms)
+    JuMP.set_objective_function(simulation.state["pm"][string(day)].model, new_objective)
 
     return simulation
 end
@@ -406,18 +404,18 @@ function get_objectives(
         ["obj_name", "cost"]
     )
     gen_rows = in.(string.(df_cost_coef.obj_name), Ref(collect(keys(simulation.model.gens))))
-    df_cost_coef = df_cost_coef[.gen_rows, :]
+    df_cost_coef = df_cost_coef[gen_rows, :]
     df_cost_coef[!, "obj_name"] = string.(df_cost_coef[!, "obj_name"])
     df_cost_coef[!, "c_per_mw2_pu"] = extract_from_array_column(df_cost_coef[!, "cost"], 1)
     df_cost_coef[!, "c_per_mw_pu"] = extract_from_array_column(df_cost_coef[!, "cost"], 2)
     df_cost_coef[!, "c"] = extract_from_array_column(df_cost_coef[!, "cost"], 3)
 
     # Emission coefficients
-    df_emit_coef = get_gen_prop_dataframe(model, ["emit_rate"])
+    df_emit_coef = get_gen_prop_dataframe(simulation.model, ["emit_rate"])
 
     # States-dependent coefficients
-    df_withdraw_states = MOCOT.custom_state_df(state, "withdraw_rate")
-    df_consumption_states = MOCOT.custom_state_df(state, "consumption_rate")
+    df_withdraw_states = MOCOT.custom_state_df(simulation.state, "withdraw_rate")
+    df_consumption_states = MOCOT.custom_state_df(simulation.state, "consumption_rate")
     df_all_power_states = MOCOT.pm_state_df(state, "power", "gen", ["pg"])
     reliability_gen_rows = in.(df_all_power_states.obj_name, Ref(network_data["reliability_gen"]))
     df_reliability_states = df_all_power_states[reliability_gen_rows, :]
