@@ -34,7 +34,7 @@ function run_simulation(
     - `verbose_level:: Int64`: Level of output. Default is 1. Less is 0.
     """
     # Initialization
-    d_total = length(simulation.exogenous["node_load"]) - 4
+    d_total = length(simulation.exogenous["node_load"])
     h_total = length(simulation.exogenous["node_load"]["1"])
     simulation.state["multi_network_data"] = Dict("0" => Dict{String, Any}())
     simulation.state["pm"] = Dict{String, PowerModels.DCPPowerModel}()
@@ -167,10 +167,10 @@ function run_simulation(
     # Compute objectives
     objectives = get_objectives(simulation, w_with, w_con, w_emit)
 
-    # # Compute metrics
-    # metrics = get_metrics(state, network_data)
+    # Compute metrics
+    metrics = get_metrics(simulation)
 
-    return (objectives, metrics, state)
+    return (objectives, metrics, simulation.state)
 end
 
 
@@ -390,7 +390,7 @@ function get_objectives(
     Computing simulation objectives
     
     # Arguments
-    - `simulation: WaterPowerSimulation`: Water/power simulation
+    - `simulation:: WaterPowerSimulation`: Water/power simulation
     - `w_with:: Float64`: Withdrawal weight [dollar/L]
     - `w_con:: Float64`: Consumption weight [dollar/L]
     - `w_emit`:: Emission weight [dollar/lbs]
@@ -482,68 +482,56 @@ function get_objectives(
 end
 
 
-# function get_metrics(
-#     state:: Dict{String, Dict},
-#     network_data:: Dict{String, Any},
-# )
-#     """
-#     Get metrics for simulation. Metrics are different than objectives as they do not
-#     inform the next set of objectives but rather just quantify an aspect of a given state.
+function get_metrics(
+    simulation:: WaterPowerSimulation,
+)
+    """
+    Get metrics for simulation. Metrics are different than objectives as they do not
+    inform the next set of objectives but rather just quantify an aspect of a given state.
 
-#     # Arguments
-#     - `state:: Dict{String, Dict}`: State dictionary
-#     - `network_data:: Dict`: PowerModels Network data
-#     """
-#     metrics = Dict{String, Float64}()
+    # Arguments
+    - `simulation:: WaterPowerSimulation`: Water/power simulation
+    """
+    metrics = Dict{String, Float64}()
     
-#     # Power states
-#     df_power_states = MOCOT.pm_state_df(state, "power", "gen", ["pg"])
-    
-#     # Add fuel types
-#     df_fuel = DataFrames.DataFrame(
-#         PowerModels.component_table(network_data, "gen", ["cus_fuel"]),
-#         [:obj_name, :cus_fuel]
-#     )
-#     df_fuel[!, :obj_name] = string.(df_fuel[!, :obj_name])
-#     df_fuel[!, :cus_fuel] = string.(df_fuel[!, :cus_fuel])
-#     df_power_states = DataFrames.leftjoin(                                                                                                                                                                    
-#         df_power_states,                                                                                                                                                                                      
-#         df_fuel,                                                                                                                                                                                              
-#         on=[:obj_name]                                                                                                                                                                                        
-#     )
+    # Coefficients
+    df_fuel_coef = get_gen_prop_dataframe(simulation.model, ["fuel"])
+    df_cool_coef = get_gen_prop_dataframe(simulation.model, ["cool"])
 
-#     # Add cooling type
-#     df_cool = DataFrames.DataFrame(
-#         PowerModels.component_table(network_data, "gen", ["cus_cool"]),
-#         [:obj_name, :cus_cool]
-#     )
-#     df_cool[!, :obj_name] = string.(df_cool[!, :obj_name])
-#     df_cool[!, :cus_cool] = string.(df_cool[!, :cus_cool])
-#     df_power_states = DataFrames.leftjoin(                                                                                                                                                                    
-#         df_power_states,                                                                                                                                                                                      
-#         df_cool,                                                                                                                                                                                              
-#         on=[:obj_name]                                                                                                                                                                                        
-#     )
+    # Power states
+    df_all_power_states = MOCOT.get_powermodel_state_dataframe(simulation.state, "results", "gen", "pg")
+    gen_rows = in.(string.(df_all_power_states.obj_name), Ref(keys(simulation.model.gens)))
+    df_power_states = df_all_power_states[gen_rows, :]
 
-#     # Get total fuel ouputs
-#     df_power_fuel = DataFrames.combine(
-#         DataFrames.groupby(df_power_states, [:cus_fuel]),
-#         :pg => sum,
-#     )
-#     df_power_fuel = df_power_fuel[df_power_fuel.cus_fuel .!= "NaN",:]
-#     for row in DataFrames.eachrow(df_power_fuel)
-#         metrics[row["cus_fuel"] * "_output"] = row["pg_sum"]
-#     end
+    # Get total fuel ouputs
+    df_power_fuel = DataFrames.leftjoin(                                                                                                                                                                    
+        df_power_states,                                                                                                                                                                                      
+        df_fuel_coef,                                                                                                                                                                                              
+        on=[:obj_name]                                                                                                                                                                                        
+    )
+    df_power_fuel = DataFrames.combine(
+        DataFrames.groupby(df_power_fuel, [:fuel]),
+        :pg => sum,
+    )
+    df_power_fuel = df_power_fuel[df_power_fuel.fuel .!= "NaN",:]
+    for row in DataFrames.eachrow(df_power_fuel)
+        metrics[row["fuel"] * "_output"] = row["pg_sum"]
+    end
 
-#     # Get total cooling ouputs
-#     df_power_cool = DataFrames.combine(
-#         DataFrames.groupby(df_power_states, [:cus_cool]),
-#         :pg => sum,
-#     )
-#     df_power_cool = df_power_cool[df_power_cool.cus_cool .!= "NaN",:]
-#     for row in DataFrames.eachrow(df_power_cool)
-#         metrics[row["cus_cool"] * "_output"] = row["pg_sum"]
-#     end
+    # Get total cooling ouputs
+    df_power_cool = DataFrames.leftjoin(                                                                                                                                                                    
+        df_power_states,                                                                                                                                                                                      
+        df_cool_coef,                                                                                                                                                                                              
+        on=[:obj_name]                                                                                                                                                                                        
+    )
+    df_power_cool = DataFrames.combine(
+        DataFrames.groupby(df_power_cool, [:cool]),
+        :pg => sum,
+    )
+    df_power_cool = df_power_cool[df_power_cool.cool .!= "NaN",:]
+    for row in DataFrames.eachrow(df_power_cool)
+        metrics[row["cool"] * "_output"] = row["pg_sum"]
+    end
 
-#     return metrics 
-# end
+    return metrics 
+end

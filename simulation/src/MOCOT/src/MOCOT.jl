@@ -106,39 +106,39 @@ function borg_simulation_wrapper(
         verbose_level=verbose_level
     )
 
-    # # Console feedback
-    # decisions = Dict(
-    #     "w_with" => w_with,
-    #     "w_con" => w_con,
-    #     "w_emit" => w_emit,
-    # )
-    # println("Scenario code: $scenario_code")
-    # println(decisions)
-    # println(objectives)
-    # println(metrics)
+    # Console feedback
+    decisions = Dict(
+        "w_with" => w_with,
+        "w_con" => w_con,
+        "w_emit" => w_emit,
+    )
+    println("Scenario code: $scenario_code")
+    println(decisions)
+    println(objectives)
+    println(metrics)
 
-    # if return_type == 1  # "borg"
-    #     # Collect objectives
-    #     for obj_name in objective_names
-    #         append!(objective_metric_array, objectives[obj_name])
-    #     end
+    if return_type == 1  # "borg"
+        # Collect objectives
+        for obj_name in objective_names
+            append!(objective_metric_array, objectives[obj_name])
+        end
 
-    #     # Collect metrics
-    #     for m_name in metric_names
-    #         try
-    #             append!(objective_metric_array, metrics[m_name])
-    #         catch
-    #             append!(objective_metric_array, 0.0)
-    #         end
-    #     end
+        # Collect metrics
+        for m_name in metric_names
+            try
+                append!(objective_metric_array, metrics[m_name])
+            catch
+                append!(objective_metric_array, 0.0)
+            end
+        end
 
-    #     return objective_metric_array
+        return objective_metric_array
 
-    # elseif return_type == 2  # "all"
+    elseif return_type == 2  # "all"
 
-    #     return (objectives, state, metrics)
+        return (objectives, metrics, state)
 
-    # end
+    end
 end
 
 end # module

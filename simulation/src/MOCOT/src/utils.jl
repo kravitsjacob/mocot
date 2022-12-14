@@ -26,7 +26,6 @@ function get_gen_prop_dataframe(model:: WaterPowerModel, props:: Vector{String})
     - `model:: WaterPowerModel`: Water/power model
     - `props:: Vector{String}`: Properties of interest
     """
-
     # Setup
     cols = vcat("obj_name", props)
     gen_dict = Dict(cols .=> [[] for i in 1:length(cols)])
@@ -37,7 +36,7 @@ function get_gen_prop_dataframe(model:: WaterPowerModel, props:: Vector{String})
 
         # Add properties
         for p in props
-            append!(gen_dict[p], getfield(gen, Symbol(p)))
+            append!(gen_dict[p], [getfield(gen, Symbol(p))])
         end
     end
 
