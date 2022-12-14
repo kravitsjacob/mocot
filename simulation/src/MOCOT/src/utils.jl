@@ -28,12 +28,12 @@ function get_gen_prop_dataframe(model:: WaterPowerModel, props:: Vector{String})
     """
 
     # Setup
-    cols = vcat("gen_name", props)
+    cols = vcat("obj_name", props)
     gen_dict = Dict(cols .=> [[] for i in 1:length(cols)])
 
     for (gen_name, gen) in model.gens
         # Add generator name
-        append!(gen_dict["gen_name"], [gen_name])
+        append!(gen_dict["obj_name"], [gen_name])
 
         # Add properties
         for p in props
@@ -46,44 +46,7 @@ function get_gen_prop_dataframe(model:: WaterPowerModel, props:: Vector{String})
 end
 
 
-# function pm_state_df(state, prop, obj_type, obj_props)
-#     """
-#     Extract states from day-resolution PowerModels multi-network data (at hourly-resolution)
-
-#     # Arguments
-#     - `state:: Dict{String, Dict}`: State dictionary
-#     - `prop:: String`: Property to query
-#     - `obj_type::String`: Type of object (e.g., "gen")
-#     - `obj_props::Array`: Object properties to extract
-#     """
-#     # Setup
-#     df = DataFrames.DataFrame()
-#     results = state[prop]
-
-#     for d in 1:length(results)-1
-
-#         # Extract day data
-#         day_results = results[string(d)]
-
-#         # Get results for that day
-#         df_day = multi_network_to_df(
-#             day_results["solution"]["nw"],
-#             obj_type,
-#             obj_props
-#         )
-
-#         # Assign day
-#         df_day[:, "day"] .= string(d)
-
-#         # Append to state dataframe
-#         DataFrames.append!(df, df_day)
-#     end
-
-#     return df
-# end
-
-
-function custom_state_df(state:: Dict{String, Dict}, prop:: String)
+function get_state_dataframe(state:: Dict{String, Dict}, prop:: String)
     """
     Extract states dataframe from day-resolution state dictionary
 
@@ -112,6 +75,56 @@ function custom_state_df(state:: Dict{String, Dict}, prop:: String)
     end
 
     return df
+end
+
+
+function get_powermodel_state_dataframe(
+    state:: Dict{String, Dict},
+    state_name:: String,
+    obj_type:: String,
+    obj_prop:: String
+)
+    """
+    Extract states from day-resolution PowerModels multi-network data (at hourly-resolution)
+
+    # Arguments
+    - `state:: Dict{String, Dict}`: State dictionary
+    - `state_name:: String`: Property to query
+    - `obj_type::String`: Type of object (e.g., "gen")
+    - `obj_prop::Array`: Object properties to extract
+    """
+    # Setup
+    cols = vcat("obj_name", "day", "hour", obj_prop)
+    parsed_dict = Dict(cols .=> [[] for i in 1:length(cols)])
+
+    # Get daily states
+    daily_dict = state[state_name]
+
+    for d in 1:length(daily_dict)-1
+        # Extract day data
+        day_data = daily_dict[string(d)]
+
+        for h in 1:length(day_data)
+            # Extract hour data
+            hour_data = day_data["solution"]["nw"][string(h)]
+
+            for (obj_name, obj_dict) in hour_data[obj_type]
+                # Extract object value
+                prop_val = obj_dict[obj_prop]
+
+                # Store
+                append!(parsed_dict["day"], [string(d)])
+                append!(parsed_dict["hour"], [string(h)])
+                append!(parsed_dict["obj_name"], [obj_name])
+                append!(parsed_dict[obj_prop], [prop_val])
+
+            end
+
+        end
+
+    end
+
+    return DataFrames.DataFrame(parsed_dict)
 end
 
 

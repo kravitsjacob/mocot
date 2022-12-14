@@ -21,17 +21,19 @@ function create_reliabilty_network(model:: WaterPowerModel, voll:: Float64)
     - `model:: WaterPowerModel`: Water power model
     - `voll:: Float64`: Value of loss of load in pu
     """
+    network_data_copy = deepcopy(model.network_data)
+
     # Starting index for reliability generators
     reliability_start = 1000
     reliability_gen_ls = String[]
 
-    for (obj_name, obj_props) in model.network_data["load"]
+    for (obj_name, obj_props) in network_data_copy["load"]
         # Generator name
         reliability_gen_name = string(obj_props["index"] + reliability_start)
         append!(reliability_gen_ls, [reliability_gen_name])
 
         # Generator properties
-        model.network_data["gen"][reliability_gen_name] = Dict(
+        network_data_copy["gen"][reliability_gen_name] = Dict(
             "gen_bus" => obj_props["load_bus"],
             "cost" => [0.0, voll, 0.0],
             "gen_status" => 1,
@@ -41,7 +43,7 @@ function create_reliabilty_network(model:: WaterPowerModel, voll:: Float64)
         )
     end
 
-    return model.network_data
+    return network_data_copy
 end
 
 

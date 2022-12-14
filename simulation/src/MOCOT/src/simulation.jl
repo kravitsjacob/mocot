@@ -34,11 +34,11 @@ function run_simulation(
     - `verbose_level:: Int64`: Level of output. Default is 1. Less is 0.
     """
     # Initialization
-    d_total = length(simulation.exogenous["node_load"]) 
+    d_total = length(simulation.exogenous["node_load"]) - 4
     h_total = length(simulation.exogenous["node_load"]["1"])
     simulation.state["multi_network_data"] = Dict("0" => Dict{String, Any}())
     simulation.state["pm"] = Dict{String, PowerModels.DCPPowerModel}()
-    simulation.state["solution"] = Dict("0" => Dict{String, Any}())
+    simulation.state["results"] = Dict("0" => Dict{String, Any}())
     simulation.state["withdraw_rate"] = Dict("0" => Dict{String, Float64}())  # [L/pu]
     simulation.state["consumption_rate"] = Dict("0" => Dict{String, Float64}())  # [L/pu]
     simulation.state["discharge_violation"] = Dict("0" => Dict{String, Float64}())  # [C]
@@ -133,12 +133,12 @@ function run_simulation(
 
         # Solve power system model
         if verbose_level == 1
-            simulation.state["solution"][string(d)] = PowerModels.optimize_model!(
+            simulation.state["results"][string(d)] = PowerModels.optimize_model!(
                 simulation.state["pm"][string(d)],
                 optimizer=JuMP.optimizer_with_attributes(Ipopt.Optimizer)
             )
         elseif verbose_level == 0
-            simulation.state["solution"][string(d)] = PowerModels.optimize_model!(
+            simulation.state["results"][string(d)] = PowerModels.optimize_model!(
                 simulation.state["pm"][string(d)],
                 optimizer=JuMP.optimizer_with_attributes(Ipopt.Optimizer, "print_level"=>0)
             )
@@ -300,7 +300,7 @@ function add_day_to_day_ramp_rates!(simulation:: WaterPowerSimulation, day:: Int
     """
     h = 1
     h_previous = 24
-    results_previous_day = simulation.state["solution"][string(day-1)]["solution"]["nw"]
+    results_previous_day = simulation.state["results"][string(day-1)]["solution"]["nw"]
     results_previous_hour = results_previous_day[string(h_previous)]
     
     for (gen_name, gen) in simulation.model.gens
@@ -395,7 +395,7 @@ function get_objectives(
     - `w_con:: Float64`: Consumption weight [dollar/L]
     - `w_emit`:: Emission weight [dollar/lbs]
     """
-    @Infiltrator.infiltrate
+
     objectives = Dict{String, Float64}()
 
     # Cost coefficients
@@ -403,8 +403,6 @@ function get_objectives(
         PowerModels.component_table(simulation.model.network_data, "gen", ["cost"]),
         ["obj_name", "cost"]
     )
-    gen_rows = in.(string.(df_cost_coef.obj_name), Ref(collect(keys(simulation.model.gens))))
-    df_cost_coef = df_cost_coef[gen_rows, :]
     df_cost_coef[!, "obj_name"] = string.(df_cost_coef[!, "obj_name"])
     df_cost_coef[!, "c_per_mw2_pu"] = extract_from_array_column(df_cost_coef[!, "cost"], 1)
     df_cost_coef[!, "c_per_mw_pu"] = extract_from_array_column(df_cost_coef[!, "cost"], 2)
@@ -414,13 +412,14 @@ function get_objectives(
     df_emit_coef = get_gen_prop_dataframe(simulation.model, ["emit_rate"])
 
     # States-dependent coefficients
-    df_withdraw_states = MOCOT.custom_state_df(simulation.state, "withdraw_rate")
-    df_consumption_states = MOCOT.custom_state_df(simulation.state, "consumption_rate")
-    df_all_power_states = MOCOT.pm_state_df(state, "power", "gen", ["pg"])
-    reliability_gen_rows = in.(df_all_power_states.obj_name, Ref(network_data["reliability_gen"]))
-    df_reliability_states = df_all_power_states[reliability_gen_rows, :]
-    df_power_states = df_all_power_states[.!reliability_gen_rows, :]
-    df_discharge_violation_states = MOCOT.custom_state_df(state, "discharge_violation")
+    df_withdraw_states = MOCOT.get_state_dataframe(simulation.state, "withdraw_rate")
+    df_consumption_states = MOCOT.get_state_dataframe(simulation.state, "consumption_rate")
+    df_discharge_violation_states = MOCOT.get_state_dataframe(simulation.state, "discharge_violation")
+    df_all_power_states = MOCOT.get_powermodel_state_dataframe(simulation.state, "results", "gen", "pg")
+    df_all_power_states.pg = round.(df_all_power_states.pg, digits=7)
+    gen_rows = in.(string.(df_all_power_states.obj_name), Ref(keys(simulation.model.gens)))
+    df_power_states = df_all_power_states[gen_rows, :]
+    df_reliability_states = df_all_power_states[.!gen_rows, :]
 
     # Round power output from solver
     df_power_states.pg = round.(df_power_states.pg, digits=7)
