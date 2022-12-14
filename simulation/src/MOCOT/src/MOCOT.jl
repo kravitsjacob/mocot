@@ -15,15 +15,12 @@ import YAML
 # Dev packages
 import Infiltrator  # @Infiltrator.infiltrate
 
+
 include("generator.jl")
 include("waterpowermodel.jl")
 include("simulation.jl")
 include("utils.jl")
 include("preprocessing.jl")
-
-# include("daily.jl")
-# include("hourly.jl")
-# include("capacity_reduction.jl")
 
 
 function borg_simulation_wrapper(
@@ -143,6 +140,5 @@ function borg_simulation_wrapper(
 
     # end
 end
-
 
 end # module
