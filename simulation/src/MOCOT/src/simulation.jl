@@ -421,13 +421,10 @@ function get_objectives(
     df_power_states = df_all_power_states[gen_rows, :]
     df_reliability_states = df_all_power_states[.!gen_rows, :]
 
-    # Round power output from solver
-    df_power_states.pg = round.(df_power_states.pg, digits=7)
-
     # Compute cost objectives
     df_cost = DataFrames.leftjoin(
         df_power_states,
-        df_coef,
+        df_cost_coef,
         on = [:obj_name]
     )
     objectives["f_gen"] = DataFrames.sum(DataFrames.skipmissing(
@@ -447,13 +444,6 @@ function get_objectives(
     )
     df_water[!, "hourly_withdrawal"] = df_water[!, "pg"] .* df_water[!, "withdraw_rate"]
     df_water[!, "hourly_consumption"] = df_water[!, "pg"] .* df_water[!, "consumption_rate"]
-    df_daily = DataFrames.combine(
-        DataFrames.groupby(df_water, [:day]),
-        :hourly_withdrawal => sum,
-        :hourly_consumption => sum
-    )
-    # objectives["f_with_peak"] = DataFrames.maximum(df_daily.hourly_withdrawal_sum)
-    # objectives["f_con_peak"] = DataFrames.maximum(df_daily.hourly_consumption_sum)
     objectives["f_with_tot"] = DataFrames.sum(df_water[!, "hourly_withdrawal"])
     objectives["f_con_tot"] = DataFrames.sum(df_water[!, "hourly_consumption"])
     
@@ -474,10 +464,10 @@ function get_objectives(
     # Compute emission objectives
     df_emit = DataFrames.leftjoin(
         df_power_states,
-        df_coef,
+        df_emit_coef,
         on = [:obj_name]
     )
-    df_emit[!, "hourly_emit"] = df_emit[!, "pg"] .* df_emit[!, "cus_emit"]
+    df_emit[!, "hourly_emit"] = df_emit[!, "pg"] .* df_emit[!, "emit_rate"]
     objectives["f_emit"] = DataFrames.sum(df_emit[!, "hourly_emit"])
 
     # Compute reliability objectives
