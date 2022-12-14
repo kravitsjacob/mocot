@@ -48,13 +48,12 @@ function borg_simulation_wrapper(
     # # Setup
     # objective_metric_array = Float64[]
 
-    # # Setting verbose
-    # logger = Memento.getlogger("PowerModels")
-    # if verbose_level == 1
-    #     Memento.setlevel!(logger, "info")
-    # elseif verbose_level == 0
-    #     Memento.setlevel!(logger, "error")
-    # end
+    # Setting verbose
+    if verbose_level == 1
+        Memento.setlevel!(Memento.getlogger(PowerModels), "info")
+    elseif verbose_level == 0
+        Memento.setlevel!(Memento.getlogger(PowerModels), "error")
+    end
 
     # Import
     paths = YAML.load_file("paths.yml")
