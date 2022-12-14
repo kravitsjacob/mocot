@@ -109,9 +109,9 @@ function run_simulation(
 
         # Add ramp rates
         simulation = add_within_day_ramp_rates!(simulation, d)
-        # if d > 1
-        #     pm = add_day_to_day_ramp_rates!(pm, state, d)
-        # end
+        if d > 1
+            pm = add_day_to_day_ramp_rates!(simulation, d)
+        end
 
         # Add water use terms
         simulation = add_linear_obj_terms!(
@@ -283,6 +283,53 @@ function add_within_day_ramp_rates!(simulation:: WaterPowerSimulation, day:: Int
             println(
                 """
                 Ramping constraint for generator $obj_index was specified but the corresponding decision variable was not found.
+                """
+            )
+        end
+    end
+
+    return simulation
+end
+
+
+function add_day_to_day_ramp_rates!(simulation:: WaterPowerSimulation, day:: Int64)
+    """
+    Add day-to-day ramp rates to model
+
+    # Arguments
+    - `simulation:: WaterPowerSimulation`: Simulation data
+    - `day:: Int64`: Day of simulation
+    """
+    h = 1
+    h_previous = 24
+    results_previous_day = simulation.state["power"][string(day-1)]["solution"]["nw"]
+    results_previous_hour = results_previous_day[string(h_previous)]
+    
+    for (gen_name, gen) in simulation.model.gens
+        # Extract generator information
+        ramp = gen.ramp_rate
+        obj_index = parse(Int, gen_name)
+
+        try
+            # Previous power output
+            pg_previous = results_previous_hour["gen"][gen_name]["pg"]
+
+            # Ramping up
+            obj_index = parse(Int, gen_name)
+            JuMP.@constraint(
+                simulation.multi_pm[string(day)].model,
+                pg_previous - PowerModels.var(simulation.multi_pm[string(day)], h, :pg, obj_index) <= ramp
+            )
+
+            # Ramping down
+            JuMP.@constraint(
+                simulation.multi_pm[string(day)].model,
+                PowerModels.var(simulation.multi_pm[string(day)], h, :pg, obj_index) - pg_previous <= ramp
+            )
+        catch
+            println(
+                """
+                Day-to-day ramping constraint for generator $gen_name was specified but the corresponding decision variable was not found.
                 """
             )
         end
