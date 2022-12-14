@@ -4,17 +4,12 @@
 using Revise
 using Infiltrator  # @Infiltrator.infiltrate
 
-using YAML
-using CSV
 using DataFrames
 
 using MOCOT
 
 
 function main()
-    # Setup
-    paths = YAML.load_file("paths.yml")
-
     # Simulation with average case
     (objectives, metrics, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 1)
 

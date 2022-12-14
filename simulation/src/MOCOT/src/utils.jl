@@ -2,6 +2,7 @@
 
 import DataFrames
 
+
 function update_all_gens!(nw_data, prop:: String, val)
     """
     Change property on all generators in a network
@@ -127,74 +128,6 @@ function get_powermodel_state_dataframe(
 end
 
 
-# function multi_network_to_df(multi_nw_data::Dict, obj_type::String, props::Array)
-#     """
-#     Extract object information from hourly-resolution multi network data
-
-#     # Arguments
-#     - `nw_data::Dict`: multi network data (e.g., network_data_multi["nw"])
-#     - `obj_type::String`: Type of object (e.g., "gen")
-#     - `props::Array`: Object properties to extract
-#     """
-#     # Initialization
-#     df = DataFrames.DataFrame()
-
-#     # Loop through hours
-#     for h in 1:length(multi_nw_data)
-
-#         # Extract network data
-#         nw_data = multi_nw_data[string(h)]
-        
-#         # Convert to dataframe
-#         df_temp = network_to_df(nw_data, obj_type, props)
-
-#         # Add timestep
-#         df_temp[:, "hour"] .= string(h)
-
-#         # Append to network dataframe
-#         DataFrames.append!(df, df_temp)
-#     end
-    
-#     return df
-# end
-
-
-# function network_to_df(nw_data::Dict, obj_type::String, props::Array)
-#     """
-#     Extract dataframe from network
-
-#     # Arguments
-#     - `data::Dict`: Network data
-#     - `obj_type::String`: Type of object (e.g., "gen")
-#     - `props::Array`: Object properties to extract
-#     """
-#     # Dev note, potentially the same as Replace with PowerModels.component_table(pm.data["nw"][string(h)], "gen", ["pg"])
-
-#     # Initialization
-#     df = DataFrames.DataFrame()
-
-#     # Loop each object
-#     for (obj_name, obj_dict) in nw_data[obj_type]
-#         # Get properties
-#         filtered_obj_dict=Dict{String, Any}()
-#         for prop in props
-#             filtered_obj_dict[prop] = obj_dict[prop]
-#         end
-
-#         # Add name
-#         filtered_obj_dict["obj_name"] = obj_name
-
-#         # Object DataFrame
-#         df_obj = DataFrames.DataFrame(filtered_obj_dict)
-
-#         # Append to network dataframe
-#         DataFrames.append!(df, df_obj)
-#     end
-
-#     return df
-# end
-
-
 function extract_from_array_column(array_col, i:: Int)
     """
     Extract elements from a DataFrame column of arrays
@@ -236,25 +169,6 @@ function multiply_dicts(dict_array:: Array)
 
     return result
 end
-
-
-# function add_prop!(network_data:: Dict, obj_type:: String, prop_name:: String, obj_names, prop_vals)
-#     """
-#     Add property to PowerModel
-
-#     # Arguments
-#     - `network_data:: Dict`: PowerModels network data
-#     - `obj_type:: String`: Type of object in network data (e.g., "gen")
-#     - `prop_name:: String`: Property name to add
-#     - `obj_names`: Ordered iterable of object names in network_data
-#     - `prop_vals`: Ordered iterable of property values
-#     """
-#     for (i, obj_name) in enumerate(obj_names)
-#         network_data[obj_type][obj_name][prop_name] = prop_vals[i]
-#     end
-
-#     return network_data
-# end
 
 
 function create_decision_dict(w:: Float64, network_data:: Dict)
