@@ -2,6 +2,7 @@
 
 import DataFrames
 
+
 function update_all_gens!(nw_data, prop:: String, val)
     """
     Change property on all generators in a network
@@ -18,44 +19,34 @@ function update_all_gens!(nw_data, prop:: String, val)
 end
 
 
-function pm_state_df(state, prop, obj_type, obj_props)
+function get_gen_prop_dataframe(model:: WaterPowerModel, props:: Vector{String})
     """
-    Extract states from day-resolution PowerModels multi-network data (at hourly-resolution)
+    Get generator properties as a DataFrame
 
     # Arguments
-    - `state:: Dict{String, Dict}`: State dictionary
-    - `prop:: String`: Property to query
-    - `obj_type::String`: Type of object (e.g., "gen")
-    - `obj_props::Array`: Object properties to extract
+    - `model:: WaterPowerModel`: Water/power model
+    - `props:: Vector{String}`: Properties of interest
     """
     # Setup
-    df = DataFrames.DataFrame()
-    results = state[prop]
+    cols = vcat("obj_name", props)
+    gen_dict = Dict(cols .=> [[] for i in 1:length(cols)])
 
-    for d in 1:length(results)-1
+    for (gen_name, gen) in model.gens
+        # Add generator name
+        append!(gen_dict["obj_name"], [gen_name])
 
-        # Extract day data
-        day_results = results[string(d)]
-
-        # Get results for that day
-        df_day = multi_network_to_df(
-            day_results["solution"]["nw"],
-            obj_type,
-            obj_props
-        )
-
-        # Assign day
-        df_day[:, "day"] .= string(d)
-
-        # Append to state dataframe
-        DataFrames.append!(df, df_day)
+        # Add properties
+        for p in props
+            append!(gen_dict[p], [getfield(gen, Symbol(p))])
+        end
     end
 
-    return df
+    return DataFrames.DataFrame(gen_dict)
+    
 end
 
 
-function custom_state_df(state:: Dict{String, Dict}, prop:: String)
+function get_state_dataframe(state:: Dict{String, Dict}, prop:: String)
     """
     Extract states dataframe from day-resolution state dictionary
 
@@ -87,248 +78,53 @@ function custom_state_df(state:: Dict{String, Dict}, prop:: String)
 end
 
 
-function multi_network_to_df(multi_nw_data::Dict, obj_type::String, props::Array)
+function get_powermodel_state_dataframe(
+    state:: Dict{String, Dict},
+    state_name:: String,
+    obj_type:: String,
+    obj_prop:: String
+)
     """
-    Extract object information from hourly-resolution multi network data
+    Extract states from day-resolution PowerModels multi-network data (at hourly-resolution)
 
     # Arguments
-    - `nw_data::Dict`: multi network data (e.g., network_data_multi["nw"])
+    - `state:: Dict{String, Dict}`: State dictionary
+    - `state_name:: String`: Property to query
     - `obj_type::String`: Type of object (e.g., "gen")
-    - `props::Array`: Object properties to extract
+    - `obj_prop::Array`: Object properties to extract
     """
-    # Initialization
-    df = DataFrames.DataFrame()
+    # Setup
+    cols = vcat("obj_name", "day", "hour", obj_prop)
+    parsed_dict = Dict(cols .=> [[] for i in 1:length(cols)])
 
-    # Loop through hours
-    for h in 1:length(multi_nw_data)
+    # Get daily states
+    daily_dict = state[state_name]
 
-        # Extract network data
-        nw_data = multi_nw_data[string(h)]
-        
-        # Convert to dataframe
-        df_temp = network_to_df(nw_data, obj_type, props)
+    for d in 1:length(daily_dict)-1
+        # Extract day data
+        day_data = daily_dict[string(d)]
 
-        # Add timestep
-        df_temp[:, "hour"] .= string(h)
+        for h in 1:length(day_data)
+            # Extract hour data
+            hour_data = day_data["solution"]["nw"][string(h)]
 
-        # Append to network dataframe
-        DataFrames.append!(df, df_temp)
-    end
-    
-    return df
-end
+            for (obj_name, obj_dict) in hour_data[obj_type]
+                # Extract object value
+                prop_val = obj_dict[obj_prop]
 
+                # Store
+                append!(parsed_dict["day"], [string(d)])
+                append!(parsed_dict["hour"], [string(h)])
+                append!(parsed_dict["obj_name"], [obj_name])
+                append!(parsed_dict[obj_prop], [prop_val])
 
-function network_to_df(nw_data::Dict, obj_type::String, props::Array)
-    """
-    Extract dataframe from network
+            end
 
-    # Arguments
-    - `data::Dict`: Network data
-    - `obj_type::String`: Type of object (e.g., "gen")
-    - `props::Array`: Object properties to extract
-    """
-    # Dev note, potentially the same as Replace with PowerModels.component_table(pm.data["nw"][string(h)], "gen", ["pg"])
-
-    # Initialization
-    df = DataFrames.DataFrame()
-
-    # Loop each object
-    for (obj_name, obj_dict) in nw_data[obj_type]
-        # Get properties
-        filtered_obj_dict=Dict{String, Any}()
-        for prop in props
-            filtered_obj_dict[prop] = obj_dict[prop]
         end
 
-        # Add name
-        filtered_obj_dict["obj_name"] = obj_name
-
-        # Object DataFrame
-        df_obj = DataFrames.DataFrame(filtered_obj_dict)
-
-        # Append to network dataframe
-        DataFrames.append!(df, df_obj)
     end
 
-    return df
-end
-
-
-function get_objectives(
-    state:: Dict{String, Dict},
-    network_data:: Dict{String, Any},
-    w_with:: Float64,
-    w_con:: Float64,
-    w_emit:: Float64,
-)
-    """
-    Computing simulation objectives
-    
-    # Arguments
-    - `state:: Dict{String, Dict}`: State dictionary
-    - `network_data:: Dict{String, Any}`: PowerModels Network data
-    - `w_with:: Float64`: Withdrawal weight [dollar/L]
-    - `w_con:: Float64`: Consumption weight [dollar/L]
-    - `w_emit`:: Emission weight [dollar/lbs]
-    """
-    objectives = Dict{String, Float64}()
-
-    # Static coefficients from network
-    coef_tab = PowerModels.component_table(network_data, "gen", ["cost", "cus_emit"])
-    df_coef = DataFrames.DataFrame(coef_tab, ["obj_name", "cost", "cus_emit"])
-    reliability_gen_rows = in.(df_coef.obj_name, Ref(network_data["reliability_gen"]))
-    df_coef = df_coef[.!reliability_gen_rows, :]
-    df_coef[!, "obj_name"] = string.(df_coef[!, "obj_name"])
-    df_coef[!, "cus_emit"] = float.(df_coef[!, "cus_emit"])
-    df_coef[!, "c_per_mw2_pu"] = extract_from_array_column(df_coef[!, "cost"], 1)
-    df_coef[!, "c_per_mw_pu"] = extract_from_array_column(df_coef[!, "cost"], 2)
-    df_coef[!, "c"] = extract_from_array_column(df_coef[!, "cost"], 3)
-
-    # States-dependent coefficients
-    df_withdraw_states = MOCOT.custom_state_df(state, "withdraw_rate")
-    df_consumption_states = MOCOT.custom_state_df(state, "consumption_rate")
-    df_all_power_states = MOCOT.pm_state_df(state, "power", "gen", ["pg"])
-    reliability_gen_rows = in.(df_all_power_states.obj_name, Ref(network_data["reliability_gen"]))
-    df_reliability_states = df_all_power_states[reliability_gen_rows, :]
-    df_power_states = df_all_power_states[.!reliability_gen_rows, :]
-    df_discharge_violation_states = MOCOT.custom_state_df(state, "discharge_violation")
-
-    # Round power output from solver
-    df_power_states.pg = round.(df_power_states.pg, digits=7)
-
-    # Compute cost objectives
-    df_cost = DataFrames.leftjoin(
-        df_power_states,
-        df_coef,
-        on = [:obj_name]
-    )
-    objectives["f_gen"] = DataFrames.sum(DataFrames.skipmissing(
-        df_cost.c .+ df_cost.pg .* df_cost.c_per_mw_pu .+ df_cost.pg.^2 .* df_cost.c_per_mw2_pu
-    ))
-
-    # Compute water objectives
-    df_water = DataFrames.leftjoin(
-        df_power_states,
-        df_withdraw_states,
-        on = [:obj_name, :day]
-    )
-    df_water = DataFrames.leftjoin(
-        df_water,
-        df_consumption_states,
-        on = [:obj_name, :day]
-    )
-    df_water[!, "hourly_withdrawal"] = df_water[!, "pg"] .* df_water[!, "withdraw_rate"]
-    df_water[!, "hourly_consumption"] = df_water[!, "pg"] .* df_water[!, "consumption_rate"]
-    df_daily = DataFrames.combine(
-        DataFrames.groupby(df_water, [:day]),
-        :hourly_withdrawal => sum,
-        :hourly_consumption => sum
-    )
-    # objectives["f_with_peak"] = DataFrames.maximum(df_daily.hourly_withdrawal_sum)
-    # objectives["f_con_peak"] = DataFrames.maximum(df_daily.hourly_consumption_sum)
-    objectives["f_with_tot"] = DataFrames.sum(df_water[!, "hourly_withdrawal"])
-    objectives["f_con_tot"] = DataFrames.sum(df_water[!, "hourly_consumption"])
-    
-    # Compute discharge violation objectives
-    if length(df_discharge_violation_states[!, "discharge_violation"]) > 0
-        df_discharge_violation_states = DataFrames.leftjoin(
-            df_discharge_violation_states,
-            df_water,
-            on=[:obj_name, :day]
-        )
-        temperature = df_discharge_violation_states.discharge_violation
-        discharge = df_discharge_violation_states.hourly_withdrawal - df_discharge_violation_states.hourly_consumption
-        objectives["f_disvi_tot"] = DataFrames.sum(discharge .* temperature)
-    else
-        objectives["f_disvi_tot"] = 0.0
-    end
-
-    # Compute emission objectives
-    df_emit = DataFrames.leftjoin(
-        df_power_states,
-        df_coef,
-        on = [:obj_name]
-    )
-    df_emit[!, "hourly_emit"] = df_emit[!, "pg"] .* df_emit[!, "cus_emit"]
-    objectives["f_emit"] = DataFrames.sum(df_emit[!, "hourly_emit"])
-
-    # Compute reliability objectives
-    objectives["f_ENS"] = DataFrames.sum(df_reliability_states[!, "pg"])
-
-    # Total weights
-    objectives["f_w_with"] = w_with
-    objectives["f_w_con"] = w_con
-    objectives["f_w_emit"] = w_emit
-
-    return objectives
-end
-
-
-function get_metrics(
-    state:: Dict{String, Dict},
-    network_data:: Dict{String, Any},
-)
-    """
-    Get metrics for simulation. Metrics are different than objectives as they do not
-    inform the next set of objectives but rather just quantify an aspect of a given state.
-
-    # Arguments
-    - `state:: Dict{String, Dict}`: State dictionary
-    - `network_data:: Dict`: PowerModels Network data
-    """
-    metrics = Dict{String, Float64}()
-    
-    # Power states
-    df_power_states = MOCOT.pm_state_df(state, "power", "gen", ["pg"])
-    
-    # Add fuel types
-    df_fuel = DataFrames.DataFrame(
-        PowerModels.component_table(network_data, "gen", ["cus_fuel"]),
-        [:obj_name, :cus_fuel]
-    )
-    df_fuel[!, :obj_name] = string.(df_fuel[!, :obj_name])
-    df_fuel[!, :cus_fuel] = string.(df_fuel[!, :cus_fuel])
-    df_power_states = DataFrames.leftjoin(                                                                                                                                                                    
-        df_power_states,                                                                                                                                                                                      
-        df_fuel,                                                                                                                                                                                              
-        on=[:obj_name]                                                                                                                                                                                        
-    )
-
-    # Add cooling type
-    df_cool = DataFrames.DataFrame(
-        PowerModels.component_table(network_data, "gen", ["cus_cool"]),
-        [:obj_name, :cus_cool]
-    )
-    df_cool[!, :obj_name] = string.(df_cool[!, :obj_name])
-    df_cool[!, :cus_cool] = string.(df_cool[!, :cus_cool])
-    df_power_states = DataFrames.leftjoin(                                                                                                                                                                    
-        df_power_states,                                                                                                                                                                                      
-        df_cool,                                                                                                                                                                                              
-        on=[:obj_name]                                                                                                                                                                                        
-    )
-
-    # Get total fuel ouputs
-    df_power_fuel = DataFrames.combine(
-        DataFrames.groupby(df_power_states, [:cus_fuel]),
-        :pg => sum,
-    )
-    df_power_fuel = df_power_fuel[df_power_fuel.cus_fuel .!= "NaN",:]
-    for row in DataFrames.eachrow(df_power_fuel)
-        metrics[row["cus_fuel"] * "_output"] = row["pg_sum"]
-    end
-
-    # Get total cooling ouputs
-    df_power_cool = DataFrames.combine(
-        DataFrames.groupby(df_power_states, [:cus_cool]),
-        :pg => sum,
-    )
-    df_power_cool = df_power_cool[df_power_cool.cus_cool .!= "NaN",:]
-    for row in DataFrames.eachrow(df_power_cool)
-        metrics[row["cus_cool"] * "_output"] = row["pg_sum"]
-    end
-
-    return metrics 
+    return DataFrames.DataFrame(parsed_dict)
 end
 
 
@@ -375,25 +171,6 @@ function multiply_dicts(dict_array:: Array)
 end
 
 
-function add_prop!(network_data:: Dict, obj_type:: String, prop_name:: String, obj_names, prop_vals)
-    """
-    Add property to PowerModel
-
-    # Arguments
-    - `network_data:: Dict`: PowerModels network data
-    - `obj_type:: String`: Type of object in network data (e.g., "gen")
-    - `prop_name:: String`: Property name to add
-    - `obj_names`: Ordered iterable of object names in network_data
-    - `prop_vals`: Ordered iterable of property values
-    """
-    for (i, obj_name) in enumerate(obj_names)
-        network_data[obj_type][obj_name][prop_name] = prop_vals[i]
-    end
-
-    return network_data
-end
-
-
 function create_decision_dict(w:: Float64, network_data:: Dict)
     """
     Create dictionary for decision weights
@@ -406,11 +183,7 @@ function create_decision_dict(w:: Float64, network_data:: Dict)
 
     # Loop through generators
     for (obj_name, obj_props) in network_data["gen"]
-        if obj_name in network_data["reliability_gen"]
-            # Skip as its a reliability generator
-        else
-            w_dict[obj_name] = w
-        end
+        w_dict[obj_name] = w
     end
 
     return w_dict

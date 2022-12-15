@@ -15,177 +15,12 @@ import YAML
 # Dev packages
 import Infiltrator  # @Infiltrator.infiltrate
 
+
+include("generator.jl")
+include("waterpowermodel.jl")
+include("simulation.jl")
 include("utils.jl")
-include("daily.jl")
-include("hourly.jl")
 include("preprocessing.jl")
-include("capacity_reduction.jl")
-
-
-function simulation(
-    network_data:: Dict,
-    exogenous:: Dict,
-    voll:: Float64=330000.0,
-    ;
-    w_with:: Float64=0.0,
-    w_con:: Float64=0.0,
-    w_emit:: Float64=0.0,
-    verbose_level:: Int64=1
-)
-    """
-    Simulation of water and energy system
-
-    # Arguments
-    - `network_data:: Dict`: PowerModels network data
-    - `exogenous:: Dict`: Exogenous parameter data [<parameter_name>][<timestep>]...[<timestep>]
-    - `voll:: Float64`: Value of lost load, Default is 330000.0. [dollar/pu]
-    - `w_with:: Float64`: Coal withdrawal weight [dollar/L]
-    - `w_con:: Float64`: Coal consumption weight [dollar/L]
-    - `w_emit:: Float64`: Emission withdrawal weight [dollar/lb]
-    - `verbose_level:: Int64`: Level of output. Default is 1. Less is 0.
-    """
-    # Initialization
-    d_total = length(exogenous["node_load"]) 
-    h_total = length(exogenous["node_load"]["1"])
-    state = Dict{String, Dict}()
-    state["power"] = Dict("0" => Dict())  # [pu]
-    state["withdraw_rate"] = Dict("0" => Dict{String, Float64}())  # [L/pu]
-    state["consumption_rate"] = Dict("0" => Dict{String, Float64}())  # [L/pu]
-    state["discharge_violation"] = Dict("0" => Dict{String, Float64}())  # [C]
-    state["capacity_reduction"] = Dict("0" => Dict{String, Float64}())  # [MW]
-
-    # Add reliability generators
-    network_data = add_reliability_gens!(network_data, voll)
-
-    # Processing decision vectors
-    w_with_dict = create_decision_dict(w_with, network_data)  # [dollar/L]
-    w_con_dict = create_decision_dict(w_con, network_data)  # [dollar/L]
-    w_emit_dict = create_decision_dict(w_emit, network_data)  # [dollar/lb]
-
-    # Adjust generator minimum capacity
-    network_data = update_all_gens!(network_data, "pmin", 0.0)
-
-    # Make multinetwork
-    network_data_multi = PowerModels.replicate(network_data, h_total)
-
-    # Initialize water use based on 20.0 C
-    water_temperature = 20.0
-    air_temperature = 20.0
-    Q = 1400.0 # cmps
-    regulatory_temperature = 32.2  # For Illinois
-    gen_beta_with, gen_beta_con, gen_discharge_violation, gen_delta_t = gen_water_use_wrapper(  # [L/pu], [C]
-        water_temperature,
-        air_temperature,
-        regulatory_temperature,
-        network_data,
-    )
-    gen_capacity, gen_capacity_reduction = get_gen_capacity_reduction(network_data, gen_delta_t, Q)
-    state["capacity_reduction"]["0"] = gen_capacity_reduction    
-    state["discharge_violation"]["0"] = gen_discharge_violation
-    state["withdraw_rate"]["0"] = gen_beta_with
-    state["consumption_rate"]["0"] = gen_beta_con
-
-    # Simulation
-    for d in 1:d_total
-        println("Simulation Day: " * string(d))
-
-        # Update generator capacity
-        network_data_multi = update_gen_capacity!(
-            network_data_multi,
-            gen_capacity
-        )
-
-        # Update loads
-        network_data_multi = update_load!(
-            network_data_multi,
-            exogenous["node_load"][string(d)]
-        )
-
-        # Adjust wind generator capacity
-        network_data_multi = update_wind_capacity!(
-            network_data_multi,
-            exogenous["wind_capacity_factor"][string(d)]
-        )
-
-        # Create power system model
-        pm = PowerModels.instantiate_model(
-            network_data_multi,
-            PowerModels.DCPPowerModel,
-            PowerModels.build_mn_opf
-        )
-
-        # Add ramp rates
-        pm = add_within_day_ramp_rates!(pm)
-
-        if d > 1
-            pm = add_day_to_day_ramp_rates!(pm, state, d)
-        end
-
-        # Add water use terms
-        pm = add_linear_obj_terms!(
-            pm,
-            multiply_dicts([state["withdraw_rate"][string(d-1)], w_with_dict])
-        )
-        pm = add_linear_obj_terms!(
-            pm,
-            multiply_dicts([state["consumption_rate"][string(d-1)], w_con_dict])
-        )
-
-        # Add emission terms
-        df_emit = DataFrames.DataFrame(
-            PowerModels.component_table(network_data, "gen", ["cus_emit"]),
-            [:obj_name , :cus_emit]
-        )
-        df_emit = DataFrames.filter(
-            :cus_emit => x -> !any(f -> f(x), (ismissing, isnothing, isnan)),
-            df_emit
-        )
-        emit_rate_dict = Dict(Pair.(string.(df_emit.obj_name), df_emit.cus_emit))
-        pm = add_linear_obj_terms!(
-            pm,
-            multiply_dicts([emit_rate_dict, w_emit_dict])
-        )
-
-        # Solve power system model
-        if verbose_level == 1
-            state["power"][string(d)] = PowerModels.optimize_model!(
-                pm,
-                optimizer=JuMP.optimizer_with_attributes(Ipopt.Optimizer)
-            )
-        elseif verbose_level == 0
-            state["power"][string(d)] = PowerModels.optimize_model!(
-                pm,
-                optimizer=JuMP.optimizer_with_attributes(Ipopt.Optimizer, "print_level"=>0)
-            )
-        end
-
-        # Water use
-        gen_beta_with, gen_beta_con, gen_discharge_violation, gen_delta_t = gen_water_use_wrapper(
-            exogenous["water_temperature"][string(d)],
-            exogenous["air_temperature"][string(d)],
-            regulatory_temperature,
-            network_data,
-        )
-        gen_capacity, gen_capacity_reduction = get_gen_capacity_reduction(
-            network_data,
-            gen_delta_t,
-            exogenous["water_flow"][string(d)]
-        )
-        state["capacity_reduction"][string(d)] = gen_capacity_reduction    
-        state["discharge_violation"][string(d)] = gen_discharge_violation
-        state["withdraw_rate"][string(d)] = gen_beta_with
-        state["consumption_rate"][string(d)] = gen_beta_con
-
-    end
-
-    # Compute objectives
-    objectives = get_objectives(state, network_data, w_with, w_con, w_emit)
-
-    # Compute metrics
-    metrics = get_metrics(state, network_data)
-
-    return (objectives, metrics, state)
-end
 
 
 function borg_simulation_wrapper(
@@ -207,15 +42,14 @@ function borg_simulation_wrapper(
     - `verbose_level:: Int64`: Level of stdout printing. Default is 1. Less is 0.
     - `scenario_code:: Int64`: Scenario code. See update_scenario! for codes
     """
-    # Setup
-    objective_metric_array = Float64[]
+    # # Setup
+    # objective_metric_array = Float64[]
 
     # Setting verbose
-    logger = Memento.getlogger("PowerModels")
     if verbose_level == 1
-        Memento.setlevel!(logger, "info")
+        Memento.setlevel!(Memento.getlogger(PowerModels), "info")
     elseif verbose_level == 0
-        Memento.setlevel!(logger, "error")
+        Memento.setlevel!(Memento.getlogger(PowerModels), "error")
     end
 
     # Import
@@ -237,7 +71,7 @@ function borg_simulation_wrapper(
         paths["outputs"]["air_water_template"],
         paths["outputs"]["wind_capacity_factor_template"],
         paths["outputs"]["node_load_template"],       
-        paths["outputs"]["gen_info_water_ramp_emit_waterlim"],
+        paths["outputs"]["gen_info_main"],
         paths["inputs"]["eia_heat_rates"],
         paths["inputs"]["case"],
         paths["inputs"]["decisions"],
@@ -245,28 +79,27 @@ function borg_simulation_wrapper(
         paths["inputs"]["metrics"],        
     )
 
-    # Preparing network
-    network_data = add_custom_properties!(network_data, df_gen_info, df_eia_heat_rates)
-
-    # Exogenous parameters
-    specs = df_scenario_specs[df_scenario_specs.scenario_code .== scenario_code, :]
-    start_date = specs.datetime_start[1]
-    end_date = specs.datetime_end[1]
-    exogenous = get_exogenous(
-        start_date,
-        end_date,
-        df_air_water,
-        df_wind_cf,
-        df_node_load
+    # Create model
+    model = create_model_from_dataframes(
+        network_data,
+        scenario_code,
+        df_gen_info,
+        df_eia_heat_rates,
     )
 
-    # Update generator status
-    network_data = update_scenario!(network_data, scenario_code)
+    # Create simulation
+    simulation = create_simulation_from_dataframes(
+        model,
+        scenario_code,
+        df_scenario_specs,
+        df_air_water,
+        df_wind_cf,
+        df_node_load,
+    )
 
-    # Simulation
-    (objectives, metrics, state) = simulation(
-        network_data,
-        exogenous,
+    # Run simulation
+    (objectives, metrics, state) = run_simulation(
+        simulation,
         w_with=w_with,
         w_con=w_con,
         w_emit= w_emit,
@@ -303,7 +136,7 @@ function borg_simulation_wrapper(
 
     elseif return_type == 2  # "all"
 
-        return (objectives, state, metrics)
+        return (objectives, metrics, state)
 
     end
 end
