@@ -71,6 +71,7 @@ function water_use_wrapper(
     # Water use for each generator
     for (gen_name, gen) in model.gens
         if typeof(gen) == OnceThroughGenerator
+
             # Run water simulation
             beta_with, beta_con, delta_t = MOCOT.get_water_use(
                 gen,
@@ -101,9 +102,9 @@ function water_use_wrapper(
         end
 
         # Store
-        gen_beta_with[gen_name] = beta_with * 100 # Convert to L/pu
-        gen_beta_con[gen_name] = beta_con * 100 # Convert to L/pu
-        gen_delta_t[gen_name] = delta_t  # C
+        gen_beta_with[gen_name] = beta_with  # [L/MWh]
+        gen_beta_con[gen_name] = beta_con  # [L/MWh]
+        gen_delta_t[gen_name] = delta_t  # [C]
     end
 
     return gen_beta_with, gen_beta_con, gen_discharge_violation, gen_delta_t
@@ -154,8 +155,8 @@ function get_capacity_wrapper(
             end
 
             # Store 
-            gen_capacity_reduction[gen_name] = KW - KW_updated
-            gen_capacity[gen_name] = KW_updated /100.0  # Convert to pu
+            gen_capacity_reduction[gen_name] = KW - KW_updated  # [MW]
+            gen_capacity[gen_name] = KW_updated  # [MW]
 
         end
 

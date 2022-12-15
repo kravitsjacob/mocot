@@ -50,9 +50,12 @@ function run_simulation(
     w_con_dict = create_decision_dict(w_con, simulation.model.network_data)  # [dollar/L]
     w_emit_dict = create_decision_dict(w_emit, simulation.model.network_data)  # [dollar/lb]
 
-    # Initialize water use based on 20.0 C
-    water_temperature = 20.0
-    air_temperature = 20.0
+    # Emission rate dictionary
+    emit_rate_dict = Dict(gen_name => gen.emit_rate for (gen_name, gen) in simulation.model.gens)  # [MW/hr]
+
+    # Initialize water use based on 20.0 [C]
+    water_temperature = 20.0  # [C]
+    air_temperature = 20.0  # [C]
     Q = 1400.0 # cmps
     regulatory_temperature = 32.2  # For Illinois
     gen_beta_with, gen_beta_con, gen_discharge_violation, gen_delta_t = water_use_wrapper(
@@ -66,14 +69,14 @@ function run_simulation(
     simulation.state["discharge_violation"]["0"] = gen_discharge_violation
     gen_capacity, gen_capacity_reduction = get_capacity_wrapper(simulation.model, gen_delta_t, Q)
     simulation.state["capacity_reduction"]["0"] = gen_capacity_reduction 
-    simulation.state["capacity"]["0"] = gen_capacity   
+    simulation.state["capacity"]["0"] = gen_capacity
 
     # Add reliability generators
     temp_network_data = create_reliabilty_network(simulation.model, voll)
 
     # Make multinetwork
     simulation.state["multi_network_data"]["default"] = PowerModels.replicate(temp_network_data, h_total)
-
+    
     # Simulation
     for d in 1:d_total
         println("Simulation Day: " * string(d))
@@ -111,24 +114,31 @@ function run_simulation(
             pm = add_day_to_day_ramp_rates!(simulation, d)
         end
 
-        # Add water use terms
+        # Add withdrawal terms
+        w_with_terms = multiply_dicts([simulation.state["withdraw_rate"][string(d-1)], w_with_dict])  # [L/MWh] * [dollar/L]
+        map!(x -> x * 100.0, values(w_with_terms)) # [dollar/pu]
         simulation = add_linear_obj_terms!(
             simulation,
             d,
-            multiply_dicts([simulation.state["withdraw_rate"][string(d-1)], w_with_dict])
+            w_with_terms
         )
+    
+        # Add consumption terms
+        w_con_terms = multiply_dicts([simulation.state["consumption_rate"][string(d-1)], w_con_dict])  # [L/MWh] * [dollar/L] * 1 [hr]
+        map!(x -> x * 100.0, values(w_con_terms)) # [dollar/pu]
         simulation = add_linear_obj_terms!(
             simulation,
             d,
-            multiply_dicts([simulation.state["consumption_rate"][string(d-1)], w_con_dict])
+            w_con_terms
         )
 
         # Add emission terms
-        emit_rate_dict = Dict(gen_name => gen.emit_rate for (gen_name, gen) in simulation.model.gens)
+        w_emit_terms = multiply_dicts([emit_rate_dict, w_emit_dict])  # [lbs/MWh] * [dollar/lbs] * 1 [hr]
+        map!(x -> x * 100.0, values(w_emit_terms)) # [dollar/pu]
         simulation = add_linear_obj_terms!(
             simulation,
             d,
-            multiply_dicts([emit_rate_dict, w_emit_dict])
+            w_emit_terms
         )
 
         # Solve power system model
@@ -186,7 +196,7 @@ function update_gen_capacity!(simulation:: WaterPowerSimulation, day:: Int64)
     for (gen_name, new_capacity) in simulation.state["capacity"][string(day-1)]
         # Looping over hours
         for (h, network_data) in simulation.state["multi_network_data"]["default"]["nw"]
-            simulation.state["multi_network_data"][string(day)]["nw"][h]["gen"][gen_name]["pmax"] = new_capacity
+            simulation.state["multi_network_data"][string(day)]["nw"][h]["gen"][gen_name]["pmax"] = new_capacity / 100.0  # convert to [pu]
         end
     end
 
@@ -213,7 +223,7 @@ function update_load!(simulation:: WaterPowerSimulation, day:: Int64)
             load_value = simulation.exogenous["node_load"][string(day)][h][bus]
 
             # Set load
-            simulation.state["multi_network_data"][string(day)]["nw"][string(h)]["load"][load_name]["pd"] = load_value
+            simulation.state["multi_network_data"][string(day)]["nw"][string(h)]["load"][load_name]["pd"] = load_value / 100.0  # Convert to [pu]
         end
     end
 
@@ -232,14 +242,14 @@ function update_wind_capacity!(simulation:: WaterPowerSimulation, day:: Int64)
     # Loop through generators
     for (gen_name, gen) in simulation.model.gens
         if gen.fuel == "wind"
+            # Extract average capacity
+            avg_capacity = simulation.model.network_data["gen"][gen_name]["pmax"]
+
             # Loop through all hours
             for h in 1:length(simulation.state["multi_network_data"][string(day)])
                 # Extract wind capacity factor
                 wind_cf = simulation.exogenous["wind_capacity_factor"][string(day)][string(h)]
                 
-                # Extract average capacity
-                avg_capacity = simulation.state["multi_network_data"][string(day)]["nw"][string(h)]["gen"][gen_name]["pmax"]
-
                 # Update
                 simulation.state["multi_network_data"][string(day)]["nw"][string(h)]["gen"][gen_name]["pmax"] = avg_capacity * wind_cf
             end
@@ -269,13 +279,13 @@ function add_within_day_ramp_rates!(simulation:: WaterPowerSimulation, day:: Int
             JuMP.@constraint(
                 simulation.state["pm"][string(day)].model,
                 [h in 2:h_total],
-                PowerModels.var(simulation.state["pm"][string(day)], h-1, :pg, obj_index) - PowerModels.var(simulation.state["pm"][string(day)], h, :pg, obj_index) <= ramp
+                PowerModels.var(simulation.state["pm"][string(day)], h-1, :pg, obj_index) - PowerModels.var(simulation.state["pm"][string(day)], h, :pg, obj_index) <= ramp / 100.0  # Convert to [pu/hr]
             )
             # Ramping down
             JuMP.@constraint(
                 simulation.state["pm"][string(day)].model,
                 [h in 2:h_total],
-                PowerModels.var(simulation.state["pm"][string(day)], h, :pg, obj_index) - PowerModels.var(simulation.state["pm"][string(day)], h-1, :pg, obj_index) <= ramp
+                PowerModels.var(simulation.state["pm"][string(day)], h, :pg, obj_index) - PowerModels.var(simulation.state["pm"][string(day)], h-1, :pg, obj_index) <= ramp / 100.0  # Convert to [pu/hr]
             )
         catch
             println(
@@ -316,13 +326,13 @@ function add_day_to_day_ramp_rates!(simulation:: WaterPowerSimulation, day:: Int
             obj_index = parse(Int, gen_name)
             JuMP.@constraint(
                 simulation.state["pm"][string(day)].model,
-                pg_previous - PowerModels.var(simulation.state["pm"][string(day)], h, :pg, obj_index) <= ramp
+                pg_previous - PowerModels.var(simulation.state["pm"][string(day)], h, :pg, obj_index) <= ramp / 100.0  # Convert to [pu/hr]
             )
 
             # Ramping down
             JuMP.@constraint(
                 simulation.state["pm"][string(day)].model,
-                PowerModels.var(simulation.state["pm"][string(day)], h, :pg, obj_index) - pg_previous <= ramp
+                PowerModels.var(simulation.state["pm"][string(day)], h, :pg, obj_index) - pg_previous <= ramp / 100.0  # Convert to [pu/hr]
             )
         catch
             println(
@@ -395,7 +405,6 @@ function get_objectives(
     - `w_con:: Float64`: Consumption weight [dollar/L]
     - `w_emit`:: Emission weight [dollar/lbs]
     """
-
     objectives = Dict{String, Float64}()
 
     # Cost coefficients
@@ -404,8 +413,8 @@ function get_objectives(
         ["obj_name", "cost"]
     )
     df_cost_coef[!, "obj_name"] = string.(df_cost_coef[!, "obj_name"])
-    df_cost_coef[!, "c_per_mw2_pu"] = extract_from_array_column(df_cost_coef[!, "cost"], 1)
-    df_cost_coef[!, "c_per_mw_pu"] = extract_from_array_column(df_cost_coef[!, "cost"], 2)
+    df_cost_coef[!, "c_per_mw2"] = extract_from_array_column(df_cost_coef[!, "cost"], 1) / 100.0  # Convert to [dollar/MW]
+    df_cost_coef[!, "c_per_mw"] = extract_from_array_column(df_cost_coef[!, "cost"], 2) / 100.0^2 # Convert to [dollar/MW^2]
     df_cost_coef[!, "c"] = extract_from_array_column(df_cost_coef[!, "cost"], 3)
 
     # Emission coefficients
@@ -416,6 +425,7 @@ function get_objectives(
     df_consumption_states = MOCOT.get_state_dataframe(simulation.state, "consumption_rate")
     df_discharge_violation_states = MOCOT.get_state_dataframe(simulation.state, "discharge_violation")
     df_all_power_states = MOCOT.get_powermodel_state_dataframe(simulation.state, "results", "gen", "pg")
+    df_all_power_states.pg = df_all_power_states.pg * 100.0  # Convert to [MW]
     df_all_power_states.pg = round.(df_all_power_states.pg, digits=7)
     gen_rows = in.(string.(df_all_power_states.obj_name), Ref(keys(simulation.model.gens)))
     df_power_states = df_all_power_states[gen_rows, :]
@@ -428,7 +438,7 @@ function get_objectives(
         on = [:obj_name]
     )
     objectives["f_gen"] = DataFrames.sum(DataFrames.skipmissing(
-        df_cost.c .+ df_cost.pg .* df_cost.c_per_mw_pu .+ df_cost.pg.^2 .* df_cost.c_per_mw2_pu
+        df_cost.c .+ df_cost.pg .* df_cost.c_per_mw .+ df_cost.pg.^2 .* df_cost.c_per_mw2
     ))
 
     # Compute water objectives

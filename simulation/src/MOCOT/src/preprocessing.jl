@@ -102,8 +102,8 @@ function create_model_from_dataframes(
     gen_dict = Dict()
     for row in eachrow(df_gen_info)
         # All-generator properties
-        emit_rate = row["Emission Rate lbs per kWh"] * 100.0  # convert to lbs / pu
-        ramp_rate = row["Ramp Rate (MW/hr)"] / 100.0  # convert to pu/hr
+        emit_rate = row["Emission Rate lbs per MWh"]  # [lbs/MWh]
+        ramp_rate = row["Ramp Rate (MW/hr)"]  # [MW/hr]
         fuel = row["MATPOWER Fuel"]
         cool = row["923 Cooling Type"]
 
@@ -146,8 +146,8 @@ function create_model_from_dataframes(
             beta_proc = get_beta_proc(string(row["MATPOWER Fuel"]))
             eta_total = eta_net
             eta_elec = eta_net
-            beta_with_limit = row["Withdrawal Limit [L/MWh]"] / 100.0 # Convert to L/MWh
-            beta_con_limit = row["Consumption Limit [L/MWh]"] / 100.0 # Convert to L/MWh
+            beta_with_limit = row["Withdrawal Limit [L/MWh]"]
+            beta_con_limit = row["Consumption Limit [L/MWh]"]
 
             # Store
             gen_dict[string(row["obj_name"])] = MOCOT.OnceThroughGenerator(
@@ -461,7 +461,7 @@ function add_node_loads!(
                 ## PowerModels indexing
                 powermodels_bus = row["bus"] + 1
 
-                nodes[string(powermodels_bus)] = row["load_mw"] / 100.0 # convert to pu
+                nodes[string(powermodels_bus)] = row["load_mw"]
             end
             h_nodes[string(trunc(Int, h))] = nodes
         end
@@ -470,23 +470,4 @@ function add_node_loads!(
     exogenous["node_load"] = d_nodes
 
     return exogenous
-end
-
-
-function update_scenario!(network_data, scenario_code:: Int64)
-    """
-    Update network based on scenario
-
-    # Arguments
-    - `network_data::Dict`: Network data (e.g., network_data_multi["nw"])
-    - `scenario_code:: Int64`: Scenario code. 1 for all generators. 2 for no nuclear.
-    """
-    if scenario_code == 3  # "Nuclear outage"
-        network_data = MOCOT.update_all_gens!(network_data, "gen_status", 1)
-        network_data["gen"]["47"]["gen_status"] = 0
-    else  # "All generators"
-        network_data = MOCOT.update_all_gens!(network_data, "gen_status", 1)
-    end
-
-    return network_data
 end

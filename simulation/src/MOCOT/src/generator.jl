@@ -19,9 +19,9 @@ struct OnceThroughGenerator
     beta_with_limit:: Float64
     "Consumption limit in [L/MWh]"
     beta_con_limit:: Float64
-    "Emission rate in [lbs/pu]"
+    "Emission rate in [lbs/MWh]"
     emit_rate:: Float64
-    "Ramp rate in [pu/hr]"
+    "Ramp rate in [MW/hr]"
     ramp_rate:: Float64
     "Fuel type (only for metric aggregation)"
     fuel:: String
@@ -191,7 +191,6 @@ get_water_use(
     if inlet_temperature + delta_t > regulatory_temperature  # Causes violation
         delta_t = regulatory_temperature - inlet_temperature  # Try to prevent
     end
-
     # Water models
     beta_with = MOCOT.get_withdrawal(
         gen,
@@ -237,9 +236,9 @@ struct RecirculatingGenerator
     eta_total:: Float64
     "Electric efficiency"
     eta_elec:: Float64
-    "Emission rate in [lbs/pu]"
+    "Emission rate in [lbs/MWh]"
     emit_rate:: Float64
-    "Ramp rate in [pu/hr]"
+    "Ramp rate in [MW/hr]"
     ramp_rate:: Float64
     "Fuel type (only for metric aggregation)"
     fuel:: String
@@ -419,9 +418,9 @@ end
 Thermoelectric generator with no cooling system
 """
 struct NoCoolingGenerator
-    "Emission rate in [lbs/pu]"
+    "Emission rate in [lbs/MWh]"
     emit_rate:: Float64
-    "Ramp rate in [pu/hr]"
+    "Ramp rate in [MW/hr]"
     ramp_rate:: Float64
     "Fuel type (only for metric aggregation)"
     fuel:: String
