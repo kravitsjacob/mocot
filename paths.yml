@@ -38,17 +38,17 @@ outputs:
   gen_info_water_ramp_emit_waterlim: "io/outputs/synthetic_grid/gen_info_water_ramp_emit_waterlim.csv"
 
   # Parent exogenous parameters
-  water_temperature: "io/outputs/exogenous/water_temperature.csv"
-  water_flow: "io/outputs/exogenous/water_flow.csv"
-  air_temperature: "io/outputs/exogenous/air_temperature.csv"
-  system_load: "io/outputs/exogenous/system_load.csv"
-  hour_to_hour: "io/outputs/exogenous/hour_to_hour.csv"
-  wind_capacity_factors: "io/outputs/exogenous/wind_capacity_factors.csv"
+  water_temperature: "io/outputs/exogenous_general/water_temperature.csv"
+  water_flow: "io/outputs/exogenous_general/water_flow.csv"
+  air_temperature: "io/outputs/exogenous_general/air_temperature.csv"
+  system_load: "io/outputs/exogenous_general/system_load.csv"
+  hour_to_hour: "io/outputs/exogenous_general/hour_to_hour.csv"
+  wind_capacity_factors: "io/outputs/exogenous_general/wind_capacity_factors.csv"
 
   # Scenario exogenous parameters
-  air_water_template: "io/outputs/exogenous/scenario_0_air_water.csv"
-  node_load_template: "io/outputs/exogenous/scenario_0_node_load.csv"
-  wind_capacity_factor_template: "io/outputs/exogenous/scenario_0_wind_capacity_factor.csv"
+  air_water_template: "io/outputs/exogenous_processed/scenario_0_air_water.csv"
+  node_load_template: "io/outputs/exogenous_processed/scenario_0_node_load.csv"
+  wind_capacity_factor_template: "io/outputs/exogenous_processed/scenario_0_wind_capacity_factor.csv"
 
   # Results
   runtime_1: "io/outputs/states/scenario_1_runtime.txt"

@@ -277,32 +277,32 @@ def main():
         fig = premocot.viz.scenario_node_load(multi_node_load)
         fig.savefig(paths['outputs']['figures']['scenario_loads'])
 
-    # # Daily average air/water temperature
+    # Daily average air/water temperature
     if not os.path.exists(paths['outputs']['figures']['temperatures']):
         df_water = pd.read_csv(paths['outputs']['water_temperature'])
         df_air = pd.read_csv(paths['outputs']['air_temperature'])
         fig = premocot.viz.temperatures(df_water, df_air)
         fig.savefig(paths['outputs']['figures']['temperatures'])
 
-    # # System hourly load data
+    # System hourly load data
     if not os.path.exists(paths['outputs']['figures']['system_load']):
         df_system_load = pd.read_csv(paths['outputs']['system_load'])
         fig = premocot.viz.system_load(df_system_load)
         fig.savefig(paths['outputs']['figures']['system_load'])
 
-    # # System hourly load factors data
+    # System hourly load factors data
     if not os.path.exists(paths['outputs']['figures']['system_load_factor']):
         df_system_load = pd.read_csv(paths['outputs']['system_load'])
         fig = premocot.viz.system_load_factor(df_system_load)
         fig.savefig(paths['outputs']['figures']['system_load_factor'])
 
-    # # Node hour-to-hour load factors data
+    # Node hour-to-hour load factors data
     if not os.path.exists(paths['outputs']['figures']['hour_node_load']):
         df_hour_to_hour = pd.read_csv(paths['outputs']['hour_to_hour'])
         fig = premocot.viz.hour_node_load(df_hour_to_hour)
         fig.savefig(paths['outputs']['figures']['hour_node_load'])
 
-    # # Node hourly load data
+    # Node hourly load data
     if not os.path.exists(paths['outputs']['figures']['node_load']):
         df_water = pd.read_csv(paths['outputs']['water_temperature'])
         df_air = pd.read_csv(paths['outputs']['air_temperature'])
