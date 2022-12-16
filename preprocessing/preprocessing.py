@@ -75,6 +75,7 @@ def main():
         df_gen_info_water_ramp_emit = pd.merge(
             df_gen_info_water_ramp,
             df_gen_info_emit,
+            how='left',
         )
         df_gen_info_water_ramp_emit['Emission Rate lbs per MWh'] = \
             df_gen_info_water_ramp_emit['Emission Rate lbs per kWh']*1000.0
@@ -84,7 +85,7 @@ def main():
         )
         print('Success: Adding emission information')
 
-    # Add emission coefficients
+    # Add water limits
     if not os.path.exists(
         paths['outputs']['gen_info_water_ramp_emit_waterlim']
     ):
