@@ -210,7 +210,7 @@ get_water_use(
         # Solve for temperature
         delta_t = MOCOT.get_delta(
             gen,
-            beta_with*100.0  # Convert to L/MWh
+            beta_with
         )
     end
 

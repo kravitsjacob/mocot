@@ -83,7 +83,7 @@ function water_use_wrapper(
             outlet_temperature = inlet_temperature + delta_t
             violation = outlet_temperature - regulatory_temperature
             if violation > 0.0
-                gen_discharge_violation[obj_name] = violation
+                gen_discharge_violation[gen_name] = violation
             end
         elseif typeof(gen) == RecirculatingGenerator
             # Run water simulation
