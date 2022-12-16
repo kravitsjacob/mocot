@@ -43,7 +43,7 @@ function borg_simulation_wrapper(
     - `scenario_code:: Int64`: Scenario code. See update_scenario! for codes
     """
     # # Setup
-    # objective_metric_array = Float64[]
+    objective_metric_array = Float64[]
 
     # Setting verbose
     if verbose_level == 1
