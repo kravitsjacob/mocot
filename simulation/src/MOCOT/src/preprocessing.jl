@@ -171,6 +171,7 @@ function create_model_from_dataframes(
     network_data = MOCOT.update_all_gens!(network_data, "pmin", 0.0)
     if scenario_code == 3  # Nuclear outage
         network_data["gen"]["47"]["gen_status"] = 0
+        delete!(gen_dict, "47")
     elseif scenario_code == 4  # Line outage
         delete!(network_data["branch"], "158")
     end
