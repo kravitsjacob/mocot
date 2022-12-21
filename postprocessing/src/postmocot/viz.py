@@ -61,23 +61,23 @@ def average_parallel(runtime, df_policy_performance):
     # Limits
     paxfig.set_ticks(
         ax_idx=0,
-        ticks=[4e6, 5e6, 6e6, 7e6],
-        labels=['4e6', '5e6', '6e6', '7e6']
+        ticks=[1e6, 2e6, 3e6],
+        labels=['1e6', '2e6', '3e6']
     )
     paxfig.set_ticks(
         ax_idx=1,
-        ticks=[0, 1e10, 2e10],
-        labels=['0', '1e10', '2e10']
+        ticks=[0, 5e9, 1e10],
+        labels=['0', '5e9', '1e10']
     )
     paxfig.set_ticks(
         ax_idx=2,
-        ticks=[0, 1e8, 2e8, 3e8],
-        labels=['0', '1e8', '2e8', '3e8']
+        ticks=[0, 5e7, 1e8],
+        labels=['0', '5e7', '1e8']
     )
     paxfig.set_ticks(
         ax_idx=3,
-        ticks=[0, 1e8, 2e8, 3e8],
-        labels=['0', '1e8', '2e8', '3e8']
+        ticks=[0, 5e7, 1e8],
+        labels=['0', '5e7', '1e8']
     )
 
     # Add labels
@@ -163,7 +163,6 @@ def comparison(
         df_plot['policy_label'],
         policy_order
     )
-    df_plot = df_plot.sort_values('policy_label')
     scenario_order = [
         'average week',
         'extreme load/climate',
@@ -174,7 +173,6 @@ def comparison(
         df_plot['scenario'],
         scenario_order
     )
-    df_plot = df_plot.sort_values('scenario')
     obj_order = [
         'f_gen',
         'f_with_tot',
@@ -187,7 +185,7 @@ def comparison(
         df_plot['obj'],
         obj_order
     )
-    df_plot = df_plot.sort_values('obj')
+    df_plot = df_plot.sort_values(['obj', 'scenario', 'policy_label'])
 
     df_plot['obj'] = df_plot['obj'].replace(
         {
