@@ -47,6 +47,35 @@ function create_reliabilty_network(model:: WaterPowerModel, voll:: Float64)
 end
 
 
+function water_models_wrapper(
+    model:: WaterPowerModel,
+    inlet_temperature:: Float64,
+    air_temperature:: Float64,
+    regulatory_temperature:: Float64,
+    Q:: Float64,
+)
+    """
+    Run the generator water use and capacity models
+
+    # Arguments
+    - `model:: WaterPowerModel`: Water and power model
+    - `inlet_temperature:: Float64`: Water temperature in C
+    - `air_temperature:: Float64`: Dry bulb temperature of inlet air C
+    - `regulatory_temperature:: Float64`: Regulatory discharge tempearture in C
+    - `Q:: Float64`: Flow [cmps]
+    """
+    gen_beta_with, gen_beta_con, gen_discharge_violation, gen_delta_t = water_use_wrapper(
+        model,
+        inlet_temperature,
+        air_temperature,
+        regulatory_temperature,
+    )
+    gen_capacity, gen_capacity_reduction = get_capacity_wrapper(model, gen_delta_t, Q)
+
+    return gen_beta_with, gen_beta_con, gen_discharge_violation, gen_capacity_reduction, gen_capacity
+end
+
+
 function water_use_wrapper(
     model:: WaterPowerModel,
     inlet_temperature:: Float64,

@@ -58,16 +58,22 @@ function run_simulation(
     air_temperature = 20.0  # [C]
     Q = 1400.0 # cmps
     regulatory_temperature = 32.2  # For Illinois
-    gen_beta_with, gen_beta_con, gen_discharge_violation, gen_delta_t = water_use_wrapper(
+    (
+        gen_beta_with,
+        gen_beta_con,
+        gen_discharge_violation,
+        gen_capacity_reduction,
+        gen_capacity
+    ) = water_models_wrapper(
         simulation.model,
         water_temperature,
         air_temperature,
         regulatory_temperature,
+        Q,
     )
     simulation.state["withdraw_rate"]["0"] = gen_beta_with
     simulation.state["consumption_rate"]["0"] = gen_beta_con
     simulation.state["discharge_violation"]["0"] = gen_discharge_violation
-    gen_capacity, gen_capacity_reduction = get_capacity_wrapper(simulation.model, gen_delta_t, Q)
     simulation.state["capacity_reduction"]["0"] = gen_capacity_reduction 
     simulation.state["capacity"]["0"] = gen_capacity
 
@@ -155,20 +161,22 @@ function run_simulation(
         end
 
         # Water use
-        gen_beta_with, gen_beta_con, gen_discharge_violation, gen_delta_t = water_use_wrapper(
+        (
+            gen_beta_with,
+            gen_beta_con,
+            gen_discharge_violation,
+            gen_capacity_reduction,
+            gen_capacity
+        ) = water_models_wrapper(
             simulation.model,
             simulation.exogenous["water_temperature"][string(d)],
             simulation.exogenous["air_temperature"][string(d)],
             regulatory_temperature,
+            simulation.exogenous["water_flow"][string(d)],
         )
         simulation.state["withdraw_rate"][string(d)] = gen_beta_with
         simulation.state["consumption_rate"][string(d)] = gen_beta_con
         simulation.state["discharge_violation"][string(d)] = gen_discharge_violation
-        gen_capacity, gen_capacity_reduction = get_capacity_wrapper(
-            simulation.model,
-            gen_delta_t,
-            simulation.exogenous["water_flow"][string(d)],
-        )
         simulation.state["capacity_reduction"][string(d)] = gen_capacity_reduction 
         simulation.state["capacity"][string(d)] = gen_capacity
 

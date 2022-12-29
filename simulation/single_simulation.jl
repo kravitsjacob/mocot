@@ -10,17 +10,20 @@ using MOCOT
 
 
 function main()
-    # Simulation with average case
-    (objectives, metrics, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 1)
+    # # Simulation with average case
+    # (objectives, metrics, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 1)
 
-    # Simulation with extreme load/climate
-    (objectives, metrics, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 2)
+    # # Simulation with extreme load/climate
+    # (objectives, metrics, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 2)
 
-    # Simulation with nuclear outage
-    (objectives, metrics, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 3)
+    # # Simulation with nuclear outage
+    # (objectives, metrics, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 3)
 
-    # Simulation with line outage
-    (objectives, metrics, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 4)
+    # # Simulation with line outage
+    # (objectives, metrics, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 4)
+
+    # Simulation that avoids temperature violation
+    (objectives, metrics, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 5)
 
     # Objectives
     df_objs = DataFrames.DataFrame(objectives)
