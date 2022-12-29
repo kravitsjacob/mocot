@@ -53,6 +53,7 @@ function water_models_wrapper(
     air_temperature:: Float64,
     regulatory_temperature:: Float64,
     Q:: Float64,
+    scenario_code:: Int64,
 )
     """
     Run the generator water use and capacity models
@@ -63,20 +64,31 @@ function water_models_wrapper(
     - `air_temperature:: Float64`: Dry bulb temperature of inlet air C
     - `regulatory_temperature:: Float64`: Regulatory discharge tempearture in C
     - `Q:: Float64`: Flow [cmps]
+    - `scenario_code:: Int64`: Scenario code for simulation
     """
-    gen_beta_with, gen_beta_con, gen_discharge_violation, gen_delta_t = water_use_wrapper(
-        model,
-        inlet_temperature,
-        air_temperature,
-        regulatory_temperature,
-    )
-    gen_capacity, gen_capacity_reduction = get_capacity_wrapper(model, gen_delta_t, Q)
+    if scenario_code == 5
+        gen_capacity, gen_capacity_reduction, gen_delta_t = get_capacity_wrapper_avoid_violation(
+            model,
+            Q,
+            inlet_temperature,
+            regulatory_temperature
+        )
+        @Infiltrator.infiltrate
+    else
+        gen_beta_with, gen_beta_con, gen_discharge_violation, gen_delta_t = water_use_wrapper_normal(
+            model,
+            inlet_temperature,
+            air_temperature,
+            regulatory_temperature,
+        )
+        gen_capacity, gen_capacity_reduction = get_capacity_wrapper_normal(model, gen_delta_t, Q)
+    end
 
     return gen_beta_with, gen_beta_con, gen_discharge_violation, gen_capacity_reduction, gen_capacity
 end
 
 
-function water_use_wrapper(
+function water_use_wrapper_normal(
     model:: WaterPowerModel,
     inlet_temperature:: Float64,
     air_temperature:: Float64,
@@ -140,7 +152,7 @@ function water_use_wrapper(
 end
 
 
-function get_capacity_wrapper(
+function get_capacity_wrapper_normal(
     model:: WaterPowerModel,
     gen_delta_T:: Dict,
     Q:: Float64,
@@ -192,4 +204,63 @@ function get_capacity_wrapper(
     end
 
     return gen_capacity, gen_capacity_reduction
+end
+
+
+function get_capacity_wrapper_avoid_violation(
+    model:: WaterPowerModel,
+    Q:: Float64,
+    inlet_temperature:: Float64,
+    regulatory_temperature:: Float64,
+)
+    """
+    Get generator capacity reductions avoiding violations
+
+    # Arguments
+    - `network_data:: Float64`: Network data
+    - `Q:: Float64`: Flow [cmps]
+    - `inlet_temperature:: Float64`: Water temperature in C
+    - `regulatory_temperature:: Float64`: Regulatory discharge tempearture in C
+    """
+    gen_capacity_reduction = Dict()
+    gen_capacity = Dict()
+    gen_delta_t = Dict()
+
+    for (gen_name, gen) in model.gens
+        if typeof(gen) == NoCoolingGenerator
+            # No capacity impact
+        else
+            # Extract information
+            KW = model.network_data["gen"][gen_name]["pmax"] * 100  # Convert to MW
+            delta_T = regulatory_temperature - inlet_temperature
+
+            # Run water models
+            if typeof(gen) == OnceThroughGenerator
+                KW_updated = MOCOT.get_capacity(
+                    gen,
+                    KW,
+                    delta_T,
+                    Q,
+                )
+
+            elseif typeof(gen) == RecirculatingGenerator
+                KW_updated = MOCOT.get_capacity(
+                    gen,
+                    KW,
+                    delta_T,
+                    Q,
+                )
+
+            end
+
+            # Store 
+            gen_capacity_reduction[gen_name] = KW - KW_updated  # [MW]
+            gen_capacity[gen_name] = KW_updated  # [MW]
+            gen_delta_t[gen_name] = delta_T  # [C]
+
+        end
+
+    end
+
+    return gen_capacity, gen_capacity_reduction, gen_delta_t
 end

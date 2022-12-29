@@ -21,6 +21,7 @@ function run_simulation(
     w_con:: Float64=0.0,
     w_emit:: Float64=0.0,
     verbose_level:: Int64=1,
+    scenario_code:: Int64=1,
 )
     """
     Simulation of water and energy system
@@ -32,6 +33,7 @@ function run_simulation(
     - `w_con:: Float64`: Coal consumption weight [dollar/L]
     - `w_emit:: Float64`: Emission withdrawal weight [dollar/lb]
     - `verbose_level:: Int64`: Level of output. Default is 1. Less is 0.
+    - `scenario_code:: Int64`: Scenario code for simulation. Default is 1.
     """
     # Initialization
     d_total = length(simulation.exogenous["node_load"])
@@ -70,6 +72,7 @@ function run_simulation(
         air_temperature,
         regulatory_temperature,
         Q,
+        scenario_code,
     )
     simulation.state["withdraw_rate"]["0"] = gen_beta_with
     simulation.state["consumption_rate"]["0"] = gen_beta_con
@@ -173,6 +176,7 @@ function run_simulation(
             simulation.exogenous["air_temperature"][string(d)],
             regulatory_temperature,
             simulation.exogenous["water_flow"][string(d)],
+            scenario_code,
         )
         simulation.state["withdraw_rate"][string(d)] = gen_beta_with
         simulation.state["consumption_rate"][string(d)] = gen_beta_con

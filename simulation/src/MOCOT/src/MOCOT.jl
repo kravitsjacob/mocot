@@ -102,8 +102,9 @@ function borg_simulation_wrapper(
         simulation,
         w_with=w_with,
         w_con=w_con,
-        w_emit= w_emit,
-        verbose_level=verbose_level
+        w_emit=w_emit,
+        verbose_level=verbose_level,
+        scenario_code=scenario_code,
     )
 
     # Console feedback
