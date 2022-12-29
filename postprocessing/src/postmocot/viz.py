@@ -168,6 +168,7 @@ def comparison(
         'extreme load/climate',
         'nuclear outage',
         'line outage',
+        'avoid temperature violation',
     ]
     df_plot['scenario'] = pd.Categorical(
         df_plot['scenario'],
@@ -203,6 +204,7 @@ def comparison(
             'extreme load/climate': 'Extreme\nload/climate',
             'nuclear outage': 'Nuclear\noutage',
             'line outage': 'Line\noutage',
+            'avoid temperature violation': 'Avoid\ntemperature\nviolation',
         }
     )
     df_plot['policy_label'] = df_plot['policy_label'].replace(
@@ -255,7 +257,7 @@ def comparison(
         yabs_max = abs(max(ax.get_ylim(), key=abs))
         ax.set_ylim(ymin=-yabs_max, ymax=yabs_max)
     g_compare.add_legend(loc='right')
-    g_compare.figure.subplots_adjust(left=0.2, bottom=0.1, right=0.75, top=0.9)
+    g_compare.figure.subplots_adjust(left=0.2, bottom=0.1, right=0.80, top=0.9)
 
     # Single plot
     df_plot = df_plot[df_plot['scenario'] == 'Extreme\nload/climate']
