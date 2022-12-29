@@ -66,6 +66,8 @@ function water_models_wrapper(
     - `Q:: Float64`: Flow [cmps]
     - `scenario_code:: Int64`: Scenario code for simulation
     """
+    gen_discharge_violation = Dict()
+
     if scenario_code == 5
         gen_capacity, gen_capacity_reduction, gen_delta_t = get_capacity_wrapper_avoid_violation(
             model,
@@ -73,7 +75,12 @@ function water_models_wrapper(
             inlet_temperature,
             regulatory_temperature
         )
-        @Infiltrator.infiltrate
+        gen_beta_with, gen_beta_con = water_use_avoid_violation(
+            model,
+            air_temperature,
+            gen_delta_t,
+        )
+
     else
         gen_beta_with, gen_beta_con, gen_discharge_violation, gen_delta_t = water_use_wrapper_normal(
             model,
@@ -263,4 +270,58 @@ function get_capacity_wrapper_avoid_violation(
     end
 
     return gen_capacity, gen_capacity_reduction, gen_delta_t
+end
+
+
+function water_use_avoid_violation(
+    model:: WaterPowerModel,
+    air_temperature:: Float64,
+    gen_delta_T:: Dict,
+)
+    """
+    Run water use model for every generator
+    
+    # Arguments
+    - `model:: WaterPowerModel`: Water and power model
+    - `air_temperature:: Float64`: Dry bulb temperature of inlet air C
+    - `gen_delta_T:: Dict`: Generator delta temperature [C]
+    """
+    # Initialization
+    gen_beta_with = Dict{String, Float64}()
+    gen_beta_con = Dict{String, Float64}()
+
+    # Water use for each generator
+    for (gen_name, gen) in model.gens
+        if typeof(gen) == OnceThroughGenerator
+            # Run water simulation
+            delta_t = gen_delta_T[gen_name]
+            beta_with = MOCOT.get_withdrawal(
+                gen,
+                delta_t,
+            )
+            beta_con = MOCOT.get_consumption(
+                gen,
+                delta_t,
+            )
+
+        elseif typeof(gen) == RecirculatingGenerator
+            # Run water simulation
+            beta_with, beta_con = MOCOT.get_water_use(
+                gen,
+                air_temperature
+            )
+
+        elseif typeof(gen) == NoCoolingGenerator
+            beta_with = 0.0
+            beta_con = 0.0
+
+        end
+
+        # Store
+        gen_beta_with[gen_name] = beta_with  # [L/MWh]
+        gen_beta_con[gen_name] = beta_con  # [L/MWh]
+
+    end
+
+    return gen_beta_with, gen_beta_con
 end
