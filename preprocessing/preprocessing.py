@@ -207,7 +207,7 @@ def main():
         df_scenario_specs = pd.read_csv(paths['inputs']['scenario_specs'])
         net = pandapower.converter.from_mpc(paths['inputs']['case'])
 
-        for (_, row) in df_scenario_specs.iterrows():
+        for (_, row) in df_scenario_specs.transpose().items():
             # Process
             (
                 df_air_water, df_wind_cf, df_node_load
@@ -243,16 +243,28 @@ def main():
     if not os.path.exists(paths['outputs']['figures']['scenario_temperatures']):  # noqa
         # Import data
         multi_air_water = {}
+        labels = [
+            'average week\nnuclear outage\nline outage',
+            'extreme load/climate\navoid temperature violation'
+        ]
         df_scenario_specs = pd.read_csv(paths['inputs']['scenario_specs'])
-        for (_, row) in df_scenario_specs.iterrows():
+        for (i, row) in df_scenario_specs.head(2).transpose().items():
             # Import files
             path_to_air_water = paths['outputs']['air_water_template'].replace(
                 '0', str(row['scenario_code'])
             )
             df_air_water = pd.read_csv(path_to_air_water)
 
+            # Rename
+            df_air_water = df_air_water.rename(
+                columns={
+                    'air_temperature': 'air temperature',
+                    'water_temperature': 'water temperature'
+                }
+            )
+
             # Store
-            multi_air_water[row['name']] = df_air_water
+            multi_air_water[labels[i]] = df_air_water
 
         # Plot
         fig = premocot.viz.scenario_temperatures(multi_air_water)
@@ -262,16 +274,28 @@ def main():
     if not os.path.exists(paths['outputs']['figures']['scenario_loads']):  # noqa
         # Import data
         multi_node_load = {}
+        labels = [
+            'average week\nnuclear outage\nline outage',
+            'extreme load/climate\navoid temperature violation'
+        ]
         df_scenario_specs = pd.read_csv(paths['inputs']['scenario_specs'])
-        for (_, row) in df_scenario_specs.iterrows():
+        for (i, row) in df_scenario_specs.head(2).transpose().items():
             # Import files
             path_to_load = paths['outputs']['node_load_template'].replace(
                 '0', str(row['scenario_code'])
             )
             df_node_load = pd.read_csv(path_to_load)
 
+            # Rename
+            df_air_water = df_air_water.rename(
+                columns={
+                    'air_temperature': 'air temperature',
+                    'water_temperature': 'water temperature'
+                }
+            )
+
             # Store
-            multi_node_load[row['name']] = df_node_load
+            multi_node_load[labels[i]] = df_node_load
 
         # Plot
         fig = premocot.viz.scenario_node_load(multi_node_load)

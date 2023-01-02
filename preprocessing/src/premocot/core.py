@@ -632,7 +632,7 @@ def create_scenario_exogenous(
         (df_system_load['datetime'] <= datetime_end)
     df_system_load = df_system_load[condition]
     df_system_load = df_system_load.reset_index(drop=True)
-    for i, row in df_system_load.iterrows():
+    for i, row in df_system_load.transpose().items():
         # Create temporary dataframe
         df_temp = pd.DataFrame(df_def_load['bus'])
 
