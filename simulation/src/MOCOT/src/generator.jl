@@ -266,7 +266,7 @@ end
 """
 Thermoelectric generator with reciruclating cooling system
 """
-struct RecirculatingGenerator
+mutable struct RecirculatingGenerator
     "Ratio of electricity generation rate to thermal input"
     eta_net:: Float64
     "Thermal input lost to non-cooling system sinks"
@@ -289,6 +289,57 @@ struct RecirculatingGenerator
     fuel:: String
     "Cooling type (only for metric aggregation)"
     cool:: String
+end
+
+
+function new_recirculating_generator()
+    """
+    Create new recirculating generator
+    """
+    gen = RecirculatingGenerator(
+        NaN,
+        NaN,
+        NaN,
+        0,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        "",
+        "", 
+    )
+
+    return gen
+end
+
+
+function set_water_use_parameters!(
+    gen:: RecirculatingGenerator,
+    eta_net:: Float64,
+    k_os:: Float64,
+    beta_proc:: Float64,
+    eta_cc:: Int64,
+    k_bd:: Float64,
+)
+    """
+    Set parameters for water use models
+    
+    # Arguments
+    - `gen:: OnceThroughGenerator`: Generator
+    - `eta_net:: Float64`: Ratio of electricity generation rate to thermal input
+    - `k_os:: Float64`: Thermal input lost to non-cooling system sinks
+    - `beta_proc:: Float64`: Non-cooling rate [L/MWh]
+    - `eta_cc:: Int64`: Number of cooling cycles between 2 and 10
+    - `k_bd:: Float64`: Blowdown discharge fraction. Plants in water abundant areas are able to legally discharge most of their cooling tower blowndown according to Rutberg et al. 2011
+    """
+    gen.eta_net = eta_net
+    gen.k_os = k_os
+    gen.beta_proc = beta_proc
+    gen.eta_cc = eta_cc
+    gen.k_bd = k_bd
+
+    return gen
 end
 
 

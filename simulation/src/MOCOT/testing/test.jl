@@ -35,18 +35,14 @@ using MOCOT
     @Test.test isapprox(beta_con, 544.2, atol=1)
 
     # Setup for Recirculating Generator
-    gen = MOCOT.RecirculatingGenerator(
+    gen = MOCOT.new_recirculating_generator()
+    gen = MOCOT.set_water_use_parameters!(
+        gen,
         0.20,
         0.25,
         200.0,
         5,
         1.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        "",
-        "",
     )
     beta_with = MOCOT.get_withdrawal(
         gen,
