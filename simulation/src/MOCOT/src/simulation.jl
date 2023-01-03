@@ -7,9 +7,29 @@ mutable struct WaterPowerSimulation
     "WaterPowerModel"
     model:: WaterPowerModel
     "Exogenous parameters"
-    exogenous:: Dict
+    exogenous:: Dict{String, Dict}
     "State parameters"
     state:: Dict{String, Dict}
+end
+
+
+function new_simulation(model:: WaterPowerModel, exogenous:: Dict)
+    """
+    New water/power simulation
+    """
+    simulation = WaterPowerSimulation(model, exogenous, Dict{String, Dict}())
+
+    # Set defaults
+    simulation.state["multi_network_data"] = Dict("0" => Dict{String, Any}())
+    simulation.state["pm"] = Dict{String, PowerModels.DCPPowerModel}()
+    simulation.state["results"] = Dict("0" => Dict{String, Any}())
+    simulation.state["withdraw_rate"] = Dict("0" => Dict{String, Float64}())  # [L/pu]
+    simulation.state["consumption_rate"] = Dict("0" => Dict{String, Float64}())  # [L/pu]
+    simulation.state["discharge_violation"] = Dict("0" => Dict{String, Float64}())  # [C]
+    simulation.state["capacity_reduction"] = Dict("0" => Dict{String, Float64}())  # [MW]
+    simulation.state["capacity"] = Dict("0" => Dict{String, Float64}())  # [MW]
+
+    return simulation
 end
 
 
@@ -38,14 +58,6 @@ function run_simulation(
     # Initialization
     d_total = length(simulation.exogenous["node_load"])
     h_total = length(simulation.exogenous["node_load"]["1"])
-    simulation.state["multi_network_data"] = Dict("0" => Dict{String, Any}())
-    simulation.state["pm"] = Dict{String, PowerModels.DCPPowerModel}()
-    simulation.state["results"] = Dict("0" => Dict{String, Any}())
-    simulation.state["withdraw_rate"] = Dict("0" => Dict{String, Float64}())  # [L/pu]
-    simulation.state["consumption_rate"] = Dict("0" => Dict{String, Float64}())  # [L/pu]
-    simulation.state["discharge_violation"] = Dict("0" => Dict{String, Float64}())  # [C]
-    simulation.state["capacity_reduction"] = Dict("0" => Dict{String, Float64}())  # [MW]
-    simulation.state["capacity"] = Dict("0" => Dict{String, Float64}())  # [MW]
 
     # Processing decision vectors
     w_with_dict = create_decision_dict(w_with, simulation.model.network_data)  # [dollar/L]
@@ -84,7 +96,7 @@ function run_simulation(
     temp_network_data = create_reliabilty_network(simulation.model, voll)
 
     # Make multinetwork
-    simulation.state["multi_network_data"]["default"] = PowerModels.replicate(temp_network_data, h_total)
+    simulation = create_default_multi_network!(simulation, temp_network_data)
     
     # Simulation
     for d in 1:d_total
@@ -195,6 +207,20 @@ function run_simulation(
     return (objectives, metrics, simulation.state)
 end
 
+
+function create_default_multi_network!(simulation:: WaterPowerSimulation, network_data:: Dict, h_total=24)
+    """
+    Create the default multi-timestep network
+
+    # Arguments
+    - `simulation:: WaterPowerSimulation`: Simulation data
+    - `network_data:: Dict`: PowerModels network data
+    - `h_total=24`: Total timesteps to replicate [hour]
+    """
+    simulation.state["multi_network_data"]["default"] = PowerModels.replicate(network_data, h_total)
+
+    return simulation
+end
 
 function update_gen_capacity!(simulation:: WaterPowerSimulation, day:: Int64)
     """

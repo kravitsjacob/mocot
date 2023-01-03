@@ -177,28 +177,25 @@ end
 
 
 @Test.testset "Test for adding wind capacity" begin
+    # Import
     simulation = JLD2.load("simulation/src/MOCOT/testing/test_exogenous.jld2", "simulation")
-    # Import static network
-    d_total = 3
-    h_total = 24
-    network_data = create_custom_test_network(network_data_raw)
-    exogenous = exogenous_raw
-    network_data_multi = PowerModels.replicate(network_data, h_total)
+    simulation = MOCOT.create_default_multi_network!(simulation, simulation.model.network_data)
+    simulation.state["multi_network_data"]["1"] = simulation.state["multi_network_data"]["default"]
 
     # Save original value
-    orig_cap = network_data_multi["nw"]["1"]["gen"]["6"]["pmax"]
+    orig_cap = simulation.state["multi_network_data"]["1"]["nw"]["1"]["gen"]["6"]["pmax"]
 
     # Adjust wind generator capacity
-    network_data_multi = MOCOT.update_wind_capacity!(
-        network_data_multi,
-        exogenous["wind_capacity_factor"]["1"]
+    simulation = MOCOT.update_wind_capacity!(
+        simulation,
+        1,
     )
 
     # New value
-    new_cap = network_data_multi["nw"]["1"]["gen"]["6"]["pmax"]
+    new_cap = simulation.state["multi_network_data"]["1"]["nw"]["1"]["gen"]["6"]["pmax"]
     
     @test isapprox(
-        orig_cap*exogenous["wind_capacity_factor"]["1"]["1"],
+        orig_cap * simulation.exogenous["wind_capacity_factor"]["1"]["1"],
         new_cap,
         atol=-1
     )

@@ -295,15 +295,8 @@ function create_simulation_from_dataframes(
         df_node_load
     )
 
-    # Fill empty
-    state = Dict()
-
-    # Store
-    simulation = MOCOT.WaterPowerSimulation(
-        model,
-        exogenous,
-        state
-    )
+    # Create simulation
+    simulation = new_simulation(model, exogenous)
 
     return simulation
 end
