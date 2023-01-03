@@ -75,6 +75,26 @@ function set_water_use_parameters!(
 end
 
 
+function set_water_capacity_parameters!(
+    gen:: OnceThroughGenerator,
+    eta_total:: Float64,
+    eta_elec:: Float64,
+)
+    """
+    Set parameters for water-capacity models
+
+    # Arguments
+    - `gen:: OnceThroughGenerator`: Generator
+    - `eta_total:: Float64`: Total efficiency
+    - `eta_elec:: Float64`: Electric efficiency
+    """
+    gen.eta_total = eta_total
+    gen.eta_elec = eta_elec
+    
+    return gen
+end
+
+
 function get_withdrawal(
     gen:: OnceThroughGenerator,
     delta_t:: Float64,
@@ -339,6 +359,26 @@ function set_water_use_parameters!(
     gen.eta_cc = eta_cc
     gen.k_bd = k_bd
 
+    return gen
+end
+
+
+function set_water_capacity_parameters!(
+    gen:: RecirculatingGenerator,
+    eta_total:: Float64,
+    eta_elec:: Float64,
+)
+    """
+    Set parameters for water-capacity models
+
+    # Arguments
+    - `gen:: RecirculatingGenerator`: Generator
+    - `eta_total:: Float64`: Total efficiency
+    - `eta_elec:: Float64`: Electric efficiency
+    """
+    gen.eta_total = eta_total
+    gen.eta_elec = eta_elec
+    
     return gen
 end
 

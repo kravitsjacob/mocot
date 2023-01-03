@@ -57,49 +57,40 @@ using MOCOT
 end
 
 
-# @Test.testset "Fundamental Capacity Reduction Models" begin
-#     gen = MOCOT.OnceThroughGenerator(
-#         0.0,
-#         0.0,
-#         0.0,
-#         0.5,
-#         0.5,
-#         0.0,
-#         0.0,
-#         0.0,
-#         0.0,
-#         "",
-#         "",
-#     )
-#     p_thermo_OC = MOCOT.get_capacity(
-#         gen,
-#         400.0,
-#         5.0,
-#         621.712,
-#     )
-#     @Test.test isapprox(p_thermo_OC, 262.2, atol=1)
+@Test.testset "Fundamental Capacity Reduction Models" begin
+    @Infiltrator.infiltrate
+    # Setup
+    gen = MOCOT.new_once_through_generator()
+    gen = MOCOT.set_water_capacity_parameters!(
+        gen,
+        0.5,
+        0.5,
+    )
 
-#     gen = MOCOT.RecirculatingGenerator(
-#         0.0,
-#         0.0,
-#         0.0,
-#         0.0,
-#         0.0,
-#         0.5,
-#         0.5,
-#         0.0,
-#         0.0,
-#         "",
-#         "",
-#     )
-#     p_thermo_RC = MOCOT.get_capacity(
-#         gen,    
-#         400.0,
-#         5.0,
-#         621.712,
-#     )
-#     @Test.test isapprox(p_thermo_RC, 400.0, atol=1)
-# end
+    # Test
+    p_thermo_OC = MOCOT.get_capacity(
+        gen,
+        400.0,
+        5.0,
+        621.712,
+    )
+    @Test.test isapprox(p_thermo_OC, 262.2, atol=1)
+
+    # Setup
+    gen = MOCOT.new_recirculating_generator()
+    gen = MOCOT.set_water_capacity_parameters!(
+        gen,
+        0.5,
+        0.5,
+    )
+    p_thermo_RC = MOCOT.get_capacity(
+        gen,    
+        400.0,
+        5.0,
+        621.712,
+    )
+    @Test.test isapprox(p_thermo_RC, 400.0, atol=1)
+end
 
 
 # @Test.testset "Test for once through water use" begin
