@@ -12,54 +12,53 @@ using Test
 using MOCOT
 
 
-# @Test.testset "Fundamental Water Use Models" begin
-#     gen = MOCOT.OnceThroughGenerator(
-#         0.25,
-#         0.25,
-#         200.0,
-#         0.0,
-#         0.0,
-#         0.0,
-#         0.0,
-#         0.0,
-#         0.0,
-#         "",
-#         "",
-#     )
-#     beta_with = MOCOT.get_withdrawal(
-#         gen,
-#         5.0,
-#     )
-#     @Test.test isapprox(beta_with, 344368.3, atol=1)
-#     beta_con = MOCOT.get_consumption(
-#         gen,
-#         5.0,
-#     )
-#     @Test.test isapprox(beta_con, 544.2, atol=1)
-#     gen = MOCOT.RecirculatingGenerator(
-#         0.20,
-#         0.25,
-#         200.0,
-#         5,
-#         1.0,
-#         0.0,
-#         0.0,
-#         0.0,
-#         0.0,
-#         "",
-#         "",
-#     )
-#     beta_with = MOCOT.get_withdrawal(
-#         gen,
-#         0.15,
-#     )
-#     @Test.test isapprox(beta_with, 4486.0, atol=1)
-#     beta_con = MOCOT.get_consumption(
-#         gen,
-#         0.15,
-#     )
-#     @Test.test isapprox(beta_con, 3629.0, atol=1)
-# end
+@Test.testset "Fundamental Water Use Models" begin
+    # Setup for Once Through Generator
+    gen = MOCOT.new_once_through_generator()
+    gen = MOCOT.set_water_use_parameters!(
+        gen,
+        0.25,
+        0.25,
+        200.0,
+    )
+
+    # Test
+    beta_with = MOCOT.get_withdrawal(
+        gen,
+        5.0,
+    )
+    @Test.test isapprox(beta_with, 344368.3, atol=1)
+    beta_con = MOCOT.get_consumption(
+        gen,
+        5.0,
+    )
+    @Test.test isapprox(beta_con, 544.2, atol=1)
+
+    # Setup for Recirculating Generator
+    gen = MOCOT.RecirculatingGenerator(
+        0.20,
+        0.25,
+        200.0,
+        5,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        "",
+        "",
+    )
+    beta_with = MOCOT.get_withdrawal(
+        gen,
+        0.15,
+    )
+    @Test.test isapprox(beta_with, 4486.0, atol=1)
+    beta_con = MOCOT.get_consumption(
+        gen,
+        0.15,
+    )
+    @Test.test isapprox(beta_con, 3629.0, atol=1)
+end
 
 
 # @Test.testset "Fundamental Capacity Reduction Models" begin

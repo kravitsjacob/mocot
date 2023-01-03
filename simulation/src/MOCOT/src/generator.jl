@@ -4,7 +4,7 @@
 """
 Thermoelectric generator with once-through cooling system
 """
-struct OnceThroughGenerator
+mutable struct OnceThroughGenerator
     "Ratio of electricity generation rate to thermal input"
     eta_net:: Float64
     "Thermal input lost to non-cooling system sinks"
@@ -30,12 +30,57 @@ struct OnceThroughGenerator
 end
 
 
-get_withdrawal(
+function new_once_through_generator()
+    """
+    Create new once through generator
+    """
+    gen = OnceThroughGenerator(
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        "",
+        "", 
+    )
+
+    return gen
+end
+
+
+function set_water_use_parameters!(
+    gen:: OnceThroughGenerator,
+    eta_net:: Float64,
+    k_os:: Float64,
+    beta_proc:: Float64,
+)
+    """
+    Set parameters for water use models
+    
+    # Arguments
+    - `gen:: OnceThroughGenerator`: Generator
+    - `eta_net:: Float64`: Ratio of electricity generation rate to thermal input
+    - `k_os:: Float64`: Thermal input lost to non-cooling system sinks
+    - `beta_proc:: Float64`: Non-cooling rate [L/MWh]
+    """
+    gen.eta_net = eta_net
+    gen.k_os = k_os
+    gen.beta_proc = beta_proc
+
+    return gen
+end
+
+
+function get_withdrawal(
     gen:: OnceThroughGenerator,
     delta_t:: Float64,
     rho_w=1.0,
     c_p=0.004184,
-) = begin
+)
     """
     Once through withdrawal model
 
