@@ -93,67 +93,61 @@ end
 end
 
 
-# @Test.testset "Test for once through water use" begin
-#     # Setup
-#     beta_with_limit=190000.0
-#     beta_con_limit=400.0
-#     regulatory_temperature = 33.7
-#     k_os = 0.12
-#     beta_proc = 200.0
-#     eta_net = 0.33
-#     eta_total = 0.0
-#     eta_elec = 0.0
-#     emit_rate = 0.0
-#     ramp_rate = 0.0
-#     fuel = ""
-#     cool = ""
-#     gen = MOCOT.OnceThroughGenerator(
-#         eta_net,
-#         k_os,
-#         beta_proc,
-#         eta_total,
-#         eta_elec,
-#         beta_with_limit,
-#         beta_con_limit,
-#         emit_rate,
-#         ramp_rate,
-#         fuel,
-#         cool,
-#     )
+@Test.testset "Test for once through water use" begin
+    # Setup
+    beta_with_limit=190000.0
+    beta_con_limit=400.0
+    regulatory_temperature = 33.7
+    k_os = 0.12
+    beta_proc = 200.0
+    eta_net = 0.33
 
-#     # Cold case 
-#     inlet_temperature = 21.0
-#     beta_with, beta_con, delta_t = MOCOT.get_water_use(
-#         gen,
-#         inlet_temperature,
-#         regulatory_temperature,
-#     )
-#     @Test.test isapprox(beta_with, 143603.4, atol=1)
-#     @Test.test isapprox(beta_con, 343.4, atol=1)
-#     @Test.test isapprox(delta_t, 10.0, atol=1)
+    gen = MOCOT.new_once_through_generator()
+    gen = MOCOT.set_water_use_parameters!(
+        gen,
+        eta_net,
+        k_os,
+        beta_proc,
+    )
+    gen = MOCOT.set_water_use_limits!(
+        gen,
+        beta_with_limit,
+        beta_con_limit,
+    )
 
-#     # Delta t but no limit
-#     inlet_temperature = 25.0
-#     beta_with, beta_con, delta_t = MOCOT.get_water_use(
-#         gen,    
-#         inlet_temperature,
-#         regulatory_temperature,
-#     )
-#     @Test.test isapprox(beta_with, 165031.5, atol=1)
-#     @Test.test isapprox(beta_con, 364.8, atol=1)
-#     @Test.test isapprox(delta_t, 8.7, atol=1)
+    # Cold case 
+    inlet_temperature = 21.0
+    beta_with, beta_con, delta_t = MOCOT.get_water_use(
+        gen,
+        inlet_temperature,
+        regulatory_temperature,
+    )
+    @Test.test isapprox(beta_with, 143603.4, atol=1)
+    @Test.test isapprox(beta_con, 343.4, atol=1)
+    @Test.test isapprox(delta_t, 10.0, atol=1)
 
-#     # Delta with limits (temperature violations)
-#     inlet_temperature = 27.0
-#     beta_with, beta_con, delta_t = MOCOT.get_water_use(
-#         gen,    
-#         inlet_temperature,
-#         regulatory_temperature,
-#     )
-#     @Test.test isapprox(beta_with, 190000.0, atol=1)
-#     @Test.test isapprox(beta_con, 400.0, atol=1)
-#     @Test.test isapprox(delta_t, 7.6, atol=1)
-# end
+    # Delta t but no limit
+    inlet_temperature = 25.0
+    beta_with, beta_con, delta_t = MOCOT.get_water_use(
+        gen,    
+        inlet_temperature,
+        regulatory_temperature,
+    )
+    @Test.test isapprox(beta_with, 165031.5, atol=1)
+    @Test.test isapprox(beta_con, 364.8, atol=1)
+    @Test.test isapprox(delta_t, 8.7, atol=1)
+
+    # Delta with limits (temperature violations)
+    inlet_temperature = 27.0
+    beta_with, beta_con, delta_t = MOCOT.get_water_use(
+        gen,    
+        inlet_temperature,
+        regulatory_temperature,
+    )
+    @Test.test isapprox(beta_with, 190000.0, atol=1)
+    @Test.test isapprox(beta_con, 400.0, atol=1)
+    @Test.test isapprox(delta_t, 7.6, atol=1)
+end
 
 
 # @Test.testset "Test for recirculating water use" begin

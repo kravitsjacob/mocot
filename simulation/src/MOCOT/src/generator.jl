@@ -95,6 +95,26 @@ function set_water_capacity_parameters!(
 end
 
 
+function set_water_use_limits!(
+    gen:: OnceThroughGenerator,
+    beta_with_limit:: Float64,
+    beta_con_limit:: Float64,
+)
+    """
+    Set parameters for water-capacity models
+
+    # Arguments
+    - `gen:: OnceThroughGenerator`: Generator
+    - `beta_with_limit:: Float64`: Withdrawal limit in [L/MWh]
+    - `beta_con_limit:: Float64`: Consumption limit in [L/MWh]
+    """
+    gen.beta_with_limit = beta_with_limit
+    gen.beta_con_limit = beta_con_limit
+    
+    return gen
+end
+
+
 function get_withdrawal(
     gen:: OnceThroughGenerator,
     delta_t:: Float64,
