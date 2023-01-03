@@ -101,7 +101,6 @@ end
     k_os = 0.12
     beta_proc = 200.0
     eta_net = 0.33
-
     gen = MOCOT.new_once_through_generator()
     gen = MOCOT.set_water_use_parameters!(
         gen,
@@ -150,40 +149,32 @@ end
 end
 
 
-# @Test.testset "Test for recirculating water use" begin
-#     # Setup
-#     air_temperature=25.0
-#     k_os = 0.20
-#     beta_proc = 10.0
-#     eta_net = 0.33
-#     eta_cc = 5
-#     k_bd = 1.0
-#     emit_rate = 0.0
-#     ramp_rate = 0.0
-#     fuel = ""
-#     cool = ""
-#     gen = MOCOT.RecirculatingGenerator(
-#         eta_net,
-#         k_os,
-#         beta_proc,
-#         eta_cc,
-#         k_bd,
-#         0.0,
-#         0.0,
-#         emit_rate,
-#         ramp_rate,
-#         fuel,
-#         cool,
-#     )
+@Test.testset "Test for recirculating water use" begin
+    # Setup
+    air_temperature=25.0
+    k_os = 0.20
+    beta_proc = 10.0
+    eta_net = 0.33
+    eta_cc = 5
+    k_bd = 1.0
+    gen = MOCOT.new_recirculating_generator()
+    gen = MOCOT.set_water_use_parameters!(
+        gen,
+        eta_net,
+        k_os,
+        beta_proc,
+        eta_cc,
+        k_bd,
+    )
 
-#     # Cold case 
-#     beta_with, beta_con = MOCOT.get_water_use(
-#         gen,
-#         air_temperature,
-#     )
-#     @Test.test isapprox(beta_with, 2245.7, atol=1)
-#     @Test.test isapprox(beta_con, 1798.6, atol=1)
-# end
+    # Cold case 
+    beta_with, beta_con = MOCOT.get_water_use(
+        gen,
+        air_temperature,
+    )
+    @Test.test isapprox(beta_with, 2245.7, atol=1)
+    @Test.test isapprox(beta_con, 1798.6, atol=1)
+end
 
 
 # @Test.testset "Test for adding wind capacity" begin
