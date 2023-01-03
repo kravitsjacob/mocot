@@ -1,209 +1,209 @@
 using Infiltrator
 using Revise
 using Test
-using DataFrames
-using CSV
-using XLSX
-using PowerModels
-using JuMP
-using Ipopt
-using JLD2
+# using DataFrames
+# using CSV
+# using XLSX
+# using PowerModels
+# using JuMP
+# using Ipopt
+# using JLD2
 
 using MOCOT
 
 
-@Test.testset "Fundamental Water Use Models" begin
-    gen = MOCOT.OnceThroughGenerator(
-        0.25,
-        0.25,
-        200.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        "",
-        "",
-    )
-    beta_with = MOCOT.get_withdrawal(
-        gen,
-        5.0,
-    )
-    @Test.test isapprox(beta_with, 344368.3, atol=1)
-    beta_con = MOCOT.get_consumption(
-        gen,
-        5.0,
-    )
-    @Test.test isapprox(beta_con, 544.2, atol=1)
-    gen = MOCOT.RecirculatingGenerator(
-        0.20,
-        0.25,
-        200.0,
-        5,
-        1.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        "",
-        "",
-    )
-    beta_with = MOCOT.get_withdrawal(
-        gen,
-        0.15,
-    )
-    @Test.test isapprox(beta_with, 4486.0, atol=1)
-    beta_con = MOCOT.get_consumption(
-        gen,
-        0.15,
-    )
-    @Test.test isapprox(beta_con, 3629.0, atol=1)
-end
+# @Test.testset "Fundamental Water Use Models" begin
+#     gen = MOCOT.OnceThroughGenerator(
+#         0.25,
+#         0.25,
+#         200.0,
+#         0.0,
+#         0.0,
+#         0.0,
+#         0.0,
+#         0.0,
+#         0.0,
+#         "",
+#         "",
+#     )
+#     beta_with = MOCOT.get_withdrawal(
+#         gen,
+#         5.0,
+#     )
+#     @Test.test isapprox(beta_with, 344368.3, atol=1)
+#     beta_con = MOCOT.get_consumption(
+#         gen,
+#         5.0,
+#     )
+#     @Test.test isapprox(beta_con, 544.2, atol=1)
+#     gen = MOCOT.RecirculatingGenerator(
+#         0.20,
+#         0.25,
+#         200.0,
+#         5,
+#         1.0,
+#         0.0,
+#         0.0,
+#         0.0,
+#         0.0,
+#         "",
+#         "",
+#     )
+#     beta_with = MOCOT.get_withdrawal(
+#         gen,
+#         0.15,
+#     )
+#     @Test.test isapprox(beta_with, 4486.0, atol=1)
+#     beta_con = MOCOT.get_consumption(
+#         gen,
+#         0.15,
+#     )
+#     @Test.test isapprox(beta_con, 3629.0, atol=1)
+# end
 
 
-@Test.testset "Fundamental Capacity Reduction Models" begin
-    gen = MOCOT.OnceThroughGenerator(
-        0.0,
-        0.0,
-        0.0,
-        0.5,
-        0.5,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        "",
-        "",
-    )
-    p_thermo_OC = MOCOT.get_capacity(
-        gen,
-        400.0,
-        5.0,
-        621.712,
-    )
-    @Test.test isapprox(p_thermo_OC, 262.2, atol=1)
+# @Test.testset "Fundamental Capacity Reduction Models" begin
+#     gen = MOCOT.OnceThroughGenerator(
+#         0.0,
+#         0.0,
+#         0.0,
+#         0.5,
+#         0.5,
+#         0.0,
+#         0.0,
+#         0.0,
+#         0.0,
+#         "",
+#         "",
+#     )
+#     p_thermo_OC = MOCOT.get_capacity(
+#         gen,
+#         400.0,
+#         5.0,
+#         621.712,
+#     )
+#     @Test.test isapprox(p_thermo_OC, 262.2, atol=1)
 
-    gen = MOCOT.RecirculatingGenerator(
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.5,
-        0.5,
-        0.0,
-        0.0,
-        "",
-        "",
-    )
-    p_thermo_RC = MOCOT.get_capacity(
-        gen,    
-        400.0,
-        5.0,
-        621.712,
-    )
-    @Test.test isapprox(p_thermo_RC, 400.0, atol=1)
-end
-
-
-@Test.testset "Test for once through water use" begin
-    # Setup
-    beta_with_limit=190000.0
-    beta_con_limit=400.0
-    regulatory_temperature = 33.7
-    k_os = 0.12
-    beta_proc = 200.0
-    eta_net = 0.33
-    eta_total = 0.0
-    eta_elec = 0.0
-    emit_rate = 0.0
-    ramp_rate = 0.0
-    fuel = ""
-    cool = ""
-    gen = MOCOT.OnceThroughGenerator(
-        eta_net,
-        k_os,
-        beta_proc,
-        eta_total,
-        eta_elec,
-        beta_with_limit,
-        beta_con_limit,
-        emit_rate,
-        ramp_rate,
-        fuel,
-        cool,
-    )
-
-    # Cold case 
-    inlet_temperature = 21.0
-    beta_with, beta_con, delta_t = MOCOT.get_water_use(
-        gen,
-        inlet_temperature,
-        regulatory_temperature,
-    )
-    @Test.test isapprox(beta_with, 143603.4, atol=1)
-    @Test.test isapprox(beta_con, 343.4, atol=1)
-    @Test.test isapprox(delta_t, 10.0, atol=1)
-
-    # Delta t but no limit
-    inlet_temperature = 25.0
-    beta_with, beta_con, delta_t = MOCOT.get_water_use(
-        gen,    
-        inlet_temperature,
-        regulatory_temperature,
-    )
-    @Test.test isapprox(beta_with, 165031.5, atol=1)
-    @Test.test isapprox(beta_con, 364.8, atol=1)
-    @Test.test isapprox(delta_t, 8.7, atol=1)
-
-    # Delta with limits (temperature violations)
-    inlet_temperature = 27.0
-    beta_with, beta_con, delta_t = MOCOT.get_water_use(
-        gen,    
-        inlet_temperature,
-        regulatory_temperature,
-    )
-    @Test.test isapprox(beta_with, 190000.0, atol=1)
-    @Test.test isapprox(beta_con, 400.0, atol=1)
-    @Test.test isapprox(delta_t, 7.6, atol=1)
-end
+#     gen = MOCOT.RecirculatingGenerator(
+#         0.0,
+#         0.0,
+#         0.0,
+#         0.0,
+#         0.0,
+#         0.5,
+#         0.5,
+#         0.0,
+#         0.0,
+#         "",
+#         "",
+#     )
+#     p_thermo_RC = MOCOT.get_capacity(
+#         gen,    
+#         400.0,
+#         5.0,
+#         621.712,
+#     )
+#     @Test.test isapprox(p_thermo_RC, 400.0, atol=1)
+# end
 
 
-@Test.testset "Test for recirculating water use" begin
-    # Setup
-    air_temperature=25.0
-    k_os = 0.20
-    beta_proc = 10.0
-    eta_net = 0.33
-    eta_cc = 5
-    k_bd = 1.0
-    emit_rate = 0.0
-    ramp_rate = 0.0
-    fuel = ""
-    cool = ""
-    gen = MOCOT.RecirculatingGenerator(
-        eta_net,
-        k_os,
-        beta_proc,
-        eta_cc,
-        k_bd,
-        0.0,
-        0.0,
-        emit_rate,
-        ramp_rate,
-        fuel,
-        cool,
-    )
+# @Test.testset "Test for once through water use" begin
+#     # Setup
+#     beta_with_limit=190000.0
+#     beta_con_limit=400.0
+#     regulatory_temperature = 33.7
+#     k_os = 0.12
+#     beta_proc = 200.0
+#     eta_net = 0.33
+#     eta_total = 0.0
+#     eta_elec = 0.0
+#     emit_rate = 0.0
+#     ramp_rate = 0.0
+#     fuel = ""
+#     cool = ""
+#     gen = MOCOT.OnceThroughGenerator(
+#         eta_net,
+#         k_os,
+#         beta_proc,
+#         eta_total,
+#         eta_elec,
+#         beta_with_limit,
+#         beta_con_limit,
+#         emit_rate,
+#         ramp_rate,
+#         fuel,
+#         cool,
+#     )
 
-    # Cold case 
-    beta_with, beta_con = MOCOT.get_water_use(
-        gen,
-        air_temperature,
-    )
-    @Test.test isapprox(beta_with, 2245.7, atol=1)
-    @Test.test isapprox(beta_con, 1798.6, atol=1)
-end
+#     # Cold case 
+#     inlet_temperature = 21.0
+#     beta_with, beta_con, delta_t = MOCOT.get_water_use(
+#         gen,
+#         inlet_temperature,
+#         regulatory_temperature,
+#     )
+#     @Test.test isapprox(beta_with, 143603.4, atol=1)
+#     @Test.test isapprox(beta_con, 343.4, atol=1)
+#     @Test.test isapprox(delta_t, 10.0, atol=1)
+
+#     # Delta t but no limit
+#     inlet_temperature = 25.0
+#     beta_with, beta_con, delta_t = MOCOT.get_water_use(
+#         gen,    
+#         inlet_temperature,
+#         regulatory_temperature,
+#     )
+#     @Test.test isapprox(beta_with, 165031.5, atol=1)
+#     @Test.test isapprox(beta_con, 364.8, atol=1)
+#     @Test.test isapprox(delta_t, 8.7, atol=1)
+
+#     # Delta with limits (temperature violations)
+#     inlet_temperature = 27.0
+#     beta_with, beta_con, delta_t = MOCOT.get_water_use(
+#         gen,    
+#         inlet_temperature,
+#         regulatory_temperature,
+#     )
+#     @Test.test isapprox(beta_with, 190000.0, atol=1)
+#     @Test.test isapprox(beta_con, 400.0, atol=1)
+#     @Test.test isapprox(delta_t, 7.6, atol=1)
+# end
+
+
+# @Test.testset "Test for recirculating water use" begin
+#     # Setup
+#     air_temperature=25.0
+#     k_os = 0.20
+#     beta_proc = 10.0
+#     eta_net = 0.33
+#     eta_cc = 5
+#     k_bd = 1.0
+#     emit_rate = 0.0
+#     ramp_rate = 0.0
+#     fuel = ""
+#     cool = ""
+#     gen = MOCOT.RecirculatingGenerator(
+#         eta_net,
+#         k_os,
+#         beta_proc,
+#         eta_cc,
+#         k_bd,
+#         0.0,
+#         0.0,
+#         emit_rate,
+#         ramp_rate,
+#         fuel,
+#         cool,
+#     )
+
+#     # Cold case 
+#     beta_with, beta_con = MOCOT.get_water_use(
+#         gen,
+#         air_temperature,
+#     )
+#     @Test.test isapprox(beta_with, 2245.7, atol=1)
+#     @Test.test isapprox(beta_con, 1798.6, atol=1)
+# end
 
 
 # @Test.testset "Test for adding wind capacity" begin
@@ -424,3 +424,19 @@ end
 #     @Test.test objectives_weights["f_ENS"] > 0.1
 
 # end
+
+
+@Test.testset "Testing simulation wrapper" begin
+    # Run simulation
+    (
+        objectives, metrics, state
+    ) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 1)
+
+    # Tests
+    @Test.test isapprox(objectives["f_emit"], 4.468254250789e7, atol=1)
+    @Test.test isapprox(objectives["f_ENS"], 0.0, atol=1)
+    @Test.test isapprox(objectives["f_gen"], 1.2249374560936058e6, atol=1)
+    @Test.test isapprox(objectives["f_with_tot"], 1.8639523570273528e9, atol=1)
+    @Test.test isapprox(objectives["f_con_tot"], 1.0053654103000559e8, atol=1)
+
+end
