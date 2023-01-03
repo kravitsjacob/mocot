@@ -115,6 +115,74 @@ function set_water_use_limits!(
 end
 
 
+function set_fuel!(
+    gen:: OnceThroughGenerator,
+    fuel:: String,
+)
+    """
+    Set fuel type
+
+    # Arguments
+    - `gen:: OnceThroughGenerator`: Generator
+    - `fuel:: String`: Fuel type (only for metric aggregation)
+    """
+    gen.fuel = fuel
+    
+    return gen
+end
+
+
+function set_cool!(
+    gen:: OnceThroughGenerator,
+    cool:: String,
+)
+    """
+    Set cooling system type
+
+    # Arguments
+    - `gen:: OnceThroughGenerator`: Generator
+    - `cool:: String`: Cooling system type (only for metric aggregation)
+    """
+    gen.cool = cool
+    
+    return gen
+end
+
+
+function set_emit_rate!(
+    gen:: OnceThroughGenerator,
+    emit_rate:: Float64,
+)
+    """
+    Set cooling system type
+
+    # Arguments
+    - `gen:: OnceThroughGenerator`: Generator
+    - `emit_rate:: Float64`: Emission rate in [lbs/MWh]
+    """
+    gen.emit_rate = emit_rate
+
+    return gen
+end
+
+
+function set_ramp_rate!(
+    gen:: OnceThroughGenerator,
+    ramp_rate:: Float64,
+)
+    """
+    Set cooling system type
+
+    # Arguments
+    - `gen:: OnceThroughGenerator`: Generator
+    - `ramp_rate:: Float64`: Ramp rate in [MW/hr]
+    """
+    gen.ramp_rate = ramp_rate
+
+    return gen
+end
+
+
 function get_withdrawal(
     gen:: OnceThroughGenerator,
     delta_t:: Float64,
@@ -423,6 +491,74 @@ function set_water_use_limits!(
 end
 
 
+function set_fuel!(
+    gen:: RecirculatingGenerator,
+    fuel:: String,
+)
+    """
+    Set fuel type
+
+    # Arguments
+    - `gen:: RecirculatingGenerator`: Generator
+    - `fuel:: String`: Fuel type (only for metric aggregation)
+    """
+    gen.fuel = fuel
+    
+    return gen
+end
+
+
+function set_cool!(
+    gen:: RecirculatingGenerator,
+    cool:: String,
+)
+    """
+    Set cooling system type
+
+    # Arguments
+    - `gen:: RecirculatingGenerator`: Generator
+    - `cool:: String`: Cooling system type (only for metric aggregation)
+    """
+    gen.cool = cool
+    
+    return gen
+end
+
+
+function set_emit_rate!(
+    gen:: RecirculatingGenerator,
+    emit_rate:: Float64,
+)
+    """
+    Set cooling system type
+
+    # Arguments
+    - `gen:: RecirculatingGenerator`: Generator
+    - `emit_rate:: Float64`: Emission rate in [lbs/MWh]
+    """
+    gen.emit_rate = emit_rate
+
+    return gen
+end
+
+
+function set_ramp_rate!(
+    gen:: RecirculatingGenerator,
+    ramp_rate:: Float64,
+)
+    """
+    Set cooling system type
+
+    # Arguments
+    - `gen:: RecirculatingGenerator`: Generator
+    - `ramp_rate:: Float64`: Ramp rate in [MW/hr]
+    """
+    gen.ramp_rate = ramp_rate
+
+    return gen
+end
+
+
 get_withdrawal(
     gen:: RecirculatingGenerator,
     k_sens:: Float64,
@@ -593,7 +729,7 @@ end
 """
 Thermoelectric generator with no cooling system
 """
-struct NoCoolingGenerator
+mutable struct NoCoolingGenerator
     "Emission rate in [lbs/MWh]"
     emit_rate:: Float64
     "Ramp rate in [MW/hr]"
@@ -602,4 +738,87 @@ struct NoCoolingGenerator
     fuel:: String
     "Cooling type (only for metric aggregation)"
     cool:: String
+end
+
+
+function new_no_cooling_generator()
+    """
+    Create new no cooling system generator
+    """
+    gen = NoCoolingGenerator(
+        NaN,
+        NaN,
+        "",
+        "",
+    )
+
+    return gen
+end
+
+
+function set_fuel!(
+    gen:: NoCoolingGenerator,
+    fuel:: String,
+)
+    """
+    Set fuel type
+
+    # Arguments
+    - `gen:: NoCoolingGenerator`: Generator
+    - `fuel:: String`: Fuel type (only for metric aggregation)
+    """
+    gen.fuel = fuel
+    
+    return gen
+end
+
+
+function set_cool!(
+    gen:: NoCoolingGenerator,
+    cool:: String,
+)
+    """
+    Set cooling system type
+
+    # Arguments
+    - `gen:: NoCoolingGenerator`: Generator
+    - `cool:: String`: Cooling system type (only for metric aggregation)
+    """
+    gen.cool = cool
+    
+    return gen
+end
+
+
+function set_emit_rate!(
+    gen:: NoCoolingGenerator,
+    emit_rate:: Float64,
+)
+    """
+    Set cooling system type
+
+    # Arguments
+    - `gen:: NoCoolingGenerator`: Generator
+    - `emit_rate:: Float64`: Emission rate in [lbs/MWh]
+    """
+    gen.emit_rate = emit_rate
+
+    return gen
+end
+
+
+function set_ramp_rate!(
+    gen:: NoCoolingGenerator,
+    ramp_rate:: Float64,
+)
+    """
+    Set cooling system type
+
+    # Arguments
+    - `gen:: NoCoolingGenerator`: Generator
+    - `ramp_rate:: Float64`: Ramp rate in [MW/hr]
+    """
+    gen.ramp_rate = ramp_rate
+
+    return gen
 end

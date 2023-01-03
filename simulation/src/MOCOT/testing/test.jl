@@ -58,7 +58,6 @@ end
 
 
 @Test.testset "Fundamental Capacity Reduction Models" begin
-    @Infiltrator.infiltrate
     # Setup
     gen = MOCOT.new_once_through_generator()
     gen = MOCOT.set_water_capacity_parameters!(

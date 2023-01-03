@@ -108,12 +108,9 @@ function create_model_from_dataframes(
         cool = row["923 Cooling Type"]
 
         if row["923 Cooling Type"] == "No Cooling System"
-            gen_dict[string(row["obj_name"])] = NoCoolingGenerator(
-                emit_rate,
-                ramp_rate,
-                fuel,
-                cool,
-            )
+            # Set generator specifications
+            gen = new_no_cooling_generator()
+
         elseif row["923 Cooling Type"] == "RC" || row["923 Cooling Type"] == "RI"
             # Unpack
             eta_net = get_eta_net(string(row["MATPOWER Fuel"]), df_eia_heat_rates)
@@ -124,19 +121,20 @@ function create_model_from_dataframes(
             eta_total = eta_net
             eta_elec = eta_net
 
-            # Store
-            gen_dict[string(row["obj_name"])] = MOCOT.RecirculatingGenerator(
+            # Set generator specifications
+            gen = new_recirculating_generator()
+            gen = set_water_use_parameters!(
+                gen,
                 eta_net,
                 k_os,
                 beta_proc,
                 eta_cc,
                 k_bd,
+            )
+            gen = set_water_capacity_parameters!(
+                gen,
                 eta_total,
-                eta_elec,
-                emit_rate,
-                ramp_rate,
-                fuel,
-                cool,
+                eta_elec
             )
 
         elseif row["923 Cooling Type"] == "OC"
@@ -149,21 +147,34 @@ function create_model_from_dataframes(
             beta_with_limit = row["Withdrawal Limit [L/MWh]"]
             beta_con_limit = row["Consumption Limit [L/MWh]"]
 
-            # Store
-            gen_dict[string(row["obj_name"])] = MOCOT.OnceThroughGenerator(
+            # Set generator specifications
+            gen = new_once_through_generator()
+            gen = set_water_use_parameters!(
+                gen,
                 eta_net,
                 k_os,
                 beta_proc,
-                eta_total,
-                eta_elec,
-                beta_with_limit,
-                beta_con_limit,
-                emit_rate,
-                ramp_rate,
-                fuel,
-                cool
             )
+            gen = set_water_capacity_parameters!(
+                gen,
+                eta_total,
+                eta_elec
+            )
+            gen = set_water_use_limits!(
+                gen,
+                beta_with_limit,
+                beta_con_limit
+            )
+
         end
+        # Set specifications for all generators
+        gen = set_cool!(gen, string(cool))
+        gen = set_fuel!(gen, string(fuel))
+        gen = set_emit_rate!(gen, emit_rate)
+        gen = set_ramp_rate!(gen, ramp_rate)
+
+        # Store
+        gen_dict[string(row["obj_name"])] = gen
     end
 
     # Network-specific updates scenario
