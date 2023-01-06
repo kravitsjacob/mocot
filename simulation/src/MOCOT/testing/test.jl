@@ -202,40 +202,41 @@ end
 end
 
 
-# @Test.testset "Test for add_linear_obj_terms!" begin
-#     # Setup
-#     linear_coef = Dict{String, Float64}(
-#         "1" => -1000000.0 * 2.0,
-#         "2" => -10000000.0 * 2.0
-#     )
+@Test.testset "Test for add_linear_obj_terms!" begin
+    # Setup
+    simulation = JLD2.load("simulation/src/MOCOT/testing/test_exogenous.jld2", "simulation")
+    state = simulation.state
+    network_data = simulation.model.network_data
+    linear_coef = Dict{String, Float64}(
+        "1" => -1000000.0 * 2.0,
+        "2" => -10000000.0 * 2.0,
+    )
 
-#     # Import static network
-#     h_total = 24
-#     network_data = network_data_raw
-#     network_data_multi = PowerModels.replicate(network_data, h_total)
+    simulation = MOCOT.create_default_multi_network!(simulation, network_data)
 
-#     # Create power system model
-#     pm = PowerModels.instantiate_model(
-#         network_data_multi,
-#         PowerModels.DCPPowerModel,
-#         PowerModels.build_mn_opf
-#     )
+    # Create power system model
+    simulation.state["pm"]["1"] = PowerModels.instantiate_model(
+        state["multi_network_data"]["default"],
+        PowerModels.DCPPowerModel,
+        PowerModels.build_mn_opf
+    )
 
-#     # Add water terms
-#     pm = MOCOT.add_linear_obj_terms!(
-#         pm,
-#         linear_coef,
-#     )
+    # Add water terms
+    simulation = MOCOT.add_linear_obj_terms!(
+        simulation,
+        1,
+        linear_coef,
+    )
 
-#     # Tests
-#     test_var = PowerModels.var(pm, 1, :pg, 1)
-#     linear_terms = JuMP.objective_function(pm.model).aff.terms
+    # Tests
+    test_var = PowerModels.var(simulation.state["pm"]["1"], 1, :pg, 1)
+    linear_terms = JuMP.objective_function(simulation.state["pm"]["1"].model).aff.terms
 
-#     @Test.test isapprox(linear_terms[PowerModels.var(pm, 1, :pg, 1)], -1.9981e6, atol=1)
-#     @Test.test isapprox(linear_terms[PowerModels.var(pm, 24, :pg, 1)], -1.9981e6, atol=1)
-#     @Test.test isapprox(linear_terms[PowerModels.var(pm, 1, :pg, 2)], -1.99981e7, atol=1)
-#     @Test.test isapprox(linear_terms[PowerModels.var(pm, 24, :pg, 2)], -1.99981e7, atol=1)
-# end
+    @Test.test isapprox(linear_terms[PowerModels.var(simulation.state["pm"]["1"], 1, :pg, 1)], -1.9981e6, atol=1)
+    @Test.test isapprox(linear_terms[PowerModels.var(simulation.state["pm"]["1"], 24, :pg, 1)], -1.9981e6, atol=1)
+    @Test.test isapprox(linear_terms[PowerModels.var(simulation.state["pm"]["1"], 1, :pg, 2)], -1.99981e7, atol=1)
+    @Test.test isapprox(linear_terms[PowerModels.var(simulation.state["pm"]["1"], 24, :pg, 2)], -1.99981e7, atol=1)
+end
 
 
 @Test.testset "multiply_dicts" begin
