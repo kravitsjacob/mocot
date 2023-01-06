@@ -323,54 +323,50 @@ end
 # end
 
 
-# @Test.testset "Impact of weights" begin
-#     # Setup
-#     network_data = create_custom_test_network(network_data_raw)
-#     exogenous = exogenous_raw
+@Test.testset "Impact of weights" begin
+    # Setup
+    simulation = JLD2.load("simulation/src/MOCOT/testing/test_exogenous.jld2", "simulation")
 
-#     # No weights
-#     (objectives_no_weight, metrics, state) = MOCOT.simulation(
-#         network_data,
-#         exogenous,
-#         w_with=0.0,
-#         w_con=0.0,
-#         w_emit=0.0,
-#         verbose_level=1
-#     )
+    # No weights
+    (objectives_no_weight, metrics, state) = MOCOT.run_simulation(
+        simulation,
+        w_with=0.0,
+        w_con=0.0,
+        w_emit=0.0,
+        verbose_level=1
+    )
 
-#     # Withdrawal weights
-#     (objectives_with_weight, metrics, state) = MOCOT.simulation(
-#         network_data,
-#         exogenous,
-#         w_with=0.1,
-#         w_con=0.0,
-#         w_emit=0.0,
-#         verbose_level=1
-#     )
+    # Withdrawal weights
+    (objectives_with_weight, metrics, state) = MOCOT.run_simulation(
+        simulation,
+        w_with=0.1,
+        w_con=0.0,
+        w_emit=0.0,
+        verbose_level=1
+    )
 
-#     # Emission weights
-#     (objectives_emit_weight, metrics, state) = MOCOT.simulation(
-#         network_data,
-#         exogenous,
-#         w_with=0.0,
-#         w_con=0.0,
-#         w_emit=0.1,
-#         verbose_level=1
-#     )
+    # Emission weights
+    (objectives_emit_weight, metrics, state) = MOCOT.run_simulation(
+        simulation,
+        w_with=0.0,
+        w_con=0.0,
+        w_emit=0.1,
+        verbose_level=1
+    )
 
-#     # Test for reduced withdrawal
-#     @Test.test objectives_with_weight["f_with_tot"] < objectives_no_weight["f_with_tot"]
+    # Test for reduced withdrawal
+    @Test.test objectives_with_weight["f_with_tot"] < objectives_no_weight["f_with_tot"]
 
-#     # Test for reduced emissions
-#     @Test.test objectives_emit_weight["f_emit"] < objectives_no_weight["f_emit"]
+    # Test for reduced emissions
+    @Test.test objectives_emit_weight["f_emit"] < objectives_no_weight["f_emit"]
 
-#     # Test for increased cost
-#     @Test.test objectives_with_weight["f_gen"] > objectives_no_weight["f_gen"]
+    # Test for increased cost
+    @Test.test objectives_with_weight["f_gen"] > objectives_no_weight["f_gen"]
 
-#     # Test for increased cost
-#     @Test.test objectives_emit_weight["f_gen"] > objectives_no_weight["f_gen"]
+    # Test for increased cost
+    @Test.test objectives_emit_weight["f_gen"] > objectives_no_weight["f_gen"]
 
-# end
+end
 
 
 # @Test.testset "Water weight impact ENS" begin
