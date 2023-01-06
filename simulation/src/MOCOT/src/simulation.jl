@@ -56,16 +56,19 @@ function run_simulation(
     - `scenario_code:: Int64`: Scenario code for simulation. Default is 1.
     """
     # Initialization
-    d_total = length(simulation.exogenous["node_load"])
-    h_total = length(simulation.exogenous["node_load"]["1"])
+    exogenous = simulation.exogenous
+    model = simulation.model
+    state = simulation.state
+    d_total = length(exogenous["node_load"])
+    h_total = length(exogenous["node_load"]["1"])
 
     # Processing decision vectors
-    w_with_dict = create_decision_dict(w_with, simulation.model.network_data)  # [dollar/L]
-    w_con_dict = create_decision_dict(w_con, simulation.model.network_data)  # [dollar/L]
-    w_emit_dict = create_decision_dict(w_emit, simulation.model.network_data)  # [dollar/lb]
+    w_with_dict = create_decision_dict(w_with, model.network_data)  # [dollar/L]
+    w_con_dict = create_decision_dict(w_con, model.network_data)  # [dollar/L]
+    w_emit_dict = create_decision_dict(w_emit, model.network_data)  # [dollar/lb]
 
     # Emission rate dictionary
-    emit_rate_dict = Dict(gen_name => gen.emit_rate for (gen_name, gen) in simulation.model.gens)  # [MW/hr]
+    emit_rate_dict = Dict(gen_name => gen.emit_rate for (gen_name, gen) in model.gens)  # [MW/hr]
 
     # Initialize water use based on 20.0 [C]
     water_temperature = 20.0  # [C]
@@ -79,21 +82,21 @@ function run_simulation(
         gen_capacity_reduction,
         gen_capacity
     ) = water_models_wrapper(
-        simulation.model,
+        model,
         water_temperature,
         air_temperature,
         regulatory_temperature,
         Q,
         scenario_code,
     )
-    simulation.state["withdraw_rate"]["0"] = gen_beta_with
-    simulation.state["consumption_rate"]["0"] = gen_beta_con
-    simulation.state["discharge_violation"]["0"] = gen_discharge_violation
-    simulation.state["capacity_reduction"]["0"] = gen_capacity_reduction 
-    simulation.state["capacity"]["0"] = gen_capacity
+    state["withdraw_rate"]["0"] = gen_beta_with
+    state["consumption_rate"]["0"] = gen_beta_con
+    state["discharge_violation"]["0"] = gen_discharge_violation
+    state["capacity_reduction"]["0"] = gen_capacity_reduction 
+    state["capacity"]["0"] = gen_capacity
 
     # Add reliability generators
-    temp_network_data = create_reliabilty_network(simulation.model, voll)
+    temp_network_data = create_reliabilty_network(model, voll)
 
     # Make multinetwork
     simulation = create_default_multi_network!(simulation, temp_network_data)
@@ -102,7 +105,7 @@ function run_simulation(
     for d in 1:d_total
         println("Simulation Day: " * string(d))
         # Store updated multi_network_data
-        simulation.state["multi_network_data"][string(d)] = simulation.state["multi_network_data"]["default"]
+        state["multi_network_data"][string(d)] = state["multi_network_data"]["default"]
 
         # Update generator capacity
         simulation = update_gen_capacity!(
@@ -123,8 +126,8 @@ function run_simulation(
         )
 
         # Instantiate model
-        simulation.state["pm"][string(d)] = PowerModels.instantiate_model(
-            simulation.state["multi_network_data"][string(d)],
+        state["pm"][string(d)] = PowerModels.instantiate_model(
+            state["multi_network_data"][string(d)],
             PowerModels.DCPPowerModel,
             PowerModels.build_mn_opf
         )
@@ -136,7 +139,7 @@ function run_simulation(
         end
 
         # Add withdrawal terms
-        w_with_terms = multiply_dicts([simulation.state["withdraw_rate"][string(d-1)], w_with_dict])  # [L/MWh] * [dollar/L]
+        w_with_terms = multiply_dicts([state["withdraw_rate"][string(d-1)], w_with_dict])  # [L/MWh] * [dollar/L]
         map!(x -> x * 100.0, values(w_with_terms)) # [dollar/pu]
         simulation = add_linear_obj_terms!(
             simulation,
@@ -145,7 +148,7 @@ function run_simulation(
         )
     
         # Add consumption terms
-        w_con_terms = multiply_dicts([simulation.state["consumption_rate"][string(d-1)], w_con_dict])  # [L/MWh] * [dollar/L] * 1 [hr]
+        w_con_terms = multiply_dicts([state["consumption_rate"][string(d-1)], w_con_dict])  # [L/MWh] * [dollar/L] * 1 [hr]
         map!(x -> x * 100.0, values(w_con_terms)) # [dollar/pu]
         simulation = add_linear_obj_terms!(
             simulation,
@@ -164,13 +167,13 @@ function run_simulation(
 
         # Solve power system model
         if verbose_level == 1
-            simulation.state["results"][string(d)] = PowerModels.optimize_model!(
-                simulation.state["pm"][string(d)],
+            state["results"][string(d)] = PowerModels.optimize_model!(
+                state["pm"][string(d)],
                 optimizer=JuMP.optimizer_with_attributes(Ipopt.Optimizer)
             )
         elseif verbose_level == 0
-            simulation.state["results"][string(d)] = PowerModels.optimize_model!(
-                simulation.state["pm"][string(d)],
+            state["results"][string(d)] = PowerModels.optimize_model!(
+                state["pm"][string(d)],
                 optimizer=JuMP.optimizer_with_attributes(Ipopt.Optimizer, "print_level"=>0)
             )
         end
@@ -183,18 +186,18 @@ function run_simulation(
             gen_capacity_reduction,
             gen_capacity
         ) = water_models_wrapper(
-            simulation.model,
-            simulation.exogenous["water_temperature"][string(d)],
-            simulation.exogenous["air_temperature"][string(d)],
+            model,
+            exogenous["water_temperature"][string(d)],
+            exogenous["air_temperature"][string(d)],
             regulatory_temperature,
-            simulation.exogenous["water_flow"][string(d)],
+            exogenous["water_flow"][string(d)],
             scenario_code,
         )
-        simulation.state["withdraw_rate"][string(d)] = gen_beta_with
-        simulation.state["consumption_rate"][string(d)] = gen_beta_con
-        simulation.state["discharge_violation"][string(d)] = gen_discharge_violation
-        simulation.state["capacity_reduction"][string(d)] = gen_capacity_reduction 
-        simulation.state["capacity"][string(d)] = gen_capacity
+        state["withdraw_rate"][string(d)] = gen_beta_with
+        state["consumption_rate"][string(d)] = gen_beta_con
+        state["discharge_violation"][string(d)] = gen_discharge_violation
+        state["capacity_reduction"][string(d)] = gen_capacity_reduction 
+        state["capacity"][string(d)] = gen_capacity
 
     end
 
@@ -204,7 +207,7 @@ function run_simulation(
     # Compute metrics
     metrics = get_metrics(simulation)
 
-    return (objectives, metrics, simulation.state)
+    return (objectives, metrics, state)
 end
 
 
