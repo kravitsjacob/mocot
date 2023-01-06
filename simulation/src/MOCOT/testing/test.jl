@@ -369,25 +369,23 @@ end
 end
 
 
-# @Test.testset "Water weight impact ENS" begin
-#     # Setup
-#     network_data = create_custom_test_network(network_data_raw)
-#     exogenous = exogenous_raw
+@Test.testset "Water weight impact ENS" begin
+    # Setup
+    simulation = JLD2.load("simulation/src/MOCOT/testing/test_exogenous.jld2", "simulation")
 
-#     # No weights
-#     (objectives_weights, metrics, state) = MOCOT.simulation(
-#         network_data,
-#         exogenous,
-#         w_with=5.0,
-#         w_con=0.0,
-#         w_emit=0.0,
-#         verbose_level=1
-#     )
+    # No weights
+    (objectives_weights, metrics, state) = MOCOT.run_simulation(
+        simulation,
+        w_with=5.0,
+        w_con=0.0,
+        w_emit=0.0,
+        verbose_level=1
+    )
 
-#     # Test for increased ENS
-#     @Test.test objectives_weights["f_ENS"] > 0.1
+    # Test for increased ENS
+    @Test.test objectives_weights["f_ENS"] > 0.1
 
-# end
+end
 
 
 @Test.testset "Testing simulation wrapper" begin
