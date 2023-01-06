@@ -60,7 +60,6 @@ function run_simulation(
     model = simulation.model
     state = simulation.state
     d_total = length(exogenous["node_load"])
-    h_total = length(exogenous["node_load"]["1"])
 
     # Processing decision vectors
     w_with_dict = create_decision_dict(w_with, model.network_data)  # [dollar/L]
