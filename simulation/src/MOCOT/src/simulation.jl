@@ -55,19 +55,20 @@ function run_simulation(
     - `verbose_level:: Int64`: Level of output. Default is 1. Less is 0.
     - `scenario_code:: Int64`: Scenario code for simulation. Default is 1.
     """
-    # Initialization
+    # Setup
     exogenous = simulation.exogenous
     model = simulation.model
     state = simulation.state
-    d_total = length(exogenous["node_load"])
-
-    # Processing decision vectors
     w_with_dict = create_decision_dict(w_with, model.network_data)  # [dollar/L]
     w_con_dict = create_decision_dict(w_con, model.network_data)  # [dollar/L]
     w_emit_dict = create_decision_dict(w_emit, model.network_data)  # [dollar/lb]
+    emit_rate_dict = get_gen_dict(model, "emit_rate")  # [MW/hr]
 
-    # Emission rate dictionary
-    emit_rate_dict = Dict(gen_name => gen.emit_rate for (gen_name, gen) in model.gens)  # [MW/hr]
+    # Add reliability generators
+    temp_network_data = create_reliabilty_network(model, voll)
+
+    # Make multinetwork
+    simulation = create_default_multi_network!(simulation, temp_network_data)
 
     # Initialize water use based on 20.0 [C]
     water_temperature = 20.0  # [C]
@@ -75,11 +76,11 @@ function run_simulation(
     Q = 1400.0 # cmps
     regulatory_temperature = 32.2  # For Illinois
     (
-        gen_beta_with,
-        gen_beta_con,
-        gen_discharge_violation,
-        gen_capacity_reduction,
-        gen_capacity
+        state["withdraw_rate"]["0"],
+        state["consumption_rate"]["0"],
+        state["discharge_violation"]["0"],
+        state["capacity_reduction"]["0"],
+        state["capacity"]["0"]
     ) = water_models_wrapper(
         model,
         water_temperature,
@@ -88,22 +89,13 @@ function run_simulation(
         Q,
         scenario_code,
     )
-    state["withdraw_rate"]["0"] = gen_beta_with
-    state["consumption_rate"]["0"] = gen_beta_con
-    state["discharge_violation"]["0"] = gen_discharge_violation
-    state["capacity_reduction"]["0"] = gen_capacity_reduction 
-    state["capacity"]["0"] = gen_capacity
 
-    # Add reliability generators
-    temp_network_data = create_reliabilty_network(model, voll)
-
-    # Make multinetwork
-    simulation = create_default_multi_network!(simulation, temp_network_data)
-    
-    # Simulation
+    # Daily simulation
+    d_total = length(exogenous["node_load"])
     for d in 1:d_total
         println("Simulation Day: " * string(d))
-        # Store updated multi_network_data
+    
+        # Set multi-hour network data to default
         state["multi_network_data"][string(d)] = state["multi_network_data"]["default"]
 
         # Update generator capacity
@@ -179,11 +171,11 @@ function run_simulation(
 
         # Water use
         (
-            gen_beta_with,
-            gen_beta_con,
-            gen_discharge_violation,
-            gen_capacity_reduction,
-            gen_capacity
+            state["withdraw_rate"][string(d)],
+            state["consumption_rate"][string(d)],
+            state["discharge_violation"][string(d)],
+            state["capacity_reduction"][string(d)],
+            state["capacity"][string(d)]
         ) = water_models_wrapper(
             model,
             exogenous["water_temperature"][string(d)],
@@ -192,11 +184,6 @@ function run_simulation(
             exogenous["water_flow"][string(d)],
             scenario_code,
         )
-        state["withdraw_rate"][string(d)] = gen_beta_with
-        state["consumption_rate"][string(d)] = gen_beta_con
-        state["discharge_violation"][string(d)] = gen_discharge_violation
-        state["capacity_reduction"][string(d)] = gen_capacity_reduction 
-        state["capacity"][string(d)] = gen_capacity
 
     end
 

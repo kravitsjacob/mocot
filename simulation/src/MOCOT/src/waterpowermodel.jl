@@ -12,6 +12,24 @@ struct WaterPowerModel
 end
 
 
+function get_gen_dict(model:: WaterPowerModel, prop:: String)
+    """
+    Get dictionary of generator property
+
+    # Arguments
+    - `model:: WaterPowerModel`: Water power model
+    - `prop:: String`: Generator property to put in dictionary
+    """
+    gen_dict = Dict(
+        gen_name => getfield(gen, Symbol(prop))
+        for (gen_name, gen)
+        in model.gens
+    )
+
+    return gen_dict
+end
+
+
 function create_reliabilty_network(model:: WaterPowerModel, voll:: Float64)
     """
     Add fake generators at every load to model relaibility. Generators with
