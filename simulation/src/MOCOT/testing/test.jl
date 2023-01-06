@@ -4,9 +4,9 @@ using Test
 # using DataFrames
 # using CSV
 # using XLSX
-# using PowerModels
-# using JuMP
-# using Ipopt
+using PowerModels
+using JuMP
+using Ipopt
 using JLD2
 
 using MOCOT
@@ -255,37 +255,37 @@ end
 end
 
 
-# @Test.testset "add_reliability_gens!" begin
-#     # Setup
-#     network_data = network_data_raw
+@Test.testset "add_reliability_gens!" begin
+    # Setup
+    simulation = JLD2.load("simulation/src/MOCOT/testing/test_exogenous.jld2", "simulation")
+    model = simulation.model
+    network_data = model.network_data
     
-#     # Add really big load
-#     network_data["load"]["1"]["pd"] = 100000.0
+    # Add really big load
+    network_data["load"]["1"]["pd"] = 100000.0
 
-#     # Adjust generator capacity
-#     network_data = MOCOT.update_all_gens!(network_data, "pmin", 0.0)
+    # Adjust generator capacity
+    network_data = MOCOT.update_all_gens!(network_data, "pmin", 0.0)
 
-#     # Add reliability
-#     voll = 330000.0  # $/pu for MISO
-#     network_data = MOCOT.add_reliability_gens!(network_data, voll)
+    # Add reliability
+    voll = 330000.0  # $/pu for MISO
+    network_data = MOCOT.create_reliabilty_network(model, voll)
 
-#     # Solve OPF
-#     pm = PowerModels.instantiate_model(
-#         network_data,
-#         PowerModels.DCPPowerModel,
-#         PowerModels.build_mn_opf
-#     )
-#     results = PowerModels.optimize_model!(
-#         pm,
-#         optimizer=Ipopt.Optimizer
-#     )
+    # Solve OPF
+    pm = PowerModels.instantiate_model(
+        network_data,
+        PowerModels.DCPPowerModel,
+        PowerModels.build_mn_opf
+    )
+    results = PowerModels.optimize_model!(
+        pm,
+        optimizer=Ipopt.Optimizer
+    )
 
-#     # Test the reliability of load 1 (relability generator 10001)
-#     @Test.test isapprox(results["solution"]["gen"]["1001"]["pg"], 99998.99, atol=1)
+    # Test the reliability of load 1 (relability generator 10001)
+    @Test.test isapprox(results["solution"]["gen"]["1001"]["pg"], 99998.99, atol=1)
 
-#     # Test if generators were stored
-#     @Test.test isequal(length(network_data["reliability_gen"]), 108)
-# end
+end
 
 
 # @Test.testset "Test for generator water use with thermal limits" begin
