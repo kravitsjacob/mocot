@@ -289,41 +289,6 @@ end
 end
 
 
-# @Test.testset "Test for generator water use with thermal limits" begin
-#     # Setup
-#     air_temperature = 25.0
-#     regulatory_temperature = 33.7
-#     network_data = create_custom_test_network(network_data_raw)
-
-#     # Set limits
-#     network_data["gen"]["1"]["cus_with_limit"] = 19000000.0
-#     network_data["gen"]["1"]["cus_con_limit"] = 40000.0
-
-#     # No violations
-#     inlet_temperature = 25.0
-#     gen_beta_with, gen_beta_con, gen_discharge_violation = MOCOT.gen_water_use_wrapper(
-#         inlet_temperature,
-#         air_temperature,
-#         regulatory_temperature,
-#         network_data
-#     )
-#     @Test.test isapprox(gen_beta_with["1"], 1.674957060861525e7, atol=1)
-#     @Test.test isapprox(gen_beta_con["1"], 36729.5, atol=1)
-
-#     # Discharge temperature violation
-#     inlet_temperature = 27.0
-#     gen_beta_with, gen_beta_con, gen_discharge_violation = MOCOT.gen_water_use_wrapper(
-#         inlet_temperature,
-#         air_temperature,
-#         regulatory_temperature,
-#         network_data
-#     )
-#     @Test.test isapprox(gen_beta_with["1"], 19000000.0, atol=1)
-#     @Test.test isapprox(gen_beta_con["1"], 40000.0, atol=1)
-#     @Test.test isapprox(gen_discharge_violation["1"], 0.968, atol=1)
-# end
-
-
 @Test.testset "Impact of weights" begin
     # Setup
     simulation = JLD2.load("simulation/src/MOCOT/testing/test_exogenous.jld2", "simulation")
