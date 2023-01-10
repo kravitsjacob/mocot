@@ -97,7 +97,7 @@ def select_policies(runtime, df_judement):
 
     # Extracting policies
     df['policy_label'] = ''
-    idx_compromise = df.iloc[(df['f_gen']-5186066.459283395).abs().argsort()[:1]].index[0]  # noqa
+    idx_compromise = df.iloc[(df['f_gen']-1327312.1752207442).abs().argsort()[:1]].index[0]  # noqa
     df.at[idx_compromise, 'policy_label'] = 'water-emission policy'
     df = df[df['policy_label'] != '']
     df = df[runtime.decision_names + ['policy_label']]

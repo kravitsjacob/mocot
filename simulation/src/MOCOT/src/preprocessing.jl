@@ -15,7 +15,7 @@ function read_inputs(
     air_water_template:: String,
     wind_capacity_factor_template:: String,
     node_load_template:: String,
-    gen_info_from_python_path:: String,
+    df_gen_info_path:: String,
     eia_heat_rates_path:: String,
     case_path:: String,
     decisions_path:: String,
@@ -42,8 +42,8 @@ function read_inputs(
     df_scenario_specs = DataFrames.DataFrame(
         CSV.File(scenario_specs_path, dateformat="yyyy-mm-dd HH:MM:SS")
     )
-    df_gen_info_python = DataFrames.DataFrame(
-        CSV.File(gen_info_from_python_path)
+    df_gen_info = DataFrames.DataFrame(
+        CSV.File(df_gen_info_path)
     )
     df_eia_heat_rates = DataFrames.DataFrame(
         XLSX.readtable(eia_heat_rates_path, "Annual Data")
@@ -67,9 +67,6 @@ function read_inputs(
     objective_names = vec(DelimitedFiles.readdlm(objectives_path, ',', String))
     metric_names = vec(DelimitedFiles.readdlm(metrics_path, ',', String))
 
-    # Generator information
-    df_gen_info = get_gen_info(network_data, df_gen_info_python)
-
     inputs = (
         df_scenario_specs,
         df_eia_heat_rates,
@@ -86,87 +83,114 @@ function read_inputs(
 end
 
 
-function add_custom_properties!(
+function create_model_from_dataframes(
     network_data:: Dict,
+    scenario_code:: Int64,
     df_gen_info:: DataFrames.DataFrame,
-    df_eia_heat_rates:: DataFrames.DataFrame
+    df_eia_heat_rates:: DataFrames.DataFrame,
 )
     """
-    Add custom properties to the network
+    Create WaterPowerModel from dataframes
 
     # Arguments
     - `network_data:: Dict`: PowerModels network data
+    - `scenario_code:: Int64`: Numeric scenario code
     - `df_gen_info:: DataFrames.DataFrame`: Generator information
-    - `df_eia_heat_rates:: DataFrames.DataFrame`: EIA heat rate information
+    - `df_eia_heat_rates:: DataFrames.DataFrame`: Energy information heat rates table
     """
-    # Ramp rate
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_ramp_rate",
-        df_gen_info[!, "obj_name"],
-        convert.(Float64, df_gen_info[!, "Ramp Rate (MW/hr)"]) / 100.0  # convert to pu/hr
-    )
+    # Create generators
+    gen_dict = Dict()
+    for row in eachrow(df_gen_info)
+        # All-generator properties
+        emit_rate = row["Emission Rate lbs per MWh"]  # [lbs/MWh]
+        ramp_rate = row["Ramp Rate (MW/hr)"]  # [MW/hr]
+        fuel = row["MATPOWER Fuel"]
+        cool = row["923 Cooling Type"]
 
-    # Fuel types
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_fuel",
-        df_gen_info[!, "obj_name"],
-        convert.(String, df_gen_info[!, "MATPOWER Fuel"])
-    )
+        if row["923 Cooling Type"] == "No Cooling System"
+            # Set generator specifications
+            gen = new_no_cooling_generator()
 
-    # Cooling type
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_cool",
-        df_gen_info[!, "obj_name"],
-        convert.(String, df_gen_info[!, "923 Cooling Type"])
-    )
+        elseif row["923 Cooling Type"] == "RC" || row["923 Cooling Type"] == "RI"
+            # Unpack
+            eta_net = get_eta_net(string(row["MATPOWER Fuel"]), df_eia_heat_rates)
+            k_os = get_k_os(string(row["MATPOWER Fuel"]))
+            beta_proc = get_beta_proc(string(row["MATPOWER Fuel"]))
+            eta_cc = 5
+            k_bd = 1.0
+            eta_total = eta_net
+            eta_elec = eta_net
 
-    # Emissions coefficient
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_emit",
-        df_gen_info[!, "obj_name"],
-        convert.(Float64, df_gen_info[!, "Emission Rate lbs per MWh"]) * 100.0  # convert to lbs / pu
-    )
+            # Set generator specifications
+            gen = new_recirculating_generator()
+            gen = set_water_use_parameters!(
+                gen,
+                eta_net,
+                k_os,
+                beta_proc,
+                eta_cc,
+                k_bd,
+            )
+            gen = set_water_capacity_parameters!(
+                gen,
+                eta_total,
+                eta_elec
+            )
 
-    # Withdrawal limit
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_with_limit",
-        df_gen_info[!, "obj_name"],
-        df_gen_info[!, "Withdrawal Limit [L/MWh]"] * 100.0  # convert to L / pu
-    )
+        elseif row["923 Cooling Type"] == "OC"
+            # Unpack
+            eta_net = get_eta_net(string(row["MATPOWER Fuel"]), df_eia_heat_rates)
+            k_os = get_k_os(string(row["MATPOWER Fuel"]))
+            beta_proc = get_beta_proc(string(row["MATPOWER Fuel"]))
+            eta_total = eta_net
+            eta_elec = eta_net
+            beta_with_limit = row["Withdrawal Limit [L/MWh]"]
+            beta_con_limit = row["Consumption Limit [L/MWh]"]
 
-    # Consumption limit
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_con_limit",
-        df_gen_info[!, "obj_name"],
-        df_gen_info[!, "Consumption Limit [L/MWh]"] * 100.0  # convert to L / pu
-    )
+            # Set generator specifications
+            gen = new_once_through_generator()
+            gen = set_water_use_parameters!(
+                gen,
+                eta_net,
+                k_os,
+                beta_proc,
+            )
+            gen = set_water_capacity_parameters!(
+                gen,
+                eta_total,
+                eta_elec
+            )
+            gen = set_water_use_limits!(
+                gen,
+                beta_with_limit,
+                beta_con_limit
+            )
 
-    # Heat rates
-    df_gen_info = DataFrames.transform!(
-        df_gen_info,
-        Symbol("MATPOWER Fuel") => DataFrames.ByRow(fuel -> get_eta_net(string(fuel), df_eia_heat_rates)) => "Heat Rate"
-    )
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_heat_rate",
-        df_gen_info[!, "obj_name"],
-        convert.(Float64, df_gen_info[!, "Heat Rate"])
-    )
+        end
+        # Set specifications for all generators
+        gen = set_cool!(gen, string(cool))
+        gen = set_fuel!(gen, string(fuel))
+        gen = set_emit_rate!(gen, emit_rate)
+        gen = set_ramp_rate!(gen, ramp_rate)
 
-    return network_data
+        # Store
+        gen_dict[string(row["obj_name"])] = gen
+    end
+
+    # Network-specific updates scenario
+    network_data = MOCOT.update_all_gens!(network_data, "gen_status", 1)
+    network_data = MOCOT.update_all_gens!(network_data, "pmin", 0.0)
+    if scenario_code == 3  # Nuclear outage
+        network_data["gen"]["47"]["gen_status"] = 0
+        delete!(gen_dict, "47")
+    elseif scenario_code == 4  # Line outage
+        delete!(network_data["branch"], "158")
+    end
+
+    # Create model
+    model = WaterPowerModel(gen_dict, network_data)
+    
+    return model
 end
 
 
@@ -175,8 +199,8 @@ function get_eta_net(fuel:: String, df_eia_heat_rates:: DataFrames.DataFrame)
     Get net efficiency of plant
     
     # Arguments
-    `fuel:: String`: Fuel code
-    `df_eia_heat_rates:: DataFrames.DataFrame`: DataFrame of eia heat rates
+    - `fuel:: String`: Fuel code
+    - `df_eia_heat_rates:: DataFrames.DataFrame`: DataFrame of eia heat rates
     """
     if fuel == "coal"
         col_name = "Electricity Net Generation, Coal Plants Heat Rate"
@@ -199,6 +223,115 @@ function get_eta_net(fuel:: String, df_eia_heat_rates:: DataFrames.DataFrame)
     end
 
     return eta_net
+end
+
+
+function get_k_os(fuel:: String)
+    """
+    Get other sinks fraction from DOE-NETL reference models
+
+    # Arguments
+    - `fuel:: String`: Fuel code
+    """
+    if fuel == "coal"
+        k_os = 0.12
+    elseif fuel == "ng"
+        k_os = 0.20
+    elseif fuel == "nuclear"
+        k_os = 0.0
+    elseif fuel == "wind"
+        k_os = 0.0
+    end
+
+    return k_os
+end
+
+
+function get_beta_proc(fuel:: String)
+    """
+    Get water withdrawal from non-cooling processes in [L/MWh] based on DOE-NETL model
+
+    # Arguments
+    - `fuel:: String`: Fuel code
+    """
+    if fuel == "coal"
+        beta_proc = 200.0
+    else
+        beta_proc = 10.0
+    end
+
+    return beta_proc
+end
+
+
+function create_simulation_from_dataframes(
+    model:: WaterPowerModel,
+    scenario_code:: Int64,
+    df_scenario_specs:: DataFrames.DataFrame,
+    df_air_water:: DataFrames.DataFrame,
+    df_wind_cf:: DataFrames.DataFrame,
+    df_node_load:: DataFrames.DataFrame,
+)
+    """
+    Create simulation from dataframes
+
+    # Arguments
+    - `model:: WaterPowerModel`: System model
+    - `scenario_code:: Int64`: Numeric scenario code
+    - `df_scenario_specs:: DataFrames.DataFrame`: Scenario specifications
+    - `df_air_water:: DataFrames.DataFrame`: Air and water temperature dataframe
+    - `df_wind_cf:: DataFrames.DataFrame`: Wind capacity factor dataframes
+    - `df_node_load:: DataFrames.DataFrame`: Node-level load dataframe
+    """
+    # Exogenous parameters
+    specs = df_scenario_specs[df_scenario_specs.scenario_code .== scenario_code, :]
+    start_date = specs.datetime_start[1]
+    end_date = specs.datetime_end[1]
+    exogenous = get_exogenous(
+        start_date,
+        end_date,
+        df_air_water,
+        df_wind_cf,
+        df_node_load
+    )
+
+    # Create simulation
+    simulation = new_simulation(model, exogenous)
+
+    return simulation
+end
+
+
+function get_exogenous(
+    start_date:: Dates.DateTime,
+    end_date:: Dates.DateTime,
+    df_air_water:: DataFrames.DataFrame,
+    df_wind_cf:: DataFrames.DataFrame,
+    df_node_load:: DataFrames.DataFrame
+)
+    """
+    Format exogenous parameters
+
+    # Arguments
+    - `start_date:: Dates.DateTime`: Start time for simulation
+    - `end_date:: Dates.DateTime`: End time for simulation
+    - `df_air_water:: DataFrames.DataFrame`: Air and water temperature dataframe
+    - `df_wind_cf:: DataFrames.DataFrame`: Wind capacity factor dataframes
+    - `df_node_load:: DataFrames.DataFrame`: Node-level load dataframe
+    """
+    exogenous = Dict{String, Any}()
+
+    # Air and water temperatures
+    exogenous = add_air_water!(exogenous, df_air_water, start_date, end_date)
+
+    # Wind capacity factors
+    exogenous = add_wind_cf!(exogenous, df_wind_cf, start_date, end_date)    
+
+    # Node loads
+    exogenous = add_node_loads!(exogenous, df_node_load, start_date, end_date)
+
+    return exogenous
+
 end
 
 
@@ -333,7 +466,7 @@ function add_node_loads!(
                 ## PowerModels indexing
                 powermodels_bus = row["bus"] + 1
 
-                nodes[string(powermodels_bus)] = row["load_mw"] / 100.0 # convert to pu
+                nodes[string(powermodels_bus)] = row["load_mw"]
             end
             h_nodes[string(trunc(Int, h))] = nodes
         end
@@ -342,77 +475,4 @@ function add_node_loads!(
     exogenous["node_load"] = d_nodes
 
     return exogenous
-end
-
-
-function get_exogenous(
-    start_date:: Dates.DateTime,
-    end_date:: Dates.DateTime,
-    df_air_water:: DataFrames.DataFrame,
-    df_wind_cf:: DataFrames.DataFrame,
-    df_node_load:: DataFrames.DataFrame
-)
-    """
-    Format exogenous parameters
-
-    # Arguments
-    - `start_date:: Dates.DateTime`: Start time for simulation
-    - `end_date:: Dates.DateTime`: End time for simulation
-    - `df_air_water:: DataFrames.DataFrame`: Air and water temperature dataframe
-    - `df_wind_cf:: DataFrames.DataFrame`: Wind capacity factor dataframes
-    - `df_node_load:: DataFrames.DataFrame`: Node-level load dataframe
-    """
-    exogenous = Dict{String, Any}()
-
-    # Air and water temperatures
-    exogenous = add_air_water!(exogenous, df_air_water, start_date, end_date)
-
-    # Wind capacity factors
-    exogenous = add_wind_cf!(exogenous, df_wind_cf, start_date, end_date)    
-
-    # Node loads
-    exogenous = add_node_loads!(exogenous, df_node_load, start_date, end_date)
-
-    return exogenous
-
-end
-
-
-function update_scenario!(network_data, scenario_code:: Int64)
-    """
-    Update network based on scenario
-
-    # Arguments
-    - `network_data::Dict`: Network data (e.g., network_data_multi["nw"])
-    - `scenario_code:: Int64`: Scenario code. 1 for all generators. 2 for no nuclear.
-    """
-    if scenario_code == 3  # "Nuclear outage"
-        network_data = MOCOT.update_all_gens!(network_data, "gen_status", 1)
-        network_data["gen"]["47"]["gen_status"] = 0
-    else  # "All generators"
-        network_data = MOCOT.update_all_gens!(network_data, "gen_status", 1)
-    end
-
-    return network_data
-end
-
-
-function get_gen_info(
-    network_data:: Dict,
-    df_gen_info_python:: DataFrames.DataFrame
-)
-    """
-    Get generator information by merging PowerModels and MATPOWER data
-
-    # Arguments
-    - `network_data:: Dict`: Network data 
-    - `df_gen_info_python:: DataFrames.DataFrame`: Generator information from preprocessing
-    """
-    df_gen_info_pm = MOCOT.network_to_df(network_data, "gen", ["gen_bus"])
-    df_gen_info = DataFrames.leftjoin(
-        df_gen_info_pm,
-        df_gen_info_python,
-        on = :gen_bus => Symbol("MATPOWER Index")
-    )
-    return df_gen_info
 end

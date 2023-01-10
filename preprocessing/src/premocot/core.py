@@ -473,8 +473,15 @@ def process_wind_capacity_factors(path_to_dir):
     )
 
     # Get wind capacity factors
-    wind_mean = df_raw['Wind Speed'].mean()
-    df_raw['Wind Capacity Factor'] = df_raw['Wind Speed'] / wind_mean
+    top_speed = 22.352  # [m/s]
+    rated_speed = 11.176  # [m/s]
+    minimum_speed = 2.68224  # [m/s]
+    df_raw['Wind Speed'][df_raw['Wind Speed'] > top_speed] = 0.0
+    df_raw['Wind Speed'][df_raw['Wind Speed'] < minimum_speed] = 0.0
+    df_raw['Wind Capacity Factor'] = \
+        (df_raw['Wind Speed'] - minimum_speed) / (rated_speed - minimum_speed)
+    df_raw['Wind Capacity Factor'][df_raw['Wind Capacity Factor'] > 1.0] = 1.0
+    df_raw['Wind Capacity Factor'][df_raw['Wind Capacity Factor'] < 0.0] = 0.0
 
     # Cleanup
     df_air['datetime'] = df_raw['datetime'] - datetime.timedelta(minutes=30)
@@ -625,7 +632,7 @@ def create_scenario_exogenous(
         (df_system_load['datetime'] <= datetime_end)
     df_system_load = df_system_load[condition]
     df_system_load = df_system_load.reset_index(drop=True)
-    for i, row in df_system_load.iterrows():
+    for i, row in df_system_load.transpose().items():
         # Create temporary dataframe
         df_temp = pd.DataFrame(df_def_load['bus'])
 

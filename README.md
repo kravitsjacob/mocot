@@ -14,11 +14,7 @@ Multi-Objective Coordination of Thermoelectric Water Use
 ## Single Simulation Run (Debugging/Development)
 1) Activate julia `$ julia --project=simulation/src/MOCOT`
 2) Instantiate julia packages `julia> include("simulation/julia_config.jl")`
-
-for every bug:
-  * Run `using Infiltrator` to add debugging functionality.
-  * Set breakpoint where appropriate using `@Infiltrator.infiltrate` be sure to `import Infiltrator` at the top of development packages. Note, it will throw a warning as it thinks you are adding a not-included dependency.
-  * Evaluate using `include("simulation/single_simulation.jl")`
+3) Evaluate using `julia> include("simulation/single_simulation.jl")`
 
 ## Single Simulation Run in C (Debugging/Development)
 1) Download julia and make sure the path is reflected in `optimization/makefile`
@@ -51,24 +47,19 @@ for every bug:
 4) Compile using `$ make optimization -C ./optimization`
 5) Run optimization using "all generators" scenario (code 1) `$ mpiexec -n 2 ./optimization/optimization.exe 1`
 
-## Multi-Objective Optimization on Summit/Alpine
+## Multi-Objective Optimization on Alpine
 
 ### Building MOCOT project
 1) Activate slurm: `$ ml slurm/alpine`
-	* Summit equivalent: `$ ml slurm/summit`
 2) Go to compile node: `$ acompile`
-	* Summit equivalent: `$ ssh scompile` 
 3) Change directory to mocot: `$ cd /projects/jakr3868/mocot`
 4) Configure slurm: `$ . optimization/slurm_config.sh` 
-	* Summit equivalent: `$ . optimization/slurm_config_summit.sh` 
 5) Compile using `$ make slurm -C ./optimization`
 
 ### Running optimization
 1) Activate slurm: `$ ml slurm/alpine`
-	* Summit equivalent: `$ ml slurm/summit`
 2) Change directory to mocot: `$ cd /projects/jakr3868/mocot`
 3) Submit the job for all scenarios: `$ sbatch --array=1-7 optimization/slurm_run.sh`
-	* Summit equivalent: `$ sbatch --array=1-7 optimization/slurm_run_summit.sh` 
 
 # Postprocessing
 
@@ -83,4 +74,9 @@ for every bug:
 3) Run postprocessing `julia> include("postprocessing/run_scenarios.jl")`
 
 # Notes on old commits/releases
-Releases of week-01 to week-09 were regenerated due to migration away from git lfs. Thus, their release data all occur on the same day. 
+Releases of week-01 to week-09 were regenerated due to migration away from git lfs. Thus, their release data all occur on the same day.
+
+for every bug:
+  * Run `using Infiltrator` to add debugging functionality.
+  * Set breakpoint where appropriate using `@Infiltrator.infiltrate` be sure to `import Infiltrator` at the top of development packages. Note, it will throw a warning as it thinks you are adding a not-included dependency.
+  * Evaluate using `include(<path>)`

@@ -4,40 +4,42 @@
 using Revise
 using Infiltrator  # @Infiltrator.infiltrate
 
-using YAML
-using CSV
 using DataFrames
 
 using MOCOT
 
 
 function main()
-    # Setup
-    paths = YAML.load_file("paths.yml")
-
     # Simulation with average case
-    (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 1)
+    (objectives, metrics, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 1)
 
     # Simulation with extreme load/climate
-    (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 2)
+    (objectives, metrics, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 2)
 
     # Simulation with nuclear outage
-    (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 3)
+    (objectives, metrics, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 3)
+
+    # Simulation with line outage
+    (objectives, metrics, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 4)
+
+    # Simulation that avoids temperature violation
+    (objectives, metrics, state) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 5)
 
     # Objectives
     df_objs = DataFrames.DataFrame(objectives)
 
-    # Power states
-    df_power_states = MOCOT.pm_state_df(state, "power", "gen", ["pg"])
-
-    # Discharge violation states
-    df_discharge_violation_states = MOCOT.custom_state_df(state, "discharge_violation")
-
-    # Discharge violation states
-    df_capacity_reduction = MOCOT.custom_state_df(state, "capacity_reduction")
-
     # Metrics
     df_metrics = DataFrames.DataFrame(metrics)
+
+    # Power states
+    df_power_states = MOCOT.get_powermodel_state_dataframe(state, "results", "gen", "pg")
+
+    # Discharge violation states
+    df_discharge_violation_states = MOCOT.get_state_dataframe(state, "discharge_violation")
+
+    # Discharge violation states
+    df_capacity_reduction = MOCOT.get_state_dataframe(state, "capacity_reduction")
+
 
 end
 

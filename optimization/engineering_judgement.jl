@@ -78,8 +78,8 @@ function main()
 
     # Find engineering judgement w_with
     w_with = find_engineering_judgement_weight(
-        0.034,
-        0.036,
+        0.0,
+        0.5,
         function (x)
             (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(x, 0.0, 0.0, 2, 0, 1)
             return objectives["f_with_tot"]
@@ -88,8 +88,8 @@ function main()
 
     # Find engineering judgement w_con
     w_con = find_engineering_judgement_weight(
-        0.041,
-        0.042,
+        0.0,
+        0.5,
         function (x)
             (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, x, 0.0, 2, 0, 1)
             return objectives["f_con_tot"]
@@ -98,8 +98,8 @@ function main()
 
     # Find engineering judgement w_emit
     w_emit = find_engineering_judgement_weight(
-        0.004,
-        0.006,
+        0.0,
+        0.5,
         function (x)
             (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(0.0, 0.0, x, 2, 0, 1)
             return objectives["f_emit"]

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #SBATCH --nodes=8
-#SBATCH --ntasks-per-node=8
+#SBATCH --ntasks-per-node=16
 #SBATCH --cpus-per-task=1
 #SBATCH --switches=1
 #SBATCH --constraint=ib

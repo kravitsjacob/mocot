@@ -1,9 +1,6 @@
 using Infiltrator
 using Revise
 using Test
-using DataFrames
-using CSV
-using XLSX
 using PowerModels
 using JuMP
 using Ipopt
@@ -11,144 +8,88 @@ using JLD2
 
 using MOCOT
 
-# Global vars
-network_data_raw = PowerModels.parse_file("simulation/src/MOCOT/testing/case_ACTIVSg200.m")
-exogenous_raw = JLD2.load("simulation/src/MOCOT/testing/test_exogenous.jld2")["exogenous"]
-
-function create_custom_test_network(network_data)
-    """
-    Add custom properties to testing network
-
-    # Arguments
-    - `network_data:: Dict`: PowerModels network data
-    """
-    # Setup
-    obj_names = ["1", "2", "3", "4", "5", "7", "8", "9", "10", "11", "12", "13", "21", "26", "27", "28", "29", "30", "32", "33", "34", "35", "36", "45", "46", "6", "22", "23", "24", "25", "31", "14", "15", "16", "17", "18", "19", "20", "37", "38", "39", "40", "41", "42", "43", "44", "48", "49", "47"]
-
-    # Ramp rate
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_ramp_rate",
-        obj_names,
-        [1.6307999999999998, 1.6307999999999998, 1.6307999999999998, 1.6307999999999998, 3.2651999999999997, 1.692, 10.0512, 10.0512, 10.0512, 10.0512, 10.0512, 10.0512, 6.479999999999999, 46.818000000000005, 46.818000000000005, 46.818000000000005, 160.70399999999998, 160.70399999999998, 1.944, 27.7992, 27.7992, 27.7992, 27.7992, 6.3, 9.576, 4.2, 4.2, 4.2, 4.2, 4.2, 4.2, 0.48, 0.28800000000000003, 2.16, 2.16, 0.38400000000000006, 0.6, 0.7559999999999999, 16.631999999999998, 1.4400000000000004, 3.12, 1.128, 1.128, 1.128, 1.128, 1.128, 8.1, 8.1, 1.1383]
-    )
-
-    # Fuel types
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_fuel",
-        obj_names,
-        ["coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "coal", "wind", "wind", "wind", "wind", "wind", "wind", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "ng", "nuclear"]
-    )
-
-    # Cooling type
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_cool",
-        obj_names,
-        ["OC", "OC", "OC", "OC", "OC", "RI", "RI", "RI", "RI", "RI", "RI", "RI", "OC", "OC", "OC", "OC", "RC", "RC", "OC", "OC", "OC", "OC", "OC", "OC", "OC", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "RI", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "No Cooling System", "RI", "RI", "RC"]
-    )
-
-    # Emissions coefficient
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_emit",
-        obj_names,
-        [223000.0, 223000.0, 223000.0, 223000.0, 223000.0, 223000.0, 223000.0, 223000.0, 223000.0, 223000.0, 223000.0, 223000.0, 223000.0, 223000.0, 223000.0, 223000.0, 223000.0, 223000.0, 223000.0, 223000.0, 223000.0, 223000.0, 223000.0, 223000.0, 223000.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 91000.0, 91000.0, 91000.0, 91000.0, 91000.0, 91000.0, 91000.0, 91000.0, 91000.0, 91000.0, 91000.0, 91000.0, 91000.0, 91000.0, 91000.0, 91000.0, 91000.0, 0.0]
-    )
-
-    # Withdrawal limit
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_with_limit",
-        obj_names,
-        [1.9e7, 1.9e7, 1.9e7, 1.9e7, 1.9e7, missing, missing, missing, missing, missing, missing, missing, 1.9e7, 1.9e7, 1.9e7, 1.9e7, missing, missing, 1.9e7, 1.9e7, 1.9e7, 1.9e7, 1.9e7, 1.9e7, 1.9e7, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing]
-    )
-
-    # Consumption limit
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_con_limit",
-        obj_names,
-        [120000.0, 120000.0, 120000.0, 120000.0, 120000.0, missing, missing, missing, missing, missing, missing, missing, 120000.0, 120000.0, 120000.0, 120000.0, missing, missing, 120000.0, 120000.0, 120000.0, 120000.0, 120000.0, 120000.0, 120000.0, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing, missing]
-    )
-
-    # Heat rates
-    network_data = MOCOT.add_prop!(
-        network_data,
-        "gen",
-        "cus_heat_rate",
-        obj_names,
-        [0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0.32694518972786507, 0, 0, 0, 0, 0, 0, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.42146871718856155, 0.3236270511239685]
-    )
-
-    # Turn on all generators
-    network_data = MOCOT.update_all_gens!(network_data, "gen_status", 1)
-    return network_data
-end
-
 
 @Test.testset "Fundamental Water Use Models" begin
-    beta_with = MOCOT.once_through_withdrawal(
-        eta_net=0.25,
-        k_os=0.25,
-        delta_t=5.0,
-        beta_proc=200.0
+    # Setup for Once Through Generator
+    gen = MOCOT.new_once_through_generator()
+    gen = MOCOT.set_water_use_parameters!(
+        gen,
+        0.25,
+        0.25,
+        200.0,
+    )
+
+    # Test
+    beta_with = MOCOT.get_withdrawal(
+        gen,
+        5.0,
     )
     @Test.test isapprox(beta_with, 344368.3, atol=1)
-    beta_con = MOCOT.once_through_consumption(
-        eta_net=0.25,
-        k_os=0.25,
-        delta_t=5.0,
-        beta_proc=200.0
+    beta_con = MOCOT.get_consumption(
+        gen,
+        5.0,
     )
     @Test.test isapprox(beta_con, 544.2, atol=1)
-    beta_with = MOCOT.recirculating_withdrawal(
-        eta_net=0.20,
-        k_os=0.25,
-        beta_proc=200.0,
-        eta_cc=5,
-        k_sens=0.15
+
+    # Setup for Recirculating Generator
+    gen = MOCOT.new_recirculating_generator()
+    gen = MOCOT.set_water_use_parameters!(
+        gen,
+        0.20,
+        0.25,
+        200.0,
+        5,
+        1.0,
+    )
+    beta_with = MOCOT.get_withdrawal(
+        gen,
+        0.15,
     )
     @Test.test isapprox(beta_with, 4486.0, atol=1)
-    beta_con = MOCOT.recirculating_consumption(
-        eta_net=0.20,
-        k_os=0.25,
-        beta_proc=200.0,
-        eta_cc=5,
-        k_sens=0.15
+    beta_con = MOCOT.get_consumption(
+        gen,
+        0.15,
     )
     @Test.test isapprox(beta_con, 3629.0, atol=1)
 end
 
 
 @Test.testset "Fundamental Capacity Reduction Models" begin
-    p_thermo_OC = MOCOT.once_through_capacity(
-        KW=400.0,
-        delta_T=5.0,
-        Q=621.712,
-        eta_total=0.50,
-        eta_elec=0.50,
+    # Setup
+    gen = MOCOT.new_once_through_generator()
+    gen = MOCOT.set_water_capacity_parameters!(
+        gen,
+        0.5,
+        0.5,
+    )
+
+    # Test
+    p_thermo_OC = MOCOT.get_capacity(
+        gen,
+        400.0,
+        5.0,
+        621.712,
     )
     @Test.test isapprox(p_thermo_OC, 262.2, atol=1)
-    p_thermo_RC = MOCOT.recirculating_capacity(
-        KW=400.0,
-        delta_T=5.0,
-        Q=621.712,
-        eta_total=0.50,
-        eta_elec=0.50,
+
+    # Setup
+    gen = MOCOT.new_recirculating_generator()
+    gen = MOCOT.set_water_capacity_parameters!(
+        gen,
+        0.5,
+        0.5,
+    )
+    p_thermo_RC = MOCOT.get_capacity(
+        gen,    
+        400.0,
+        5.0,
+        621.712,
     )
     @Test.test isapprox(p_thermo_RC, 400.0, atol=1)
 end
 
 
-@Test.testset "Test for once_through_water_use" begin
+@Test.testset "Test for once through water use" begin
     # Setup
     beta_with_limit=190000.0
     beta_con_limit=400.0
@@ -156,17 +97,25 @@ end
     k_os = 0.12
     beta_proc = 200.0
     eta_net = 0.33
+    gen = MOCOT.new_once_through_generator()
+    gen = MOCOT.set_water_use_parameters!(
+        gen,
+        eta_net,
+        k_os,
+        beta_proc,
+    )
+    gen = MOCOT.set_water_use_limits!(
+        gen,
+        beta_with_limit,
+        beta_con_limit,
+    )
 
     # Cold case 
     inlet_temperature = 21.0
-    beta_with, beta_con, delta_t = MOCOT.once_through_water_use(
+    beta_with, beta_con, delta_t = MOCOT.get_water_use(
+        gen,
         inlet_temperature,
         regulatory_temperature,
-        k_os,
-        beta_proc,
-        eta_net,
-        beta_with_limit,
-        beta_con_limit
     )
     @Test.test isapprox(beta_with, 143603.4, atol=1)
     @Test.test isapprox(beta_con, 343.4, atol=1)
@@ -174,14 +123,10 @@ end
 
     # Delta t but no limit
     inlet_temperature = 25.0
-    beta_with, beta_con, delta_t = MOCOT.once_through_water_use(
+    beta_with, beta_con, delta_t = MOCOT.get_water_use(
+        gen,    
         inlet_temperature,
         regulatory_temperature,
-        k_os,
-        beta_proc,
-        eta_net,
-        beta_with_limit,
-        beta_con_limit
     )
     @Test.test isapprox(beta_with, 165031.5, atol=1)
     @Test.test isapprox(beta_con, 364.8, atol=1)
@@ -189,14 +134,10 @@ end
 
     # Delta with limits (temperature violations)
     inlet_temperature = 27.0
-    beta_with, beta_con, delta_t = MOCOT.once_through_water_use(
+    beta_with, beta_con, delta_t = MOCOT.get_water_use(
+        gen,    
         inlet_temperature,
         regulatory_temperature,
-        k_os,
-        beta_proc,
-        eta_net,
-        beta_with_limit,
-        beta_con_limit
     )
     @Test.test isapprox(beta_with, 190000.0, atol=1)
     @Test.test isapprox(beta_con, 400.0, atol=1)
@@ -204,19 +145,28 @@ end
 end
 
 
-@Test.testset "Test for recirculating_water_use" begin
+@Test.testset "Test for recirculating water use" begin
     # Setup
     air_temperature=25.0
     k_os = 0.20
     beta_proc = 10.0
     eta_net = 0.33
+    eta_cc = 5
+    k_bd = 1.0
+    gen = MOCOT.new_recirculating_generator()
+    gen = MOCOT.set_water_use_parameters!(
+        gen,
+        eta_net,
+        k_os,
+        beta_proc,
+        eta_cc,
+        k_bd,
+    )
 
     # Cold case 
-    beta_with, beta_con = MOCOT.recirculating_water_use(
+    beta_with, beta_con = MOCOT.get_water_use(
+        gen,
         air_temperature,
-        eta_net, 
-        k_os, 
-        beta_proc,
     )
     @Test.test isapprox(beta_with, 2245.7, atol=1)
     @Test.test isapprox(beta_con, 1798.6, atol=1)
@@ -224,27 +174,25 @@ end
 
 
 @Test.testset "Test for adding wind capacity" begin
-    # Import static network
-    d_total = 3
-    h_total = 24
-    network_data = create_custom_test_network(network_data_raw)
-    exogenous = exogenous_raw
-    network_data_multi = PowerModels.replicate(network_data, h_total)
+    # Import
+    simulation = JLD2.load("simulation/src/MOCOT/testing/test_exogenous.jld2", "simulation")
+    simulation = MOCOT.create_default_multi_network!(simulation, simulation.model.network_data)
+    simulation.state["multi_network_data"]["1"] = simulation.state["multi_network_data"]["default"]
 
     # Save original value
-    orig_cap = network_data_multi["nw"]["1"]["gen"]["6"]["pmax"]
+    orig_cap = simulation.state["multi_network_data"]["1"]["nw"]["1"]["gen"]["6"]["pmax"]
 
     # Adjust wind generator capacity
-    network_data_multi = MOCOT.update_wind_capacity!(
-        network_data_multi,
-        exogenous["wind_capacity_factor"]["1"]
+    simulation = MOCOT.update_wind_capacity!(
+        simulation,
+        1,
     )
 
     # New value
-    new_cap = network_data_multi["nw"]["1"]["gen"]["6"]["pmax"]
+    new_cap = simulation.state["multi_network_data"]["1"]["nw"]["1"]["gen"]["6"]["pmax"]
     
     @test isapprox(
-        orig_cap*exogenous["wind_capacity_factor"]["1"]["1"],
+        orig_cap * simulation.exogenous["wind_capacity_factor"]["1"]["1"],
         new_cap,
         atol=-1
     )
@@ -253,37 +201,38 @@ end
 
 @Test.testset "Test for add_linear_obj_terms!" begin
     # Setup
+    simulation = JLD2.load("simulation/src/MOCOT/testing/test_exogenous.jld2", "simulation")
+    state = simulation.state
+    network_data = simulation.model.network_data
     linear_coef = Dict{String, Float64}(
         "1" => -1000000.0 * 2.0,
-        "2" => -10000000.0 * 2.0
+        "2" => -10000000.0 * 2.0,
     )
 
-    # Import static network
-    h_total = 24
-    network_data = network_data_raw
-    network_data_multi = PowerModels.replicate(network_data, h_total)
+    simulation = MOCOT.create_default_multi_network!(simulation, network_data)
 
     # Create power system model
-    pm = PowerModels.instantiate_model(
-        network_data_multi,
+    simulation.state["pm"]["1"] = PowerModels.instantiate_model(
+        state["multi_network_data"]["default"],
         PowerModels.DCPPowerModel,
         PowerModels.build_mn_opf
     )
 
     # Add water terms
-    pm = MOCOT.add_linear_obj_terms!(
-        pm,
+    simulation = MOCOT.add_linear_obj_terms!(
+        simulation,
+        1,
         linear_coef,
     )
 
     # Tests
-    test_var = PowerModels.var(pm, 1, :pg, 1)
-    linear_terms = JuMP.objective_function(pm.model).aff.terms
+    test_var = PowerModels.var(simulation.state["pm"]["1"], 1, :pg, 1)
+    linear_terms = JuMP.objective_function(simulation.state["pm"]["1"].model).aff.terms
 
-    @Test.test isapprox(linear_terms[PowerModels.var(pm, 1, :pg, 1)], -1.9981e6, atol=1)
-    @Test.test isapprox(linear_terms[PowerModels.var(pm, 24, :pg, 1)], -1.9981e6, atol=1)
-    @Test.test isapprox(linear_terms[PowerModels.var(pm, 1, :pg, 2)], -1.99981e7, atol=1)
-    @Test.test isapprox(linear_terms[PowerModels.var(pm, 24, :pg, 2)], -1.99981e7, atol=1)
+    @Test.test isapprox(linear_terms[PowerModels.var(simulation.state["pm"]["1"], 1, :pg, 1)], -1.9981e6, atol=1)
+    @Test.test isapprox(linear_terms[PowerModels.var(simulation.state["pm"]["1"], 24, :pg, 1)], -1.9981e6, atol=1)
+    @Test.test isapprox(linear_terms[PowerModels.var(simulation.state["pm"]["1"], 1, :pg, 2)], -1.99981e7, atol=1)
+    @Test.test isapprox(linear_terms[PowerModels.var(simulation.state["pm"]["1"], 24, :pg, 2)], -1.99981e7, atol=1)
 end
 
 
@@ -306,7 +255,9 @@ end
 
 @Test.testset "add_reliability_gens!" begin
     # Setup
-    network_data = network_data_raw
+    simulation = JLD2.load("simulation/src/MOCOT/testing/test_exogenous.jld2", "simulation")
+    model = simulation.model
+    network_data = model.network_data
     
     # Add really big load
     network_data["load"]["1"]["pd"] = 100000.0
@@ -316,7 +267,7 @@ end
 
     # Add reliability
     voll = 330000.0  # $/pu for MISO
-    network_data = MOCOT.add_reliability_gens!(network_data, voll)
+    network_data = MOCOT.create_reliabilty_network(model, voll)
 
     # Solve OPF
     pm = PowerModels.instantiate_model(
@@ -332,55 +283,16 @@ end
     # Test the reliability of load 1 (relability generator 10001)
     @Test.test isapprox(results["solution"]["gen"]["1001"]["pg"], 99998.99, atol=1)
 
-    # Test if generators were stored
-    @Test.test isequal(length(network_data["reliability_gen"]), 108)
-end
-
-
-@Test.testset "Test for generator water use with thermal limits" begin
-    # Setup
-    air_temperature = 25.0
-    regulatory_temperature = 33.7
-    network_data = create_custom_test_network(network_data_raw)
-
-    # Set limits
-    network_data["gen"]["1"]["cus_with_limit"] = 19000000.0
-    network_data["gen"]["1"]["cus_con_limit"] = 40000.0
-
-    # No violations
-    inlet_temperature = 25.0
-    gen_beta_with, gen_beta_con, gen_discharge_violation = MOCOT.gen_water_use_wrapper(
-        inlet_temperature,
-        air_temperature,
-        regulatory_temperature,
-        network_data
-    )
-    @Test.test isapprox(gen_beta_with["1"], 1.674957060861525e7, atol=1)
-    @Test.test isapprox(gen_beta_con["1"], 36729.5, atol=1)
-
-    # Discharge temperature violation
-    inlet_temperature = 27.0
-    gen_beta_with, gen_beta_con, gen_discharge_violation = MOCOT.gen_water_use_wrapper(
-        inlet_temperature,
-        air_temperature,
-        regulatory_temperature,
-        network_data
-    )
-    @Test.test isapprox(gen_beta_with["1"], 19000000.0, atol=1)
-    @Test.test isapprox(gen_beta_con["1"], 40000.0, atol=1)
-    @Test.test isapprox(gen_discharge_violation["1"], 0.968, atol=1)
 end
 
 
 @Test.testset "Impact of weights" begin
     # Setup
-    network_data = create_custom_test_network(network_data_raw)
-    exogenous = exogenous_raw
+    simulation = JLD2.load("simulation/src/MOCOT/testing/test_exogenous.jld2", "simulation")
 
     # No weights
-    (objectives_no_weight, metrics, state) = MOCOT.simulation(
-        network_data,
-        exogenous,
+    (objectives_no_weight, metrics, state) = MOCOT.run_simulation(
+        simulation,
         w_with=0.0,
         w_con=0.0,
         w_emit=0.0,
@@ -388,9 +300,8 @@ end
     )
 
     # Withdrawal weights
-    (objectives_with_weight, metrics, state) = MOCOT.simulation(
-        network_data,
-        exogenous,
+    (objectives_with_weight, metrics, state) = MOCOT.run_simulation(
+        simulation,
         w_with=0.1,
         w_con=0.0,
         w_emit=0.0,
@@ -398,9 +309,8 @@ end
     )
 
     # Emission weights
-    (objectives_emit_weight, metrics, state) = MOCOT.simulation(
-        network_data,
-        exogenous,
+    (objectives_emit_weight, metrics, state) = MOCOT.run_simulation(
+        simulation,
         w_with=0.0,
         w_con=0.0,
         w_emit=0.1,
@@ -424,13 +334,11 @@ end
 
 @Test.testset "Water weight impact ENS" begin
     # Setup
-    network_data = create_custom_test_network(network_data_raw)
-    exogenous = exogenous_raw
+    simulation = JLD2.load("simulation/src/MOCOT/testing/test_exogenous.jld2", "simulation")
 
     # No weights
-    (objectives_weights, metrics, state) = MOCOT.simulation(
-        network_data,
-        exogenous,
+    (objectives_weights, metrics, state) = MOCOT.run_simulation(
+        simulation,
         w_with=5.0,
         w_con=0.0,
         w_emit=0.0,
@@ -439,5 +347,21 @@ end
 
     # Test for increased ENS
     @Test.test objectives_weights["f_ENS"] > 0.1
+
+end
+
+
+@Test.testset "Testing simulation wrapper" begin
+    # Run simulation
+    (
+        objectives, metrics, state
+    ) = MOCOT.borg_simulation_wrapper(0.0, 0.0, 0.0, 2, 0, 1)
+
+    # Tests
+    @Test.test isapprox(objectives["f_emit"], 4.468254250789e7, atol=1)
+    @Test.test isapprox(objectives["f_ENS"], 0.0, atol=1)
+    @Test.test isapprox(objectives["f_gen"], 1.2249374560936058e6, atol=1)
+    @Test.test isapprox(objectives["f_with_tot"], 1.8639523570273528e9, atol=1)
+    @Test.test isapprox(objectives["f_con_tot"], 1.0053654103000559e8, atol=1)
 
 end

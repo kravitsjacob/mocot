@@ -75,6 +75,7 @@ def main():
         df_gen_info_water_ramp_emit = pd.merge(
             df_gen_info_water_ramp,
             df_gen_info_emit,
+            how='left',
         )
         df_gen_info_water_ramp_emit['Emission Rate lbs per MWh'] = \
             df_gen_info_water_ramp_emit['Emission Rate lbs per kWh']*1000.0
@@ -84,7 +85,7 @@ def main():
         )
         print('Success: Adding emission information')
 
-    # Add emission coefficients
+    # Add water limits
     if not os.path.exists(
         paths['outputs']['gen_info_water_ramp_emit_waterlim']
     ):
@@ -206,7 +207,7 @@ def main():
         df_scenario_specs = pd.read_csv(paths['inputs']['scenario_specs'])
         net = pandapower.converter.from_mpc(paths['inputs']['case'])
 
-        for (_, row) in df_scenario_specs.iterrows():
+        for (_, row) in df_scenario_specs.transpose().items():
             # Process
             (
                 df_air_water, df_wind_cf, df_node_load
@@ -242,16 +243,28 @@ def main():
     if not os.path.exists(paths['outputs']['figures']['scenario_temperatures']):  # noqa
         # Import data
         multi_air_water = {}
+        labels = [
+            'average week\nnuclear outage\nline outage',
+            'extreme load/climate\navoid temperature violation'
+        ]
         df_scenario_specs = pd.read_csv(paths['inputs']['scenario_specs'])
-        for (_, row) in df_scenario_specs.iterrows():
+        for (i, row) in df_scenario_specs.head(2).transpose().items():
             # Import files
             path_to_air_water = paths['outputs']['air_water_template'].replace(
                 '0', str(row['scenario_code'])
             )
             df_air_water = pd.read_csv(path_to_air_water)
 
+            # Rename
+            df_air_water = df_air_water.rename(
+                columns={
+                    'air_temperature': 'air temperature',
+                    'water_temperature': 'water temperature'
+                }
+            )
+
             # Store
-            multi_air_water[row['name']] = df_air_water
+            multi_air_water[labels[i]] = df_air_water
 
         # Plot
         fig = premocot.viz.scenario_temperatures(multi_air_water)
@@ -261,47 +274,59 @@ def main():
     if not os.path.exists(paths['outputs']['figures']['scenario_loads']):  # noqa
         # Import data
         multi_node_load = {}
+        labels = [
+            'average week\nnuclear outage\nline outage',
+            'extreme load/climate\navoid temperature violation'
+        ]
         df_scenario_specs = pd.read_csv(paths['inputs']['scenario_specs'])
-        for (_, row) in df_scenario_specs.iterrows():
+        for (i, row) in df_scenario_specs.head(2).transpose().items():
             # Import files
             path_to_load = paths['outputs']['node_load_template'].replace(
                 '0', str(row['scenario_code'])
             )
             df_node_load = pd.read_csv(path_to_load)
 
+            # Rename
+            df_air_water = df_air_water.rename(
+                columns={
+                    'air_temperature': 'air temperature',
+                    'water_temperature': 'water temperature'
+                }
+            )
+
             # Store
-            multi_node_load[row['name']] = df_node_load
+            multi_node_load[labels[i]] = df_node_load
 
         # Plot
         fig = premocot.viz.scenario_node_load(multi_node_load)
         fig.savefig(paths['outputs']['figures']['scenario_loads'])
 
-    # # Daily average air/water temperature
+    # Daily average air/water temperature
     if not os.path.exists(paths['outputs']['figures']['temperatures']):
         df_water = pd.read_csv(paths['outputs']['water_temperature'])
         df_air = pd.read_csv(paths['outputs']['air_temperature'])
         fig = premocot.viz.temperatures(df_water, df_air)
         fig.savefig(paths['outputs']['figures']['temperatures'])
 
-    # # System hourly load data
+    # System hourly load data
     if not os.path.exists(paths['outputs']['figures']['system_load']):
         df_system_load = pd.read_csv(paths['outputs']['system_load'])
         fig = premocot.viz.system_load(df_system_load)
         fig.savefig(paths['outputs']['figures']['system_load'])
 
-    # # System hourly load factors data
+    # System hourly load factors data
     if not os.path.exists(paths['outputs']['figures']['system_load_factor']):
         df_system_load = pd.read_csv(paths['outputs']['system_load'])
         fig = premocot.viz.system_load_factor(df_system_load)
         fig.savefig(paths['outputs']['figures']['system_load_factor'])
 
-    # # Node hour-to-hour load factors data
+    # Node hour-to-hour load factors data
     if not os.path.exists(paths['outputs']['figures']['hour_node_load']):
         df_hour_to_hour = pd.read_csv(paths['outputs']['hour_to_hour'])
         fig = premocot.viz.hour_node_load(df_hour_to_hour)
         fig.savefig(paths['outputs']['figures']['hour_node_load'])
 
-    # # Node hourly load data
+    # Node hourly load data
     if not os.path.exists(paths['outputs']['figures']['node_load']):
         df_water = pd.read_csv(paths['outputs']['water_temperature'])
         df_air = pd.read_csv(paths['outputs']['air_temperature'])
