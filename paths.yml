@@ -72,6 +72,7 @@ outputs:
     average_parallel: "io/outputs/figures/average_parallel.pdf"
     compare_single: "io/outputs/figures/compare_single.pdf"
     compare_all: "io/outputs/figures/compare_all.pdf"
+    compare_global: "io/outputs/figures/compare_global.pdf"
 
     # Runtime figures
     interactive_parallel: "io/outputs/figures/runtime_interactive_parallel.html"

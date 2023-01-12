@@ -100,6 +100,130 @@ def average_parallel(runtime, df_policy_performance):
     return paxfig
 
 
+def global_performance(
+    df: pd.DataFrame,
+    objective_cols: list,
+    decision_cols: list,
+    scenario_col: list,
+    policy_col: list,
+    policy_order: list,
+    scenario_order: list,
+    objective_order: list,
+    policy_clean: list,
+    scenario_clean: list,
+    objective_clean: list,
+    custom_pallete: list,
+):
+    """Plot of global perforamce
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Performance dataframe
+    objective_cols : list
+        Objective column names
+    decision_cols : list
+        Decision column names
+    scenario_col : list
+        Name of scenario column
+    policy_col : list
+        Name of policy column
+    policy_order : list
+        Order of policies to plot
+    scenario_order : list
+        Order of scenarios to plot
+    objective_order : list
+        Order of objective to plot
+    policy_clean : list
+        Cleaned up policy names
+    scenario_clean : list
+        Cleaned up scenario names
+    objective_clean : list
+        Cleaned up objective names
+    custom_pallete : list
+        Custom color pallete for bars
+
+    Returns
+    -------
+    seaborn.axisgrid.FacetGrid
+        Plot of subsequent scenarios
+    """
+    # Setup
+    sns.set()
+
+    # Pivot data
+    df_plot = df.drop(columns=decision_cols)
+    df_plot = pd.melt(
+        df_plot,
+        value_vars=objective_cols,
+        id_vars=[scenario_col, policy_col],
+        var_name='obj',
+        value_name='obj_value'
+    )
+
+    # Ording
+    df_plot[policy_col] = pd.Categorical(
+        df_plot[policy_col],
+        policy_order
+    )
+    df_plot[scenario_col] = pd.Categorical(
+        df_plot[scenario_col],
+        scenario_order
+    )
+    df_plot['obj'] = pd.Categorical(
+        df_plot['obj'],
+        objective_order
+    )
+    df_plot = df_plot.sort_values(['obj', scenario_col, policy_col])
+
+    # Rename
+    df_plot['obj'] = df_plot['obj'].replace(
+        dict(zip(objective_order, objective_clean))
+    )
+    df_plot[scenario_col] = df_plot[scenario_col].replace(
+        dict(zip(scenario_order, scenario_clean))
+    )
+    df_plot[policy_col] = df_plot[policy_col].replace(
+        dict(zip(policy_order, policy_clean))
+    )
+
+    # Plotting
+    g = sns.FacetGrid(
+        df_plot,
+        row='obj',
+        col=scenario_col,
+        sharey='row',
+        height=1.4,
+        aspect=1.1,
+        gridspec_kws={
+            'wspace': 0.1,
+            'hspace': 0.25
+        }
+    )
+    g.map(
+        sns.barplot,
+        policy_col,
+        'obj_value',
+        policy_col,
+        palette=custom_pallete,
+        dodge=False
+    )
+    g.set_titles(
+        template=""
+    )
+    y_labels = df_plot['obj'].unique().tolist()
+    x_labels = df_plot[scenario_col].unique().tolist()
+    for i, ax in enumerate(g.axes[:, 0]):
+        ax.set_ylabel(y_labels[i])
+    for i, ax in enumerate(g.axes[-1, :]):
+        ax.set_xlabel(x_labels[i], rotation=0)
+        ax.set_xticklabels('')
+    g.add_legend(loc='right')
+    g.figure.subplots_adjust(left=0.1, bottom=0.1, right=0.8, top=0.9)
+
+    return g
+
+
 def comparison(
     df,
     objectives,

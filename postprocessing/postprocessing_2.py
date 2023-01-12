@@ -1,5 +1,6 @@
 """Figure creation in python"""
 
+import seaborn as sns
 import yaml
 import os
 import pandas as pd
@@ -45,6 +46,71 @@ def main():
             df_policy_performance
         )
         fig.savefig(paths['outputs']['figures']['average_parallel'])
+
+    # Global plot
+    if not os.path.exists(paths['outputs']['figures']['compare_global']):
+        df_policy_performance = pd.read_csv(
+            paths['outputs']['selected_policy_performance']
+        )
+        fig = postmocot.viz.global_performance(
+            df=df_policy_performance,
+            objective_cols=runtime.objective_names[:-3],
+            decision_cols=runtime.decision_names,
+            scenario_col='scenario',
+            policy_col='policy_label',
+            policy_order=[
+                'status quo',
+                'high water withdrawal penalty',
+                'high water consumption penalty',
+                'high emission penalty',
+                'water-emission policy',
+            ],
+            scenario_order=[
+                'average week',
+                'extreme load/climate',
+                'nuclear outage',
+                'line outage',
+                'avoid temperature violation',
+            ],
+            objective_order=[
+                'f_gen',
+                'f_with_tot',
+                'f_con_tot',
+                'f_disvi_tot',
+                'f_emit',
+                'f_ENS',
+            ],
+            policy_clean=[
+                'status quo',
+                'high\nwater\nwithdrawal\npenalty\n',
+                'high\nwater\nconsumption\npenalty\n',
+                'high\nemission\npenalty\n',
+                'water-emission\npolicy\n',
+            ],
+            scenario_clean=[
+                'Average\nweek',
+                'Extreme\nload/climate',
+                'Nuclear\noutage',
+                'Line\noutage',
+                'Avoid\ntemperature\nviolation',
+            ],
+            objective_clean=[
+                'Cost\n[\$]',
+                'Withdrawal\n[Gallon]',
+                'Consumption\n[Gallon]',
+                'Discharge\nViolations\n[Gallon $^\circ$C]',
+                'Emissions\n[lbs]',
+                'Reliability\n[MW]',
+            ],
+            custom_pallete=[
+                sns.color_palette('tab10')[0],
+                sns.color_palette('gray')[1],
+                sns.color_palette('gray')[3],
+                sns.color_palette('gray')[-1],
+                sns.color_palette('tab10')[2],
+            ]
+        )
+        fig.savefig(paths['outputs']['figures']['compare_global'])
 
     # Comparison plot
     if not os.path.exists(paths['outputs']['figures']['compare_all']):
