@@ -118,9 +118,61 @@ def main():
             paths['outputs']['selected_policy_performance']
         )
         fig_compare, fig_single = postmocot.viz.comparison(
-            df_policy_performance,
-            runtime.objective_names,
-            runtime.decision_names
+            df=df_policy_performance,
+            objective_cols=runtime.objective_names[:-3],
+            decision_cols=runtime.decision_names,
+            scenario_col='scenario',
+            policy_col='policy_label',
+            status_quo_policy='status quo',
+            policy_order=[
+                'high water withdrawal penalty',
+                'high water consumption penalty',
+                'high emission penalty',
+                'water-emission policy',
+            ],
+            scenario_order=[
+                'average week',
+                'extreme load/climate',
+                'nuclear outage',
+                'line outage',
+                'avoid temperature violation',
+            ],
+            objective_order=[
+                'f_gen',
+                'f_with_tot',
+                'f_con_tot',
+                'f_disvi_tot',
+                'f_emit',
+                'f_ENS',
+            ],
+            policy_clean=[
+                'high\nwater\nwithdrawal\npenalty\n',
+                'high\nwater\nconsumption\npenalty\n',
+                'high\nemission\npenalty\n',
+                'water-emission\npolicy\n',
+            ],
+            scenario_clean=[
+                'Average\nweek',
+                'Extreme\nload/climate',
+                'Nuclear\noutage',
+                'Line\noutage',
+                'Avoid\ntemperature\nviolation',
+            ],
+            objective_clean=[
+                'Cost\n[\$]',
+                'Withdrawal\n[Gallon]',
+                'Consumption\n[Gallon]',
+                'Discharge\nViolations\n[Gallon $^\circ$C]',
+                'Emissions\n[lbs]',
+                'Reliability\n[MW]',
+            ],
+            custom_pallete=[
+                sns.color_palette('gray')[1],
+                sns.color_palette('gray')[3],
+                sns.color_palette('gray')[-1],
+                sns.color_palette('tab10')[2],
+            ],
+            single_scenario='Extreme\nload/climate',
         )
         fig_compare.savefig(paths['outputs']['figures']['compare_all'])
         fig_single.savefig(paths['outputs']['figures']['compare_single'])
