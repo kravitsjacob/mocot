@@ -190,12 +190,12 @@ def comparison(
 
     df_plot['obj'] = df_plot['obj'].replace(
         {
-            'f_gen': 'Cost',
-            'f_with_tot': 'Withdrawal',
-            'f_con_tot': 'Consumption',
-            'f_disvi_tot': 'Discharge\nViolations',
-            'f_emit': 'Emissions',
-            'f_ENS': 'ENS',
+            'f_gen': 'Cost\n[\$]',
+            'f_with_tot': 'Withdrawal\n[Gallon]',
+            'f_con_tot': 'Consumption\n[Gallon]',
+            'f_disvi_tot': 'Discharge\nViolations\n[Gallon $^\circ$C]',
+            'f_emit': 'Emissions\n[lbs]',
+            'f_ENS': 'Reliability\n[MW]',
         }
     )
     df_plot['scenario'] = df_plot['scenario'].replace(
