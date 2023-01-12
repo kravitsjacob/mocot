@@ -367,6 +367,9 @@ def comparison(
     x_labels = df_plot[scenario_col].unique().tolist()
     for i, ax in enumerate(g_compare.axes[:, 0]):
         ax.set_ylabel(y_labels[i])
+    for i, ax in enumerate(g_compare.axes[:, -1]):
+        ax2 = ax.twinx()
+        ax2.set_yticks([1, 0], ['Worse', 'Better'])
     for i, ax in enumerate(g_compare.axes[-1, :]):
         ax.set_xlabel(x_labels[i], rotation=0)
         ax.set_xticklabels('')
@@ -374,7 +377,7 @@ def comparison(
         yabs_max = abs(max(ax.get_ylim(), key=abs))
         ax.set_ylim(ymin=-yabs_max, ymax=yabs_max)
     g_compare.add_legend(loc='right')
-    g_compare.figure.subplots_adjust(left=0.2, bottom=0.1, right=0.80, top=0.9)
+    g_compare.figure.subplots_adjust(left=0.15, bottom=0.1, right=0.75, top=0.9)
 
     # Single plot
     df_plot = df_plot[df_plot[scenario_col] == single_scenario]
