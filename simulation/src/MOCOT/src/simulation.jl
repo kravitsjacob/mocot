@@ -440,7 +440,6 @@ function get_objectives(
         ["obj_name", "cost"]
     )
     df_cost_coef[!, "obj_name"] = string.(df_cost_coef[!, "obj_name"])
-    @Infiltrator.infiltrate
     df_cost_coef[!, "c_per_mw2"] = extract_from_array_column(df_cost_coef[!, "cost"], 1) / 100.0^2  # Convert to [dollar/MW^2]
     df_cost_coef[!, "c_per_mw"] = extract_from_array_column(df_cost_coef[!, "cost"], 2) / 100.0 # Convert to [dollar/MW]
     df_cost_coef[!, "c"] = extract_from_array_column(df_cost_coef[!, "cost"], 3)
