@@ -58,7 +58,7 @@ def main():
         fig.savefig(paths['outputs']['figures']['hypervolume'])
 
     # Average scenario parallel
-    if not os.path.exists(paths['outputs']['figures']['average_parallel']):
+    if not os.path.exists(paths['outputs']['figures']['compare_parallel']):
         df_policy_performance = pd.read_csv(
             paths['outputs']['selected_policy_performance']
         )
@@ -66,7 +66,7 @@ def main():
             runtime,
             df_policy_performance
         )
-        fig.savefig(paths['outputs']['figures']['average_parallel'])
+        fig.savefig(paths['outputs']['figures']['compare_parallel'])
 
     # Global plot
     if not os.path.exists(paths['outputs']['figures']['compare_global']):
@@ -134,7 +134,7 @@ def main():
         fig.savefig(paths['outputs']['figures']['compare_global'])
 
     # Comparison plot
-    if not os.path.exists(paths['outputs']['figures']['compare_all']):
+    if not os.path.exists(paths['outputs']['figures']['compare_relative']):
         df_policy_performance = pd.read_csv(
             paths['outputs']['selected_policy_performance']
         )
@@ -195,7 +195,7 @@ def main():
             ],
             single_scenario='Extreme\nload/climate',
         )
-        fig_compare.savefig(paths['outputs']['figures']['compare_all'])
+        fig_compare.savefig(paths['outputs']['figures']['compare_relative'])
         fig_single.savefig(paths['outputs']['figures']['compare_single'])
 
     # Comparison plot with global and relative difference
