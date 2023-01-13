@@ -35,27 +35,6 @@ def main():
     runtime.set_objective_names(objective_names)
     runtime.set_metric_names(metric_names)
 
-    # Interactive parallel
-    if not os.path.exists(paths['outputs']['figures']['interactive_parallel']):
-        exp = runtime.plot_interactive_front()
-        exp.to_html(paths['outputs']['figures']['interactive_parallel'])
-
-    # Hypervolume
-    if not os.path.exists(paths['outputs']['figures']['hypervolume']):
-        reference_point = [
-            1e7,
-            1e11,
-            1e9,
-            1e12,
-            1e10,
-            1e4,
-            0.5,
-            0.5,
-            0.5
-        ]
-        fig = runtime.plot_hypervolume(reference_point)
-        fig.savefig(paths['outputs']['figures']['hypervolume'])
-
     # Select policies
     if not os.path.exists(paths['outputs']['selected_policies']):
         df_judgement = pd.read_csv(paths['outputs']['judgement_policies'])
