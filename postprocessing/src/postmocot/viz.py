@@ -1,6 +1,8 @@
 """Hardcoded Visualization functions"""
 
 import pandas as pd
+import numpy as np
+from matplotlib.lines import Line2D
 import paxplot
 import seaborn as sns
 sns.reset_orig()
@@ -423,3 +425,190 @@ def comparison(
     )
 
     return g_compare, g_single
+
+
+def global_relative_performance(
+    df: pd.DataFrame,
+    objective_cols: list,
+    decision_cols: list,
+    scenario_col: str,
+    policy_col: str,
+    policy_order: list,
+    scenario_order: list,
+    objective_order: list,
+    policy_clean: list,
+    status_quo_policy_clean: str,
+    scenario_clean: list,
+    objective_clean: list,
+    custom_pallete: list,
+):
+    """
+    Comparison plot with global and relative performance
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Performance dataframe
+    objective_cols : list
+        Objective column names
+    decision_cols : list
+        Decision column names
+    scenario_col : str
+        Name of scenario column
+    policy_col : str
+        Name of policy column
+    policy_order : list
+        Order of policies to plot
+    scenario_order : list
+        Order of scenarios to plot
+    objective_order : list
+        Order of objective to plot
+    policy_clean : list
+        Cleaned up policy names
+    status_quo_policy_clean : str
+        Cleaned up name of status quo policy
+    scenario_clean : list
+        Cleaned up scenario names
+    objective_clean : list
+        Cleaned up objective names
+    custom_pallete : list
+        Custom color pallete for bars
+
+    Returns
+    -------
+    seaborn.axisgrid.FacetGrid
+        Plot of subsequent scenarios
+    """
+    # Setup
+    sns.set()
+
+    # Pivot data
+    df_plot = df.drop(columns=decision_cols)
+    df_plot = pd.melt(
+        df_plot,
+        value_vars=objective_cols,
+        id_vars=[scenario_col, policy_col],
+        var_name='obj',
+        value_name='obj_value'
+    )
+
+    # Ording
+    df_plot[policy_col] = pd.Categorical(
+        df_plot[policy_col],
+        policy_order
+    )
+    df_plot[scenario_col] = pd.Categorical(
+        df_plot[scenario_col],
+        scenario_order
+    )
+    df_plot['obj'] = pd.Categorical(
+        df_plot['obj'],
+        objective_order
+    )
+    df_plot = df_plot.sort_values(['obj', scenario_col, policy_col])
+
+    # Rename
+    df_plot['obj'] = df_plot['obj'].replace(
+        dict(zip(objective_order, objective_clean))
+    )
+    df_plot[scenario_col] = df_plot[scenario_col].replace(
+        dict(zip(scenario_order, scenario_clean))
+    )
+    df_plot[policy_col] = df_plot[policy_col].replace(
+        dict(zip(policy_order, policy_clean))
+    )
+
+    # Separate DataFrames
+    df_plot_not_status_quo = \
+        df_plot[df_plot[policy_col] != status_quo_policy_clean]
+    df_plot_status_quo = \
+        df_plot[df_plot[policy_col] == status_quo_policy_clean]
+
+    # Make bar plots
+    g = sns.FacetGrid(
+        df_plot_status_quo,
+        row='obj',
+        sharey='row',
+        height=1.4,
+        aspect=5.8,
+        gridspec_kws={
+            'wspace': 0.1,
+            'hspace': 0.25
+        }
+    )
+    g.map(
+        sns.barplot,
+        scenario_col,
+        'obj_value',
+    )
+
+    # Filter policies
+    policies_not_status_quo = [
+        x for x
+        in policy_clean if x != status_quo_policy_clean
+    ]
+
+    # Add lollipops
+    for i, ax in enumerate(g.axes[:, 0]):  # Objectives
+        # Get objective
+        objective = objective_clean[i]
+
+        df_status_quo = df_plot_status_quo[
+            df_plot_status_quo['obj'] == objective
+        ]
+
+        for j, policy in enumerate(policies_not_status_quo):  # Policies
+            # Filter
+            df_temp = df_plot_not_status_quo[
+                (df_plot_not_status_quo['obj'] == objective_clean[i]) &
+                (df_plot_not_status_quo[policy_col] == policy)
+            ]
+
+            # Plot points
+            x = np.arange(0, len(df_temp)) - 0.3 + j * 0.2
+            ax.scatter(
+                x,
+                df_temp['obj_value'],
+                color=custom_pallete[j],
+            )
+
+            # Plot stems
+            ax.vlines(
+                x,
+                ymin=df_status_quo['obj_value'],
+                ymax=df_temp['obj_value'],
+                colors=custom_pallete[j],
+            )
+
+    # Y labels
+    y_labels = df_plot['obj'].unique().tolist()
+    for i, ax in enumerate(g.axes[:, 0]):
+        ax.set_ylabel(y_labels[i])
+
+    # Better/worse labels
+    for i, ax in enumerate(g.axes[:, -1]):
+        ax2 = ax.twinx()
+        ax2.set_yticks([1, 0], ['Worse', 'Better'])
+    # X labels
+    g.set_xlabels('Scenario')
+
+    # Remove titles
+    g.set_titles(
+        template=''
+    )
+
+    # Add legend
+    custom_lines = [Line2D([0], [0], color=i) for i in custom_pallete]
+    ax.legend(
+        custom_lines,
+        policies_not_status_quo,
+        bbox_to_anchor=(1.6, 5.5),
+        title='Policy'
+    )
+
+    # Sizing
+    g.figure.subplots_adjust(
+        left=0.15, bottom=0.1, right=0.65, top=0.90
+    )
+
+    return g

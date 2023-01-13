@@ -73,6 +73,7 @@ outputs:
     compare_single: "io/outputs/figures/compare_single.pdf"
     compare_all: "io/outputs/figures/compare_all.pdf"
     compare_global: "io/outputs/figures/compare_global.pdf"
+    compare_global_relative: "io/outputs/figures/compare_global_relative.pdf"
 
     # Runtime figures
     interactive_parallel: "io/outputs/figures/runtime_interactive_parallel.html"
