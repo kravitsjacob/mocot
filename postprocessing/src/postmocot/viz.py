@@ -1,5 +1,6 @@
 """Hardcoded Visualization functions"""
 
+import postmocot
 import pandas as pd
 import numpy as np
 from matplotlib.lines import Line2D
@@ -8,7 +9,16 @@ import seaborn as sns
 sns.reset_orig()
 
 
-def average_parallel(runtime, df_policy_performance):
+def average_parallel(
+    runtime: postmocot.runtime.BorgRuntimeDiagnostic,
+    df_policy_performance: pd.DataFrame,
+    objective_cols: list,
+    policy_col: str,
+    scenario_col: str,
+    objective_cols_clean: list,
+    scenario_name: str,
+    tick_specs: list,
+):
     """Summary plot for average scenario
 
     Parameters
@@ -28,59 +38,39 @@ def average_parallel(runtime, df_policy_performance):
         runtime.archive_objectives[runtime.nfe[-1]],
         columns=runtime.objective_names
     )
-    df = df.drop(
-        columns=['f_ENS', 'f_disvi_tot', 'f_w_with', 'f_w_con', 'f_w_emit']
-    )
+    df = df[objective_cols]
 
     # Judgement policy performance preparation
     df_policy_performance = df_policy_performance[
-        df_policy_performance['scenario'] == 'average week'
+        df_policy_performance[scenario_col] == scenario_name
     ]
+    labels = df_policy_performance[policy_col]
     df_policy_performance = df_policy_performance[
-        df.columns.tolist() + ['policy_label']
+        df.columns.tolist()
     ]
 
     # Column preparation
-    df = df.rename(columns={
-        'f_gen': r'$f_{gen}$ [\$]',
-        'f_with_tot': '$f_{with,tot}$ [L]',
-        'f_con_tot': '$f_{con,tot}$ [L]',
-        'f_emit': '$f_{emit}$ [lbs]'
-    })
+    df = df.rename(
+        columns=dict(zip(objective_cols, objective_cols_clean))
+    )
 
     # Plotting
     paxfig = paxplot.pax_parallel(n_axes=len(df.columns))
     paxfig.plot(
-        df_policy_performance.loc[
-            :, df_policy_performance.columns != 'policy_label'
-        ].to_numpy()
+        df_policy_performance[objective_cols].to_numpy()
     )
 
     # Adding a colorbar
-    paxfig.add_legend(labels=df_policy_performance['policy_label'].tolist())
-    paxfig.axes[-1].get_legend().set_bbox_to_anchor((1.50, 0.5))
+    paxfig.add_legend(labels=labels.tolist())
+    paxfig.axes[-1].get_legend().set_bbox_to_anchor((1.45, 0.5))
 
     # Limits
-    paxfig.set_ticks(
-        ax_idx=0,
-        ticks=[1e6, 2e6, 3e6],
-        labels=['1e6', '2e6', '3e6']
-    )
-    paxfig.set_ticks(
-        ax_idx=1,
-        ticks=[0, 5e9, 1e10],
-        labels=['0', '5e9', '1e10']
-    )
-    paxfig.set_ticks(
-        ax_idx=2,
-        ticks=[0, 5e7, 1e8],
-        labels=['0', '5e7', '1e8']
-    )
-    paxfig.set_ticks(
-        ax_idx=3,
-        ticks=[0, 5e7, 1e8],
-        labels=['0', '5e7', '1e8']
-    )
+    for ax_i, (i, j) in enumerate(tick_specs):
+        paxfig.set_ticks(
+            ax_idx=ax_i,
+            ticks=i,
+            labels=j
+        )
 
     # Add labels
     paxfig.set_labels(df.columns)
@@ -98,6 +88,7 @@ def average_parallel(runtime, df_policy_performance):
 
     # Dimensions
     paxfig.set_size_inches(11, 3)
+    paxfig.subplots_adjust(left=0.05, bottom=0.2, right=0.9, top=0.9)
 
     return paxfig
 

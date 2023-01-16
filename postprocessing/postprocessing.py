@@ -42,8 +42,29 @@ def main():
             paths['outputs']['selected_policy_performance']
         )
         fig = postmocot.viz.average_parallel(
-            runtime,
-            df_policy_performance
+            runtime=runtime,
+            df_policy_performance=df_policy_performance,
+            objective_cols=[
+                'f_gen',
+                'f_with_tot',
+                'f_con_tot',
+                'f_emit',
+            ],
+            policy_col='policy_label',
+            scenario_col='scenario',
+            objective_cols_clean=[
+                'Cost\n[\$]',
+                'Withdrawal\n[Gallon]',
+                'Consumption\n[Gallon]',
+                'Emissions\n[lbs]',
+            ],
+            scenario_name='average week',
+            tick_specs=[
+                [[1.5e6, 2.0e6, 2.5e6], ['1.5e6', '2.0e6', '2.5e6']],
+                [[0, 0.25e10, 0.50e10, 0.75e10], ['0', '0.25e9', '0.50e9', '0.75e9']],  # noqa
+                [[0, 0.50e8, 1.00e8, 1.50e8], ['0', '0.50e8', '1.00e8', '1.50e8']],  # noqa
+                [[0, 0.5e8, 1.0e8], ['0', '0.5e8', '1.0e8']]
+            ]
         )
         fig.savefig(paths['outputs']['figures']['compare_parallel'])
 
@@ -95,10 +116,10 @@ def main():
                 'Avoid\ntemperature\nviolation',
             ],
             objective_clean=[
-                r'Cost\n[\$]',
+                'Cost\n[\$]',
                 'Withdrawal\n[Gallon]',
                 'Consumption\n[Gallon]',
-                r'Discharge\nViolations\n[Gallon $^\circ$C]',
+                'Discharge\nViolations\n[Gallon $^\circ$C]',
                 'Emissions\n[lbs]',
                 'Reliability\n[MW]',
             ],
@@ -159,10 +180,10 @@ def main():
                 'Avoid\ntemperature\nviolation',
             ],
             objective_clean=[
-                r'Cost\n[\$]',
+                'Cost\n[\$]',
                 'Withdrawal\n[Gallon]',
                 'Consumption\n[Gallon]',
-                r'Discharge\nViolations\n[Gallon $^\circ$C]',
+                'Discharge\nViolations\n[Gallon $^\circ$C]',
                 'Emissions\n[lbs]',
                 'Reliability\n[MW]',
             ],
@@ -228,10 +249,10 @@ def main():
                 'Avoid\ntemperature\nviolation',
             ],
             objective_clean=[
-                r'Cost\n[\$]',
+                'Cost\n[\$]',
                 'Withdrawal\n[Gallon]',
                 'Consumption\n[Gallon]',
-                r'Discharge\nViolations\n[Gallon $^\circ$C]',
+                'Discharge\nViolations\n[Gallon $^\circ$C]',
                 'Emissions\n[lbs]',
                 'Reliability\n[MW]',
             ],
