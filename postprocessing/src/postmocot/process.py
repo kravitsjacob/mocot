@@ -1,6 +1,7 @@
 
 import pandas as pd
 import numpy as np
+import postmocot
 
 
 def is_pareto_efficient(costs, return_mask=True):
@@ -69,20 +70,33 @@ def get_nondomintated(df, objs, max_objs=None):
     return df_nondom
 
 
-def select_policies(runtime, df_judement):
-    """Select policies based on objective performance
+def select_policies(
+    runtime: postmocot.runtime.BorgRuntimeDiagnostic,
+    closest_cost: float,
+    cost_col: str,
+    policy_name: str,
+    policy_col: str,
+):
+    """
+    Select policies based on objective performance
 
     Parameters
     ----------
     runtime : postmocot.runtime.BorgRuntimeDiagnostic
         Runtime object
-    df_judement : pandas.DataFrame
-        Policies based on judgement
+    closest_cost : float
+        Closest cost for selected policy
+    cost_col : str
+        Name of cost column
+    policy_name : str
+        Name of policy
+    policy_col : str
+        Name of policy column
 
     Returns
     -------
     pandas.DataFrame
-        Selected policies
+        Selected policy DataFrame
     """
     # Build archive
     df_objs = pd.DataFrame(
@@ -96,39 +110,10 @@ def select_policies(runtime, df_judement):
     df = pd.concat([df_decs, df_objs], axis=1)
 
     # Extracting policies
-    df['policy_label'] = ''
-    idx_compromise = df.iloc[(df['f_gen']-1327312.1752207442).abs().argsort()[:1]].index[0]  # noqa
-    df.at[idx_compromise, 'policy_label'] = 'water-emission policy'
-    df = df[df['policy_label'] != '']
-    df = df[runtime.decision_names + ['policy_label']]
+    df[policy_col] = ''
+    idx_compromise = df.iloc[(df[cost_col]-closest_cost).abs().argsort()[:1]].index[0]  # noqa
+    df.at[idx_compromise, policy_col] = policy_name
+    df = df[df[policy_col] != '']
+    df = df[runtime.decision_names + [policy_col]]
 
-    # Making judgement solutions
-    row = pd.DataFrame({
-        'w_with': [0.0],
-        'w_con': [0.0],
-        'w_emit': [0.0],
-        'policy_label': 'status quo'
-    })
-    df = pd.concat([df, row], axis=0)
-    row = pd.DataFrame({
-        'w_with': df_judement['w_with'],
-        'w_con': [0.0],
-        'w_emit': [0.0],
-        'policy_label': 'high water withdrawal penalty'
-    })
-    df = pd.concat([df, row], axis=0)
-    row = pd.DataFrame({
-        'w_with': [0.0],
-        'w_con': df_judement['w_con'],
-        'w_emit': [0.0],
-        'policy_label': 'high water consumption penalty'
-    })
-    df = pd.concat([df, row], axis=0)
-    row = pd.DataFrame({
-        'w_with': [0.0],
-        'w_con': [0.0],
-        'w_emit': df_judement['w_emit'],
-        'policy_label': 'high emission penalty'
-    })
-    df = pd.concat([df, row], axis=0)
     return df
