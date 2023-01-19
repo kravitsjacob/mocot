@@ -79,8 +79,8 @@ def average_parallel(
     paxfig.plot(
         [row[objective_cols].to_numpy()],
         line_kwargs={
-            'linewidth': 0.1,
-            'linewidth': 0.2,
+            'linewidth': 0.5,
+            'alpha': 0.5,
             'color': unselected_color,
             'zorder': 0
         }
@@ -105,8 +105,8 @@ def average_parallel(
     paxfig.plot(
         df.to_numpy(),
         line_kwargs={
-            'alpha': 0.1,
-            'linewidth': 0.2,
+            'alpha': 0.05,
+            'linewidth': 0.05,
             'color': unselected_color,
             'zorder': 0
         }

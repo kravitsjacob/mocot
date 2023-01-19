@@ -288,7 +288,7 @@ def main():
             status_quo_color=sns.color_palette()[3],
 
         )
-    fig.savefig(paths['outputs']['figures']['compare_global_relative'])
+        fig.savefig(paths['outputs']['figures']['compare_global_relative'])
 
 
 if __name__ == '__main__':
