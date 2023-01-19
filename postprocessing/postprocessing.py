@@ -66,11 +66,11 @@ def main():
                 [[2.4e7, 9.8e7], ['2.4e7', '9.8e7']]
             ],
             policy_palette=[
-                sns.color_palette('tab10')[3],
+                sns.color_palette()[3],
                 sns.color_palette('gray')[1],
                 sns.color_palette('gray')[3],
                 sns.color_palette('gray')[-1],
-                sns.color_palette('tab10')[2],
+                sns.color_palette()[2],
             ],
             policy_order=[
                 'status quo',
@@ -87,7 +87,7 @@ def main():
                 'selected water-emission policy',
                 'unselected water-emission policy',
             ],
-            unselected_color=sns.color_palette('tab10')[2],
+            unselected_color=sns.color_palette()[2],
         )
         fig.savefig(paths['outputs']['figures']['compare_parallel'])
 
@@ -147,11 +147,11 @@ def main():
                 'Reliability\n[MWh]',
             ],
             custom_pallete=[
-                sns.color_palette('tab10')[3],
+                sns.color_palette()[3],
                 sns.color_palette('gray')[1],
                 sns.color_palette('gray')[3],
                 sns.color_palette('gray')[-1],
-                sns.color_palette('tab10')[2],
+                sns.color_palette()[2],
             ]
         )
         fig.savefig(paths['outputs']['figures']['compare_global'])
@@ -214,7 +214,7 @@ def main():
                 sns.color_palette('gray')[1],
                 sns.color_palette('gray')[3],
                 sns.color_palette('gray')[-1],
-                sns.color_palette('tab10')[2],
+                sns.color_palette()[2],
             ],
             single_scenario='Extreme\nload/climate',
         )
@@ -283,9 +283,9 @@ def main():
                 sns.color_palette('gray')[1],
                 sns.color_palette('gray')[3],
                 sns.color_palette('gray')[-1],
-                sns.color_palette('tab10')[2],
+                sns.color_palette()[2],
             ],
-            status_quo_color=sns.color_palette('tab10')[3],
+            status_quo_color=sns.color_palette()[3],
 
         )
     fig.savefig(paths['outputs']['figures']['compare_global_relative'])
