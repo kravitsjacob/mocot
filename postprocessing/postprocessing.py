@@ -60,11 +60,34 @@ def main():
             ],
             scenario_name='average week',
             tick_specs=[
-                [[1.5e6, 2.0e6, 2.5e6], ['1.5e6', '2.0e6', '2.5e6']],
-                [[0, 0.25e10, 0.50e10, 0.75e10], ['0', '0.25e9', '0.50e9', '0.75e9']],  # noqa
-                [[0, 0.50e8, 1.00e8, 1.50e8], ['0', '0.50e8', '1.00e8', '1.50e8']],  # noqa
-                [[0, 0.5e8, 1.0e8], ['0', '0.5e8', '1.0e8']]
-            ]
+                [[1.5e6, 2.3e6], ['1.5e6', '2.5e6']],
+                [[9.5e7, 5.7e9], ['9.5e7',  '5.7e9']],
+                [[1.9e7, 1.3e8], ['1.9e7',  '1.3e8']],
+                [[2.4e7, 9.8e7], ['2.4e7', '9.8e7']]
+            ],
+            policy_palette=[
+                sns.color_palette('tab10')[3],
+                sns.color_palette('gray')[1],
+                sns.color_palette('gray')[3],
+                sns.color_palette('gray')[-1],
+                sns.color_palette('tab10')[2],
+            ],
+            policy_order=[
+                'status quo',
+                'high water withdrawal penalty',
+                'high water consumption penalty',
+                'high emission penalty',
+                'water-emission policy',
+            ],
+            legend_labels=[
+                'status quo',
+                'high water withdrawal penalty',
+                'high water consumption penalty',
+                'high emission penalty',
+                'selected water-emission policy',
+                'unselected water-emission policy',
+            ],
+            unselected_color=sns.color_palette('tab10')[2],
         )
         fig.savefig(paths['outputs']['figures']['compare_parallel'])
 
@@ -121,10 +144,10 @@ def main():
                 'Consumption\n[Gallon]',
                 'Discharge\nViolations\n[Gallon $^\circ$C]',
                 'Emissions\n[lbs]',
-                'Reliability\n[MW]',
+                'Reliability\n[MWh]',
             ],
             custom_pallete=[
-                sns.color_palette('tab10')[0],
+                sns.color_palette('tab10')[3],
                 sns.color_palette('gray')[1],
                 sns.color_palette('gray')[3],
                 sns.color_palette('gray')[-1],
@@ -262,6 +285,8 @@ def main():
                 sns.color_palette('gray')[-1],
                 sns.color_palette('tab10')[2],
             ],
+            status_quo_color=sns.color_palette('tab10')[3],
+
         )
     fig.savefig(paths['outputs']['figures']['compare_global_relative'])
 

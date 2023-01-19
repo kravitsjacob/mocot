@@ -6,6 +6,7 @@ import numpy as np
 from matplotlib.lines import Line2D
 import paxplot
 import seaborn as sns
+from matplotlib.legend_handler import HandlerTuple
 sns.reset_orig()
 
 
@@ -18,6 +19,10 @@ def average_parallel(
     objective_cols_clean: list,
     scenario_name: str,
     tick_specs: list,
+    policy_palette: list,
+    policy_order: list,
+    legend_labels: list,
+    unselected_color: list,
 ):
     """Summary plot for average scenario
 
@@ -41,13 +46,18 @@ def average_parallel(
     df = df[objective_cols]
 
     # Judgement policy performance preparation
+    df_policy_performance[policy_col] = pd.Categorical(
+        df_policy_performance[policy_col],
+        policy_order
+    )
+    df_policy_performance = df_policy_performance.sort_values([policy_col])
     df_policy_performance = df_policy_performance[
         df_policy_performance[scenario_col] == scenario_name
     ]
-    labels = df_policy_performance[policy_col]
     df_policy_performance = df_policy_performance[
         df.columns.tolist()
     ]
+    df_policy_performance = df_policy_performance.reset_index(drop=True)
 
     # Column preparation
     df = df.rename(
@@ -56,12 +66,28 @@ def average_parallel(
 
     # Plotting
     paxfig = paxplot.pax_parallel(n_axes=len(df.columns))
+    for i, row in df_policy_performance.iterrows():
+        paxfig.plot(
+            [row[objective_cols].to_numpy()],
+            line_kwargs={
+                'linewidth': 2.7,
+                'color': policy_palette[i],
+            }
+        )
+
+    # Unselected line
     paxfig.plot(
-        df_policy_performance[objective_cols].to_numpy()
+        [row[objective_cols].to_numpy()],
+        line_kwargs={
+            'linewidth': 0.1,
+            'linewidth': 0.2,
+            'color': unselected_color,
+            'zorder': 0
+        }
     )
 
     # Adding a colorbar
-    paxfig.add_legend(labels=labels.tolist())
+    paxfig.add_legend(labels=legend_labels)
     paxfig.axes[-1].get_legend().set_bbox_to_anchor((1.45, 0.5))
 
     # Limits
@@ -80,8 +106,8 @@ def average_parallel(
         df.to_numpy(),
         line_kwargs={
             'alpha': 0.1,
-            'linewidth': 0.5,
-            'color': 'grey',
+            'linewidth': 0.2,
+            'color': unselected_color,
             'zorder': 0
         }
     )
@@ -432,6 +458,7 @@ def global_relative_performance(
     scenario_clean: list,
     objective_clean: list,
     custom_pallete: list,
+    status_quo_color: tuple,
 ):
     """
     Comparison plot with global and relative performance
@@ -472,6 +499,7 @@ def global_relative_performance(
     """
     # Setup
     sns.set()
+    sns.set_style("whitegrid")
 
     # Pivot data
     df_plot = df.drop(columns=decision_cols)
@@ -531,6 +559,9 @@ def global_relative_performance(
         sns.barplot,
         scenario_col,
         'obj_value',
+        color='w',
+        edgecolor=status_quo_color,
+        alpha=None,
     )
 
     # Filter policies
@@ -588,13 +619,28 @@ def global_relative_performance(
         template=''
     )
 
-    # Add legend
-    custom_lines = [Line2D([0], [0], color=i) for i in custom_pallete]
-    ax.legend(
+    # Add legend for relative policies
+    custom_lines = [
+        (
+            Line2D([0], [0], color=i),
+            Line2D([0], [0], color=i, linestyle='', marker='o')
+        )
+        for i in custom_pallete
+    ]
+    g.axes[-1, -1].legend(
         custom_lines,
         policies_not_status_quo,
-        bbox_to_anchor=(1.6, 5.5),
-        title='Policy'
+        bbox_to_anchor=(1.6, 5.2),
+        title='Change In\nPolicy Performance',
+        handler_map={tuple: HandlerTuple(ndivide=None, pad=-0.2)}
+    )
+
+    # Add legend for status quo
+    g.axes[-2, -1].legend(
+        [Line2D([0], [0], color=status_quo_color)],
+        [status_quo_policy_clean],
+        bbox_to_anchor=(1.6, 5.2),
+        title='Policy Performance'
     )
 
     # Sizing
