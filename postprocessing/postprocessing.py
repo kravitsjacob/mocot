@@ -277,7 +277,7 @@ def main():
                 'Consumption\n[Gallon]',
                 'Discharge\nViolations\n[Gallon $^\circ$C]',
                 'Emissions\n[lbs]',
-                'Reliability\n[MW]',
+                'Reliability\n[MWh]',
             ],
             custom_pallete=[
                 sns.color_palette('gray')[1],
