@@ -53,17 +53,17 @@ def main():
             policy_col='policy_label',
             scenario_col='scenario',
             objective_cols_clean=[
-                'Cost\n[\$]',
-                'Withdrawal\n[Gallon]',
-                'Consumption\n[Gallon]',
-                'Emissions\n[lbs]',
+                '\nCost\n[\$]',
+                '\nWithdrawal\n[Gallon]',
+                '\nConsumption\n[Gallon]',
+                '\nEmissions\n[lbs]',
             ],
             scenario_name='average week',
             tick_specs=[
-                [[1.5e6, 2.3e6], ['1.5e6', '2.5e6']],
-                [[9.5e7, 5.7e9], ['9.5e7',  '5.7e9']],
-                [[1.9e7, 1.0e8], ['1.9e7',  '1.0e8']],
-                [[2.4e7, 9.8e7], ['2.4e7', '9.8e7']]
+                [[1.5e6, 2.3e6], ['\n1.5e6\n(better)', '2.5e6\n(worse)\n']],
+                [[9.5e7, 5.7e9], ['\n9.5e7\n(better)',  '5.7e9\n(worse)\n']],
+                [[1.9e7, 1.0e8], ['\n1.9e7\n(better)',  '1.0e8\n(worse)\n']],
+                [[2.4e7, 9.8e7], ['\n2.4e7\n(better)', '9.8e7\n(worse)\n']]
             ],
             policy_palette=[
                 sns.color_palette()[4],

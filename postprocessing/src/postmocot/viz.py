@@ -77,7 +77,7 @@ def average_parallel(
 
     # Dimensions
     paxfig.set_size_inches(11, 3)
-    paxfig.subplots_adjust(left=0.05, bottom=0.2, right=0.9, top=0.9)
+    paxfig.subplots_adjust(left=0.1, bottom=0.2, right=0.9, top=0.9)
 
     return paxfig
 
