@@ -62,7 +62,7 @@ def main():
             tick_specs=[
                 [[1.5e6, 2.3e6], ['1.5e6', '2.5e6']],
                 [[9.5e7, 5.7e9], ['9.5e7',  '5.7e9']],
-                [[1.9e7, 1.3e8], ['1.9e7',  '1.3e8']],
+                [[1.9e7, 1.0e8], ['1.9e7',  '1.0e8']],
                 [[2.4e7, 9.8e7], ['2.4e7', '9.8e7']]
             ],
             policy_palette=[
@@ -84,10 +84,8 @@ def main():
                 'high water withdrawal penalty',
                 'high water consumption penalty',
                 'high emission penalty',
-                'selected water-emission policy',
-                'unselected water-emission policy',
+                'water-emission policy',
             ],
-            unselected_color=sns.color_palette()[2],
         )
         fig.savefig(paths['outputs']['figures']['compare_parallel'])
 

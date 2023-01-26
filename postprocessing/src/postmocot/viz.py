@@ -22,7 +22,6 @@ def average_parallel(
     policy_palette: list,
     policy_order: list,
     legend_labels: list,
-    unselected_color: list,
 ):
     """Summary plot for average scenario
 
@@ -38,13 +37,6 @@ def average_parallel(
     paxplot.core.PaxFigure
         Plot
     """
-    # Archive preparation
-    df = pd.DataFrame(
-        runtime.archive_objectives[runtime.nfe[-1]],
-        columns=runtime.objective_names
-    )
-    df = df[objective_cols]
-
     # Judgement policy performance preparation
     df_policy_performance[policy_col] = pd.Categorical(
         df_policy_performance[policy_col],
@@ -54,18 +46,11 @@ def average_parallel(
     df_policy_performance = df_policy_performance[
         df_policy_performance[scenario_col] == scenario_name
     ]
-    df_policy_performance = df_policy_performance[
-        df.columns.tolist()
-    ]
+    df_policy_performance = df_policy_performance[objective_cols]
     df_policy_performance = df_policy_performance.reset_index(drop=True)
 
-    # Column preparation
-    df = df.rename(
-        columns=dict(zip(objective_cols, objective_cols_clean))
-    )
-
     # Plotting
-    paxfig = paxplot.pax_parallel(n_axes=len(df.columns))
+    paxfig = paxplot.pax_parallel(n_axes=len(df_policy_performance.columns))
     for i, row in df_policy_performance.iterrows():
         paxfig.plot(
             [row[objective_cols].to_numpy()],
@@ -74,17 +59,6 @@ def average_parallel(
                 'color': policy_palette[i],
             }
         )
-
-    # Unselected line
-    paxfig.plot(
-        [row[objective_cols].to_numpy()],
-        line_kwargs={
-            'linewidth': 0.5,
-            'alpha': 0.5,
-            'color': unselected_color,
-            'zorder': 0
-        }
-    )
 
     # Adding a colorbar
     paxfig.add_legend(labels=legend_labels)
@@ -99,18 +73,7 @@ def average_parallel(
         )
 
     # Add labels
-    paxfig.set_labels(df.columns)
-
-    # Add remaining solutions
-    paxfig.plot(
-        df.to_numpy(),
-        line_kwargs={
-            'alpha': 0.05,
-            'linewidth': 0.05,
-            'color': unselected_color,
-            'zorder': 0
-        }
-    )
+    paxfig.set_labels(objective_cols_clean)
 
     # Dimensions
     paxfig.set_size_inches(11, 3)
