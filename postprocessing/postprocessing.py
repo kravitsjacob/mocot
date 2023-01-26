@@ -66,7 +66,7 @@ def main():
                 [[2.4e7, 9.8e7], ['2.4e7', '9.8e7']]
             ],
             policy_palette=[
-                sns.color_palette()[3],
+                sns.color_palette()[4],
                 sns.color_palette('gray')[1],
                 sns.color_palette('gray')[3],
                 sns.color_palette('gray')[-1],
@@ -147,7 +147,7 @@ def main():
                 'Reliability\n[MWh]',
             ],
             custom_pallete=[
-                sns.color_palette()[3],
+                sns.color_palette()[4],
                 sns.color_palette('gray')[1],
                 sns.color_palette('gray')[3],
                 sns.color_palette('gray')[-1],
@@ -285,7 +285,7 @@ def main():
                 sns.color_palette('gray')[-1],
                 sns.color_palette()[2],
             ],
-            status_quo_color=sns.color_palette()[3],
+            status_quo_color=sns.color_palette()[4],
 
         )
         fig.savefig(paths['outputs']['figures']['compare_global_relative'])
