@@ -562,6 +562,7 @@ def global_relative_performance(
         color='w',
         edgecolor=status_quo_color,
         alpha=None,
+        linewidth=2.5
     )
 
     # Filter policies
@@ -637,7 +638,7 @@ def global_relative_performance(
 
     # Add legend for status quo
     g.axes[-2, -1].legend(
-        [Line2D([0], [0], color=status_quo_color)],
+        [Line2D([0], [0], color=status_quo_color, linewidth=2.5)],
         [status_quo_policy_clean],
         bbox_to_anchor=(1.6, 5.2),
         title='Policy Performance'
