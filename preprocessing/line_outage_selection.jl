@@ -51,40 +51,57 @@ function main()
     println(PowerModels.component_table(results["solution"], "gen", ["pg"]))
 
 
-    # Remove line
-    df = DataFrames.DataFrame(
-        PowerModels.component_table(
-            results["solution"], "branch", ["pt", "pf"]
-        ),
-        :auto
+    # Remove line data
+    temp_network_data = deepcopy(network_data)
+    delete!(temp_network_data["branch"], "196")
+    pm = PowerModels.instantiate_model(
+        temp_network_data,
+        PowerModels.DCPPowerModel,
+        PowerModels.build_mn_opf
     )
-    println(sort(abs.(df), [:x2]))
+    results = PowerModels.optimize_model!(
+        pm,
+        optimizer=JuMP.optimizer_with_attributes(Ipopt.Optimizer)
+    )
+    println(results["objective"])
 
-    remove_dict = Dict("Line" => [], "Value" => [])
-    for b in keys(network_data["branch"])
-        # Remove line data
-        temp_network_data = deepcopy(network_data)
-        delete!(temp_network_data["branch"], b)
 
-        # Run powerflow
-        pm = PowerModels.instantiate_model(
-            temp_network_data,
-            PowerModels.DCPPowerModel,
-            PowerModels.build_mn_opf
-        )
-        results = PowerModels.optimize_model!(
-            pm,
-            optimizer=JuMP.optimizer_with_attributes(Ipopt.Optimizer)
-        )
+    # # Remove line
+    # df = DataFrames.DataFrame(
+    #     PowerModels.component_table(
+    #         results["solution"], "branch", ["pt", "pf"]
+    #     ),
+    #     :auto
+    # )
+    # println(sort(abs.(df), [:x2]))
 
-        # Store results
-        remove_dict["Line"] = push!(remove_dict["Line"], b)
-        remove_dict["Value"] = append!(remove_dict["Value"], results["objective"])
-    end
 
-    df = DataFrames.DataFrame(remove_dict)
-    println(sort(df, [:Value]))
-    @infiltrate
+
+    # remove_dict = Dict("Line" => [], "Value" => [])
+    # for b in keys(network_data["branch"])
+    #     # Remove line data
+    #     temp_network_data = deepcopy(network_data)
+    #     delete!(temp_network_data["branch"], b)
+
+    #     # Run powerflow
+    #     pm = PowerModels.instantiate_model(
+    #         temp_network_data,
+    #         PowerModels.DCPPowerModel,
+    #         PowerModels.build_mn_opf
+    #     )
+    #     results = PowerModels.optimize_model!(
+    #         pm,
+    #         optimizer=JuMP.optimizer_with_attributes(Ipopt.Optimizer)
+    #     )
+
+    #     # Store results
+    #     remove_dict["Line"] = push!(remove_dict["Line"], b)
+    #     remove_dict["Value"] = append!(remove_dict["Value"], results["objective"])
+    # end
+
+    # df = DataFrames.DataFrame(remove_dict)
+    # println(sort(df, [:Value]))
+    # @infiltrate
 
     return 0
 end
