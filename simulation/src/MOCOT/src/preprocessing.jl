@@ -43,7 +43,7 @@ function read_inputs(
         CSV.File(scenario_specs_path, dateformat="yyyy-mm-dd HH:MM:SS")
     )
     df_gen_info = DataFrames.DataFrame(
-        CSV.File(df_gen_info_path)
+        CSV.File(df_gen_info_path, stringtype=String)
     )
     df_eia_heat_rates = DataFrames.DataFrame(
         XLSX.readtable(eia_heat_rates_path, "Annual Data")
@@ -184,6 +184,7 @@ function create_model_from_dataframes(
         network_data["gen"]["47"]["gen_status"] = 0
         delete!(gen_dict, "47")
     elseif scenario_code == 4  # Line outage
+        delete!(network_data["branch"], "196")
         delete!(network_data["branch"], "158")
     end
 
