@@ -453,7 +453,7 @@ function get_objectives(
     df_discharge_violation_states = MOCOT.get_state_dataframe(simulation.state, "discharge_violation")
     df_all_power_states = MOCOT.get_powermodel_state_dataframe(simulation.state, "results", "gen", "pg")
     df_all_power_states.pg = df_all_power_states.pg * 100.0  # Convert to [MW]
-    df_all_power_states.pg = round.(df_all_power_states.pg, digits=7)
+    df_all_power_states.pg = round.(df_all_power_states.pg, digits=4)
     gen_rows = in.(string.(df_all_power_states.obj_name), Ref(keys(simulation.model.gens)))
     df_power_states = df_all_power_states[gen_rows, :]
     df_reliability_states = df_all_power_states[.!gen_rows, :]
@@ -537,6 +537,7 @@ function get_metrics(
 
     # Power states
     df_all_power_states = MOCOT.get_powermodel_state_dataframe(simulation.state, "results", "gen", "pg")
+    df_all_power_states.pg = round.(df_all_power_states.pg, digits=4)
     gen_rows = in.(string.(df_all_power_states.obj_name), Ref(keys(simulation.model.gens)))
     df_power_states = df_all_power_states[gen_rows, :]
 
