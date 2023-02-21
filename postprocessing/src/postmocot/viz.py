@@ -82,6 +82,69 @@ def average_parallel(
     return paxfig
 
 
+def average_parallel_metrics(
+    runtime: postmocot.runtime.BorgRuntimeDiagnostic,
+    df_policy_metrics: pd.DataFrame,
+    metric_cols: list,
+    policy_col: str,
+    scenario_col: str,
+    metric_cols_clean: list,
+    scenario_name: str,
+    policy_palette: list,
+    policy_order: list,
+    legend_labels: list,
+):
+    """Summary plot for average scenario
+
+    Parameters
+    ----------
+    runtime : postmocot.runtime.BorgRuntimeDiagnostic
+        Runtime obeject for average scenario
+    df_policy_performance : pandas.DataFrame
+        Selected policies
+
+    Returns
+    -------
+    paxplot.core.PaxFigure
+        Plot
+    """
+    # Judgement policy performance preparation
+    df_policy_metrics[policy_col] = pd.Categorical(
+        df_policy_metrics[policy_col],
+        policy_order
+    )
+    df_policy_metrics = df_policy_metrics.sort_values([policy_col])
+    df_policy_metrics = df_policy_metrics[
+        df_policy_metrics[scenario_col] == scenario_name
+    ]
+    df_policy_metrics = df_policy_metrics[metric_cols]
+    df_policy_metrics = df_policy_metrics.reset_index(drop=True)
+
+    # Plotting
+    paxfig = paxplot.pax_parallel(n_axes=len(df_policy_metrics.columns))
+    for i, row in df_policy_metrics.iterrows():
+        paxfig.plot(
+            [row[metric_cols].to_numpy()],
+            line_kwargs={
+                'linewidth': 2.7,
+                'color': policy_palette[i],
+            }
+        )
+
+    # Adding a colorbar
+    paxfig.add_legend(labels=legend_labels)
+    paxfig.axes[-1].get_legend().set_bbox_to_anchor((3.7, 0.5))
+
+    # Add labels
+    paxfig.set_labels(metric_cols_clean)
+
+    # Dimensions
+    paxfig.set_size_inches(11.5, 3)
+    paxfig.subplots_adjust(left=0.07, bottom=0.2, right=0.75, top=0.9)
+
+    return paxfig
+
+
 def global_performance(
     df: pd.DataFrame,
     objective_cols: list,
