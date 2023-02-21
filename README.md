@@ -24,7 +24,7 @@ Multi-Objective Coordination of Thermoelectric Water Use
 
 # Optimization
 
-## Informal (Engineering Judgement) Optimization
+## Single-Objective Optimization
 1) Activate julia `$ julia --project=simulation/src/MOCOT`
 2) Instantiate julia packages `julia> include("simulation/julia_config.jl")`
 3) Run postprocessing `julia> include("optimization/engineering_judgement.jl")`
