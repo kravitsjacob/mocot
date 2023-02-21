@@ -56,6 +56,7 @@ outputs:
   judgement_policies: "io/outputs/selected_policies/judegment_policies.csv"
   selected_policies: "io/outputs/selected_policies/selected_policies.csv"
   selected_policy_performance: "io/outputs/selected_policies/selected_policy_performance.csv"
+  selected_policy_metrics: "io/outputs/selected_policies/selected_policy_metrics.csv"
 
   figures:
     # Example figures
