@@ -142,7 +142,7 @@ def main():
                 'water-emission policy',
             ],
         )
-        fig.savefig(paths['outputs']['figures']['compare_parallel'])
+        fig.savefig(paths['outputs']['figures']['compare_parallel_metrics'])
 
     # Global plot
     if not os.path.exists(paths['outputs']['figures']['compare_global']):
