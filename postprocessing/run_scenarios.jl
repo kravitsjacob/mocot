@@ -14,6 +14,7 @@ using MOCOT
 function main()
     # Setup
     df_scenario_performance = DataFrames.DataFrame()
+    df_scenario_metrics = DataFrames.DataFrame()
     paths = YAML.load_file("paths.yml")
 
     # Reading policy configurations
@@ -37,7 +38,7 @@ function main()
             w_with = pol_row["w_with"]
             w_con = pol_row["w_con"]
             w_emit = pol_row["w_emit"]
-            (objectives, state, metrics) = MOCOT.borg_simulation_wrapper(
+            (objectives, metrics, state) = MOCOT.borg_simulation_wrapper(
                 w_with,
                 w_con,
                 w_emit,
@@ -45,8 +46,7 @@ function main()
                 0,
                 scenario_code
             )
-
-            # Storing
+            # Storing objectives
             df_temp = DataFrames.DataFrame(
                 objectives
             )
@@ -57,10 +57,25 @@ function main()
             df_temp[:, "scenario"] .= scenario_name
             DataFrames.append!(df_scenario_performance, df_temp)
 
+            # Storing metrics
+            df_temp = DataFrames.DataFrame(
+                metrics
+            )
+            df_temp[:, "w_with"] .= pol_row["w_with"]        
+            df_temp[:, "w_con"] .= pol_row["w_con"]     
+            df_temp[:, "w_emit"] .= pol_row["w_emit"]         
+            df_temp[:, "policy_label"] .= pol_row["policy_label"]
+            df_temp[:, "scenario"] .= scenario_name
+            DataFrames.append!(df_scenario_metrics, df_temp, cols=:union)
+
             # Write as simulation occurs
             CSV.write(
                 paths["outputs"]["selected_policy_performance"],
                 df_scenario_performance
+            )
+            CSV.write(
+                paths["outputs"]["selected_policy_metrics"],
+                df_scenario_metrics
             )
 
         end

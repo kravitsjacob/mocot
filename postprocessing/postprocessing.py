@@ -89,6 +89,61 @@ def main():
         )
         fig.savefig(paths['outputs']['figures']['compare_parallel'])
 
+    # Average scenario parallel metrics
+    if not os.path.exists(paths['outputs']['figures']['compare_parallel_metrics']):
+        df_policy_metrics = pd.read_csv(
+            paths['outputs']['selected_policy_metrics']
+        )
+        fig = postmocot.viz.average_parallel_metrics(
+            runtime=runtime,
+            df_policy_metrics=df_policy_metrics,
+            metric_cols=[
+                'No Cooling System_output',
+                'OC_output',
+                'RC_output',
+                'RI_output',
+                'coal_output',
+                'ng_output',
+                'nuclear_output',
+                'wind_output',
+            ],
+            policy_col='policy_label',
+            scenario_col='scenario',
+            metric_cols_clean=[
+                'No\nCooling',
+                'Once-through\nCooling',
+                'Recirculating\nCooling',
+                'Recirculating\nInduced\nCooling',
+                'Coal',
+                'Natural Gas',
+                'Nuclear',
+                'Wind',
+            ],
+            scenario_name='average week',
+            policy_palette=[
+                sns.color_palette()[4],
+                sns.color_palette('gray')[1],
+                sns.color_palette('gray')[3],
+                sns.color_palette('gray')[-1],
+                sns.color_palette()[2],
+            ],
+            policy_order=[
+                'status quo',
+                'high water withdrawal penalty',
+                'high water consumption penalty',
+                'high emission penalty',
+                'water-emission policy',
+            ],
+            legend_labels=[
+                'status quo',
+                'high water withdrawal penalty',
+                'high water consumption penalty',
+                'high emission penalty',
+                'water-emission policy',
+            ],
+        )
+        fig.savefig(paths['outputs']['figures']['compare_parallel_metrics'])
+
     # Global plot
     if not os.path.exists(paths['outputs']['figures']['compare_global']):
         df_policy_performance = pd.read_csv(

@@ -56,6 +56,7 @@ outputs:
   judgement_policies: "io/outputs/selected_policies/judegment_policies.csv"
   selected_policies: "io/outputs/selected_policies/selected_policies.csv"
   selected_policy_performance: "io/outputs/selected_policies/selected_policy_performance.csv"
+  selected_policy_metrics: "io/outputs/selected_policies/selected_policy_metrics.csv"
 
   figures:
     # Example figures
@@ -72,6 +73,7 @@ outputs:
 
     # Results figures
     compare_parallel: "io/outputs/figures/compare_average_parallel.pdf"
+    compare_parallel_metrics: "io/outputs/figures/compare_parallel_metrics.pdf"
     compare_single: "io/outputs/figures/compare_single.pdf"
     compare_relative: "io/outputs/figures/compare_relative.pdf"
     compare_global: "io/outputs/figures/compare_global.pdf"
