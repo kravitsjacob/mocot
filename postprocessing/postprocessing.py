@@ -334,15 +334,23 @@ def main():
                 'Emissions\n[lbs]',
                 'Energy\nNot\nSupplied\n[MWh]',
             ],
-            custom_scenario_pallete=[
-                sns.color_palette()[1],
-                sns.color_palette()[5],
-                sns.color_palette()[6],
-                sns.color_palette()[3],
-                sns.color_palette()[0],
+            custom_policy_pallete=[
+                sns.color_palette()[4],
+                sns.color_palette('gray')[1],
+                sns.color_palette('gray')[3],
+                sns.color_palette('gray')[-1],
+                sns.color_palette()[2],
+            ],
+            custom_scenario_markers=[
+                'v',
+                's',
+                'X',
+                'D',
             ],
         )
-        fig.savefig(paths['outputs']['figures']['compare_global_average_relative'])
+        fig.savefig(
+            paths['outputs']['figures']['compare_global_average_relative']
+        )
 
     # Comparison plot with global and status quo relative difference
     if not os.path.exists(
@@ -409,6 +417,13 @@ def main():
                 sns.color_palette()[2],
             ],
             status_quo_color=sns.color_palette()[4],
+            custom_scenario_markers=[
+                'o',
+                'v',
+                's',
+                'X',
+                'D',
+            ],
 
         )
         fig.savefig(

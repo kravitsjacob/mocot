@@ -485,6 +485,7 @@ def global_status_quo_relative_performance(
     objective_clean: list,
     custom_pallete: list,
     status_quo_color: tuple,
+    custom_scenario_markers: list,
 ):
     """
     Comparison plot with global and relative performance
@@ -615,11 +616,13 @@ def global_status_quo_relative_performance(
 
             # Plot points
             x = np.arange(0, len(df_temp)) - 0.3 + j * 0.2
-            ax.scatter(
-                x,
-                df_temp['obj_value'],
-                color=custom_pallete[j],
-            )
+            for p in range(len(df_temp)):
+                ax.scatter(
+                    x[p],
+                    df_temp['obj_value'].tolist()[p],
+                    color=custom_pallete[j],
+                    marker=custom_scenario_markers[p],
+                )
 
             # Plot stems
             ax.vlines(
@@ -691,7 +694,8 @@ def global_average_relative_performance(
     average_scenario_clean: str,
     scenario_clean: list,
     objective_clean: list,
-    custom_scenario_pallete: list,
+    custom_policy_pallete: list,
+    custom_scenario_markers: list,
 ):
     """
     Comparison plot with global and relative performance
@@ -799,9 +803,10 @@ def global_average_relative_performance(
         policy_col,
         'obj_value',
         color='w',
-        edgecolor=custom_scenario_pallete[-1],
+        edgecolor=custom_policy_pallete,
         alpha=None,
-        linewidth=2.5
+        linewidth=2.5,
+        linestyle=(0, (1, 1))
     )
 
     # Add lollipops
@@ -825,7 +830,8 @@ def global_average_relative_performance(
             ax.scatter(
                 x,
                 df_temp_max['obj_value'],
-                color=custom_scenario_pallete[j],
+                color=custom_policy_pallete,
+                marker=custom_scenario_markers[j],
             )
 
             # Plot stems
@@ -833,7 +839,7 @@ def global_average_relative_performance(
                 x,
                 ymin=df_temp_min['obj_value'],
                 ymax=df_temp_max['obj_value'],
-                colors=custom_scenario_pallete[j],
+                colors=custom_policy_pallete,
             )
 
     # Y labels
@@ -856,10 +862,10 @@ def global_average_relative_performance(
     # Add legend for relative policies
     custom_lines = [
         (
-            Line2D([0], [0], color=i),
-            Line2D([0], [0], color=i, linestyle='', marker='o')
+            Line2D([0], [0], color='k'),
+            Line2D([0], [0], color='k', linestyle='', marker=i)
         )
-        for i in custom_scenario_pallete
+        for i in custom_scenario_markers
     ]
     g.axes[-1, -1].legend(
         custom_lines,
@@ -871,7 +877,7 @@ def global_average_relative_performance(
 
     # Add legend for status quo
     g.axes[-2, -1].legend(
-        [Line2D([0], [0], color=custom_scenario_pallete[-1], linewidth=2.5)],
+        [Line2D([0], [0], color='k', linestyle=(0, (1, 1)), linewidth=2.5)],
         [average_scenario_clean],
         bbox_to_anchor=(1.6, 5.2),
         title='Scenario\nPerformance',
