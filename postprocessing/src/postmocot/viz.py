@@ -470,7 +470,7 @@ def comparison(
     return g_compare, g_single
 
 
-def global_relative_performance(
+def global_status_quo_relative_performance(
     df: pd.DataFrame,
     objective_cols: list,
     decision_cols: list,
@@ -658,7 +658,7 @@ def global_relative_performance(
         custom_lines,
         policies_not_status_quo,
         bbox_to_anchor=(1.6, 5.2),
-        title='Change In\nPolicy Performance',
+        title='Performance\nRelative to \nStatus Quo\nPolicy',
         handler_map={tuple: HandlerTuple(ndivide=None, pad=-0.2)}
     )
 
@@ -668,6 +668,214 @@ def global_relative_performance(
         [status_quo_policy_clean],
         bbox_to_anchor=(1.6, 5.2),
         title='Policy Performance'
+    )
+
+    # Sizing
+    g.figure.subplots_adjust(
+        left=0.15, bottom=0.1, right=0.65, top=0.90
+    )
+
+    return g
+
+
+def global_average_relative_performance(
+    df: pd.DataFrame,
+    objective_cols: list,
+    decision_cols: list,
+    scenario_col: str,
+    policy_col: str,
+    policy_order: list,
+    scenario_order: list,
+    objective_order: list,
+    policy_clean: list,
+    average_scenario_clean: str,
+    scenario_clean: list,
+    objective_clean: list,
+    custom_scenario_pallete: list,
+):
+    """
+    Comparison plot with global and relative performance
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Performance dataframe
+    objective_cols : list
+        Objective column names
+    decision_cols : list
+        Decision column names
+    scenario_col : str
+        Name of scenario column
+    policy_col : str
+        Name of policy column
+    policy_order : list
+        Order of policies to plot
+    scenario_order : list
+        Order of scenarios to plot
+    objective_order : list
+        Order of objective to plot
+    policy_clean : list
+        Cleaned up policy names
+    average_scenario_clean : str
+        Cleaned up name of average week
+    scenario_clean : list
+        Cleaned up scenario names
+    objective_clean : list
+        Cleaned up objective names
+    custom_policy_pallete : list
+        Custom color pallete for bars
+
+    Returns
+    -------
+    seaborn.axisgrid.FacetGrid
+        Plot of subsequent scenarios
+    """
+    # Setup
+    sns.set()
+    sns.set_style("whitegrid")
+
+    # Pivot data
+    df_plot = df.drop(columns=decision_cols)
+    df_plot = pd.melt(
+        df_plot,
+        value_vars=objective_cols,
+        id_vars=[scenario_col, policy_col],
+        var_name='obj',
+        value_name='obj_value'
+    )
+
+    # Ording
+    df_plot[policy_col] = pd.Categorical(
+        df_plot[policy_col],
+        policy_order
+    )
+    df_plot[scenario_col] = pd.Categorical(
+        df_plot[scenario_col],
+        scenario_order
+    )
+    df_plot['obj'] = pd.Categorical(
+        df_plot['obj'],
+        objective_order
+    )
+    df_plot = df_plot.sort_values(['obj', scenario_col, policy_col])
+
+    # Rename
+    df_plot['obj'] = df_plot['obj'].replace(
+        dict(zip(objective_order, objective_clean))
+    )
+    df_plot[scenario_col] = df_plot[scenario_col].replace(
+        dict(zip(scenario_order, scenario_clean))
+    )
+    df_plot[policy_col] = df_plot[policy_col].replace(
+        dict(zip(policy_order, policy_clean))
+    )
+
+    # Separate DataFrames
+    df_plot_not_average = \
+        df_plot[df_plot[scenario_col] != average_scenario_clean]
+    df_plot_average = \
+        df_plot[df_plot[scenario_col] == average_scenario_clean]
+
+    # Filter policies
+    scenarios_not_average = [
+        x for x
+        in scenario_clean if x != average_scenario_clean
+    ]
+
+    # Make bar plots
+    g = sns.FacetGrid(
+        df_plot_average,
+        row='obj',
+        sharey='row',
+        height=1.4,
+        aspect=5.8,
+        gridspec_kws={
+            'wspace': 0.1,
+            'hspace': 0.25
+        }
+    )
+    g.map(
+        sns.barplot,
+        policy_col,
+        'obj_value',
+        color='w',
+        edgecolor=custom_scenario_pallete[-1],
+        alpha=None,
+        linewidth=2.5
+    )
+
+    # Add lollipops
+    for i, ax in enumerate(g.axes[:, 0]):  # Objectives
+        # Get objective
+        objective = objective_clean[i]
+
+        df_temp_min = df_plot_average[
+            df_plot_average['obj'] == objective
+        ]
+
+        for j, scenario in enumerate(scenarios_not_average):  # Scenarios
+            # Filter
+            df_temp_max = df_plot_not_average[
+                (df_plot_not_average['obj'] == objective_clean[i]) &
+                (df_plot_not_average[scenario_col] == scenario)
+            ]
+
+            # Plot points
+            x = np.arange(0, len(df_temp_max)) - 0.3 + j * 0.2
+            ax.scatter(
+                x,
+                df_temp_max['obj_value'],
+                color=custom_scenario_pallete[j],
+            )
+
+            # Plot stems
+            ax.vlines(
+                x,
+                ymin=df_temp_min['obj_value'],
+                ymax=df_temp_max['obj_value'],
+                colors=custom_scenario_pallete[j],
+            )
+
+    # Y labels
+    y_labels = df_plot['obj'].unique().tolist()
+    for i, ax in enumerate(g.axes[:, 0]):
+        ax.set_ylabel(y_labels[i])
+
+    # Better/worse labels
+    for i, ax in enumerate(g.axes[:, -1]):
+        ax2 = ax.twinx()
+        ax2.set_yticks([1, 0], ['Worse', 'Better'])
+    # X labels
+    g.set_xlabels('Policy')
+
+    # Remove titles
+    g.set_titles(
+        template=''
+    )
+
+    # Add legend for relative policies
+    custom_lines = [
+        (
+            Line2D([0], [0], color=i),
+            Line2D([0], [0], color=i, linestyle='', marker='o')
+        )
+        for i in custom_scenario_pallete
+    ]
+    g.axes[-1, -1].legend(
+        custom_lines,
+        scenarios_not_average,
+        bbox_to_anchor=(1.6, 5.0),
+        title='Performance\nRelative to\nAverage\nWeek\nScenario',
+        handler_map={tuple: HandlerTuple(ndivide=None, pad=-0.2)},
+    )
+
+    # Add legend for status quo
+    g.axes[-2, -1].legend(
+        [Line2D([0], [0], color=custom_scenario_pallete[-1], linewidth=2.5)],
+        [average_scenario_clean],
+        bbox_to_anchor=(1.6, 5.2),
+        title='Scenario\nPerformance',
+        borderpad=1.2,
     )
 
     # Sizing
