@@ -485,7 +485,6 @@ def global_status_quo_relative_performance(
     objective_clean: list,
     custom_pallete: list,
     status_quo_color: tuple,
-    custom_scenario_markers: list,
 ):
     """
     Comparison plot with global and relative performance
@@ -616,13 +615,12 @@ def global_status_quo_relative_performance(
 
             # Plot points
             x = np.arange(0, len(df_temp)) - 0.3 + j * 0.2
-            for p in range(len(df_temp)):
-                ax.scatter(
-                    x[p],
-                    df_temp['obj_value'].tolist()[p],
-                    color=custom_pallete[j],
-                    marker=custom_scenario_markers[p],
-                )
+            ax.scatter(
+                x,
+                df_temp['obj_value'],
+                color=custom_pallete[j],
+                marker='o',
+            )
 
             # Plot stems
             ax.vlines(

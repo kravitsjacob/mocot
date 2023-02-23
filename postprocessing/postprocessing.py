@@ -67,8 +67,8 @@ def main():
             ],
             policy_palette=[
                 sns.color_palette()[4],
-                sns.color_palette('gray')[1],
-                sns.color_palette('gray')[3],
+                sns.color_palette('gray')[2],
+                sns.color_palette('gray')[4],
                 sns.color_palette('gray')[-1],
                 sns.color_palette()[2],
             ],
@@ -124,8 +124,8 @@ def main():
             scenario_name='average week',
             policy_palette=[
                 sns.color_palette()[4],
-                sns.color_palette('gray')[1],
-                sns.color_palette('gray')[3],
+                sns.color_palette('gray')[2],
+                sns.color_palette('gray')[4],
                 sns.color_palette('gray')[-1],
                 sns.color_palette()[2],
             ],
@@ -203,8 +203,8 @@ def main():
             ],
             custom_pallete=[
                 sns.color_palette()[4],
-                sns.color_palette('gray')[1],
-                sns.color_palette('gray')[3],
+                sns.color_palette('gray')[2],
+                sns.color_palette('gray')[4],
                 sns.color_palette('gray')[-1],
                 sns.color_palette()[2],
             ]
@@ -266,8 +266,8 @@ def main():
                 'Energy\nNot\nSupplied\n[MWh]',
             ],
             custom_pallete=[
-                sns.color_palette('gray')[1],
-                sns.color_palette('gray')[3],
+                sns.color_palette('gray')[2],
+                sns.color_palette('gray')[4],
                 sns.color_palette('gray')[-1],
                 sns.color_palette()[2],
             ],
@@ -336,8 +336,8 @@ def main():
             ],
             custom_policy_pallete=[
                 sns.color_palette()[4],
-                sns.color_palette('gray')[1],
-                sns.color_palette('gray')[3],
+                sns.color_palette('gray')[2],
+                sns.color_palette('gray')[4],
                 sns.color_palette('gray')[-1],
                 sns.color_palette()[2],
             ],
@@ -411,20 +411,12 @@ def main():
                 'Energy\nNot\nSupplied\n[MWh]',
             ],
             custom_pallete=[
-                sns.color_palette('gray')[1],
-                sns.color_palette('gray')[3],
+                sns.color_palette('gray')[2],
+                sns.color_palette('gray')[4],
                 sns.color_palette('gray')[-1],
                 sns.color_palette()[2],
             ],
             status_quo_color=sns.color_palette()[4],
-            custom_scenario_markers=[
-                'o',
-                'v',
-                's',
-                'X',
-                'D',
-            ],
-
         )
         fig.savefig(
             paths['outputs']['figures']['compare_global_status_quo_relative']
