@@ -641,6 +641,7 @@ def global_status_quo_relative_performance(
         ax2.set_yticks([1, 0], ['Worse', 'Better'])
     # X labels
     g.set_xlabels('Scenario')
+    g.figure.text(0.05, 0.5, 'Objectives', rotation=90)
 
     # Remove titles
     g.set_titles(
@@ -655,25 +656,21 @@ def global_status_quo_relative_performance(
         )
         for i in custom_pallete
     ]
+    custom_lines.insert(
+        0,
+        Line2D([0], [0], color=status_quo_color, linewidth=2.5),
+    )
     g.axes[-1, -1].legend(
         custom_lines,
-        policies_not_status_quo,
-        bbox_to_anchor=(1.6, 5.2),
-        title='Performance\nRelative to \nStatus Quo\nPolicy',
+        policy_clean,
+        bbox_to_anchor=(1.7, 5.2),
+        title='Policy',
         handler_map={tuple: HandlerTuple(ndivide=None, pad=-0.2)}
-    )
-
-    # Add legend for status quo
-    g.axes[-2, -1].legend(
-        [Line2D([0], [0], color=status_quo_color, linewidth=2.5)],
-        [status_quo_policy_clean],
-        bbox_to_anchor=(1.6, 5.2),
-        title='Policy Performance'
     )
 
     # Sizing
     g.figure.subplots_adjust(
-        left=0.15, bottom=0.1, right=0.65, top=0.90
+        left=0.20, bottom=0.1, right=0.65, top=0.90
     )
 
     return g
@@ -790,7 +787,7 @@ def global_average_relative_performance(
         row='obj',
         sharey='row',
         height=1.4,
-        aspect=5.8,
+        aspect=5.9,
         gridspec_kws={
             'wspace': 0.1,
             'hspace': 0.25
@@ -851,6 +848,7 @@ def global_average_relative_performance(
         ax2.set_yticks([1, 0], ['Worse', 'Better'])
     # X labels
     g.set_xlabels('Policy')
+    g.figure.text(0.05, 0.5, 'Objectives', rotation=90)
 
     # Remove titles
     g.set_titles(
@@ -865,26 +863,21 @@ def global_average_relative_performance(
         )
         for i in custom_scenario_markers
     ]
+    custom_lines.insert(
+        0,
+        Line2D([0], [0], color='k', linestyle=(0, (1, 1)), linewidth=2.5),
+    )
     g.axes[-1, -1].legend(
         custom_lines,
-        scenarios_not_average,
+        scenario_clean,
         bbox_to_anchor=(1.6, 5.0),
-        title='Performance\nRelative to\nAverage\nWeek\nScenario',
+        title='Scenario',
         handler_map={tuple: HandlerTuple(ndivide=None, pad=-0.2)},
-    )
-
-    # Add legend for status quo
-    g.axes[-2, -1].legend(
-        [Line2D([0], [0], color='k', linestyle=(0, (1, 1)), linewidth=2.5)],
-        [average_scenario_clean],
-        bbox_to_anchor=(1.6, 5.2),
-        title='Scenario\nPerformance',
-        borderpad=1.2,
     )
 
     # Sizing
     g.figure.subplots_adjust(
-        left=0.15, bottom=0.1, right=0.65, top=0.90
+        left=0.2, bottom=0.20, right=0.70, top=0.90
     )
 
     return g
