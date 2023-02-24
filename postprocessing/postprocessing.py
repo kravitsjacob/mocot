@@ -55,10 +55,10 @@ def main():
             ],
             plotting_specs={
                 'tick_specs': [
-                    [[1.5e6, 2.3e6], ['\n1.5e6\n(better)', '2.5e6\n(worse)\n']],  # noqa
-                    [[9.5e7, 5.7e9], ['\n9.5e7\n(better)',  '5.7e9\n(worse)\n']],  # noqa
-                    [[1.9e7, 1.0e8], ['\n1.9e7\n(better)',  '1.0e8\n(worse)\n']],  # noqa
-                    [[2.4e7, 9.8e7], ['\n2.4e7\n(better)', '9.8e7\n(worse)\n']]
+                    [[1.5e6, 2.3e6], ['\n1.5e6\n(Better)', '2.5e6\n(Worse)\n']],  # noqa
+                    [[9.5e7, 5.7e9], ['\n9.5e7\n(Better)',  '5.7e9\n(Worse)\n']],  # noqa
+                    [[1.9e7, 1.0e8], ['\n1.9e7\n(Better)',  '1.0e8\n(Worse)\n']],  # noqa
+                    [[2.4e7, 9.8e7], ['\n2.4e7\n(Better)', '9.8e7\n(Worse)\n']]
                 ],
                 'policy_palette': [
                     sns.color_palette()[4],
