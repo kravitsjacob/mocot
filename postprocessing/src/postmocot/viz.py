@@ -180,7 +180,7 @@ def global_performance(
     policy_clean: list,
     scenario_clean: list,
     objective_clean: list,
-    custom_pallete: list,
+    plotting_specs: dict,
 ):
     """Plot of global perforamce
 
@@ -208,8 +208,8 @@ def global_performance(
         Cleaned up scenario names
     objective_clean : list
         Cleaned up objective names
-    custom_pallete : list
-        Custom color pallete for bars
+    plotting_specs : dict
+        Various plotting specifications
 
     Returns
     -------
@@ -273,7 +273,7 @@ def global_performance(
         policy_col,
         'obj_value',
         policy_col,
-        palette=custom_pallete,
+        palette=plotting_specs['custom_pallete'],
         dodge=False
     )
     g.set_titles(
@@ -286,8 +286,10 @@ def global_performance(
     for i, ax in enumerate(g.axes[-1, :]):
         ax.set_xlabel(x_labels[i], rotation=0)
         ax.set_xticklabels('')
-    g.add_legend(loc='right')
-    g.figure.subplots_adjust(left=0.1, bottom=0.1, right=0.8, top=0.9)
+    g.add_legend(loc='right', title=plotting_specs['legend_title'])
+    g.figure.text(0.05, 0.5, plotting_specs['y_title'], rotation=90)
+    g.figure.text(0.5, 0.05, plotting_specs['x_title'])
+    g.figure.subplots_adjust(left=0.2, bottom=0.2, right=0.8, top=0.9)
 
     return g
 

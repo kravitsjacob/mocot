@@ -24,18 +24,6 @@ def main():
         paths['inputs']['metrics']
     ).columns.tolist()
 
-    # Create runtime object
-    path = paths['outputs']['runtime_1']
-    runtime = postmocot.runtime.BorgRuntimeDiagnostic(
-        path,
-        n_decisions=len(decision_names),
-        n_objectives=len(objective_names),
-        n_metrics=len(metric_names),
-    )
-    runtime.set_decision_names(decision_names)
-    runtime.set_objective_names(objective_names)
-    runtime.set_metric_names(metric_names)
-
     # Average scenario parallel
     if not os.path.exists(paths['outputs']['figures']['compare_parallel']):
         df_policy_performance = pd.read_csv(
@@ -157,8 +145,8 @@ def main():
         )
         fig = postmocot.viz.global_performance(
             df=df_policy_performance,
-            objective_cols=runtime.objective_names[:-3],
-            decision_cols=runtime.decision_names,
+            objective_cols=objective_names[:-3],
+            decision_cols=decision_names,
             scenario_col='scenario',
             policy_col='policy_label',
             policy_order=[
@@ -184,18 +172,18 @@ def main():
                 'f_ENS',
             ],
             policy_clean=[
-                'status quo',
-                'high\nwater\nwithdrawal\npenalty\n',
-                'high\nwater\nconsumption\npenalty\n',
-                'high\nemission\npenalty\n',
-                'water-emission\npolicy\n',
+                'Status Quo',
+                'High\nWater\nWithdrawal\nPenalty\n',
+                'High\nWater\nConsumption\nPenalty\n',
+                'High\nEmission\nPenalty\n',
+                'Water-Emission\nPolicy\n',
             ],
             scenario_clean=[
-                'Average\nweek',
-                'Extreme\nload/climate',
-                'Nuclear\noutage',
-                'Line\noutage',
-                'Avoid\ntemperature\nviolation',
+                'Average\nWeek',
+                'Extreme\nLoad/Climate',
+                'Nuclear\nOutage',
+                'Critical\nLine\noutage',
+                'Avoid\nTemperature\nViolation',
             ],
             objective_clean=[
                 'Cost\n[\$]',
@@ -205,13 +193,18 @@ def main():
                 'Emissions\n[lbs]',
                 'Energy\nNot\nSupplied\n[MWh]',
             ],
-            custom_pallete=[
-                sns.color_palette()[4],
-                sns.color_palette('gray')[2],
-                sns.color_palette('gray')[4],
-                sns.color_palette('gray')[-1],
-                sns.color_palette()[2],
-            ]
+            plotting_specs={
+                'custom_pallete': [
+                    sns.color_palette()[4],
+                    sns.color_palette('gray')[2],
+                    sns.color_palette('gray')[4],
+                    sns.color_palette('gray')[-1],
+                    sns.color_palette()[2],
+                ],
+                'legend_title': 'Policy',
+                'x_title': 'Scenario',
+                'y_title': 'Objective',
+            }
         )
         fig.savefig(paths['outputs']['figures']['compare_global'])
 
@@ -222,8 +215,8 @@ def main():
         )
         fig_compare, fig_single = postmocot.viz.comparison(
             df=df_policy_performance,
-            objective_cols=runtime.objective_names[:-3],
-            decision_cols=runtime.decision_names,
+            objective_cols=objective_names[:-3],
+            decision_cols=decision_names,
             scenario_col='scenario',
             policy_col='policy_label',
             status_quo_policy='status quo',
@@ -365,8 +358,8 @@ def main():
         )
         fig = postmocot.viz.global_status_quo_relative_performance(
             df=df_policy_performance,
-            objective_cols=runtime.objective_names[:-3],
-            decision_cols=runtime.decision_names,
+            objective_cols=objective_names[:-3],
+            decision_cols=decision_names,
             scenario_col='scenario',
             policy_col='policy_label',
             policy_order=[
