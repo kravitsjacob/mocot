@@ -11,26 +11,36 @@ sns.reset_orig()
 
 
 def average_parallel(
-    runtime: postmocot.runtime.BorgRuntimeDiagnostic,
     df_policy_performance: pd.DataFrame,
     objective_cols: list,
     policy_col: str,
     scenario_col: str,
     objective_cols_clean: list,
     scenario_name: str,
-    tick_specs: list,
-    policy_palette: list,
     policy_order: list,
-    legend_labels: list,
+    plotting_specs: dict,
 ):
-    """Summary plot for average scenario
+    """Parallel plot for average scenario
 
     Parameters
     ----------
-    runtime : postmocot.runtime.BorgRuntimeDiagnostic
-        Runtime obeject for average scenario
     df_policy_performance : pandas.DataFrame
         Selected policies
+    objective_cols : list
+        Objective column names
+    policy_col : str
+        Name of policy column
+    scenario_col : str
+        Name of scenario column
+    objective_cols_clean : list
+        Cleaned up objective names
+    scenario_name : str
+        Name of average scenario
+    policy_order : list
+        Order of policies to plot
+    plotting_specs : dict
+        Various plotting specifications
+
 
     Returns
     -------
@@ -56,16 +66,17 @@ def average_parallel(
             [row[objective_cols].to_numpy()],
             line_kwargs={
                 'linewidth': 2.7,
-                'color': policy_palette[i],
+                'color': plotting_specs['policy_palette'][i],
             }
         )
 
     # Adding a colorbar
-    paxfig.add_legend(labels=legend_labels)
+    paxfig.add_legend(labels=plotting_specs['legend_labels'])
     paxfig.axes[-1].get_legend().set_bbox_to_anchor((1.45, 0.5))
+    paxfig.axes[-1].get_legend().set_title(plotting_specs['legend_title'])
 
     # Limits
-    for ax_i, (i, j) in enumerate(tick_specs):
+    for ax_i, (i, j) in enumerate(plotting_specs['tick_specs']):
         paxfig.set_ticks(
             ax_idx=ax_i,
             ticks=i,
@@ -83,25 +94,36 @@ def average_parallel(
 
 
 def average_parallel_metrics(
-    runtime: postmocot.runtime.BorgRuntimeDiagnostic,
     df_policy_metrics: pd.DataFrame,
     metric_cols: list,
     policy_col: str,
     scenario_col: str,
     metric_cols_clean: list,
     scenario_name: str,
-    policy_palette: list,
     policy_order: list,
-    legend_labels: list,
+    plotting_specs: dict,
 ):
-    """Summary plot for average scenario
+    """
+    Parallel metrics for average scenario
 
     Parameters
     ----------
-    runtime : postmocot.runtime.BorgRuntimeDiagnostic
-        Runtime obeject for average scenario
     df_policy_performance : pandas.DataFrame
         Selected policies
+    metric_cols : list
+        Metric column names
+    policy_col : str
+        Name of policy column
+    scenario_col : str
+        Name of scenario column
+    metric_cols_clean : list
+        Cleaned up metric names
+    scenario_name : str
+        Name of average scenario
+    policy_order : list
+        Order of policies to plot
+    plotting_specs : dict
+        Various plotting specifications
 
     Returns
     -------
@@ -127,13 +149,14 @@ def average_parallel_metrics(
             [row[metric_cols].to_numpy()],
             line_kwargs={
                 'linewidth': 2.7,
-                'color': policy_palette[i],
+                'color': plotting_specs['policy_palette'][i],
             }
         )
 
     # Adding a colorbar
-    paxfig.add_legend(labels=legend_labels)
+    paxfig.add_legend(labels=plotting_specs['legend_labels'])
     paxfig.axes[-1].get_legend().set_bbox_to_anchor((3.7, 0.5))
+    paxfig.axes[-1].get_legend().set_title(plotting_specs['legend_title'])
 
     # Add labels
     paxfig.set_labels(metric_cols_clean)

@@ -42,7 +42,6 @@ def main():
             paths['outputs']['selected_policy_performance']
         )
         fig = postmocot.viz.average_parallel(
-            runtime=runtime,
             df_policy_performance=df_policy_performance,
             objective_cols=[
                 'f_gen',
@@ -59,19 +58,6 @@ def main():
                 '\nEmissions\n[lbs]',
             ],
             scenario_name='average week',
-            tick_specs=[
-                [[1.5e6, 2.3e6], ['\n1.5e6\n(better)', '2.5e6\n(worse)\n']],
-                [[9.5e7, 5.7e9], ['\n9.5e7\n(better)',  '5.7e9\n(worse)\n']],
-                [[1.9e7, 1.0e8], ['\n1.9e7\n(better)',  '1.0e8\n(worse)\n']],
-                [[2.4e7, 9.8e7], ['\n2.4e7\n(better)', '9.8e7\n(worse)\n']]
-            ],
-            policy_palette=[
-                sns.color_palette()[4],
-                sns.color_palette('gray')[2],
-                sns.color_palette('gray')[4],
-                sns.color_palette('gray')[-1],
-                sns.color_palette()[2],
-            ],
             policy_order=[
                 'status quo',
                 'high water withdrawal penalty',
@@ -79,13 +65,29 @@ def main():
                 'high emission penalty',
                 'water-emission policy',
             ],
-            legend_labels=[
-                'status quo',
-                'high water withdrawal penalty',
-                'high water consumption penalty',
-                'high emission penalty',
-                'water-emission policy',
-            ],
+            plotting_specs={
+                'tick_specs': [
+                    [[1.5e6, 2.3e6], ['\n1.5e6\n(better)', '2.5e6\n(worse)\n']],
+                    [[9.5e7, 5.7e9], ['\n9.5e7\n(better)',  '5.7e9\n(worse)\n']],
+                    [[1.9e7, 1.0e8], ['\n1.9e7\n(better)',  '1.0e8\n(worse)\n']],
+                    [[2.4e7, 9.8e7], ['\n2.4e7\n(better)', '9.8e7\n(worse)\n']]
+                ],
+                'policy_palette': [
+                    sns.color_palette()[4],
+                    sns.color_palette('gray')[2],
+                    sns.color_palette('gray')[4],
+                    sns.color_palette('gray')[-1],
+                    sns.color_palette()[2],
+                ],
+                'legend_labels': [
+                    'Status Quo',
+                    'High Water Withdrawal Penalty',
+                    'High Water Consumption Penalty',
+                    'High Emission Penalty',
+                    'Water-Emission Policy',
+                ],
+                'legend_title': 'Policy',
+            },
         )
         fig.savefig(paths['outputs']['figures']['compare_parallel'])
 
@@ -97,7 +99,6 @@ def main():
             paths['outputs']['selected_policy_metrics']
         )
         fig = postmocot.viz.average_parallel_metrics(
-            runtime=runtime,
             df_policy_metrics=df_policy_metrics,
             metric_cols=[
                 'No Cooling System_output',
@@ -122,13 +123,6 @@ def main():
                 'Wind',
             ],
             scenario_name='average week',
-            policy_palette=[
-                sns.color_palette()[4],
-                sns.color_palette('gray')[2],
-                sns.color_palette('gray')[4],
-                sns.color_palette('gray')[-1],
-                sns.color_palette()[2],
-            ],
             policy_order=[
                 'status quo',
                 'high water withdrawal penalty',
@@ -136,13 +130,23 @@ def main():
                 'high emission penalty',
                 'water-emission policy',
             ],
-            legend_labels=[
-                'status quo',
-                'high water withdrawal penalty',
-                'high water consumption penalty',
-                'high emission penalty',
-                'water-emission policy',
-            ],
+            plotting_specs={
+                'policy_palette': [
+                    sns.color_palette()[4],
+                    sns.color_palette('gray')[2],
+                    sns.color_palette('gray')[4],
+                    sns.color_palette('gray')[-1],
+                    sns.color_palette()[2],
+                ],
+                'legend_labels': [
+                    'Status Quo',
+                    'High Water Withdrawal Penalty',
+                    'High Water Consumption Penalty',
+                    'High Emission Penalty',
+                    'Water-Emission Policy',
+                ],
+                'legend_title': 'Policy',
+            }
         )
         fig.savefig(paths['outputs']['figures']['compare_parallel_metrics'])
 
