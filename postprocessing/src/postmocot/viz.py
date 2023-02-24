@@ -712,8 +712,7 @@ def global_status_quo_relative_performance(
     status_quo_policy_clean: str,
     scenario_clean: list,
     objective_clean: list,
-    custom_pallete: list,
-    status_quo_color: tuple,
+    plotting_specs: dict
 ):
     """
     Comparison plot with global and relative performance
@@ -744,8 +743,8 @@ def global_status_quo_relative_performance(
         Cleaned up scenario names
     objective_clean : list
         Cleaned up objective names
-    custom_pallete : list
-        Custom color pallete for bars
+    plotting_specs : dict
+        Various plotting specifications
 
     Returns
     -------
@@ -815,7 +814,7 @@ def global_status_quo_relative_performance(
         scenario_col,
         'obj_value',
         color='w',
-        edgecolor=status_quo_color,
+        edgecolor=plotting_specs['status_quo_color'],
         alpha=None,
         linewidth=2.5
     )
@@ -847,7 +846,7 @@ def global_status_quo_relative_performance(
             ax.scatter(
                 x,
                 df_temp['obj_value'],
-                color=custom_pallete[j],
+                color=plotting_specs['custom_pallete'][j],
                 marker='o',
             )
 
@@ -856,7 +855,7 @@ def global_status_quo_relative_performance(
                 x,
                 ymin=df_status_quo['obj_value'],
                 ymax=df_temp['obj_value'],
-                colors=custom_pallete[j],
+                colors=plotting_specs['custom_pallete'][j],
             )
 
     # Y labels
@@ -869,8 +868,8 @@ def global_status_quo_relative_performance(
         ax2 = ax.twinx()
         ax2.set_yticks([1, 0], ['Worse', 'Better'])
     # X labels
-    g.set_xlabels('Scenario')
-    g.figure.text(0.05, 0.5, 'Objectives', rotation=90)
+    g.set_xlabels(plotting_specs['x_title'])
+    g.figure.text(0.05, 0.5, plotting_specs['y_title'], rotation=90)
 
     # Remove titles
     g.set_titles(
@@ -883,11 +882,16 @@ def global_status_quo_relative_performance(
             Line2D([0], [0], color=i),
             Line2D([0], [0], color=i, linestyle='', marker='o')
         )
-        for i in custom_pallete
+        for i in plotting_specs['custom_pallete']
     ]
     custom_lines.insert(
         0,
-        Line2D([0], [0], color=status_quo_color, linewidth=2.5),
+        Line2D(
+            [0],
+            [0],
+            color=plotting_specs['status_quo_color'],
+            linewidth=2.5
+        ),
     )
     g.axes[-1, -1].legend(
         custom_lines,

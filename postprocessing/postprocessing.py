@@ -55,9 +55,9 @@ def main():
             ],
             plotting_specs={
                 'tick_specs': [
-                    [[1.5e6, 2.3e6], ['\n1.5e6\n(better)', '2.5e6\n(worse)\n']],
-                    [[9.5e7, 5.7e9], ['\n9.5e7\n(better)',  '5.7e9\n(worse)\n']],
-                    [[1.9e7, 1.0e8], ['\n1.9e7\n(better)',  '1.0e8\n(worse)\n']],
+                    [[1.5e6, 2.3e6], ['\n1.5e6\n(better)', '2.5e6\n(worse)\n']],  # noqa
+                    [[9.5e7, 5.7e9], ['\n9.5e7\n(better)',  '5.7e9\n(worse)\n']],  # noqa
+                    [[1.9e7, 1.0e8], ['\n1.9e7\n(better)',  '1.0e8\n(worse)\n']],  # noqa
                     [[2.4e7, 9.8e7], ['\n2.4e7\n(better)', '9.8e7\n(worse)\n']]
                 ],
                 'policy_palette': [
@@ -324,19 +324,19 @@ def main():
                 'f_ENS',
             ],
             policy_clean=[
-                'status\nquo',
-                'high\nwater\nwithdrawal\npenalty\n',
-                'high\nwater\nconsumption\npenalty\n',
-                'high\nemission\npenalty\n',
-                'water-emission\npolicy\n',
+                'Status\nQuo',
+                'High\nWater\nWithdrawal\nPenalty\n',
+                'High\nWater\nConsumption\nPenalty\n',
+                'High\nEmission\nPenalty\n',
+                'Water-Emission\nPolicy\n',
             ],
-            status_quo_policy_clean='status\nquo',
+            status_quo_policy_clean='Status\nQuo',
             scenario_clean=[
-                'Average\nweek',
-                'Extreme\nload/climate',
-                'Nuclear\noutage',
-                'Line\noutage',
-                'Avoid\ntemperature\nviolation',
+                'Average\nWeek',
+                'Extreme\nLoad/Climate',
+                'Nuclear\nOutage',
+                'Critical\nLine\nOutage',
+                'Avoid\nTemperature\nViolation',
             ],
             objective_clean=[
                 'Cost\n[\$]',
@@ -346,13 +346,17 @@ def main():
                 'Emissions\n[lbs]',
                 'Energy\nNot\nSupplied\n[MWh]',
             ],
-            custom_pallete=[
-                sns.color_palette('gray')[2],
-                sns.color_palette('gray')[4],
-                sns.color_palette('gray')[-1],
-                sns.color_palette()[2],
-            ],
-            status_quo_color=sns.color_palette()[4],
+            plotting_specs={
+                'custom_pallete': [
+                    sns.color_palette('gray')[2],
+                    sns.color_palette('gray')[4],
+                    sns.color_palette('gray')[-1],
+                    sns.color_palette()[2],
+                ],
+                'status_quo_color': sns.color_palette()[4],
+                'x_title': 'Scenario',
+                'y_title': 'Objective',
+            }
         )
         fig.savefig(
             paths['outputs']['figures']['compare_global_status_quo_relative']
