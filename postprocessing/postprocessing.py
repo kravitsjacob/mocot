@@ -282,6 +282,7 @@ def main():
                 ],
                 'x_title': 'Policy',
                 'y_title': 'Objective',
+                'legend_title': 'Scenario',
             }
         )
         fig.savefig(
@@ -356,6 +357,7 @@ def main():
                 'status_quo_color': sns.color_palette()[4],
                 'x_title': 'Scenario',
                 'y_title': 'Objective',
+                'legend_title': 'Policy',
             }
         )
         fig.savefig(
