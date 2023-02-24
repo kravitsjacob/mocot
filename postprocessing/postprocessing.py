@@ -63,8 +63,8 @@ def main():
                 'policy_palette': [
                     sns.color_palette()[4],
                     sns.color_palette('gray')[2],
-                    sns.color_palette('gray')[4],
-                    sns.color_palette('gray')[-1],
+                    sns.color_palette('gray')[3],
+                    sns.color_palette('gray')[5],
                     sns.color_palette()[2],
                 ],
                 'legend_labels': [
@@ -122,8 +122,8 @@ def main():
                 'policy_palette': [
                     sns.color_palette()[4],
                     sns.color_palette('gray')[2],
-                    sns.color_palette('gray')[4],
-                    sns.color_palette('gray')[-1],
+                    sns.color_palette('gray')[3],
+                    sns.color_palette('gray')[5],
                     sns.color_palette()[2],
                 ],
                 'legend_labels': [
@@ -197,8 +197,8 @@ def main():
                 'custom_pallete': [
                     sns.color_palette()[4],
                     sns.color_palette('gray')[2],
-                    sns.color_palette('gray')[4],
-                    sns.color_palette('gray')[-1],
+                    sns.color_palette('gray')[3],
+                    sns.color_palette('gray')[5],
                     sns.color_palette()[2],
                 ],
                 'legend_title': 'Policy',
@@ -270,8 +270,8 @@ def main():
                 'custom_policy_pallete': [
                     sns.color_palette()[4],
                     sns.color_palette('gray')[2],
-                    sns.color_palette('gray')[4],
-                    sns.color_palette('gray')[-1],
+                    sns.color_palette('gray')[3],
+                    sns.color_palette('gray')[5],
                     sns.color_palette()[2],
                 ],
                 'custom_scenario_markers': [
@@ -350,8 +350,8 @@ def main():
             plotting_specs={
                 'custom_pallete': [
                     sns.color_palette('gray')[2],
-                    sns.color_palette('gray')[4],
-                    sns.color_palette('gray')[-1],
+                    sns.color_palette('gray')[3],
+                    sns.color_palette('gray')[5],
                     sns.color_palette()[2],
                 ],
                 'status_quo_color': sns.color_palette()[4],
