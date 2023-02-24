@@ -255,7 +255,7 @@ def main():
                 'Average\nweek',
                 'Extreme\nload/climate',
                 'Nuclear\noutage',
-                'Line\noutage',
+                'Critical\nLine\noutage',
                 'Avoid\ntemperature\nviolation',
             ],
             objective_clean=[
