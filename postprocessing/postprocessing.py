@@ -24,25 +24,12 @@ def main():
         paths['inputs']['metrics']
     ).columns.tolist()
 
-    # Create runtime object
-    path = paths['outputs']['runtime_1']
-    runtime = postmocot.runtime.BorgRuntimeDiagnostic(
-        path,
-        n_decisions=len(decision_names),
-        n_objectives=len(objective_names),
-        n_metrics=len(metric_names),
-    )
-    runtime.set_decision_names(decision_names)
-    runtime.set_objective_names(objective_names)
-    runtime.set_metric_names(metric_names)
-
     # Average scenario parallel
     if not os.path.exists(paths['outputs']['figures']['compare_parallel']):
         df_policy_performance = pd.read_csv(
             paths['outputs']['selected_policy_performance']
         )
         fig = postmocot.viz.average_parallel(
-            runtime=runtime,
             df_policy_performance=df_policy_performance,
             objective_cols=[
                 'f_gen',
@@ -59,19 +46,6 @@ def main():
                 '\nEmissions\n[lbs]',
             ],
             scenario_name='average week',
-            tick_specs=[
-                [[1.5e6, 2.3e6], ['\n1.5e6\n(better)', '2.5e6\n(worse)\n']],
-                [[9.5e7, 5.7e9], ['\n9.5e7\n(better)',  '5.7e9\n(worse)\n']],
-                [[1.9e7, 1.0e8], ['\n1.9e7\n(better)',  '1.0e8\n(worse)\n']],
-                [[2.4e7, 9.8e7], ['\n2.4e7\n(better)', '9.8e7\n(worse)\n']]
-            ],
-            policy_palette=[
-                sns.color_palette()[4],
-                sns.color_palette('gray')[1],
-                sns.color_palette('gray')[3],
-                sns.color_palette('gray')[-1],
-                sns.color_palette()[2],
-            ],
             policy_order=[
                 'status quo',
                 'high water withdrawal penalty',
@@ -79,23 +53,40 @@ def main():
                 'high emission penalty',
                 'water-emission policy',
             ],
-            legend_labels=[
-                'status quo',
-                'high water withdrawal penalty',
-                'high water consumption penalty',
-                'high emission penalty',
-                'water-emission policy',
-            ],
+            plotting_specs={
+                'tick_specs': [
+                    [[1.5e6, 2.3e6], ['\n1.5e6\n(Better)', '2.5e6\n(Worse)\n']],  # noqa
+                    [[9.5e7, 5.7e9], ['\n9.5e7\n(Better)',  '5.7e9\n(Worse)\n']],  # noqa
+                    [[1.9e7, 1.0e8], ['\n1.9e7\n(Better)',  '1.0e8\n(Worse)\n']],  # noqa
+                    [[2.4e7, 9.8e7], ['\n2.4e7\n(Better)', '9.8e7\n(Worse)\n']]
+                ],
+                'policy_palette': [
+                    sns.color_palette()[4],
+                    sns.color_palette('gray')[2],
+                    sns.color_palette('gray')[3],
+                    sns.color_palette('gray')[5],
+                    sns.color_palette()[2],
+                ],
+                'legend_labels': [
+                    'Status Quo',
+                    'High Water Withdrawal Penalty',
+                    'High Water Consumption Penalty',
+                    'High Emission Penalty',
+                    'Water-Emission Policy',
+                ],
+                'legend_title': 'Policy',
+            },
         )
         fig.savefig(paths['outputs']['figures']['compare_parallel'])
 
     # Average scenario parallel metrics
-    if not os.path.exists(paths['outputs']['figures']['compare_parallel_metrics']):
+    if not os.path.exists(
+        paths['outputs']['figures']['compare_parallel_metrics']
+    ):
         df_policy_metrics = pd.read_csv(
             paths['outputs']['selected_policy_metrics']
         )
         fig = postmocot.viz.average_parallel_metrics(
-            runtime=runtime,
             df_policy_metrics=df_policy_metrics,
             metric_cols=[
                 'No Cooling System_output',
@@ -120,13 +111,6 @@ def main():
                 'Wind',
             ],
             scenario_name='average week',
-            policy_palette=[
-                sns.color_palette()[4],
-                sns.color_palette('gray')[1],
-                sns.color_palette('gray')[3],
-                sns.color_palette('gray')[-1],
-                sns.color_palette()[2],
-            ],
             policy_order=[
                 'status quo',
                 'high water withdrawal penalty',
@@ -134,13 +118,23 @@ def main():
                 'high emission penalty',
                 'water-emission policy',
             ],
-            legend_labels=[
-                'status quo',
-                'high water withdrawal penalty',
-                'high water consumption penalty',
-                'high emission penalty',
-                'water-emission policy',
-            ],
+            plotting_specs={
+                'policy_palette': [
+                    sns.color_palette()[4],
+                    sns.color_palette('gray')[2],
+                    sns.color_palette('gray')[3],
+                    sns.color_palette('gray')[5],
+                    sns.color_palette()[2],
+                ],
+                'legend_labels': [
+                    'Status Quo',
+                    'High Water Withdrawal Penalty',
+                    'High Water Consumption Penalty',
+                    'High Emission Penalty',
+                    'Water-Emission Policy',
+                ],
+                'legend_title': 'Policy',
+            }
         )
         fig.savefig(paths['outputs']['figures']['compare_parallel_metrics'])
 
@@ -151,8 +145,8 @@ def main():
         )
         fig = postmocot.viz.global_performance(
             df=df_policy_performance,
-            objective_cols=runtime.objective_names[:-3],
-            decision_cols=runtime.decision_names,
+            objective_cols=objective_names[:-3],
+            decision_cols=decision_names,
             scenario_col='scenario',
             policy_col='policy_label',
             policy_order=[
@@ -178,18 +172,18 @@ def main():
                 'f_ENS',
             ],
             policy_clean=[
-                'status quo',
-                'high\nwater\nwithdrawal\npenalty\n',
-                'high\nwater\nconsumption\npenalty\n',
-                'high\nemission\npenalty\n',
-                'water-emission\npolicy\n',
+                'Status Quo',
+                'High\nWater\nWithdrawal\nPenalty\n',
+                'High\nWater\nConsumption\nPenalty\n',
+                'High\nEmission\nPenalty\n',
+                'Water-Emission\nPolicy\n',
             ],
             scenario_clean=[
-                'Average\nweek',
-                'Extreme\nload/climate',
-                'Nuclear\noutage',
-                'Line\noutage',
-                'Avoid\ntemperature\nviolation',
+                'Average\nWeek',
+                'Extreme\nLoad/Climate',
+                'Nuclear\nOutage',
+                'Critical\nLine\noutage',
+                'Avoid\nTemperature\nViolation',
             ],
             objective_clean=[
                 'Cost\n[\$]',
@@ -197,94 +191,34 @@ def main():
                 'Consumption\n[Gallon]',
                 'Discharge\nViolations\n[Gallon $^\circ$C]',
                 'Emissions\n[lbs]',
-                'Reliability\n[MWh]',
+                'Energy\nNot\nSupplied\n[MWh]',
             ],
-            custom_pallete=[
-                sns.color_palette()[4],
-                sns.color_palette('gray')[1],
-                sns.color_palette('gray')[3],
-                sns.color_palette('gray')[-1],
-                sns.color_palette()[2],
-            ]
+            plotting_specs={
+                'custom_pallete': [
+                    sns.color_palette()[4],
+                    sns.color_palette('gray')[2],
+                    sns.color_palette('gray')[3],
+                    sns.color_palette('gray')[5],
+                    sns.color_palette()[2],
+                ],
+                'legend_title': 'Policy',
+                'x_title': 'Scenario',
+                'y_title': 'Objective',
+            }
         )
         fig.savefig(paths['outputs']['figures']['compare_global'])
 
-    # Comparison plot
-    if not os.path.exists(paths['outputs']['figures']['compare_relative']):
-        df_policy_performance = pd.read_csv(
-            paths['outputs']['selected_policy_performance']
-        )
-        fig_compare, fig_single = postmocot.viz.comparison(
-            df=df_policy_performance,
-            objective_cols=runtime.objective_names[:-3],
-            decision_cols=runtime.decision_names,
-            scenario_col='scenario',
-            policy_col='policy_label',
-            status_quo_policy='status quo',
-            policy_order=[
-                'high water withdrawal penalty',
-                'high water consumption penalty',
-                'high emission penalty',
-                'water-emission policy',
-            ],
-            scenario_order=[
-                'average week',
-                'extreme load/climate',
-                'nuclear outage',
-                'line outage',
-                'avoid temperature violation',
-            ],
-            objective_order=[
-                'f_gen',
-                'f_with_tot',
-                'f_con_tot',
-                'f_disvi_tot',
-                'f_emit',
-                'f_ENS',
-            ],
-            policy_clean=[
-                'high\nwater\nwithdrawal\npenalty\n',
-                'high\nwater\nconsumption\npenalty\n',
-                'high\nemission\npenalty\n',
-                'water-emission\npolicy\n',
-            ],
-            scenario_clean=[
-                'Average\nweek',
-                'Extreme\nload/climate',
-                'Nuclear\noutage',
-                'Line\noutage',
-                'Avoid\ntemperature\nviolation',
-            ],
-            objective_clean=[
-                'Cost\n[\$]',
-                'Withdrawal\n[Gallon]',
-                'Consumption\n[Gallon]',
-                'Discharge\nViolations\n[Gallon $^\circ$C]',
-                'Emissions\n[lbs]',
-                'Reliability\n[MW]',
-            ],
-            custom_pallete=[
-                sns.color_palette('gray')[1],
-                sns.color_palette('gray')[3],
-                sns.color_palette('gray')[-1],
-                sns.color_palette()[2],
-            ],
-            single_scenario='Extreme\nload/climate',
-        )
-        fig_compare.savefig(paths['outputs']['figures']['compare_relative'])
-        fig_single.savefig(paths['outputs']['figures']['compare_single'])
-
-    # Comparison plot with global and relative difference
+    # Comparison plot with global and average week relative difference
     if not os.path.exists(
-        paths['outputs']['figures']['compare_global_relative']
+        paths['outputs']['figures']['compare_global_average_relative']
     ):
         df_policy_performance = pd.read_csv(
             paths['outputs']['selected_policy_performance']
         )
-        fig = postmocot.viz.global_relative_performance(
+        fig = postmocot.viz.global_average_relative_performance(
             df=df_policy_performance,
-            objective_cols=runtime.objective_names[:-3],
-            decision_cols=runtime.decision_names,
+            objective_cols=objective_names[:-3],
+            decision_cols=decision_names,
             scenario_col='scenario',
             policy_col='policy_label',
             policy_order=[
@@ -310,18 +244,18 @@ def main():
                 'f_ENS',
             ],
             policy_clean=[
-                'status\nquo',
-                'high\nwater\nwithdrawal\npenalty\n',
-                'high\nwater\nconsumption\npenalty\n',
-                'high\nemission\npenalty\n',
-                'water-emission\npolicy\n',
+                'Status\nQuo',
+                'High\nWater\nWithdrawal\nPenalty\n',
+                'High\nWater\nConsumption\nPenalty\n',
+                'High\nEmission\nPenalty\n',
+                'Water-Emission\nPolicy\n',
             ],
-            status_quo_policy_clean='status\nquo',
+            average_scenario_clean='Average\nweek',
             scenario_clean=[
                 'Average\nweek',
                 'Extreme\nload/climate',
                 'Nuclear\noutage',
-                'Line\noutage',
+                'Critical\nLine\noutage',
                 'Avoid\ntemperature\nviolation',
             ],
             objective_clean=[
@@ -330,18 +264,105 @@ def main():
                 'Consumption\n[Gallon]',
                 'Discharge\nViolations\n[Gallon $^\circ$C]',
                 'Emissions\n[lbs]',
-                'Reliability\n[MWh]',
+                'Energy\nNot\nSupplied\n[MWh]',
             ],
-            custom_pallete=[
-                sns.color_palette('gray')[1],
-                sns.color_palette('gray')[3],
-                sns.color_palette('gray')[-1],
-                sns.color_palette()[2],
-            ],
-            status_quo_color=sns.color_palette()[4],
-
+            plotting_specs={
+                'custom_policy_pallete': [
+                    sns.color_palette()[4],
+                    sns.color_palette('gray')[2],
+                    sns.color_palette('gray')[3],
+                    sns.color_palette('gray')[5],
+                    sns.color_palette()[2],
+                ],
+                'custom_scenario_markers': [
+                    'v',
+                    's',
+                    'X',
+                    'D',
+                ],
+                'x_title': 'Policy',
+                'y_title': 'Objective',
+                'legend_title': 'Scenario',
+            }
         )
-        fig.savefig(paths['outputs']['figures']['compare_global_relative'])
+        fig.savefig(
+            paths['outputs']['figures']['compare_global_average_relative']
+        )
+
+    # Comparison plot with global and status quo relative difference
+    if not os.path.exists(
+        paths['outputs']['figures']['compare_global_status_quo_relative']
+    ):
+        df_policy_performance = pd.read_csv(
+            paths['outputs']['selected_policy_performance']
+        )
+        fig = postmocot.viz.global_status_quo_relative_performance(
+            df=df_policy_performance,
+            objective_cols=objective_names[:-3],
+            decision_cols=decision_names,
+            scenario_col='scenario',
+            policy_col='policy_label',
+            policy_order=[
+                'status quo',
+                'high water withdrawal penalty',
+                'high water consumption penalty',
+                'high emission penalty',
+                'water-emission policy',
+            ],
+            scenario_order=[
+                'average week',
+                'extreme load/climate',
+                'nuclear outage',
+                'line outage',
+                'avoid temperature violation',
+            ],
+            objective_order=[
+                'f_gen',
+                'f_with_tot',
+                'f_con_tot',
+                'f_disvi_tot',
+                'f_emit',
+                'f_ENS',
+            ],
+            policy_clean=[
+                'Status\nQuo',
+                'High\nWater\nWithdrawal\nPenalty\n',
+                'High\nWater\nConsumption\nPenalty\n',
+                'High\nEmission\nPenalty\n',
+                'Water-Emission\nPolicy\n',
+            ],
+            status_quo_policy_clean='Status\nQuo',
+            scenario_clean=[
+                'Average\nWeek',
+                'Extreme\nLoad/Climate',
+                'Nuclear\nOutage',
+                'Critical\nLine\nOutage',
+                'Avoid\nTemperature\nViolation',
+            ],
+            objective_clean=[
+                'Cost\n[\$]',
+                'Withdrawal\n[Gallon]',
+                'Consumption\n[Gallon]',
+                'Discharge\nViolations\n[Gallon $^\circ$C]',
+                'Emissions\n[lbs]',
+                'Energy\nNot\nSupplied\n[MWh]',
+            ],
+            plotting_specs={
+                'custom_pallete': [
+                    sns.color_palette('gray')[2],
+                    sns.color_palette('gray')[3],
+                    sns.color_palette('gray')[5],
+                    sns.color_palette()[2],
+                ],
+                'status_quo_color': sns.color_palette()[4],
+                'x_title': 'Scenario',
+                'y_title': 'Objective',
+                'legend_title': 'Policy',
+            }
+        )
+        fig.savefig(
+            paths['outputs']['figures']['compare_global_status_quo_relative']
+        )
 
 
 if __name__ == '__main__':

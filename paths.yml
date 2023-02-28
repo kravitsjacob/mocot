@@ -77,7 +77,8 @@ outputs:
     compare_single: "io/outputs/figures/compare_single.pdf"
     compare_relative: "io/outputs/figures/compare_relative.pdf"
     compare_global: "io/outputs/figures/compare_global.pdf"
-    compare_global_relative: "io/outputs/figures/compare_global_relative.pdf"
+    compare_global_status_quo_relative: "io/outputs/figures/compare_global_status_quo_relative.pdf"
+    compare_global_average_relative: "io/outputs/figures/compare_global_average_relative.pdf"
 
     # Runtime figures
     interactive_parallel: "io/outputs/figures/runtime_interactive_parallel.html"

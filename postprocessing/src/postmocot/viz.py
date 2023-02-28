@@ -11,26 +11,36 @@ sns.reset_orig()
 
 
 def average_parallel(
-    runtime: postmocot.runtime.BorgRuntimeDiagnostic,
     df_policy_performance: pd.DataFrame,
     objective_cols: list,
     policy_col: str,
     scenario_col: str,
     objective_cols_clean: list,
     scenario_name: str,
-    tick_specs: list,
-    policy_palette: list,
     policy_order: list,
-    legend_labels: list,
+    plotting_specs: dict,
 ):
-    """Summary plot for average scenario
+    """Parallel plot for average scenario
 
     Parameters
     ----------
-    runtime : postmocot.runtime.BorgRuntimeDiagnostic
-        Runtime obeject for average scenario
     df_policy_performance : pandas.DataFrame
         Selected policies
+    objective_cols : list
+        Objective column names
+    policy_col : str
+        Name of policy column
+    scenario_col : str
+        Name of scenario column
+    objective_cols_clean : list
+        Cleaned up objective names
+    scenario_name : str
+        Name of average scenario
+    policy_order : list
+        Order of policies to plot
+    plotting_specs : dict
+        Various plotting specifications
+
 
     Returns
     -------
@@ -56,16 +66,17 @@ def average_parallel(
             [row[objective_cols].to_numpy()],
             line_kwargs={
                 'linewidth': 2.7,
-                'color': policy_palette[i],
+                'color': plotting_specs['policy_palette'][i],
             }
         )
 
     # Adding a colorbar
-    paxfig.add_legend(labels=legend_labels)
+    paxfig.add_legend(labels=plotting_specs['legend_labels'])
     paxfig.axes[-1].get_legend().set_bbox_to_anchor((1.45, 0.5))
+    paxfig.axes[-1].get_legend().set_title(plotting_specs['legend_title'])
 
     # Limits
-    for ax_i, (i, j) in enumerate(tick_specs):
+    for ax_i, (i, j) in enumerate(plotting_specs['tick_specs']):
         paxfig.set_ticks(
             ax_idx=ax_i,
             ticks=i,
@@ -83,25 +94,36 @@ def average_parallel(
 
 
 def average_parallel_metrics(
-    runtime: postmocot.runtime.BorgRuntimeDiagnostic,
     df_policy_metrics: pd.DataFrame,
     metric_cols: list,
     policy_col: str,
     scenario_col: str,
     metric_cols_clean: list,
     scenario_name: str,
-    policy_palette: list,
     policy_order: list,
-    legend_labels: list,
+    plotting_specs: dict,
 ):
-    """Summary plot for average scenario
+    """
+    Parallel metrics for average scenario
 
     Parameters
     ----------
-    runtime : postmocot.runtime.BorgRuntimeDiagnostic
-        Runtime obeject for average scenario
     df_policy_performance : pandas.DataFrame
         Selected policies
+    metric_cols : list
+        Metric column names
+    policy_col : str
+        Name of policy column
+    scenario_col : str
+        Name of scenario column
+    metric_cols_clean : list
+        Cleaned up metric names
+    scenario_name : str
+        Name of average scenario
+    policy_order : list
+        Order of policies to plot
+    plotting_specs : dict
+        Various plotting specifications
 
     Returns
     -------
@@ -127,13 +149,14 @@ def average_parallel_metrics(
             [row[metric_cols].to_numpy()],
             line_kwargs={
                 'linewidth': 2.7,
-                'color': policy_palette[i],
+                'color': plotting_specs['policy_palette'][i],
             }
         )
 
     # Adding a colorbar
-    paxfig.add_legend(labels=legend_labels)
+    paxfig.add_legend(labels=plotting_specs['legend_labels'])
     paxfig.axes[-1].get_legend().set_bbox_to_anchor((3.7, 0.5))
+    paxfig.axes[-1].get_legend().set_title(plotting_specs['legend_title'])
 
     # Add labels
     paxfig.set_labels(metric_cols_clean)
@@ -157,7 +180,7 @@ def global_performance(
     policy_clean: list,
     scenario_clean: list,
     objective_clean: list,
-    custom_pallete: list,
+    plotting_specs: dict,
 ):
     """Plot of global perforamce
 
@@ -185,8 +208,8 @@ def global_performance(
         Cleaned up scenario names
     objective_clean : list
         Cleaned up objective names
-    custom_pallete : list
-        Custom color pallete for bars
+    plotting_specs : dict
+        Various plotting specifications
 
     Returns
     -------
@@ -250,7 +273,7 @@ def global_performance(
         policy_col,
         'obj_value',
         policy_col,
-        palette=custom_pallete,
+        palette=plotting_specs['custom_pallete'],
         dodge=False
     )
     g.set_titles(
@@ -263,31 +286,31 @@ def global_performance(
     for i, ax in enumerate(g.axes[-1, :]):
         ax.set_xlabel(x_labels[i], rotation=0)
         ax.set_xticklabels('')
-    g.add_legend(loc='right')
-    g.figure.subplots_adjust(left=0.1, bottom=0.1, right=0.8, top=0.9)
+    g.add_legend(loc='right', title=plotting_specs['legend_title'])
+    g.figure.text(0.05, 0.5, plotting_specs['y_title'], rotation=90)
+    g.figure.text(0.5, 0.05, plotting_specs['x_title'])
+    g.figure.subplots_adjust(left=0.2, bottom=0.2, right=0.8, top=0.9)
 
     return g
 
 
-def comparison(
+def global_average_relative_performance(
     df: pd.DataFrame,
     objective_cols: list,
     decision_cols: list,
     scenario_col: str,
     policy_col: str,
-    status_quo_policy: str,
     policy_order: list,
     scenario_order: list,
     objective_order: list,
     policy_clean: list,
+    average_scenario_clean: str,
     scenario_clean: list,
     objective_clean: list,
-    custom_pallete: list,
-    single_scenario: str,
+    plotting_specs: dict,
 ):
     """
-    Compare selected policies across scenarios relative to status quo
-
+    Comparison plot with global and average scenario relative performance
 
     Parameters
     ----------
@@ -301,8 +324,6 @@ def comparison(
         Name of scenario column
     policy_col : str
         Name of policy column
-    status_quo_policy : str
-        Name of status quo policy
     policy_order : list
         Order of policies to plot
     scenario_order : list
@@ -311,14 +332,12 @@ def comparison(
         Order of objective to plot
     policy_clean : list
         Cleaned up policy names
+    average_scenario_clean : str
+        Cleaned up name of average week
     scenario_clean : list
         Cleaned up scenario names
-    objective_clean : list
-        Cleaned up objective names
-    custom_pallete : list
-        Custom color pallete for bars
-    single_scenario : str
-        Single scenario cleaned name
+    plotting_specs : dict
+        Various plotting specifications
 
     Returns
     -------
@@ -327,29 +346,10 @@ def comparison(
     """
     # Setup
     sns.set()
-    scenarios = df[scenario_col].unique().tolist()
-
-    # Get relative performance
-    df_ls = []
-
-    for s in scenarios:
-        # Get scenario
-        df_temp = df[df[scenario_col] == s].copy()
-
-        # Subtract from status quo
-        status_quo = df_temp[df_temp[policy_col] == status_quo_policy]
-        differences = \
-            df_temp[objective_cols] - status_quo[objective_cols].to_numpy()
-        df_temp[objective_cols] = differences
-
-        # Store
-        df_ls.append(df_temp)
-
-    df_relative = pd.concat(df_ls)
+    sns.set_style("whitegrid")
 
     # Pivot data
-    df_plot = df_relative.drop(columns=decision_cols)
-    df_plot = df_plot[df_plot[policy_col] != status_quo_policy]
+    df_plot = df.drop(columns=decision_cols)
     df_plot = pd.melt(
         df_plot,
         value_vars=objective_cols,
@@ -384,93 +384,121 @@ def comparison(
         dict(zip(policy_order, policy_clean))
     )
 
-    # All scenarsio comparison
-    g_compare = sns.FacetGrid(
-        df_plot,
+    # Separate DataFrames
+    df_plot_not_average = \
+        df_plot[df_plot[scenario_col] != average_scenario_clean]
+    df_plot_average = \
+        df_plot[df_plot[scenario_col] == average_scenario_clean]
+
+    # Filter policies
+    scenarios_not_average = [
+        x for x
+        in scenario_clean if x != average_scenario_clean
+    ]
+
+    # Make bar plots
+    g = sns.FacetGrid(
+        df_plot_average,
         row='obj',
-        col=scenario_col,
         sharey='row',
         height=1.4,
-        aspect=1.1,
+        aspect=5.8,
         gridspec_kws={
             'wspace': 0.1,
             'hspace': 0.25
         }
     )
-    g_compare.map(
+    g.map(
         sns.barplot,
         policy_col,
         'obj_value',
-        policy_col,
-        palette=custom_pallete,
-        dodge=False
+        color='w',
+        edgecolor=plotting_specs['custom_policy_pallete'],
+        alpha=None,
+        linewidth=2.5,
+        linestyle=(0, (1, 1))
     )
-    g_compare.set_titles(
-        template=""
-    )
+
+    # Add lollipops
+    for i, ax in enumerate(g.axes[:, 0]):  # Objectives
+        # Get objective
+        objective = objective_clean[i]
+
+        df_temp_min = df_plot_average[
+            df_plot_average['obj'] == objective
+        ]
+
+        for j, scenario in enumerate(scenarios_not_average):  # Scenarios
+            # Filter
+            df_temp_max = df_plot_not_average[
+                (df_plot_not_average['obj'] == objective_clean[i]) &
+                (df_plot_not_average[scenario_col] == scenario)
+            ]
+
+            # Plot points
+            x = np.arange(0, len(df_temp_max)) - 0.3 + j * 0.2
+            ax.scatter(
+                x,
+                df_temp_max['obj_value'],
+                color=plotting_specs['custom_policy_pallete'],
+                marker=plotting_specs['custom_scenario_markers'][j],
+            )
+
+            # Plot stems
+            ax.vlines(
+                x,
+                ymin=df_temp_min['obj_value'],
+                ymax=df_temp_max['obj_value'],
+                colors=plotting_specs['custom_policy_pallete'],
+            )
+
+    # Y labels
     y_labels = df_plot['obj'].unique().tolist()
-    x_labels = df_plot[scenario_col].unique().tolist()
-    for i, ax in enumerate(g_compare.axes[:, 0]):
+    for i, ax in enumerate(g.axes[:, 0]):
         ax.set_ylabel(y_labels[i])
-    for i, ax in enumerate(g_compare.axes[:, -1]):
+
+    # Better/worse labels
+    for i, ax in enumerate(g.axes[:, -1]):
         ax2 = ax.twinx()
         ax2.set_yticks([1, 0], ['Worse', 'Better'])
-    for i, ax in enumerate(g_compare.axes[-1, :]):
-        ax.set_xlabel(x_labels[i], rotation=0)
-        ax.set_xticklabels('')
-    for ax in g_compare.axes.flat:
-        yabs_max = abs(max(ax.get_ylim(), key=abs))
-        ax.set_ylim(ymin=-yabs_max, ymax=yabs_max)
-    g_compare.add_legend(loc='right')
-    g_compare.figure.subplots_adjust(
-        left=0.15,
-        bottom=0.1,
-        right=0.75,
-        top=0.9
+    # X labels
+    g.set_xlabels(plotting_specs['x_title'])
+    g.figure.text(0.05, 0.5, plotting_specs['y_title'], rotation=90)
+
+    # Remove titles
+    g.set_titles(
+        template=''
     )
 
-    # Single plot
-    df_plot = df_plot[df_plot[scenario_col] == single_scenario]
-    g_single = sns.FacetGrid(
-        df_plot,
-        row='obj',
-        sharey='row',
-        height=1.3,
-        aspect=4.0,
-        gridspec_kws={
-            'wspace': 0.1,
-            'hspace': 0.25
-        }
+    # Add legend for relative policies
+    custom_lines = [
+        (
+            Line2D([0], [0], color='k'),
+            Line2D([0], [0], color='k', linestyle='', marker=i)
+        )
+        for i in plotting_specs['custom_scenario_markers']
+    ]
+    custom_lines.insert(
+        0,
+        Line2D([0], [0], color='k', linestyle=(0, (1, 1)), linewidth=2.5),
     )
-    g_single.map(
-        sns.barplot,
-        policy_col,
-        'obj_value',
-        policy_col,
-        palette=custom_pallete,
-        dodge=False
-    )
-    g_single.set_titles(
-        template=""
-    )
-    g_single.set_xlabels('')
-    y_labels = df_plot['obj'].unique().tolist()
-    x_labels = df_plot[scenario_col].unique().tolist()
-    for i, ax in enumerate(g_single.axes[:, 0]):
-        ax.set_ylabel(y_labels[i])
-        ax2 = ax.twinx()
-        ax2.set_yticks([1, 0], ['Worse', 'Better'])
-    for ax in g_single.axes.flat:
-        yabs_max = abs(max(ax.get_ylim(), key=abs))
-        ax.set_ylim(ymin=-yabs_max, ymax=yabs_max)
-    g_single.figure.subplots_adjust(
-        left=0.20, bottom=0.1, right=0.85, top=0.90
+    g.axes[-1, -1].legend(
+        custom_lines,
+        scenario_clean,
+        bbox_to_anchor=(1.45, 5.0),
+        title=plotting_specs['legend_title'],
+        handler_map={tuple: HandlerTuple(ndivide=None, pad=-0.2)},
     )
 
-    return g_compare, g_single
+    # Sizing
+    g.figure.subplots_adjust(
+        left=0.18, bottom=0.20, right=0.75, top=0.90
+    )
+
+    return g
 
 
-def global_relative_performance(
+def global_status_quo_relative_performance(
     df: pd.DataFrame,
     objective_cols: list,
     decision_cols: list,
@@ -483,8 +511,7 @@ def global_relative_performance(
     status_quo_policy_clean: str,
     scenario_clean: list,
     objective_clean: list,
-    custom_pallete: list,
-    status_quo_color: tuple,
+    plotting_specs: dict
 ):
     """
     Comparison plot with global and relative performance
@@ -515,8 +542,8 @@ def global_relative_performance(
         Cleaned up scenario names
     objective_clean : list
         Cleaned up objective names
-    custom_pallete : list
-        Custom color pallete for bars
+    plotting_specs : dict
+        Various plotting specifications
 
     Returns
     -------
@@ -586,7 +613,7 @@ def global_relative_performance(
         scenario_col,
         'obj_value',
         color='w',
-        edgecolor=status_quo_color,
+        edgecolor=plotting_specs['status_quo_color'],
         alpha=None,
         linewidth=2.5
     )
@@ -618,7 +645,8 @@ def global_relative_performance(
             ax.scatter(
                 x,
                 df_temp['obj_value'],
-                color=custom_pallete[j],
+                color=plotting_specs['custom_pallete'][j],
+                marker='o',
             )
 
             # Plot stems
@@ -626,7 +654,7 @@ def global_relative_performance(
                 x,
                 ymin=df_status_quo['obj_value'],
                 ymax=df_temp['obj_value'],
-                colors=custom_pallete[j],
+                colors=plotting_specs['custom_pallete'][j],
             )
 
     # Y labels
@@ -639,7 +667,8 @@ def global_relative_performance(
         ax2 = ax.twinx()
         ax2.set_yticks([1, 0], ['Worse', 'Better'])
     # X labels
-    g.set_xlabels('Scenario')
+    g.set_xlabels(plotting_specs['x_title'])
+    g.figure.text(0.05, 0.5, plotting_specs['y_title'], rotation=90)
 
     # Remove titles
     g.set_titles(
@@ -652,27 +681,28 @@ def global_relative_performance(
             Line2D([0], [0], color=i),
             Line2D([0], [0], color=i, linestyle='', marker='o')
         )
-        for i in custom_pallete
+        for i in plotting_specs['custom_pallete']
     ]
+    custom_lines.insert(
+        0,
+        Line2D(
+            [0],
+            [0],
+            color=plotting_specs['status_quo_color'],
+            linewidth=2.5
+        ),
+    )
     g.axes[-1, -1].legend(
         custom_lines,
-        policies_not_status_quo,
-        bbox_to_anchor=(1.6, 5.2),
-        title='Change In\nPolicy Performance',
+        policy_clean,
+        bbox_to_anchor=(1.7, 5.2),
+        title=plotting_specs['legend_title'],
         handler_map={tuple: HandlerTuple(ndivide=None, pad=-0.2)}
-    )
-
-    # Add legend for status quo
-    g.axes[-2, -1].legend(
-        [Line2D([0], [0], color=status_quo_color, linewidth=2.5)],
-        [status_quo_policy_clean],
-        bbox_to_anchor=(1.6, 5.2),
-        title='Policy Performance'
     )
 
     # Sizing
     g.figure.subplots_adjust(
-        left=0.15, bottom=0.1, right=0.65, top=0.90
+        left=0.20, bottom=0.1, right=0.67, top=0.90
     )
 
     return g
