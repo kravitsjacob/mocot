@@ -61,6 +61,7 @@ def scenario_temperatures(multi_air_water):
     for ax in g.axes.flat:
         ax.tick_params(axis='x', rotation=90)
         ax.set_xlabel('')
+    g.set_ylabels('Temperature ($^o C$)')
     g.figure.subplots_adjust(bottom=0.3)
 
     return g
@@ -119,6 +120,7 @@ def scenario_node_load(multi_node_load):
     for ax in g.axes.flat:
         ax.tick_params(axis='x', rotation=90)
         ax.set_xlabel('')
+    g.set_ylabels('Load (MW)')
     g.figure.subplots_adjust(bottom=0.3)
 
     return g
