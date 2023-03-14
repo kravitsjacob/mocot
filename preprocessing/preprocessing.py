@@ -244,8 +244,8 @@ def main():
         # Import data
         multi_air_water = {}
         labels = [
-            'average week\nnuclear outage\nline outage',
-            'extreme load/climate\navoid temperature violation'
+            'Average Week\nNuclear Outage\nCritical Line Outage',
+            'Extreme Load/Climate\nAvoid Temperature Violation'
         ]
         df_scenario_specs = pd.read_csv(paths['inputs']['scenario_specs'])
         for (i, row) in df_scenario_specs.head(2).transpose().items():
@@ -258,8 +258,8 @@ def main():
             # Rename
             df_air_water = df_air_water.rename(
                 columns={
-                    'air_temperature': 'air temperature',
-                    'water_temperature': 'water temperature'
+                    'air_temperature': 'Air Temperature',
+                    'water_temperature': 'Water Temperature'
                 }
             )
 
@@ -275,8 +275,8 @@ def main():
         # Import data
         multi_node_load = {}
         labels = [
-            'average week\nnuclear outage\nline outage',
-            'extreme load/climate\navoid temperature violation'
+            'Average Week\nNuclear Outage\nCritical Line Outage',
+            'Extreme Load/Climate\nAvoid Temperature Violation'
         ]
         df_scenario_specs = pd.read_csv(paths['inputs']['scenario_specs'])
         for (i, row) in df_scenario_specs.head(2).transpose().items():
@@ -289,8 +289,8 @@ def main():
             # Rename
             df_air_water = df_air_water.rename(
                 columns={
-                    'air_temperature': 'air temperature',
-                    'water_temperature': 'water temperature'
+                    'air_temperature': 'Air Temperature',
+                    'water_temperature': 'Water Temperature'
                 }
             )
 
