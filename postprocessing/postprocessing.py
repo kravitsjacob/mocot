@@ -72,7 +72,7 @@ def main():
                     'High Water Withdrawal Penalty',
                     'High Water Consumption Penalty',
                     'High Emissions Penalty',
-                    'Water-Emissions Policy',
+                    'Water-Emissions',
                 ],
                 'legend_title': 'Policy',
             },
@@ -131,7 +131,7 @@ def main():
                     'High Water Withdrawal Penalty',
                     'High Water Consumption Penalty',
                     'High Emissions Penalty',
-                    'Water-Emissions Policy',
+                    'Water-Emissions',
                 ],
                 'legend_title': 'Policy',
             }
@@ -176,7 +176,7 @@ def main():
                 'High\nWater\nWithdrawal\nPenalty\n',
                 'High\nWater\nConsumption\nPenalty\n',
                 'High\nEmissions\nPenalty\n',
-                'Water-Emissions\nPolicy\n',
+                'Water-Emissions',
             ],
             scenario_clean=[
                 'Average\nWeek',
@@ -248,7 +248,7 @@ def main():
                 'High\nWater\nWithdrawal\nPenalty\n',
                 'High\nWater\nConsumption\nPenalty\n',
                 'High\nEmissions\nPenalty\n',
-                'Water-Emissions\nPolicy\n',
+                'Water-Emissions',
             ],
             average_scenario_clean='Average\nweek',
             scenario_clean=[
@@ -329,7 +329,7 @@ def main():
                 'High\nWater\nWithdrawal\nPenalty\n',
                 'High\nWater\nConsumption\nPenalty\n',
                 'High\nEmissions\nPenalty\n',
-                'Water-Emissions\nPolicy\n',
+                'Water-Emissions',
             ],
             status_quo_policy_clean='Status\nQuo',
             scenario_clean=[
