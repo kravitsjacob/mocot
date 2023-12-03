@@ -41,8 +41,8 @@ def main():
             scenario_col='scenario',
             objective_cols_clean=[
                 '\nCost\n[\$]',
-                '\nWithdrawal\n[Gallon]',
-                '\nConsumption\n[Gallon]',
+                '\nWater\nWithdrawal\n[Gallon]',
+                '\nWater\nConsumption\n[Gallon]',
                 '\nEmissions\n[lbs]',
             ],
             scenario_name='average week',
@@ -187,8 +187,8 @@ def main():
             ],
             objective_clean=[
                 'Cost\n[\$]',
-                'Withdrawal\n[Gallon]',
-                'Consumption\n[Gallon]',
+                'Water\nWithdrawal\n[Gallon]',
+                'Water\nConsumption\n[Gallon]',
                 'Discharge\nViolations\n[Gallon $^\circ$C]',
                 'Emissions\n[lbs]',
                 'Energy\nNot\nSupplied\n[MWh]',
@@ -260,8 +260,8 @@ def main():
             ],
             objective_clean=[
                 'Cost\n[\$]',
-                'Withdrawal\n[Gallon]',
-                'Consumption\n[Gallon]',
+                'Water\nWithdrawal\n[Gallon]',
+                'Water\nConsumption\n[Gallon]',
                 'Discharge\nViolations\n[Gallon $^\circ$C]',
                 'Emissions\n[lbs]',
                 'Energy\nNot\nSupplied\n[MWh]',
@@ -341,8 +341,8 @@ def main():
             ],
             objective_clean=[
                 'Cost\n[\$]',
-                'Withdrawal\n[Gallon]',
-                'Consumption\n[Gallon]',
+                'Water\nWithdrawal\n[Gallon]',
+                'Water\nConsumption\n[Gallon]',
                 'Discharge\nViolations\n[Gallon $^\circ$C]',
                 'Emissions\n[lbs]',
                 'Energy\nNot\nSupplied\n[MWh]',
